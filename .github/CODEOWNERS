@@ -1,0 +1,13 @@
+# CODEOWNERS for shadmin monorepo
+# These owners will be requested for review when someone opens a pull request.
+
+# Default owner for everything in the repo
+* @nathanclevenger
+
+# Package-specific ownership
+/packages/shadmin/ @nathanclevenger
+/packages/shadmin-mondo/ @nathanclevenger
+/packages/create-shadmin/ @nathanclevenger
+
+# CI/CD workflows
+/.github/ @nathanclevenger

@@ -1,0 +1,54 @@
+{
+  "name": "create-shadmin",
+  "version": "0.0.1",
+  "description": "CLI scaffolding tool for creating shadmin projects",
+  "type": "module",
+  "bin": {
+    "create-shadmin": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "vite build && chmod +x dist/index.js",
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "prompts": "^2.4.2",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vite-plugin-dts": "^4.3.0"
+  },
+  "keywords": [
+    "cli",
+    "scaffolding",
+    "shadmin",
+    "admin",
+    "react"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nathanclevenger/shadmin.git",
+    "directory": "packages/create-shadmin"
+  }
+}
