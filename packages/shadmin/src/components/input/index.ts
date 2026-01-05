@@ -15,6 +15,9 @@ export { PasswordInput, type PasswordInputProps } from './PasswordInput'
 // DateInput - Date selection using native date input
 export { DateInput, type DateInputProps } from './DateInput'
 
+// DateTimeInput - DateTime selection using native datetime-local input
+export { DateTimeInput, type DateTimeInputProps } from './DateTimeInput'
+
 // SelectInput - Dropdown selection with choices
 export { SelectInput, type SelectInputProps, type SelectChoice } from './SelectInput'
 

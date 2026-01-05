@@ -74,3 +74,12 @@ export {
   type NotifyFunction,
   type NotificationContextProviderProps,
 } from './NotificationContext'
+
+export {
+  ThemeContext,
+  ThemeProvider,
+  useTheme,
+  type ThemeContextValue,
+  type Theme,
+  type ThemeProviderProps,
+} from './ThemeContext'

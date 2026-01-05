@@ -1,0 +1,192 @@
+/**
+ * Sidebar Component
+ * A flexible sidebar navigation component for admin layouts
+ *
+ * Features:
+ * - Collapsible sidebar
+ * - Mobile responsive (drawer mode)
+ * - Custom header/footer support
+ * - Integration with SidebarProvider from Layout
+ */
+
+import * as React from 'react'
+import { type ReactNode, type ComponentType } from 'react'
+import { cn } from '../../lib/utils'
+import { useSidebar } from './Layout'
+
+/**
+ * Menu item type for sidebar navigation
+ */
+export interface SidebarMenuItem {
+  name: string
+  label: string
+  path?: string
+  icon?: ComponentType<{ className?: string }>
+}
+
+/**
+ * Sidebar component props
+ */
+export interface SidebarProps {
+  /**
+   * Sidebar content (menu, links, etc.)
+   */
+  children?: ReactNode
+  /**
+   * Application title displayed in sidebar header
+   */
+  title?: string
+  /**
+   * Logo element to display in header
+   */
+  logo?: ReactNode
+  /**
+   * Custom header content
+   */
+  header?: ReactNode
+  /**
+   * Custom footer content
+   */
+  footer?: ReactNode
+  /**
+   * Additional CSS class
+   */
+  className?: string
+  /**
+   * Width when expanded (default: w-72)
+   */
+  width?: string
+  /**
+   * Width when collapsed (default: w-16)
+   */
+  collapsedWidth?: string
+}
+
+/**
+ * Sidebar - Navigation sidebar component
+ *
+ * @example
+ * ```tsx
+ * <Sidebar title="Admin Panel">
+ *   <Menu>
+ *     <MenuItem to="/dashboard" label="Dashboard" icon={HomeIcon} />
+ *     <MenuItem to="/users" label="Users" icon={UsersIcon} />
+ *   </Menu>
+ * </Sidebar>
+ *
+ * // With custom header
+ * <Sidebar
+ *   header={<Logo />}
+ *   footer={<UserProfile />}
+ * >
+ *   <Navigation />
+ * </Sidebar>
+ * ```
+ */
+export function Sidebar({
+  children,
+  title,
+  logo,
+  header,
+  footer,
+  className,
+  width = 'w-72',
+  collapsedWidth = 'w-16',
+}: SidebarProps) {
+  // Try to get sidebar context
+  let sidebarContext: ReturnType<typeof useSidebar> | null = null
+  try {
+    sidebarContext = useSidebar()
+  } catch {
+    // Not within a SidebarProvider, default to expanded
+  }
+
+  const { open = true, isMobile = false, openMobile = false, setOpenMobile } = sidebarContext || {}
+
+  const sidebarContent = (
+    <div className="flex h-full flex-col">
+      {/* Header */}
+      {(header || title || logo) && (
+        <div className="flex h-14 items-center border-b px-4">
+          {header || (
+            <>
+              {logo}
+              {title && (
+                <span className={cn(
+                  'font-semibold transition-opacity',
+                  !open && !isMobile && 'opacity-0 w-0 overflow-hidden'
+                )}>
+                  {title}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto py-2">
+        {children}
+      </div>
+
+      {/* Footer */}
+      {footer && (
+        <div className="border-t p-4">
+          {footer}
+        </div>
+      )}
+    </div>
+  )
+
+  // Mobile sidebar (drawer)
+  if (isMobile) {
+    return (
+      <>
+        {/* Overlay */}
+        {openMobile && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50"
+            onClick={() => setOpenMobile?.(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile Sidebar */}
+        <aside
+          role="complementary"
+          data-sidebar="sidebar"
+          data-mobile="true"
+          data-mobile-open={openMobile ? 'true' : 'false'}
+          className={cn(
+            'fixed inset-y-0 left-0 z-50 bg-background border-r',
+            width,
+            'transform transition-transform duration-300 ease-in-out',
+            openMobile ? 'translate-x-0' : '-translate-x-full',
+            className
+          )}
+        >
+          {sidebarContent}
+        </aside>
+      </>
+    )
+  }
+
+  // Desktop sidebar
+  return (
+    <aside
+      role="complementary"
+      data-sidebar="sidebar"
+      data-state={open ? 'expanded' : 'collapsed'}
+      className={cn(
+        'hidden md:flex flex-col border-r bg-background',
+        'transition-all duration-300 ease-in-out',
+        open ? width : collapsedWidth,
+        className
+      )}
+    >
+      {sidebarContent}
+    </aside>
+  )
+}
+
+Sidebar.displayName = 'Sidebar'
