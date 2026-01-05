@@ -255,4 +255,265 @@ describe('<TimeInput />', () => {
     const input = document.querySelector('input[name="hiddenLabelTime"]')
     expect(input).toBeInTheDocument()
   })
+
+  describe('min/max validation', () => {
+    it('passes min attribute to native input', () => {
+      render(
+        <TestForm>
+          <TimeInput source="time" min="09:00" />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('time')
+      expect(input).toHaveAttribute('min', '09:00')
+    })
+
+    it('passes max attribute to native input', () => {
+      render(
+        <TestForm>
+          <TimeInput source="time" max="17:00" />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('time')
+      expect(input).toHaveAttribute('max', '17:00')
+    })
+
+    it('passes both min and max attributes to native input', () => {
+      render(
+        <TestForm>
+          <TimeInput source="time" min="09:00" max="17:00" />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('time')
+      expect(input).toHaveAttribute('min', '09:00')
+      expect(input).toHaveAttribute('max', '17:00')
+    })
+
+    it('shows validation error when time is before min', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMinValidation() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <TimeInput source="time" label="Time" min="09:00" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMinValidation />)
+
+      const input = screen.getByLabelText('Time')
+      await user.type(input, '07:30')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Time must be on or after 09:00')).toBeInTheDocument()
+      })
+    })
+
+    it('shows validation error when time is after max', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMaxValidation() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <TimeInput source="time" label="Time" max="17:00" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMaxValidation />)
+
+      const input = screen.getByLabelText('Time')
+      await user.type(input, '20:30')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Time must be on or before 17:00')).toBeInTheDocument()
+      })
+    })
+
+    it('shows validation error when time is outside min and max range', async () => {
+      const user = userEvent.setup()
+
+      function FormWithRangeValidation() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <TimeInput source="time" label="Time" min="09:00" max="17:00" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithRangeValidation />)
+
+      const input = screen.getByLabelText('Time')
+      await user.type(input, '07:00')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Time must be on or after 09:00')).toBeInTheDocument()
+      })
+    })
+
+    it('does not show validation error when time is within range', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+
+      function FormWithRangeValidation() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+              <TimeInput source="time" label="Time" min="09:00" max="17:00" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithRangeValidation />)
+
+      const input = screen.getByLabelText('Time')
+      await user.type(input, '12:30')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({ time: '12:30' }),
+          expect.anything()
+        )
+      })
+      expect(screen.queryByText(/Time must be/)).not.toBeInTheDocument()
+    })
+
+    it('allows custom minMessage for min validation', async () => {
+      const user = userEvent.setup()
+
+      function FormWithCustomMinMessage() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <TimeInput
+                source="time"
+                label="Time"
+                min="09:00"
+                minMessage="The time is too early"
+              />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithCustomMinMessage />)
+
+      const input = screen.getByLabelText('Time')
+      await user.type(input, '07:00')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('The time is too early')).toBeInTheDocument()
+      })
+    })
+
+    it('allows custom maxMessage for max validation', async () => {
+      const user = userEvent.setup()
+
+      function FormWithCustomMaxMessage() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <TimeInput
+                source="time"
+                label="Time"
+                max="17:00"
+                maxMessage="The time is too late"
+              />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithCustomMaxMessage />)
+
+      const input = screen.getByLabelText('Time')
+      await user.type(input, '20:00')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('The time is too late')).toBeInTheDocument()
+      })
+    })
+
+    it('does not validate empty value against min/max', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+
+      function FormWithRangeValidation() {
+        const form = useForm({
+          defaultValues: { time: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+              <TimeInput source="time" label="Time" min="09:00" max="17:00" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithRangeValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalled()
+      })
+      expect(screen.queryByText(/Time must be/)).not.toBeInTheDocument()
+    })
+  })
 })

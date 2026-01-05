@@ -10,8 +10,33 @@ import {
   isValidElement,
   type ReactElement,
 } from 'react'
+import { useFormContext } from 'react-hook-form'
 import { cn } from '../../utils'
 import { useArrayInputContext } from './ArrayInput'
+
+/**
+ * Helper to check if an item has errors
+ */
+function useItemHasError(source: string, index: number): boolean {
+  const { formState } = useFormContext()
+  const itemPath = `${source}.${index}`
+
+  // Check for any errors that start with the item path
+  const hasError = Object.keys(formState.errors).some(
+    (key) => key.startsWith(itemPath)
+  )
+
+  // Also check nested errors structure
+  const sourceErrors = formState.errors[source] as Record<string, unknown> | undefined
+  if (sourceErrors && typeof sourceErrors === 'object') {
+    const itemErrors = sourceErrors[index]
+    if (itemErrors && typeof itemErrors === 'object' && Object.keys(itemErrors).length > 0) {
+      return true
+    }
+  }
+
+  return hasError
+}
 
 /**
  * Props for SimpleFormIterator component
@@ -45,6 +70,107 @@ export interface SimpleFormIteratorProps {
    * Additional CSS classes
    */
   className?: string
+}
+
+/**
+ * Props for SimpleFormIteratorItem component
+ */
+interface SimpleFormIteratorItemProps {
+  fieldId: string
+  index: number
+  source: string
+  inline: boolean
+  disabled?: boolean
+  disableRemove: boolean
+  canRemove: boolean
+  getItemLabel?: (index: number) => string
+  onRemove: (index: number) => void
+  children?: ReactNode
+}
+
+/**
+ * Individual item component that checks for errors
+ */
+function SimpleFormIteratorItem({
+  fieldId,
+  index,
+  source,
+  inline,
+  disabled,
+  disableRemove,
+  canRemove,
+  getItemLabel,
+  onRemove,
+  children,
+}: SimpleFormIteratorItemProps) {
+  const hasError = useItemHasError(source, index)
+
+  return (
+    <div
+      key={fieldId}
+      data-array-item
+      data-has-error={hasError ? 'true' : undefined}
+      className={cn(
+        'relative',
+        inline ? 'flex flex-row items-start gap-2' : 'flex items-start gap-2'
+      )}
+    >
+      {getItemLabel && (
+        <span className="text-sm font-medium text-muted-foreground py-2">
+          {getItemLabel(index)}
+        </span>
+      )}
+      <div className={cn('flex-1', inline ? 'flex flex-row gap-2' : 'space-y-2')}>
+        {Children.map(children, (child) => {
+          if (!isValidElement(child)) return child
+
+          // Clone the child with the correct source path
+          const childElement = child as ReactElement<{
+            source: string
+            disabled?: boolean
+          }>
+
+          const childSource = childElement.props.source
+          const fieldSource = `${source}.${index}.${childSource}`
+
+          return cloneElement(childElement, {
+            source: fieldSource,
+            disabled: disabled || childElement.props.disabled,
+          })
+        })}
+      </div>
+      {!disableRemove && (
+        <button
+          type="button"
+          aria-label="Remove"
+          onClick={() => onRemove(index)}
+          disabled={disabled || !canRemove}
+          className={cn(
+            'inline-flex items-center justify-center rounded-md text-sm font-medium',
+            'h-10 w-10 p-0',
+            'hover:bg-accent hover:text-accent-foreground',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            'text-destructive'
+          )}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      )}
+    </div>
+  )
 }
 
 /**
@@ -95,69 +221,20 @@ export function SimpleFormIterator({
     <div className={cn('space-y-2', className)}>
       <div className={cn(inline ? 'flex flex-row flex-wrap gap-2' : 'space-y-2')}>
         {fields.map((field, index) => (
-          <div
+          <SimpleFormIteratorItem
             key={field.id}
-            data-array-item
-            className={cn(
-              'relative',
-              inline ? 'flex flex-row items-start gap-2' : 'flex items-start gap-2'
-            )}
+            fieldId={field.id}
+            index={index}
+            source={source}
+            inline={inline}
+            disabled={disabled}
+            disableRemove={disableRemove}
+            canRemove={canRemove}
+            getItemLabel={getItemLabel}
+            onRemove={handleRemove}
           >
-            {getItemLabel && (
-              <span className="text-sm font-medium text-muted-foreground py-2">
-                {getItemLabel(index)}
-              </span>
-            )}
-            <div className={cn('flex-1', inline ? 'flex flex-row gap-2' : 'space-y-2')}>
-              {Children.map(children, (child) => {
-                if (!isValidElement(child)) return child
-
-                // Clone the child with the correct source path
-                const childElement = child as ReactElement<{
-                  source: string
-                  disabled?: boolean
-                }>
-
-                const childSource = childElement.props.source
-                const fieldSource = `${source}.${index}.${childSource}`
-
-                return cloneElement(childElement, {
-                  source: fieldSource,
-                  disabled: disabled || childElement.props.disabled,
-                })
-              })}
-            </div>
-            {!disableRemove && (
-              <button
-                type="button"
-                aria-label="Remove"
-                onClick={() => handleRemove(index)}
-                disabled={disabled || !canRemove}
-                className={cn(
-                  'inline-flex items-center justify-center rounded-md text-sm font-medium',
-                  'h-10 w-10 p-0',
-                  'hover:bg-accent hover:text-accent-foreground',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                  'disabled:cursor-not-allowed disabled:opacity-50',
-                  'text-destructive'
-                )}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            )}
-          </div>
+            {children}
+          </SimpleFormIteratorItem>
         ))}
       </div>
       {!disableAdd && (

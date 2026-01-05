@@ -3,7 +3,7 @@
  * A form input component for date selection that integrates with react-hook-form
  */
 
-import { forwardRef, useId, type InputHTMLAttributes } from 'react'
+import { forwardRef, useId, useMemo, type InputHTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
@@ -39,6 +39,16 @@ export interface DateInputProps<T extends FieldValues = FieldValues>
    * Whether the input should take full width of its container.
    */
   fullWidth?: boolean
+  /**
+   * Custom error message when date is before the min date.
+   * Defaults to "Date must be on or after {min}"
+   */
+  minMessage?: string
+  /**
+   * Custom error message when date is after the max date.
+   * Defaults to "Date must be on or before {max}"
+   */
+  maxMessage?: string
 }
 
 /**
@@ -109,6 +119,8 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
       readOnly,
       min,
       max,
+      minMessage,
+      maxMessage,
       autoFocus,
       ...rest
     },
@@ -120,16 +132,61 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
     const errorId = `${inputId}-error`
     const helperId = `${inputId}-helper`
 
+    // Convert min/max to strings for comparison (they can be string | number from InputHTMLAttributes)
+    const minStr = min !== undefined ? String(min) : undefined
+    const maxStr = max !== undefined ? String(max) : undefined
+
+    // Build validation rules including min/max checks
+    const validationRules = useMemo((): RegisterOptions => {
+      const existingValidate = rules?.validate
+
+      const minMaxValidate = (value: string) => {
+        if (!value) return true // Don't validate empty values (use required for that)
+
+        if (minStr && value < minStr) {
+          return minMessage || `Date must be on or after ${minStr}`
+        }
+
+        if (maxStr && value > maxStr) {
+          return maxMessage || `Date must be on or before ${maxStr}`
+        }
+
+        return true
+      }
+
+      // Merge with existing validate rules
+      let mergedValidate: RegisterOptions['validate']
+
+      if (existingValidate) {
+        if (typeof existingValidate === 'function') {
+          mergedValidate = {
+            minMax: minMaxValidate,
+            custom: existingValidate,
+          }
+        } else {
+          mergedValidate = {
+            minMax: minMaxValidate,
+            ...existingValidate,
+          }
+        }
+      } else if (minStr || maxStr) {
+        mergedValidate = minMaxValidate
+      }
+
+      return {
+        ...rules,
+        required: required ? (rules?.required || true) : rules?.required,
+        validate: mergedValidate,
+      }
+    }, [rules, required, minStr, maxStr, minMessage, maxMessage])
+
     const {
       field,
       fieldState: { error },
     } = useController({
       name: source,
       control,
-      rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-      },
+      rules: validationRules,
     })
 
     const showLabel = label !== false

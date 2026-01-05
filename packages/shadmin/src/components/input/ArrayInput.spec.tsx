@@ -387,5 +387,386 @@ describe('<ArrayInput />', () => {
         expect(screen.getByText('At least one tag is required')).toBeInTheDocument()
       })
     })
+
+    it('validates nested fields individually', async () => {
+      const user = userEvent.setup()
+
+      function FormWithNestedValidation() {
+        const form = useForm({
+          defaultValues: { items: [{ name: '' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="items">
+                <SimpleFormIterator>
+                  <TextInput source="name" rules={{ required: 'Name is required' }} />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithNestedValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Name is required')).toBeInTheDocument()
+      })
+    })
+
+    it('shows errors for individual array items', async () => {
+      const user = userEvent.setup()
+
+      function FormWithItemValidation() {
+        const form = useForm({
+          defaultValues: {
+            contacts: [
+              { email: '' },
+              { email: 'valid@email.com' }
+            ]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="contacts">
+                <SimpleFormIterator>
+                  <TextInput
+                    source="email"
+                    rules={{
+                      required: 'Email is required',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Invalid email format',
+                      }
+                    }}
+                  />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithItemValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        // First item should show error, second should not
+        expect(screen.getByText('Email is required')).toBeInTheDocument()
+      })
+    })
+
+    it('shows array-level errors for minItems constraint', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMinItemsValidation() {
+        const form = useForm({
+          defaultValues: { tags: [{ name: 'One' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput
+                source="tags"
+                minItems={2}
+                minItemsMessage="At least 2 items required"
+              >
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMinItemsValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('At least 2 items required')).toBeInTheDocument()
+      })
+    })
+
+    it('shows array-level errors for maxItems constraint', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMaxItemsValidation() {
+        const form = useForm({
+          defaultValues: { tags: [{ name: 'One' }, { name: 'Two' }, { name: 'Three' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput
+                source="tags"
+                maxItems={2}
+                maxItemsMessage="Maximum 2 items allowed"
+              >
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMaxItemsValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Maximum 2 items allowed')).toBeInTheDocument()
+      })
+    })
+
+    it('uses default minItems error message when not provided', async () => {
+      const user = userEvent.setup()
+
+      function FormWithDefaultMinItemsMessage() {
+        const form = useForm({
+          defaultValues: { tags: [{ name: 'One' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="tags" minItems={2}>
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithDefaultMinItemsMessage />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Minimum 2 items required')).toBeInTheDocument()
+      })
+    })
+
+    it('uses default maxItems error message when not provided', async () => {
+      const user = userEvent.setup()
+
+      function FormWithDefaultMaxItemsMessage() {
+        const form = useForm({
+          defaultValues: { tags: [{ name: 'One' }, { name: 'Two' }, { name: 'Three' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="tags" maxItems={2}>
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithDefaultMaxItemsMessage />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Maximum 2 items allowed')).toBeInTheDocument()
+      })
+    })
+
+    it('clears validation errors when constraints are satisfied', async () => {
+      const user = userEvent.setup()
+
+      function FormWithDynamicValidation() {
+        const form = useForm({
+          defaultValues: { tags: [{ name: 'One' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="tags" minItems={2}>
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithDynamicValidation />)
+
+      // First submit should show error
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Minimum 2 items required')).toBeInTheDocument()
+      })
+
+      // Add another item
+      await user.click(screen.getByRole('button', { name: /add/i }))
+
+      // Wait for new item to appear
+      await waitFor(() => {
+        expect(screen.getAllByRole('textbox')).toHaveLength(2)
+      })
+
+      // Type in the new item
+      const inputs = screen.getAllByRole('textbox')
+      await user.type(inputs[1], 'Two')
+
+      // Submit again - error should be cleared
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.queryByText('Minimum 2 items required')).not.toBeInTheDocument()
+      })
+    })
+
+    it('integrates with form-level validation', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+
+      function FormWithFormLevelValidation() {
+        const form = useForm({
+          defaultValues: {
+            name: '',
+            tags: [{ name: 'Tag1' }]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form} save={onSubmit}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+              <TextInput source="name" rules={{ required: 'Name is required' }} />
+              <ArrayInput source="tags" minItems={2} minItemsMessage="At least 2 tags required">
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithFormLevelValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      // Both errors should be shown
+      await waitFor(() => {
+        expect(screen.getByText('Name is required')).toBeInTheDocument()
+        expect(screen.getByText('At least 2 tags required')).toBeInTheDocument()
+      })
+
+      // onSubmit should not have been called
+      expect(onSubmit).not.toHaveBeenCalled()
+    })
+
+    it('sets aria-invalid on array container when validation fails', async () => {
+      const user = userEvent.setup()
+
+      function FormWithAriaValidation() {
+        const form = useForm({
+          defaultValues: { tags: [{ name: 'One' }] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="tags" minItems={2}>
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithAriaValidation />)
+
+      const arrayContainer = screen.getByRole('group')
+      expect(arrayContainer).not.toHaveAttribute('aria-invalid')
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(arrayContainer).toHaveAttribute('aria-invalid', 'true')
+      })
+    })
+
+    it('combines minItems/maxItems validation with custom rules', async () => {
+      const user = userEvent.setup()
+
+      function FormWithCombinedValidation() {
+        const form = useForm({
+          defaultValues: { tags: [] },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput
+                source="tags"
+                minItems={1}
+                rules={{ validate: (v) => (v.length > 0 ? true : 'Custom: At least one tag required') }}
+              >
+                <SimpleFormIterator>
+                  <TextInput source="name" />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithCombinedValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      // Custom rule message should appear (custom rules take precedence)
+      await waitFor(() => {
+        expect(screen.getByText(/at least one tag/i)).toBeInTheDocument()
+      })
+    })
   })
 })

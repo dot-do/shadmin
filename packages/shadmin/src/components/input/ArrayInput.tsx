@@ -94,6 +94,16 @@ export interface ArrayInputProps<T extends FieldValues = FieldValues>
    */
   maxItems?: number
   /**
+   * Custom error message for minItems validation.
+   * Defaults to "Minimum {minItems} items required"
+   */
+  minItemsMessage?: string
+  /**
+   * Custom error message for maxItems validation.
+   * Defaults to "Maximum {maxItems} items allowed"
+   */
+  maxItemsMessage?: string
+  /**
    * Whether the input should take full width of its container.
    */
   fullWidth?: boolean
@@ -163,6 +173,8 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
       defaultValue,
       minItems,
       maxItems,
+      minItemsMessage,
+      maxItemsMessage,
       fullWidth,
       disabled,
       className,
@@ -177,10 +189,39 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
     const errorId = `${fieldId}-error`
     const helperId = `${fieldId}-helper`
 
+    // Build validation rules combining minItems/maxItems with custom rules
+    const combinedRules = {
+      ...rules,
+      validate: {
+        // Custom validation from rules prop
+        ...(typeof rules?.validate === 'function'
+          ? { custom: rules.validate }
+          : rules?.validate),
+        // minItems validation
+        ...(minItems !== undefined && {
+          minItems: (value: unknown[]) => {
+            if (value.length < minItems) {
+              return minItemsMessage || `Minimum ${minItems} items required`
+            }
+            return true
+          },
+        }),
+        // maxItems validation
+        ...(maxItems !== undefined && {
+          maxItems: (value: unknown[]) => {
+            if (value.length > maxItems) {
+              return maxItemsMessage || `Maximum ${maxItems} items allowed`
+            }
+            return true
+          },
+        }),
+      },
+    }
+
     const fieldArray = useFieldArray({
       control,
       name: source,
-      rules,
+      rules: combinedRules,
     })
 
     const showLabel = label !== false

@@ -409,4 +409,199 @@ describe('<SimpleFormIterator />', () => {
       })
     })
   })
+
+  describe('error display', () => {
+    it('displays error per item when validation fails', async () => {
+      const user = userEvent.setup()
+
+      function FormWithItemValidation() {
+        const form = useForm({
+          defaultValues: {
+            items: [{ name: '' }, { name: 'Valid' }]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="items">
+                <SimpleFormIterator>
+                  <TextInput source="name" rules={{ required: 'Name is required' }} />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithItemValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        // Should display error for the first item only
+        expect(screen.getByText('Name is required')).toBeInTheDocument()
+      })
+    })
+
+    it('highlights items with errors using error styling', async () => {
+      const user = userEvent.setup()
+
+      function FormWithItemError() {
+        const form = useForm({
+          defaultValues: {
+            items: [{ name: '' }]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="items">
+                <SimpleFormIterator>
+                  <TextInput source="name" rules={{ required: 'Name is required' }} />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithItemError />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        // Input should have error styling (aria-invalid)
+        const input = screen.getByRole('textbox')
+        expect(input).toHaveAttribute('aria-invalid', 'true')
+      })
+    })
+
+    it('shows errors for multiple items independently', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMultipleItemErrors() {
+        const form = useForm({
+          defaultValues: {
+            items: [{ name: '' }, { name: '' }, { name: 'Valid' }]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="items">
+                <SimpleFormIterator>
+                  <TextInput source="name" rules={{ required: 'Name is required' }} />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMultipleItemErrors />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        // Should display errors for first two items
+        const errors = screen.getAllByText('Name is required')
+        expect(errors).toHaveLength(2)
+      })
+    })
+
+    it('clears item error when field is corrected', async () => {
+      const user = userEvent.setup()
+
+      function FormWithCorrectableError() {
+        const form = useForm({
+          defaultValues: {
+            items: [{ name: '' }]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="items">
+                <SimpleFormIterator>
+                  <TextInput source="name" rules={{ required: 'Name is required' }} />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithCorrectableError />)
+
+      // First submit should show error
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Name is required')).toBeInTheDocument()
+      })
+
+      // Fix the error by typing in the field
+      const input = screen.getByRole('textbox')
+      await user.type(input, 'Fixed')
+
+      // Submit again - error should be gone
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.queryByText('Name is required')).not.toBeInTheDocument()
+      })
+    })
+
+    it('applies error highlight class to item container when item has errors', async () => {
+      const user = userEvent.setup()
+
+      function FormWithErrorHighlight() {
+        const form = useForm({
+          defaultValues: {
+            items: [{ name: '' }]
+          },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <ArrayInput source="items">
+                <SimpleFormIterator>
+                  <TextInput source="name" rules={{ required: 'Name is required' }} />
+                </SimpleFormIterator>
+              </ArrayInput>
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithErrorHighlight />)
+
+      const itemContainer = screen.getByRole('textbox').closest('[data-array-item]')
+
+      // Before validation, no error class
+      expect(itemContainer).not.toHaveAttribute('data-has-error')
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      // After validation fails, error class should be applied
+      await waitFor(() => {
+        expect(itemContainer).toHaveAttribute('data-has-error', 'true')
+      })
+    })
+  })
 })

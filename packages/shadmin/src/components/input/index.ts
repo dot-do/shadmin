@@ -47,3 +47,12 @@ export { SimpleFormIterator, type SimpleFormIteratorProps } from './SimpleFormIt
 
 // TimeInput - Time picker input
 export { TimeInput, type TimeInputProps } from './TimeInput'
+
+// FileInput - File upload with drag-and-drop support
+export { FileInput, type FileInputProps } from './FileInput'
+
+// ImageInput - Image upload with preview
+export { ImageInput, type ImageInputProps } from './ImageInput'
+
+// RichTextInput - Rich text editor with formatting toolbar
+export { RichTextInput, type RichTextInputProps } from './RichTextInput'

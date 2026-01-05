@@ -230,4 +230,265 @@ describe('<DateInput />', () => {
     const container = screen.getByLabelText('date').closest('.space-y-2')
     expect(container).toHaveClass('w-full')
   })
+
+  describe('min/max validation', () => {
+    it('passes min attribute to native input', () => {
+      render(
+        <TestForm>
+          <DateInput source="date" min="2024-01-01" />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('date')
+      expect(input).toHaveAttribute('min', '2024-01-01')
+    })
+
+    it('passes max attribute to native input', () => {
+      render(
+        <TestForm>
+          <DateInput source="date" max="2024-12-31" />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('date')
+      expect(input).toHaveAttribute('max', '2024-12-31')
+    })
+
+    it('passes both min and max attributes to native input', () => {
+      render(
+        <TestForm>
+          <DateInput source="date" min="2024-01-01" max="2024-12-31" />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('date')
+      expect(input).toHaveAttribute('min', '2024-01-01')
+      expect(input).toHaveAttribute('max', '2024-12-31')
+    })
+
+    it('shows validation error when date is before min', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMinValidation() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <DateInput source="date" label="Date" min="2024-06-01" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMinValidation />)
+
+      const input = screen.getByLabelText('Date')
+      await user.type(input, '2024-01-15')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Date must be on or after 2024-06-01')).toBeInTheDocument()
+      })
+    })
+
+    it('shows validation error when date is after max', async () => {
+      const user = userEvent.setup()
+
+      function FormWithMaxValidation() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <DateInput source="date" label="Date" max="2024-06-30" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithMaxValidation />)
+
+      const input = screen.getByLabelText('Date')
+      await user.type(input, '2024-12-15')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Date must be on or before 2024-06-30')).toBeInTheDocument()
+      })
+    })
+
+    it('shows validation error when date is outside min and max range', async () => {
+      const user = userEvent.setup()
+
+      function FormWithRangeValidation() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <DateInput source="date" label="Date" min="2024-03-01" max="2024-09-30" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithRangeValidation />)
+
+      const input = screen.getByLabelText('Date')
+      await user.type(input, '2024-01-15')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('Date must be on or after 2024-03-01')).toBeInTheDocument()
+      })
+    })
+
+    it('does not show validation error when date is within range', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+
+      function FormWithRangeValidation() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+              <DateInput source="date" label="Date" min="2024-01-01" max="2024-12-31" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithRangeValidation />)
+
+      const input = screen.getByLabelText('Date')
+      await user.type(input, '2024-06-15')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({ date: '2024-06-15' }),
+          expect.anything()
+        )
+      })
+      expect(screen.queryByText(/Date must be/)).not.toBeInTheDocument()
+    })
+
+    it('allows custom minMessage for min validation', async () => {
+      const user = userEvent.setup()
+
+      function FormWithCustomMinMessage() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <DateInput
+                source="date"
+                label="Date"
+                min="2024-06-01"
+                minMessage="The date is too early"
+              />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithCustomMinMessage />)
+
+      const input = screen.getByLabelText('Date')
+      await user.type(input, '2024-01-15')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('The date is too early')).toBeInTheDocument()
+      })
+    })
+
+    it('allows custom maxMessage for max validation', async () => {
+      const user = userEvent.setup()
+
+      function FormWithCustomMaxMessage() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(() => {})} noValidate>
+              <DateInput
+                source="date"
+                label="Date"
+                max="2024-06-30"
+                maxMessage="The date is too late"
+              />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithCustomMaxMessage />)
+
+      const input = screen.getByLabelText('Date')
+      await user.type(input, '2024-12-15')
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(screen.getByText('The date is too late')).toBeInTheDocument()
+      })
+    })
+
+    it('does not validate empty value against min/max', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+
+      function FormWithRangeValidation() {
+        const form = useForm({
+          defaultValues: { date: '' },
+          mode: 'onSubmit',
+        })
+
+        return (
+          <FormContextProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+              <DateInput source="date" label="Date" min="2024-01-01" max="2024-12-31" />
+              <button type="submit">Submit</button>
+            </form>
+          </FormContextProvider>
+        )
+      }
+
+      render(<FormWithRangeValidation />)
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalled()
+      })
+      expect(screen.queryByText(/Date must be/)).not.toBeInTheDocument()
+    })
+  })
 })
