@@ -1,0 +1,376 @@
+/**
+ * AutocompleteInput Component
+ * A form input with autocomplete/typeahead functionality that integrates with react-hook-form
+ */
+
+import {
+  forwardRef,
+  useId,
+  useState,
+  useRef,
+  useEffect,
+  type InputHTMLAttributes,
+} from 'react'
+import {
+  useController,
+  type RegisterOptions,
+  type FieldValues,
+  type Path,
+} from 'react-hook-form'
+import { useFormContext } from '../../contexts/FormContext'
+import { cn } from '../../utils'
+
+/**
+ * Choice type for autocomplete options
+ */
+export interface AutocompleteChoice {
+  [key: string]: unknown
+}
+
+/**
+ * Props for AutocompleteInput component
+ */
+export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'defaultValue'> {
+  /**
+   * The field name in the form data.
+   */
+  source: Path<T>
+  /**
+   * Array of choices to display in the autocomplete dropdown.
+   */
+  choices: AutocompleteChoice[]
+  /**
+   * Label text displayed above the input.
+   * Set to `false` to hide the label completely.
+   */
+  label?: string | false
+  /**
+   * Helper text displayed below the input.
+   */
+  helperText?: string
+  /**
+   * Validation rules passed to react-hook-form.
+   */
+  rules?: RegisterOptions<T>
+  /**
+   * The property name to use as the option value.
+   * @default 'id'
+   */
+  optionValue?: string
+  /**
+   * The property name to use as the option text, or a function to render custom text.
+   * @default 'name'
+   */
+  optionText?: string | ((choice: AutocompleteChoice) => string)
+  /**
+   * Whether the input should take full width of its container.
+   */
+  fullWidth?: boolean
+}
+
+/**
+ * Input styling based on ShadCN Input component patterns.
+ */
+const inputStyles = cn(
+  'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
+  'ring-offset-background',
+  'placeholder:text-muted-foreground',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  'disabled:cursor-not-allowed disabled:opacity-50'
+)
+
+const errorInputStyles = 'border-destructive focus-visible:ring-destructive'
+
+/**
+ * Label styling based on ShadCN Label component patterns.
+ */
+const labelStyles = cn(
+  'text-sm font-medium leading-none',
+  'peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+)
+
+/**
+ * AutocompleteInput component for form selection with typeahead.
+ * Integrates with react-hook-form through FormContext.
+ *
+ * @example
+ * ```tsx
+ * <AutocompleteInput
+ *   source="status"
+ *   label="Status"
+ *   choices={[
+ *     { id: 'active', name: 'Active' },
+ *     { id: 'inactive', name: 'Inactive' },
+ *   ]}
+ * />
+ * ```
+ */
+export const AutocompleteInput = forwardRef<
+  HTMLInputElement,
+  AutocompleteInputProps
+>(
+  (
+    {
+      source,
+      choices,
+      label,
+      helperText,
+      rules,
+      optionValue = 'id',
+      optionText = 'name',
+      fullWidth,
+      className,
+      disabled,
+      required,
+      ...rest
+    },
+    ref
+  ) => {
+    const { control } = useFormContext()
+    const generatedId = useId()
+    const inputId = generatedId
+    const errorId = `${inputId}-error`
+    const helperId = `${inputId}-helper`
+    const listboxId = `${inputId}-listbox`
+
+    const [isOpen, setIsOpen] = useState(false)
+    const [inputValue, setInputValue] = useState('')
+    const [highlightedIndex, setHighlightedIndex] = useState(-1)
+    const containerRef = useRef<HTMLDivElement>(null)
+
+    const {
+      field,
+      fieldState: { error },
+    } = useController({
+      name: source,
+      control,
+      rules: {
+        ...rules,
+        required: required ? rules?.required || true : rules?.required,
+      },
+    })
+
+    const showLabel = label !== false
+    const displayLabel = typeof label === 'string' ? label : source
+
+    /**
+     * Get the display text for a choice
+     */
+    const getOptionText = (choice: AutocompleteChoice): string => {
+      if (typeof optionText === 'function') {
+        return optionText(choice)
+      }
+      return String(choice[optionText] ?? '')
+    }
+
+    /**
+     * Get the value for a choice
+     */
+    const getOptionValue = (choice: AutocompleteChoice): string => {
+      return String(choice[optionValue] ?? '')
+    }
+
+    /**
+     * Find a choice by value
+     */
+    const findChoiceByValue = (value: unknown): AutocompleteChoice | undefined => {
+      return choices.find((c) => getOptionValue(c) === String(value))
+    }
+
+    // Sync input value with field value
+    useEffect(() => {
+      if (field.value) {
+        const choice = findChoiceByValue(field.value)
+        if (choice) {
+          setInputValue(getOptionText(choice))
+        }
+      } else {
+        setInputValue('')
+      }
+    }, [field.value, choices])
+
+    // Filter choices based on input
+    const filteredChoices = inputValue
+      ? choices.filter((choice) =>
+          getOptionText(choice)
+            .toLowerCase()
+            .includes(inputValue.toLowerCase())
+        )
+      : choices
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          containerRef.current &&
+          !containerRef.current.contains(event.target as Node)
+        ) {
+          setIsOpen(false)
+        }
+      }
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value)
+      setIsOpen(true)
+      setHighlightedIndex(-1)
+    }
+
+    const handleInputFocus = () => {
+      setIsOpen(true)
+    }
+
+    const handleSelect = (choice: AutocompleteChoice) => {
+      const value = getOptionValue(choice)
+      field.onChange(value)
+      setInputValue(getOptionText(choice))
+      setIsOpen(false)
+    }
+
+    const handleClear = () => {
+      field.onChange('')
+      setInputValue('')
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setHighlightedIndex((prev) =>
+          prev < filteredChoices.length - 1 ? prev + 1 : prev
+        )
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        if (highlightedIndex >= 0 && filteredChoices[highlightedIndex]) {
+          handleSelect(filteredChoices[highlightedIndex])
+        }
+      } else if (e.key === 'Escape') {
+        setIsOpen(false)
+      }
+    }
+
+    return (
+      <div
+        className={cn('space-y-2', fullWidth && 'w-full')}
+        ref={containerRef}
+      >
+        {showLabel && (
+          <label htmlFor={inputId} className={labelStyles}>
+            {displayLabel}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </label>
+        )}
+        <div className="relative">
+          <input
+            {...rest}
+            ref={(e) => {
+              field.ref(e)
+              if (typeof ref === 'function') {
+                ref(e)
+              } else if (ref) {
+                ref.current = e
+              }
+            }}
+            id={inputId}
+            name={source}
+            type="text"
+            role="combobox"
+            aria-expanded={isOpen}
+            aria-haspopup="listbox"
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            onKeyDown={handleKeyDown}
+            onBlur={field.onBlur}
+            className={cn(
+              inputStyles,
+              error && errorInputStyles,
+              'pr-10',
+              className
+            )}
+            disabled={disabled}
+            required={required}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={
+              error ? errorId : helperText ? helperId : undefined
+            }
+          />
+          {/* Clear button */}
+          {inputValue && !disabled && (
+            <button
+              type="button"
+              aria-label="Clear"
+              onClick={handleClear}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+
+          {/* Dropdown */}
+          {isOpen && (
+            <ul
+              id={listboxId}
+              role="listbox"
+              className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+            >
+              {filteredChoices.length === 0 ? (
+                <li className="px-2 py-1.5 text-sm text-muted-foreground">
+                  No options
+                </li>
+              ) : (
+                filteredChoices.map((choice, index) => (
+                  <li
+                    key={getOptionValue(choice)}
+                    role="option"
+                    aria-selected={highlightedIndex === index}
+                    onClick={() => handleSelect(choice)}
+                    className={cn(
+                      'cursor-pointer rounded-sm px-2 py-1.5 text-sm outline-none',
+                      'hover:bg-accent hover:text-accent-foreground',
+                      highlightedIndex === index &&
+                        'bg-accent text-accent-foreground'
+                    )}
+                  >
+                    {getOptionText(choice)}
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
+        </div>
+        {helperText && !error && (
+          <p id={helperId} className="text-sm text-muted-foreground">
+            {helperText}
+          </p>
+        )}
+        {error && (
+          <p id={errorId} className="text-sm text-destructive">
+            {error.message}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
+
+AutocompleteInput.displayName = 'AutocompleteInput'
