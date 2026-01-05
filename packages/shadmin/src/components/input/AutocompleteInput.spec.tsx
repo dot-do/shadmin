@@ -319,4 +319,288 @@ describe('<AutocompleteInput />', () => {
       expect(screen.getByText('No options')).toBeInTheDocument()
     })
   })
+
+  // Tests for onCreate callback functionality
+  describe('onCreate callback', () => {
+    it('shows create option when onCreate is provided and no match found', async () => {
+      const user = userEvent.setup()
+      const onCreate = vi.fn()
+
+      render(
+        <TestForm>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+            onCreate={onCreate}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'newstatus')
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: /create "newstatus"/i })).toBeInTheDocument()
+      })
+    })
+
+    it('calls onCreate when create option is clicked', async () => {
+      const user = userEvent.setup()
+      const onCreate = vi.fn().mockResolvedValue({ id: 'newstatus', name: 'newstatus' })
+
+      render(
+        <TestForm>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+            onCreate={onCreate}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'newstatus')
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: /create "newstatus"/i })).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole('option', { name: /create "newstatus"/i }))
+
+      await waitFor(() => {
+        expect(onCreate).toHaveBeenCalledWith('newstatus')
+      })
+    })
+
+    it('sets the new value after onCreate returns', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      const onCreate = vi.fn().mockResolvedValue({ id: 'new-id', name: 'New Status' })
+
+      render(
+        <TestForm onSubmit={onSubmit}>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+            onCreate={onCreate}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'New Status')
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: /create "New Status"/i })).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole('option', { name: /create "New Status"/i }))
+
+      await waitFor(() => {
+        expect(input).toHaveValue('New Status')
+      })
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({ status: 'new-id' }),
+          expect.anything()
+        )
+      })
+    })
+
+    it('does not show create option when there is an exact match', async () => {
+      const user = userEvent.setup()
+      const onCreate = vi.fn()
+
+      render(
+        <TestForm>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+            onCreate={onCreate}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'Active')
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Active' })).toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /create/i })).not.toBeInTheDocument()
+      })
+    })
+
+    it('shows create option only when onCreate is provided', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <TestForm>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'newstatus')
+
+      await waitFor(() => {
+        expect(screen.getByText('No options')).toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: /create/i })).not.toBeInTheDocument()
+      })
+    })
+
+    it('allows creating option via Enter key', async () => {
+      const user = userEvent.setup()
+      const onCreate = vi.fn().mockResolvedValue({ id: 'new-id', name: 'newstatus' })
+
+      render(
+        <TestForm>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+            onCreate={onCreate}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'newstatus')
+
+      // Navigate to create option with arrow down
+      await user.keyboard('{ArrowDown}')
+      await user.keyboard('{Enter}')
+
+      await waitFor(() => {
+        expect(onCreate).toHaveBeenCalledWith('newstatus')
+      })
+    })
+  })
+
+  // Tests for debounce functionality
+  describe('debounce', () => {
+    it('debounces filter input when debounce prop is provided', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <TestForm>
+          <AutocompleteInput
+            source="status"
+            label="Status"
+            choices={defaultChoices}
+            debounce={50}
+          />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+      await user.type(input, 'act')
+
+      // After debounce, should filter
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Active' })).toBeInTheDocument()
+        expect(screen.queryByRole('option', { name: 'Pending' })).not.toBeInTheDocument()
+      }, { timeout: 200 })
+    })
+  })
+
+  // Tests for keyboard navigation
+  describe('keyboard navigation', () => {
+    it('navigates options with arrow keys', async () => {
+      const user = userEvent.setup({ delay: null })
+
+      render(
+        <TestForm>
+          <AutocompleteInput source="status" label="Status" choices={defaultChoices} />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+
+      // Wait for dropdown to open
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument()
+      })
+
+      // Press ArrowDown to highlight first option
+      await user.keyboard('{ArrowDown}')
+
+      const activeOption = screen.getByRole('option', { name: 'Active' })
+      expect(activeOption).toHaveAttribute('aria-selected', 'true')
+    })
+
+    it('selects option with Enter key', async () => {
+      const user = userEvent.setup({ delay: null })
+      const onSubmit = vi.fn()
+
+      render(
+        <TestForm onSubmit={onSubmit}>
+          <AutocompleteInput source="status" label="Status" choices={defaultChoices} />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+
+      // Wait for dropdown
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument()
+      })
+
+      await user.keyboard('{ArrowDown}{Enter}')
+
+      expect(input).toHaveValue('Active')
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({ status: 'active' }),
+          expect.anything()
+        )
+      })
+    })
+
+    it('closes dropdown with Escape key', async () => {
+      const user = userEvent.setup({ delay: null })
+
+      render(
+        <TestForm>
+          <AutocompleteInput source="status" label="Status" choices={defaultChoices} />
+        </TestForm>
+      )
+
+      const input = screen.getByLabelText('Status')
+      await user.click(input)
+
+      // Wait for dropdown to open
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument()
+      })
+
+      await user.keyboard('{Escape}')
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      })
+    })
+  })
 })

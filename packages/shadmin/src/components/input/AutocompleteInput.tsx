@@ -9,6 +9,8 @@ import {
   useState,
   useRef,
   useEffect,
+  useMemo,
+  useCallback,
   type InputHTMLAttributes,
 } from 'react'
 import {
@@ -67,6 +69,16 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
    * Whether the input should take full width of its container.
    */
   fullWidth?: boolean
+  /**
+   * Callback to create a new option when the user types a value not in the choices.
+   * Should return a promise that resolves to the new choice object.
+   */
+  onCreate?: (value: string) => Promise<AutocompleteChoice>
+  /**
+   * Debounce delay in milliseconds for filtering.
+   * @default 0
+   */
+  debounce?: number
 }
 
 /**
@@ -123,6 +135,8 @@ export const AutocompleteInput = forwardRef<
       className,
       disabled,
       required,
+      onCreate,
+      debounce: debounceDelay = 0,
       ...rest
     },
     ref
@@ -136,8 +150,11 @@ export const AutocompleteInput = forwardRef<
 
     const [isOpen, setIsOpen] = useState(false)
     const [inputValue, setInputValue] = useState('')
+    const [debouncedInputValue, setDebouncedInputValue] = useState('')
     const [highlightedIndex, setHighlightedIndex] = useState(-1)
+    const [isCreating, setIsCreating] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const {
       field,
@@ -157,26 +174,26 @@ export const AutocompleteInput = forwardRef<
     /**
      * Get the display text for a choice
      */
-    const getOptionText = (choice: AutocompleteChoice): string => {
+    const getOptionText = useCallback((choice: AutocompleteChoice): string => {
       if (typeof optionText === 'function') {
         return optionText(choice)
       }
       return String(choice[optionText] ?? '')
-    }
+    }, [optionText])
 
     /**
      * Get the value for a choice
      */
-    const getOptionValue = (choice: AutocompleteChoice): string => {
+    const getOptionValue = useCallback((choice: AutocompleteChoice): string => {
       return String(choice[optionValue] ?? '')
-    }
+    }, [optionValue])
 
     /**
      * Find a choice by value
      */
-    const findChoiceByValue = (value: unknown): AutocompleteChoice | undefined => {
+    const findChoiceByValue = useCallback((value: unknown): AutocompleteChoice | undefined => {
       return choices.find((c) => getOptionValue(c) === String(value))
-    }
+    }, [choices, getOptionValue])
 
     // Sync input value with field value
     useEffect(() => {
@@ -188,16 +205,55 @@ export const AutocompleteInput = forwardRef<
       } else {
         setInputValue('')
       }
-    }, [field.value, choices])
+    }, [field.value, choices, findChoiceByValue, getOptionText])
+
+    // Debounce effect for filtering
+    useEffect(() => {
+      if (debounceDelay > 0) {
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current)
+        }
+        debounceTimerRef.current = setTimeout(() => {
+          setDebouncedInputValue(inputValue)
+        }, debounceDelay)
+        return () => {
+          if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current)
+          }
+        }
+      } else {
+        setDebouncedInputValue(inputValue)
+      }
+    }, [inputValue, debounceDelay])
+
+    // Use debounced value for filtering
+    const filterValue = debounceDelay > 0 ? debouncedInputValue : inputValue
 
     // Filter choices based on input
-    const filteredChoices = inputValue
-      ? choices.filter((choice) =>
-          getOptionText(choice)
-            .toLowerCase()
-            .includes(inputValue.toLowerCase())
-        )
-      : choices
+    const filteredChoices = useMemo(() => {
+      return filterValue
+        ? choices.filter((choice) =>
+            getOptionText(choice)
+              .toLowerCase()
+              .includes(filterValue.toLowerCase())
+          )
+        : choices
+    }, [choices, filterValue, getOptionText])
+
+    // Check if there's an exact match (case-insensitive)
+    const hasExactMatch = useMemo(() => {
+      if (!inputValue) return true
+      return choices.some(
+        (choice) =>
+          getOptionText(choice).toLowerCase() === inputValue.toLowerCase()
+      )
+    }, [choices, inputValue, getOptionText])
+
+    // Show create option when onCreate is provided, there's input, and no exact match
+    const showCreateOption = onCreate && inputValue && !hasExactMatch
+
+    // Total number of options including create option
+    const totalOptions = filteredChoices.length + (showCreateOption ? 1 : 0)
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -230,6 +286,21 @@ export const AutocompleteInput = forwardRef<
       setIsOpen(false)
     }
 
+    const handleCreate = async () => {
+      if (!onCreate || !inputValue || isCreating) return
+
+      setIsCreating(true)
+      try {
+        const newChoice = await onCreate(inputValue)
+        const value = getOptionValue(newChoice)
+        field.onChange(value)
+        setInputValue(getOptionText(newChoice))
+        setIsOpen(false)
+      } finally {
+        setIsCreating(false)
+      }
+    }
+
     const handleClear = () => {
       field.onChange('')
       setInputValue('')
@@ -239,15 +310,20 @@ export const AutocompleteInput = forwardRef<
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         setHighlightedIndex((prev) =>
-          prev < filteredChoices.length - 1 ? prev + 1 : prev
+          prev < totalOptions - 1 ? prev + 1 : prev
         )
       } else if (e.key === 'ArrowUp') {
         e.preventDefault()
         setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev))
       } else if (e.key === 'Enter') {
         e.preventDefault()
-        if (highlightedIndex >= 0 && filteredChoices[highlightedIndex]) {
-          handleSelect(filteredChoices[highlightedIndex])
+        if (highlightedIndex >= 0) {
+          // Check if we're on the create option
+          if (showCreateOption && highlightedIndex === filteredChoices.length) {
+            handleCreate()
+          } else if (filteredChoices[highlightedIndex]) {
+            handleSelect(filteredChoices[highlightedIndex])
+          }
         }
       } else if (e.key === 'Escape') {
         setIsOpen(false)
@@ -333,27 +409,45 @@ export const AutocompleteInput = forwardRef<
               role="listbox"
               className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
             >
-              {filteredChoices.length === 0 ? (
+              {filteredChoices.length === 0 && !showCreateOption ? (
                 <li className="px-2 py-1.5 text-sm text-muted-foreground">
                   No options
                 </li>
               ) : (
-                filteredChoices.map((choice, index) => (
-                  <li
-                    key={getOptionValue(choice)}
-                    role="option"
-                    aria-selected={highlightedIndex === index}
-                    onClick={() => handleSelect(choice)}
-                    className={cn(
-                      'cursor-pointer rounded-sm px-2 py-1.5 text-sm outline-none',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      highlightedIndex === index &&
-                        'bg-accent text-accent-foreground'
-                    )}
-                  >
-                    {getOptionText(choice)}
-                  </li>
-                ))
+                <>
+                  {filteredChoices.map((choice, index) => (
+                    <li
+                      key={getOptionValue(choice)}
+                      role="option"
+                      aria-selected={highlightedIndex === index}
+                      onClick={() => handleSelect(choice)}
+                      className={cn(
+                        'cursor-pointer rounded-sm px-2 py-1.5 text-sm outline-none',
+                        'hover:bg-accent hover:text-accent-foreground',
+                        highlightedIndex === index &&
+                          'bg-accent text-accent-foreground'
+                      )}
+                    >
+                      {getOptionText(choice)}
+                    </li>
+                  ))}
+                  {showCreateOption && (
+                    <li
+                      key="__create__"
+                      role="option"
+                      aria-selected={highlightedIndex === filteredChoices.length}
+                      onClick={handleCreate}
+                      className={cn(
+                        'cursor-pointer rounded-sm px-2 py-1.5 text-sm outline-none',
+                        'hover:bg-accent hover:text-accent-foreground',
+                        highlightedIndex === filteredChoices.length &&
+                          'bg-accent text-accent-foreground'
+                      )}
+                    >
+                      Create "{inputValue}"
+                    </li>
+                  )}
+                </>
               )}
             </ul>
           )}

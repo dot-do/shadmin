@@ -29,3 +29,21 @@ export { RadioButtonGroupInput, type RadioButtonGroupInputProps, type RadioChoic
 
 // CheckboxGroupInput - Checkbox group for multi-selection (array values)
 export { CheckboxGroupInput, type CheckboxGroupInputProps, type CheckboxChoice } from './CheckboxGroupInput'
+
+// ReferenceArrayInput - Array input with choices fetched from referenced resource
+export { ReferenceArrayInput, type ReferenceArrayInputProps } from './ReferenceArrayInput'
+
+// ReferenceInput - Single reference input with choices fetched from referenced resource
+export { ReferenceInput, type ReferenceInputProps, type ReferenceChoice, type ReferenceSort } from './ReferenceInput'
+
+// AutocompleteInput - Typeahead autocomplete input
+export { AutocompleteInput, type AutocompleteInputProps, type AutocompleteChoice } from './AutocompleteInput'
+
+// ArrayInput - Container for array form fields
+export { ArrayInput, ArrayInputContext, useArrayInputContext, type ArrayInputProps, type ArrayInputContextValue } from './ArrayInput'
+
+// SimpleFormIterator - Renders items within ArrayInput
+export { SimpleFormIterator, type SimpleFormIteratorProps } from './SimpleFormIterator'
+
+// TimeInput - Time picker input
+export { TimeInput, type TimeInputProps } from './TimeInput'
