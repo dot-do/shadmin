@@ -4,7 +4,7 @@
  * 100% API-compatible with react-admin
  */
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import type { DataProvider } from '../types'
 
 const DataProviderContext = createContext<DataProvider | null>(null)
@@ -21,8 +21,9 @@ export const DataProviderContextProvider = ({
   children,
   dataProvider,
 }: DataProviderContextProviderProps) => {
+  const memoizedDataProvider = useMemo(() => dataProvider, [dataProvider])
   return (
-    <DataProviderContext.Provider value={dataProvider}>
+    <DataProviderContext.Provider value={memoizedDataProvider}>
       {children}
     </DataProviderContext.Provider>
   )

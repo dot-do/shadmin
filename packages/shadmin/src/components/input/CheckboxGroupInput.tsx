@@ -240,7 +240,7 @@ export const CheckboxGroupInput = forwardRef<HTMLInputElement, CheckboxGroupInpu
             row ? 'flex-row flex-wrap' : 'flex-col'
           )}
         >
-          {choices.map((choice) => {
+          {choices.map((choice, index) => {
             const value = getOptionValue(choice)
             const text = getOptionText(choice)
             const optionDisabled = isOptionDisabled(choice)
@@ -258,7 +258,7 @@ export const CheckboxGroupInput = forwardRef<HTMLInputElement, CheckboxGroupInpu
                   checked={isChecked}
                   onChange={(e) => handleChange(value, e.target.checked)}
                   onBlur={field.onBlur}
-                  ref={ref}
+                  ref={index === 0 ? ref : undefined}
                   className={cn(checkboxStyles)}
                   disabled={optionDisabled}
                   aria-invalid={error ? 'true' : undefined}

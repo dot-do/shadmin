@@ -1,5 +1,8 @@
 import { createContext, useContext, type ReactNode } from 'react'
-import type { RaRecord } from './RecordContext'
+import type { RaRecord, Identifier } from '../types'
+
+// Re-export Identifier from types for backward compatibility
+export type { Identifier } from '../types'
 
 /**
  * Sort order type
@@ -18,11 +21,6 @@ export interface SortPayload {
  * Filter values type - key-value pairs for filtering
  */
 export type FilterPayload = Record<string, unknown>
-
-/**
- * Identifier type for records
- */
-export type Identifier = string | number
 
 /**
  * Result type for the list controller containing all list state and callbacks

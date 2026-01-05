@@ -48,8 +48,10 @@ export {
   type SortPayload,
   type SortOrder,
   type FilterPayload,
-  type Identifier,
 } from './ListContext'
+
+// Re-export Identifier from types for backwards compatibility
+export type { Identifier } from '../types'
 
 export {
   FormContext,

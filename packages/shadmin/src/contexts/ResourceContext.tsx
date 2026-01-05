@@ -4,7 +4,7 @@
  * 100% API-compatible with react-admin
  */
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import type { ResourceDefinition } from '../types'
 
 /**
@@ -111,8 +111,9 @@ export const ResourceDefinitionContextProvider = ({
   children,
   definitions,
 }: ResourceDefinitionContextProviderProps) => {
+  const memoizedDefinitions = useMemo(() => definitions, [definitions])
   return (
-    <ResourceDefinitionContext.Provider value={definitions}>
+    <ResourceDefinitionContext.Provider value={memoizedDefinitions}>
       {children}
     </ResourceDefinitionContext.Provider>
   )

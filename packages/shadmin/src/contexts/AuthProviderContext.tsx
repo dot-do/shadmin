@@ -4,7 +4,7 @@
  * 100% API-compatible with react-admin
  */
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import type { AuthProvider } from '../types'
 
 const AuthProviderContext = createContext<AuthProvider | null>(null)
@@ -21,8 +21,9 @@ export const AuthProviderContextProvider = ({
   children,
   authProvider,
 }: AuthProviderContextProviderProps) => {
+  const memoizedAuthProvider = useMemo(() => authProvider, [authProvider])
   return (
-    <AuthProviderContext.Provider value={authProvider}>
+    <AuthProviderContext.Provider value={memoizedAuthProvider}>
       {children}
     </AuthProviderContext.Provider>
   )

@@ -36,5 +36,8 @@ export { useLogin, type UseLoginOptions, type LoginOptions, type UseLoginResult 
 export { useLogout, type UseLogoutOptions, type LogoutOptions, type UseLogoutResult } from './useLogout'
 
 // Re-export context hooks for convenience
-export { useRecordContext, type RaRecord } from '../contexts/RecordContext'
-export { useListContext, type ListControllerResult, type SortPayload, type SortOrder, type FilterPayload, type Identifier } from '../contexts/ListContext'
+export { useRecordContext } from '../contexts/RecordContext'
+export { useListContext, type ListControllerResult, type SortPayload, type SortOrder, type FilterPayload } from '../contexts/ListContext'
+
+// Re-export types from types module for convenience
+export type { RaRecord, Identifier } from '../types'

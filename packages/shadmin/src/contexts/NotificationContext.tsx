@@ -4,13 +4,14 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
+  useRef,
   type ReactNode,
 } from 'react'
+import type { NotificationType } from '../types'
 
-/**
- * Notification type variants
- */
-export type NotificationType = 'info' | 'success' | 'warning' | 'error'
+// Re-export NotificationType from types for backward compatibility
+export type { NotificationType } from '../types'
 
 /**
  * Options for notifications
@@ -102,17 +103,56 @@ export function NotificationContextProvider({
   children,
 }: NotificationContextProviderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
+  // Track auto-hide timeouts by notification id
+  const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
 
   const addNotification = useCallback((notification: Notification) => {
     setNotifications((prev) => [...prev, notification])
   }, [])
 
   const dismiss = useCallback((id: string) => {
+    // Clear the timeout for this notification if it exists
+    const timeout = timeoutsRef.current.get(id)
+    if (timeout) {
+      clearTimeout(timeout)
+      timeoutsRef.current.delete(id)
+    }
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }, [])
 
   const dismissAll = useCallback(() => {
+    // Clear all pending timeouts
+    timeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
+    timeoutsRef.current.clear()
     setNotifications([])
+  }, [])
+
+  // Set up auto-hide timeouts for notifications
+  useEffect(() => {
+    notifications.forEach((notification) => {
+      const { autoHideDuration } = notification.options || {}
+
+      // Only set timeout if autoHideDuration is a positive number
+      // and we haven't already set a timeout for this notification
+      if (
+        autoHideDuration &&
+        autoHideDuration > 0 &&
+        !timeoutsRef.current.has(notification.id)
+      ) {
+        const timeout = setTimeout(() => {
+          dismiss(notification.id)
+        }, autoHideDuration)
+        timeoutsRef.current.set(notification.id, timeout)
+      }
+    })
+  }, [notifications, dismiss])
+
+  // Cleanup all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
+      timeoutsRef.current.clear()
+    }
   }, [])
 
   const value = useMemo<NotificationContextValue>(

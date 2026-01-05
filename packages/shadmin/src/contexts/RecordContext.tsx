@@ -1,10 +1,8 @@
 import { createContext, useContext, type ReactNode } from 'react'
+import type { RaRecord } from '../types'
 
-/**
- * The type for a record in the context.
- * By default, it's any object with an id.
- */
-export type RaRecord = Record<string, unknown>
+// Re-export RaRecord for backwards compatibility
+export type { RaRecord } from '../types'
 
 /**
  * Context to store the current record.

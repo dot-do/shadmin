@@ -239,7 +239,7 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
       } catch (err) {
         // For optimistic mode, rollback on error
         if (mutationMode === 'optimistic') {
-          setLocalRecord(record)
+          setLocalRecord(previousData)
         }
 
         // Call onError callback if provided

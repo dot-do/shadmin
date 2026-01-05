@@ -5,7 +5,7 @@ import {
   type UseFormReturn,
   type FieldValues,
 } from 'react-hook-form'
-import type { RaRecord } from './RecordContext'
+import type { RaRecord } from '../types'
 
 /**
  * Mutation mode for form operations

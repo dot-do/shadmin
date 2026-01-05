@@ -217,7 +217,7 @@ export const RadioButtonGroupInput = forwardRef<HTMLInputElement, RadioButtonGro
             row ? 'flex-row flex-wrap' : 'flex-col'
           )}
         >
-          {choices.map((choice) => {
+          {choices.map((choice, index) => {
             const value = getOptionValue(choice)
             const text = getOptionText(choice)
             const optionDisabled = isOptionDisabled(choice)
@@ -234,7 +234,7 @@ export const RadioButtonGroupInput = forwardRef<HTMLInputElement, RadioButtonGro
                   checked={field.value === value}
                   onChange={(e) => field.onChange(e.target.value)}
                   onBlur={field.onBlur}
-                  ref={ref}
+                  ref={index === 0 ? ref : undefined}
                   className={cn(radioStyles)}
                   disabled={optionDisabled}
                   required={required}
