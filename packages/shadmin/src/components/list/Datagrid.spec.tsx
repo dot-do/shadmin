@@ -477,4 +477,147 @@ describe('Datagrid', () => {
       consoleSpy.mockRestore()
     })
   })
+
+  describe('Expandable rows', () => {
+    it('should render expand toggle when expand prop is provided', () => {
+      const ExpandPanel = () => <div data-testid="expand-panel">Expanded content</div>
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      // Should have expand toggle buttons for each row
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+      expect(expandButtons).toHaveLength(3) // One per data row
+    })
+
+    it('should not render expand toggle by default', () => {
+      renderDatagrid()
+
+      const expandButtons = screen.queryAllByRole('button', { name: /expand/i })
+      expect(expandButtons).toHaveLength(0)
+    })
+
+    it('should show expanded content when clicking expand toggle', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => <div data-testid="expand-panel">Expanded content</div>
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      // Click expand on first row
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+      await user.click(expandButtons[0])
+
+      expect(screen.getByTestId('expand-panel')).toBeInTheDocument()
+    })
+
+    it('should hide expanded content when clicking expand toggle again', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => <div data-testid="expand-panel">Expanded content</div>
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+
+      // Expand
+      await user.click(expandButtons[0])
+      expect(screen.getByTestId('expand-panel')).toBeInTheDocument()
+
+      // Collapse
+      await user.click(expandButtons[0])
+      expect(screen.queryByTestId('expand-panel')).not.toBeInTheDocument()
+    })
+
+    it('should provide RecordContext to expanded content', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => {
+        const record = useRecordContext<TestRecord>()
+        return <div data-testid="expand-panel">{record?.email}</div>
+      }
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+      await user.click(expandButtons[0])
+
+      expect(screen.getByTestId('expand-panel')).toHaveTextContent('john@example.com')
+    })
+
+    it('should support expanding multiple rows', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => {
+        const record = useRecordContext<TestRecord>()
+        return <div data-testid={`expand-panel-${record?.id}`}>Content for {record?.name}</div>
+      }
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+
+      // Expand first row
+      await user.click(expandButtons[0])
+      // Expand second row
+      await user.click(expandButtons[1])
+
+      expect(screen.getByTestId('expand-panel-1')).toBeInTheDocument()
+      expect(screen.getByTestId('expand-panel-2')).toBeInTheDocument()
+    })
+
+    it('should render expanded row with colspan covering all columns', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => <div data-testid="expand-panel">Expanded content</div>
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+      await user.click(expandButtons[0])
+
+      // Find the expanded row's cell - it should span all columns
+      const expandedCell = screen.getByTestId('expand-panel').closest('td')
+      // 3 data columns + 1 expand column = 4
+      expect(expandedCell).toHaveAttribute('colspan', '4')
+    })
+
+    it('should add expand column at the beginning of the table', () => {
+      const ExpandPanel = () => <div>Expanded</div>
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      const headers = screen.getAllByRole('columnheader')
+      // First column should be empty (expand column)
+      expect(headers[0]).toHaveTextContent('')
+    })
+
+    it('should toggle aria-expanded attribute on expand button', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => <div>Expanded</div>
+      renderDatagrid({ expand: <ExpandPanel /> })
+
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+
+      // Initially not expanded
+      expect(expandButtons[0]).toHaveAttribute('aria-expanded', 'false')
+
+      // Click to expand
+      await user.click(expandButtons[0])
+      expect(expandButtons[0]).toHaveAttribute('aria-expanded', 'true')
+
+      // Click to collapse
+      await user.click(expandButtons[0])
+      expect(expandButtons[0]).toHaveAttribute('aria-expanded', 'false')
+    })
+
+    it('should support expand as a function for conditional expansion', async () => {
+      const user = userEvent.setup()
+      const ExpandPanel = () => {
+        const record = useRecordContext<TestRecord>()
+        return <div data-testid="expand-panel">{record?.name}</div>
+      }
+      // Only allow expansion for active users
+      renderDatagrid({
+        expand: <ExpandPanel />,
+        isRowExpandable: (record: TestRecord) => record.status === 'active',
+      })
+
+      const rows = screen.getAllByRole('row')
+      // Row 1 (John Doe - active) - should have expand button
+      // Row 2 (Jane Smith - inactive) - should not have expand button
+      // Row 3 (Bob Johnson - active) - should have expand button
+
+      const expandButtons = screen.getAllByRole('button', { name: /expand/i })
+      // Should only have 2 expand buttons (for active users)
+      expect(expandButtons).toHaveLength(2)
+    })
+  })
 })

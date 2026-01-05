@@ -10,15 +10,18 @@ import {
   useMemo,
   useRef,
   useEffect,
+  useState,
 } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getExpandedRowModel,
   flexRender,
   type ColumnDef,
   type SortingState,
   type RowSelectionState,
+  type ExpandedState,
 } from '@tanstack/react-table'
 import { useListContext, type SortPayload, type Identifier } from '../../contexts/ListContext'
 import { RecordContextProvider, type RaRecord } from '../../contexts/RecordContext'
@@ -71,6 +74,10 @@ export interface DatagridProps<T extends RaRecord = RaRecord> {
   size?: 'default' | 'sm' | 'lg'
   /** Whether the table is currently loading */
   isLoading?: boolean
+  /** Component to render when row is expanded */
+  expand?: ReactNode
+  /** Function to determine if a row can be expanded */
+  isRowExpandable?: (record: T) => boolean
 }
 
 /**
@@ -134,6 +141,8 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   rowStyle,
   hover = false,
   size = 'default',
+  expand,
+  isRowExpandable,
 }: DatagridProps<T>) {
   const listContext = useListContext<T>()
   const {
@@ -151,6 +160,16 @@ export function Datagrid<T extends RaRecord = RaRecord>({
 
   // Determine if we're showing selection checkboxes
   const showSelection = Boolean(bulkActionButtons)
+
+  // Determine if we're showing expand column
+  const showExpand = Boolean(expand)
+
+  // Track expanded rows by row index
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({})
+
+  // Use a ref to access expand state in cell renderers without causing column recreation
+  const expandedRowsRef = useRef(expandedRows)
+  expandedRowsRef.current = expandedRows
 
   // Build columns from children or columnsProp
   const { tableColumns, childElements } = useMemo(() => {
@@ -209,42 +228,96 @@ export function Datagrid<T extends RaRecord = RaRecord>({
     return { tableColumns: cols, childElements }
   }, [children, columnsProp])
 
-  // Add selection column if needed
-  const finalColumns = useMemo(() => {
-    if (!showSelection) return tableColumns
+  // Toggle row expansion
+  const toggleRowExpanded = useCallback((rowIndex: number) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [rowIndex]: !prev[rowIndex],
+    }))
+  }, [])
 
-    const selectionColumn: ColumnDef<T> = {
-      id: 'selection',
-      header: ({ table }) => (
-        <input
-          ref={headerCheckboxRef}
-          type="checkbox"
-          checked={table.getIsAllRowsSelected()}
-          onChange={(e) => {
-            if (e.target.checked) {
-              const allIds = data?.map((record) => record.id as Identifier) ?? []
-              onSelect(allIds)
-            } else {
-              onUnselectItems()
-            }
-          }}
-          aria-label="Select all rows"
-        />
-      ),
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          checked={selectedIds.includes(row.original.id as Identifier)}
-          onChange={() => onToggleItem(row.original.id as Identifier)}
-          onClick={(e) => e.stopPropagation()}
-          aria-label={`Select row ${row.original.id}`}
-        />
-      ),
-      enableSorting: false,
+  // Check if a row can be expanded
+  const canRowExpand = useCallback(
+    (record: T) => {
+      if (!showExpand) return false
+      if (isRowExpandable) return isRowExpandable(record)
+      return true
+    },
+    [showExpand, isRowExpandable]
+  )
+
+  // Add selection and expand columns if needed
+  const finalColumns = useMemo(() => {
+    let cols = [...tableColumns]
+
+    // Add expand column at the beginning
+    if (showExpand) {
+      const expandColumn: ColumnDef<T> = {
+        id: 'expand',
+        header: '',
+        cell: ({ row }) => {
+          const record = row.original
+          const canExpand = canRowExpand(record)
+          if (!canExpand) return null
+
+          // Use ref to access current expand state without causing column recreation
+          const isExpanded = !!expandedRowsRef.current[row.index]
+          return (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleRowExpanded(row.index)
+              }}
+              aria-expanded={isExpanded}
+              aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
+              className="p-1 hover:bg-muted rounded"
+            >
+              {isExpanded ? '\u25BC' : '\u25B6'}
+            </button>
+          )
+        },
+        enableSorting: false,
+      }
+      cols = [expandColumn, ...cols]
     }
 
-    return [selectionColumn, ...tableColumns]
-  }, [showSelection, tableColumns, data, selectedIds, onSelect, onToggleItem, onUnselectItems])
+    // Add selection column at the beginning (after expand if present)
+    if (showSelection) {
+      const selectionColumn: ColumnDef<T> = {
+        id: 'selection',
+        header: ({ table }) => (
+          <input
+            ref={headerCheckboxRef}
+            type="checkbox"
+            checked={table.getIsAllRowsSelected()}
+            onChange={(e) => {
+              if (e.target.checked) {
+                const allIds = data?.map((record) => record.id as Identifier) ?? []
+                onSelect(allIds)
+              } else {
+                onUnselectItems()
+              }
+            }}
+            aria-label="Select all rows"
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={selectedIds.includes(row.original.id as Identifier)}
+            onChange={() => onToggleItem(row.original.id as Identifier)}
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Select row ${row.original.id}`}
+          />
+        ),
+        enableSorting: false,
+      }
+      cols = [cols[0], selectionColumn, ...cols.slice(showExpand ? 1 : 0)]
+    }
+
+    return cols
+  }, [showSelection, showExpand, tableColumns, data, selectedIds, onSelect, onToggleItem, onUnselectItems, canRowExpand, toggleRowExpanded])
 
   // Convert ListContext sort to TanStack sorting state
   const sortingState: SortingState = useMemo(() => {
@@ -421,6 +494,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
             table.getRowModel().rows.map((row, rowIndex) => {
               const record = row.original
               const customStyle = rowStyle ? rowStyle(record, rowIndex) : undefined
+              const isExpanded = showExpand && expandedRows[rowIndex]
 
               return (
                 <RecordContextProvider key={row.id} value={record}>
@@ -449,6 +523,13 @@ export function Datagrid<T extends RaRecord = RaRecord>({
                       </td>
                     ))}
                   </tr>
+                  {isExpanded && (
+                    <tr className="bg-muted/30">
+                      <td colSpan={finalColumns.length} className="p-4">
+                        {expand}
+                      </td>
+                    </tr>
+                  )}
                 </RecordContextProvider>
               )
             })

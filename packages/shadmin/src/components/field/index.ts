@@ -10,3 +10,5 @@ export { ReferenceArrayField, type ReferenceArrayFieldProps } from './ReferenceA
 export { ReferenceManyField, type ReferenceManyFieldProps } from './ReferenceManyField'
 export { FunctionField, type FunctionFieldProps } from './FunctionField'
 export { ArrayField, type ArrayFieldProps } from './ArrayField'
+export { RichTextField, type RichTextFieldProps } from './RichTextField'
+export { ImageField, type ImageFieldProps } from './ImageField'
