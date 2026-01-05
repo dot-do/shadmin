@@ -31,6 +31,10 @@ export { useRedirect, type RedirectTo, type RedirectOptions, type RedirectFuncti
 // Refresh hook
 export { useRefresh, type RefreshOptions, type RefreshFunction } from './useRefresh'
 
+// Auth hooks
+export { useLogin, type UseLoginOptions, type LoginOptions, type UseLoginResult } from './useLogin'
+export { useLogout, type UseLogoutOptions, type LogoutOptions, type UseLogoutResult } from './useLogout'
+
 // Re-export context hooks for convenience
 export { useRecordContext, type RaRecord } from '../contexts/RecordContext'
 export { useListContext, type ListControllerResult, type SortPayload, type SortOrder, type FilterPayload, type Identifier } from '../contexts/ListContext'

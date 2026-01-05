@@ -105,3 +105,11 @@ export {
   type TransformData,
   type RedirectTo,
 } from './create'
+
+// Auth components
+export {
+  LoginPage,
+  LogoutButton,
+  type LoginPageProps,
+  type LogoutButtonProps,
+} from './auth'
