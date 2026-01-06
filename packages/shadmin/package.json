@@ -16,15 +16,13 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    },
-    "./styles.css": "./dist/styles.css"
+    }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE"
   ],
-  "sideEffects": [
-    "*.css"
-  ],
+  "sideEffects": false,
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
@@ -33,7 +31,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:light": "vitest run --no-file-parallelism --pool=forks --poolOptions.forks.maxForks=2",
+    "test:single": "vitest run --no-file-parallelism --pool=forks --poolOptions.forks.maxForks=1"
   },
   "peerDependencies": {
     "react": "^19.0.0",

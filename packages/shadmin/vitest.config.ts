@@ -10,6 +10,20 @@ export default defineConfig({
     setupFiles: ['./src/test-utils/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'dist'],
+    // Memory/CPU optimization settings
+    pool: 'forks', // Use forks instead of threads for better memory isolation
+    poolOptions: {
+      forks: {
+        maxForks: 4, // Limit parallel processes
+        minForks: 1,
+        isolate: true, // Keep test isolation for reliability
+      },
+    },
+    maxConcurrency: 5, // Limit concurrent tests within a file
+    fileParallelism: true, // Can be set to false for even lower memory usage
+    testTimeout: 10000, // 10s timeout per test
+    hookTimeout: 10000, // 10s timeout for hooks
+    teardownTimeout: 5000, // 5s for cleanup
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

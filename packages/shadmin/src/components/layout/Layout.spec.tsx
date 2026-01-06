@@ -659,6 +659,223 @@ describe('Layout Component', () => {
       const sidebarWrapper = document.querySelector('[data-sidebar="wrapper"]')
       expect(sidebarWrapper).toHaveAttribute('data-state')
     })
+
+    describe('Mobile Sidebar Focus Trap (WCAG 2.1 AA)', () => {
+      beforeEach(() => {
+        // Mock mobile viewport for focus trap tests
+        Object.defineProperty(window, 'matchMedia', {
+          writable: true,
+          value: vi.fn().mockImplementation((query: string) => ({
+            matches: query.includes('max-width'),
+            media: query,
+            onchange: null,
+            addListener: vi.fn(),
+            removeListener: vi.fn(),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+          })),
+        })
+      })
+
+      afterEach(() => {
+        Object.defineProperty(window, 'matchMedia', {
+          writable: true,
+          value: undefined,
+        })
+      })
+
+      it('should trap focus within mobile sidebar when open (Tab cycles within sidebar)', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestWrapper>
+            <Layout>
+              <div>
+                <button data-testid="main-content-button">Main Button</button>
+              </div>
+            </Layout>
+          </TestWrapper>
+        )
+
+        // Open mobile sidebar
+        const menuTrigger = screen.getByRole('button', { name: /menu/i })
+        await user.click(menuTrigger)
+
+        // Wait for sidebar to open
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).toHaveAttribute('data-mobile-open', 'true')
+        })
+
+        // Get all focusable elements in sidebar
+        const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+        const focusableElements = sidebar?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+
+        expect(focusableElements?.length).toBeGreaterThan(0)
+
+        // Focus should be trapped - tabbing from the last element should go to first
+        const lastFocusable = focusableElements![focusableElements!.length - 1] as HTMLElement
+        lastFocusable.focus()
+
+        await user.tab()
+
+        // Focus should cycle back to first focusable element in sidebar, not escape to main content
+        const firstFocusable = focusableElements![0] as HTMLElement
+        expect(document.activeElement).toBe(firstFocusable)
+
+        // Verify focus did NOT escape to main content
+        expect(screen.getByTestId('main-content-button')).not.toHaveFocus()
+      })
+
+      it('should close mobile sidebar when Escape key is pressed', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestWrapper>
+            <Layout>
+              <div>Content</div>
+            </Layout>
+          </TestWrapper>
+        )
+
+        // Open mobile sidebar
+        const menuTrigger = screen.getByRole('button', { name: /menu/i })
+        await user.click(menuTrigger)
+
+        // Wait for sidebar to open
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).toHaveAttribute('data-mobile-open', 'true')
+        })
+
+        // Press Escape key
+        await user.keyboard('{Escape}')
+
+        // Sidebar should be closed
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).not.toHaveAttribute('data-mobile-open', 'true')
+        })
+      })
+
+      it('should return focus to menu button trigger when sidebar closes', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestWrapper>
+            <Layout>
+              <div>Content</div>
+            </Layout>
+          </TestWrapper>
+        )
+
+        const menuTrigger = screen.getByRole('button', { name: /menu/i })
+
+        // Open mobile sidebar
+        await user.click(menuTrigger)
+
+        // Wait for sidebar to open
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).toHaveAttribute('data-mobile-open', 'true')
+        })
+
+        // Close sidebar with Escape
+        await user.keyboard('{Escape}')
+
+        // Wait for sidebar to close
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).not.toHaveAttribute('data-mobile-open', 'true')
+        })
+
+        // Focus should return to the menu trigger button
+        expect(menuTrigger).toHaveFocus()
+      })
+
+      it('should move focus to first focusable element when sidebar opens', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestWrapper>
+            <Layout>
+              <div>Content</div>
+            </Layout>
+          </TestWrapper>
+        )
+
+        // Open mobile sidebar
+        const menuTrigger = screen.getByRole('button', { name: /menu/i })
+        await user.click(menuTrigger)
+
+        // Wait for sidebar to open
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).toHaveAttribute('data-mobile-open', 'true')
+        })
+
+        // Get first focusable element in sidebar
+        const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+        const focusableElements = sidebar?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+
+        expect(focusableElements?.length).toBeGreaterThan(0)
+
+        // First focusable element should have focus
+        const firstFocusable = focusableElements![0] as HTMLElement
+        expect(document.activeElement).toBe(firstFocusable)
+      })
+
+      it('should wrap focus from first to last element on Shift+Tab (reverse tab)', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestWrapper>
+            <Layout>
+              <div>
+                <button data-testid="main-content-button">Main Button</button>
+              </div>
+            </Layout>
+          </TestWrapper>
+        )
+
+        // Open mobile sidebar
+        const menuTrigger = screen.getByRole('button', { name: /menu/i })
+        await user.click(menuTrigger)
+
+        // Wait for sidebar to open
+        await waitFor(() => {
+          const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+          expect(sidebar).toHaveAttribute('data-mobile-open', 'true')
+        })
+
+        // Get all focusable elements in sidebar
+        const sidebar = document.querySelector('[data-sidebar="sidebar"]')
+        const focusableElements = sidebar?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+
+        expect(focusableElements?.length).toBeGreaterThan(0)
+
+        // Focus the first element
+        const firstFocusable = focusableElements![0] as HTMLElement
+        firstFocusable.focus()
+
+        // Shift+Tab from first element should wrap to last element
+        await user.tab({ shift: true })
+
+        // Focus should wrap to last focusable element in sidebar
+        const lastFocusable = focusableElements![focusableElements!.length - 1] as HTMLElement
+        expect(document.activeElement).toBe(lastFocusable)
+
+        // Verify focus did NOT escape to main content
+        expect(screen.getByTestId('main-content-button')).not.toHaveFocus()
+      })
+    })
   })
 })
 

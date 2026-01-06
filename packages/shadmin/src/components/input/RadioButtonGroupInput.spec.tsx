@@ -324,4 +324,75 @@ describe('<RadioButtonGroupInput />', () => {
       )
     })
   })
+
+  describe('ref forwarding', () => {
+    it('forwards ref to the FIRST input element', () => {
+      const ref = { current: null } as React.RefObject<HTMLInputElement | null>
+
+      render(
+        <TestForm>
+          <RadioButtonGroupInput source="status" choices={defaultChoices} ref={ref} />
+        </TestForm>
+      )
+
+      const radios = screen.getAllByRole('radio')
+      // ref should point to the first radio button, not the last
+      expect(ref.current).toBe(radios[0])
+    })
+
+    it('ref.current points to a valid input element', () => {
+      const ref = { current: null } as React.RefObject<HTMLInputElement | null>
+
+      render(
+        <TestForm>
+          <RadioButtonGroupInput source="status" choices={defaultChoices} ref={ref} />
+        </TestForm>
+      )
+
+      // ref should be assigned
+      expect(ref.current).not.toBeNull()
+      // ref should be an input element
+      expect(ref.current).toBeInstanceOf(HTMLInputElement)
+      // ref should be a radio type input
+      expect(ref.current?.type).toBe('radio')
+    })
+
+    it('ref can be used to focus the first option', () => {
+      const ref = { current: null } as React.RefObject<HTMLInputElement | null>
+
+      render(
+        <TestForm>
+          <RadioButtonGroupInput source="status" choices={defaultChoices} ref={ref} />
+        </TestForm>
+      )
+
+      // Focus using the ref
+      ref.current?.focus()
+
+      // The first radio button should be focused
+      const firstRadio = screen.getByLabelText('Active')
+      expect(document.activeElement).toBe(firstRadio)
+    })
+
+    it('only one element has the ref (not all elements)', () => {
+      const refAssignments: HTMLInputElement[] = []
+
+      // Create a callback ref to track all assignments
+      const callbackRef = (element: HTMLInputElement | null) => {
+        if (element) {
+          refAssignments.push(element)
+        }
+      }
+
+      render(
+        <TestForm>
+          <RadioButtonGroupInput source="status" choices={defaultChoices} ref={callbackRef} />
+        </TestForm>
+      )
+
+      // ref should only be assigned once (to the first element)
+      // Current bug: ref is assigned 3 times (once per radio button)
+      expect(refAssignments).toHaveLength(1)
+    })
+  })
 })

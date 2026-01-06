@@ -6,12 +6,12 @@
 
 import { type ComponentType, type ReactNode, useMemo } from 'react'
 import { ResourceContextProvider } from '../../contexts'
-import type { ResourceProps, LayoutProps } from '../../types'
+import type { ResourceProps, AdminLayoutProps } from '../../types'
 
 export interface CoreAdminRoutesProps {
   resources: ResourceProps[]
   dashboard?: ComponentType
-  layout?: ComponentType<LayoutProps>
+  layout?: ComponentType<AdminLayoutProps>
   catchAll?: ComponentType
 }
 

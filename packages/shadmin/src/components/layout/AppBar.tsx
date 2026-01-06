@@ -339,4 +339,3 @@ export function AppBar({
   )
 }
 
-export type { AppBarUser }

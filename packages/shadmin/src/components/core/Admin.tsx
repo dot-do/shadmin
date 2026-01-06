@@ -19,7 +19,7 @@ import {
   useMemo,
 } from 'react'
 import { ResourceDefinitionContextProvider, type ResourceDefinitions } from '../../contexts'
-import type { AdminProps, ResourceProps, ResourceDefinition, LayoutProps, ErrorProps } from '../../types'
+import type { AdminProps, ResourceProps, ResourceDefinition, ErrorProps } from '../../types'
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'

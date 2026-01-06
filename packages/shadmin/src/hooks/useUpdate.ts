@@ -105,7 +105,7 @@ export function useUpdate<
       }
       return dataProvider.update<RecordType, TVariables>(res, updateParams)
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: [variables.resource, 'getList'] })
       queryClient.invalidateQueries({ queryKey: [variables.resource, 'getOne', { id: variables.params.id }] })

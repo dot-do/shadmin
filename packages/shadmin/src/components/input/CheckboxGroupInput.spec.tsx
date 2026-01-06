@@ -379,4 +379,75 @@ describe('<CheckboxGroupInput />', () => {
       )
     })
   })
+
+  describe('ref forwarding', () => {
+    it('forwards ref to the FIRST input element', () => {
+      const ref = { current: null } as React.RefObject<HTMLInputElement | null>
+
+      render(
+        <TestForm>
+          <CheckboxGroupInput source="permissions" choices={defaultChoices} ref={ref} />
+        </TestForm>
+      )
+
+      const checkboxes = screen.getAllByRole('checkbox')
+      // ref should point to the first checkbox, not the last
+      expect(ref.current).toBe(checkboxes[0])
+    })
+
+    it('ref.current points to a valid input element', () => {
+      const ref = { current: null } as React.RefObject<HTMLInputElement | null>
+
+      render(
+        <TestForm>
+          <CheckboxGroupInput source="permissions" choices={defaultChoices} ref={ref} />
+        </TestForm>
+      )
+
+      // ref should be assigned
+      expect(ref.current).not.toBeNull()
+      // ref should be an input element
+      expect(ref.current).toBeInstanceOf(HTMLInputElement)
+      // ref should be a checkbox type input
+      expect(ref.current?.type).toBe('checkbox')
+    })
+
+    it('ref can be used to focus the first option', () => {
+      const ref = { current: null } as React.RefObject<HTMLInputElement | null>
+
+      render(
+        <TestForm>
+          <CheckboxGroupInput source="permissions" choices={defaultChoices} ref={ref} />
+        </TestForm>
+      )
+
+      // Focus using the ref
+      ref.current?.focus()
+
+      // The first checkbox should be focused
+      const firstCheckbox = screen.getByLabelText('Read')
+      expect(document.activeElement).toBe(firstCheckbox)
+    })
+
+    it('only one element has the ref (not all elements)', () => {
+      const refAssignments: HTMLInputElement[] = []
+
+      // Create a callback ref to track all assignments
+      const callbackRef = (element: HTMLInputElement | null) => {
+        if (element) {
+          refAssignments.push(element)
+        }
+      }
+
+      render(
+        <TestForm>
+          <CheckboxGroupInput source="permissions" choices={defaultChoices} ref={callbackRef} />
+        </TestForm>
+      )
+
+      // ref should only be assigned once (to the first element)
+      // Current bug: ref is assigned 3 times (once per checkbox)
+      expect(refAssignments).toHaveLength(1)
+    })
+  })
 })

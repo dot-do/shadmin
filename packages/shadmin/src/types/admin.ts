@@ -13,7 +13,11 @@ export interface ThemeOptions {
   [key: string]: unknown
 }
 
-export interface LayoutProps {
+/**
+ * Simplified layout props interface for Admin component
+ * The full LayoutProps is exported from components/layout/Layout.tsx
+ */
+export interface AdminLayoutProps {
   children: ReactNode
   dashboard?: ComponentType
   menu?: ComponentType
@@ -30,7 +34,7 @@ export interface AdminProps {
   /** AuthProvider for authentication (optional) */
   authProvider?: AuthProvider
   /** Custom layout component (optional) */
-  layout?: ComponentType<LayoutProps>
+  layout?: ComponentType<AdminLayoutProps>
   /** Dashboard component (optional) */
   dashboard?: ComponentType
   /** Light theme options (optional) */

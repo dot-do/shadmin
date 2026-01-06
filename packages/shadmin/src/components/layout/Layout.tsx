@@ -204,6 +204,95 @@ interface DefaultSidebarProps {
 
 function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
   const { open, openMobile, setOpenMobile, isMobile } = useSidebar()
+  const sidebarRef = React.useRef<HTMLElement>(null)
+  const triggerRef = React.useRef<HTMLElement | null>(null)
+  const prevOpenMobileRef = React.useRef(false)
+
+  // Focus management: store trigger and move focus when sidebar opens
+  useEffect(() => {
+    // Only run when openMobile changes from false to true
+    if (openMobile && isMobile && !prevOpenMobileRef.current) {
+      // Store the currently focused element (the trigger) before moving focus
+      triggerRef.current = document.activeElement as HTMLElement
+
+      // Move focus to first focusable element after a small delay
+      if (sidebarRef.current) {
+        const focusableElements = sidebarRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusableElements.length > 0) {
+          requestAnimationFrame(() => {
+            focusableElements[0].focus()
+          })
+        }
+      }
+    }
+    prevOpenMobileRef.current = openMobile
+  }, [openMobile, isMobile])
+
+  // Handle Escape key to close mobile sidebar
+  useEffect(() => {
+    if (!openMobile || !isMobile) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        const triggerToFocus = triggerRef.current
+        setOpenMobile(false)
+        // Restore focus to the trigger element synchronously
+        // Use setTimeout to ensure state update completes first
+        setTimeout(() => {
+          triggerToFocus?.focus()
+        }, 0)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [openMobile, isMobile, setOpenMobile])
+
+  // Focus trap: trap focus within mobile sidebar when open
+  useEffect(() => {
+    if (!openMobile || !isMobile || !sidebarRef.current) return
+
+    const sidebar = sidebarRef.current
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return
+
+      const focusableElements = sidebar.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusableElements.length === 0) return
+
+      const firstFocusable = focusableElements[0]
+      const lastFocusable = focusableElements[focusableElements.length - 1]
+
+      if (event.shiftKey) {
+        // Shift+Tab: if on first element, wrap to last
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault()
+          lastFocusable.focus()
+        }
+      } else {
+        // Tab: if on last element, wrap to first
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault()
+          firstFocusable.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [openMobile, isMobile])
+
+  // Handle closing sidebar and restoring focus
+  const handleClose = useCallback(() => {
+    setOpenMobile(false)
+    // Restore focus to the trigger element
+    requestAnimationFrame(() => {
+      triggerRef.current?.focus()
+    })
+  }, [setOpenMobile])
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
@@ -238,13 +327,14 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
         {openMobile && (
           <div
             className="fixed inset-0 z-40 bg-black/50"
-            onClick={() => setOpenMobile(false)}
+            onClick={handleClose}
             aria-hidden="true"
           />
         )}
 
         {/* Mobile Sidebar */}
         <aside
+          ref={sidebarRef}
           role="complementary"
           data-sidebar="sidebar"
           data-mobile-open={openMobile ? 'true' : 'false'}
@@ -478,4 +568,4 @@ function LayoutInner({
 }
 
 export { SidebarProvider, SidebarTrigger }
-export type { SidebarContextValue, MenuItem }
+export type { SidebarContextValue }

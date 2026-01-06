@@ -1,4 +1,4 @@
-import type { ReactNode, HTMLAttributes } from 'react'
+import type { ReactNode, HTMLAttributes, JSX } from 'react'
 
 /**
  * Base props for all components
