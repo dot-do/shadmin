@@ -1,6 +1,6 @@
 {
   "name": "shadmin",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Modern admin UI library built with React 19 and shadcn/ui",
   "type": "module",
   "main": "./dist/index.cjs",
