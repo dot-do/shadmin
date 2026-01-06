@@ -327,26 +327,26 @@ export const options = { label: 'Products' }
       // Act
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      // Assert: Generated code includes resources
-      expect(result).toContain("import { Admin, Resource } from 'shadmin'")
-      expect(result).toContain("import * as posts from './resources/posts'")
-      expect(result).toContain('name="posts"')
-      expect(result).toContain('list={posts.list}')
+      // Assert: Generated code includes resources (esbuild transforms JSX to js)
+      expect(result).toContain('import { Admin, Resource } from "shadmin"')
+      expect(result).toContain('import * as posts from "./resources/posts"')
+      expect(result).toContain('name: "posts"')
+      expect(result).toContain('list: posts.list')
     })
 
     it('should generate entry module through plugin load hook', async () => {
       // Act
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
-      const result = await load('\0virtual:shadmin-entry')
+      const result = await load('\0virtual:shadmin-entry.tsx')
 
-      // Assert: Entry module bootstraps React
-      expect(result).toContain("import { createRoot } from 'react-dom/client'")
-      expect(result).toContain("import { App } from 'virtual:shadmin-app'")
+      // Assert: Entry module bootstraps React (esbuild transforms JSX to js)
+      expect(result).toContain('import { createRoot } from "react-dom/client"')
+      expect(result).toContain('import { App } from "virtual:shadmin-app"')
       expect(result).toContain('createRoot')
-      expect(result).toContain('.render(<App')
+      expect(result).toContain('jsx(App')
     })
 
     it('should respect plugin options in generated code', async () => {
@@ -364,12 +364,12 @@ export const options = { label: 'Products' }
         basename: '/my-admin',
       })
       const load = plugin.load as Function
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      // Assert
-      expect(result).toContain("import { dataProvider } from './custom-dp'")
-      expect(result).toContain("import { authProvider } from './custom-ap'")
-      expect(result).toContain('basename="/my-admin"')
+      // Assert (esbuild transforms JSX to js)
+      expect(result).toContain('import { dataProvider } from "./custom-dp"')
+      expect(result).toContain('import { authProvider } from "./custom-ap"')
+      expect(result).toContain('basename: "/my-admin"')
     })
 
     it('should handle custom resources directory', async () => {
@@ -386,11 +386,11 @@ export const options = { label: 'Products' }
         resourcesDir: 'admin-resources',
       })
       const load = plugin.load as Function
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      // Assert
-      expect(result).toContain('name="posts"')
-      expect(result).toContain("import * as posts from './admin-resources/posts'")
+      // Assert (esbuild transforms JSX to js)
+      expect(result).toContain('name: "posts"')
+      expect(result).toContain('import * as posts from "./admin-resources/posts"')
     })
   })
 

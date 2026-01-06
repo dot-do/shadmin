@@ -7,6 +7,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // CLI tests need node environment (no DOM, works with esbuild)
+    environmentMatchGlobs: [
+      ['src/cli/**/*.spec.ts', 'node'],
+    ],
     setupFiles: ['./src/test-utils/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'dist'],

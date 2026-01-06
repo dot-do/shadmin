@@ -5,6 +5,7 @@
 
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { transform } from 'esbuild'
 import type { Plugin, HmrContext, ViteDevServer, IndexHtmlTransformContext } from 'vite'
 import { scanResources } from './scanner'
 import { generateEntryPoint, type GeneratorOptions } from './generator'
@@ -12,8 +13,9 @@ import { generateEntryPoint, type GeneratorOptions } from './generator'
 /** Virtual module IDs */
 const VIRTUAL_APP_ID = 'virtual:shadmin-app'
 const VIRTUAL_ENTRY_ID = 'virtual:shadmin-entry'
-const RESOLVED_VIRTUAL_APP_ID = '\0virtual:shadmin-app'
-const RESOLVED_VIRTUAL_ENTRY_ID = '\0virtual:shadmin-entry'
+// .tsx extension required for Vite to parse JSX correctly
+const RESOLVED_VIRTUAL_APP_ID = '\0virtual:shadmin-app.tsx'
+const RESOLVED_VIRTUAL_ENTRY_ID = '\0virtual:shadmin-entry.tsx'
 
 /**
  * MDX compilation options
@@ -129,6 +131,7 @@ export function shadminPlugin(options: ShadminPluginOptions): Plugin {
 
     /**
      * Load virtual module content
+     * Uses esbuild to transform JSX to JS for Vite compatibility
      */
     async load(id: string) {
       if (id === RESOLVED_VIRTUAL_APP_ID) {
@@ -152,11 +155,29 @@ export function shadminPlugin(options: ShadminPluginOptions): Plugin {
           basename,
         }
 
-        return generateEntryPoint(resources, generatorOptions)
+        const jsxCode = generateEntryPoint(resources, generatorOptions)
+
+        // Transform JSX to JS using esbuild
+        const result = await transform(jsxCode, {
+          loader: 'tsx',
+          jsx: 'automatic',
+          format: 'esm',
+        })
+
+        return result.code
       }
 
       if (id === RESOLVED_VIRTUAL_ENTRY_ID) {
-        return generateEntryModule()
+        const jsxCode = generateEntryModule()
+
+        // Transform JSX to JS using esbuild
+        const result = await transform(jsxCode, {
+          loader: 'tsx',
+          jsx: 'automatic',
+          format: 'esm',
+        })
+
+        return result.code
       }
 
       return undefined

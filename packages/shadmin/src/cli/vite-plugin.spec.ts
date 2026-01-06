@@ -56,22 +56,24 @@ describe('shadmin Vite Plugin', () => {
   })
 
   describe('virtual module resolution', () => {
-    it('should resolve virtual:shadmin-app module', async () => {
+    it('should resolve virtual:shadmin-app module with .tsx extension for JSX', async () => {
       const plugin = shadminPlugin({ root: testDir })
       const resolveId = plugin.resolveId as Function
 
       const result = await resolveId('virtual:shadmin-app')
 
-      expect(result).toBe('\0virtual:shadmin-app')
+      // Must have .tsx extension for Vite to parse JSX correctly
+      expect(result).toBe('\0virtual:shadmin-app.tsx')
     })
 
-    it('should resolve virtual:shadmin-entry module', async () => {
+    it('should resolve virtual:shadmin-entry module with .tsx extension for JSX', async () => {
       const plugin = shadminPlugin({ root: testDir })
       const resolveId = plugin.resolveId as Function
 
       const result = await resolveId('virtual:shadmin-entry')
 
-      expect(result).toBe('\0virtual:shadmin-entry')
+      // Must have .tsx extension for Vite to parse JSX correctly
+      expect(result).toBe('\0virtual:shadmin-entry.tsx')
     })
 
     it('should return null for non-virtual modules', async () => {
@@ -94,10 +96,12 @@ describe('shadmin Vite Plugin', () => {
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import { Admin, Resource } from 'shadmin'")
-      expect(result).toContain('export function App()')
+      // esbuild transforms JSX to js - uses double quotes and jsx() function calls
+      expect(result).toContain('import { Admin, Resource } from "shadmin"')
+      expect(result).toContain('function App()')
+      expect(result).toContain('export {')
     })
 
     it('should include discovered resources in generated code', async () => {
@@ -109,23 +113,25 @@ describe('shadmin Vite Plugin', () => {
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import * as posts from './resources/posts'")
-      expect(result).toContain('name="posts"')
-      expect(result).toContain('list={posts.list}')
+      // esbuild transforms JSX to js - uses double quotes and object property syntax
+      expect(result).toContain('import * as posts from "./resources/posts"')
+      expect(result).toContain('name: "posts"')
+      expect(result).toContain('list: posts.list')
     })
 
     it('should load virtual:shadmin-entry with React DOM render', async () => {
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-entry')
+      const result = await load('\0virtual:shadmin-entry.tsx')
 
-      expect(result).toContain("import { createRoot } from 'react-dom/client'")
-      expect(result).toContain("import { App } from 'virtual:shadmin-app'")
+      // esbuild transforms JSX to js - uses double quotes and jsx() function calls
+      expect(result).toContain('import { createRoot } from "react-dom/client"')
+      expect(result).toContain('import { App } from "virtual:shadmin-app"')
       expect(result).toContain('createRoot')
-      expect(result).toContain('.render(<App')
+      expect(result).toContain('jsx(App')
     })
 
     it('should return null for non-virtual modules', async () => {
@@ -144,10 +150,11 @@ describe('shadmin Vite Plugin', () => {
       })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import { dataProvider } from './data-provider'")
-      expect(result).toContain('dataProvider={dataProvider}')
+      // esbuild transforms JSX to js - uses double quotes and object property syntax
+      expect(result).toContain('import { dataProvider } from "./data-provider"')
+      expect(result).toContain('dataProvider')
     })
 
     it('should include authProvider when specified', async () => {
@@ -157,10 +164,11 @@ describe('shadmin Vite Plugin', () => {
       })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import { authProvider } from './auth-provider'")
-      expect(result).toContain('authProvider={authProvider}')
+      // esbuild transforms JSX to js - uses double quotes and object property syntax
+      expect(result).toContain('import { authProvider } from "./auth-provider"')
+      expect(result).toContain('authProvider')
     })
 
     it('should include layout when specified', async () => {
@@ -170,10 +178,11 @@ describe('shadmin Vite Plugin', () => {
       })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import { Layout } from './layout'")
-      expect(result).toContain('layout={Layout}')
+      // esbuild transforms JSX to js - uses double quotes
+      expect(result).toContain('import { Layout } from "./layout"')
+      expect(result).toContain('Layout')
     })
 
     it('should include dashboard when specified', async () => {
@@ -183,10 +192,11 @@ describe('shadmin Vite Plugin', () => {
       })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import { Dashboard } from './dashboard'")
-      expect(result).toContain('dashboard={Dashboard}')
+      // esbuild transforms JSX to js - uses double quotes
+      expect(result).toContain('import { Dashboard } from "./dashboard"')
+      expect(result).toContain('Dashboard')
     })
   })
 
@@ -211,7 +221,7 @@ describe('shadmin Vite Plugin', () => {
           send: vi.fn(),
         },
         moduleGraph: {
-          getModuleById: vi.fn().mockReturnValue({ id: '\0virtual:shadmin-app' }),
+          getModuleById: vi.fn().mockReturnValue({ id: '\0virtual:shadmin-app.tsx' }),
         },
       }
 
@@ -286,11 +296,12 @@ describe('shadmin Vite Plugin', () => {
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain('name="posts"')
-      expect(result).toContain('name="users"')
-      expect(result).toContain('name="comments"')
+      // esbuild transforms JSX to js - uses object property syntax
+      expect(result).toContain('name: "posts"')
+      expect(result).toContain('name: "users"')
+      expect(result).toContain('name: "comments"')
     })
   })
 
@@ -299,11 +310,11 @@ describe('shadmin Vite Plugin', () => {
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain('<Admin>')
-      expect(result).toContain('</Admin>')
-      expect(result).not.toContain('<Resource')
+      // esbuild transforms JSX to js - jsx(Admin, {}) for empty children
+      expect(result).toContain('jsx(Admin')
+      expect(result).not.toContain('Resource')
     })
   })
 
@@ -421,11 +432,12 @@ export const list = () => <div>Docs List</div>
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain("import * as docs from './resources/docs'")
-      expect(result).toContain('name="docs"')
-      expect(result).toContain('list={docs.list}')
+      // esbuild transforms JSX to js - uses double quotes and object property syntax
+      expect(result).toContain('import * as docs from "./resources/docs"')
+      expect(result).toContain('name: "docs"')
+      expect(result).toContain('list: docs.list')
     })
 
     it('should handle mixed TSX and MDX resources', async () => {
@@ -446,10 +458,11 @@ export const list = () => <div>Docs</div>
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain('name="posts"')
-      expect(result).toContain('name="docs"')
+      // esbuild transforms JSX to js - uses object property syntax
+      expect(result).toContain('name: "posts"')
+      expect(result).toContain('name: "docs"')
     })
   })
 
@@ -473,7 +486,7 @@ export const list = () => <div>Docs</div>
           send: vi.fn(),
         },
         moduleGraph: {
-          getModuleById: vi.fn().mockReturnValue({ id: '\0virtual:shadmin-app' }),
+          getModuleById: vi.fn().mockReturnValue({ id: '\0virtual:shadmin-app.tsx' }),
         },
       }
 
@@ -532,9 +545,10 @@ export const list = () => <div>Guide List</div>
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain('name="user-guide"')
+      // esbuild transforms JSX to js - uses object property syntax
+      expect(result).toContain('name: "user-guide"')
     })
   })
 
@@ -554,10 +568,11 @@ export const list = () => <div>Admin Help</div>
       const plugin = shadminPlugin({ root: testDir })
       const load = plugin.load as Function
 
-      const result = await load('\0virtual:shadmin-app')
+      const result = await load('\0virtual:shadmin-app.tsx')
 
-      expect(result).toContain('name="admin/help"')
-      expect(result).toContain("import * as admin_help from './resources/admin/help'")
+      // esbuild transforms JSX to js - uses object property syntax and double quotes
+      expect(result).toContain('name: "admin/help"')
+      expect(result).toContain('import * as admin_help from "./resources/admin/help"')
     })
   })
 })

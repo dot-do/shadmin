@@ -1,6 +1,6 @@
 {
   "name": "shadmin",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Modern admin UI library built with React 19 and shadcn/ui",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -96,6 +96,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",
+    "esbuild": "^0.25.0",
     "@tanstack/react-table": "^8.21.3",
     "@vitejs/plugin-react": "^4.3.4",
     "ink": "^6.6.0",
