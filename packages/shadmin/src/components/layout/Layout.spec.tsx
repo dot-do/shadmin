@@ -825,9 +825,11 @@ describe('Layout Component', () => {
 
         expect(focusableElements?.length).toBeGreaterThan(0)
 
-        // First focusable element should have focus
+        // First focusable element should have focus (after requestAnimationFrame)
         const firstFocusable = focusableElements![0] as HTMLElement
-        expect(document.activeElement).toBe(firstFocusable)
+        await waitFor(() => {
+          expect(document.activeElement).toBe(firstFocusable)
+        })
       })
 
       it('should wrap focus from first to last element on Shift+Tab (reverse tab)', async () => {
