@@ -1,8 +1,8 @@
-import { type ReactNode, useState, useEffect } from 'react'
+import { type ReactNode, useState, useCallback, useMemo } from 'react'
 import { cn } from '../../lib/utils'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 import {
   useTestLocation,
-  useTestNavigate,
   Link,
   type Location,
 } from '../../test-utils/TestMemoryRouter'
@@ -78,19 +78,14 @@ export function ContainerLayout({
   }
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useMediaQuery('(max-width: 768px)')
 
-  // Check for mobile viewport
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return
-    }
-    const mediaQuery = window.matchMedia('(max-width: 768px)')
-    setIsMobile(mediaQuery.matches)
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen((prev) => !prev)
+  }, [])
 
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mediaQuery.addEventListener('change', handler)
-    return () => mediaQuery.removeEventListener('change', handler)
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false)
   }, [])
 
   return (
@@ -135,7 +130,7 @@ export function ContainerLayout({
             <button
               type="button"
               className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-accent"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
               aria-label="Menu"
             >
               <svg
@@ -185,7 +180,7 @@ export function ContainerLayout({
                       ? 'bg-accent text-foreground'
                       : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                   )}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   {item.icon && <span className="mr-2">{item.icon}</span>}
                   {item.label}

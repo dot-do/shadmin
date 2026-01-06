@@ -1,4 +1,4 @@
-import { useState, useEffect, useSyncExternalStore, useCallback } from 'react'
+import { useSyncExternalStore, useCallback } from 'react'
 
 /**
  * Hook to check if a media query matches.

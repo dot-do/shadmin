@@ -1,7 +1,8 @@
 import { type HTMLAttributes } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
-import { useRecordContext, type RaRecord } from '../../contexts/RecordContext'
+import { useRecordContext } from '../../contexts/RecordContext'
+import type { RaRecord } from '../../types'
 
 export interface TextFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** The field name in the record to display */

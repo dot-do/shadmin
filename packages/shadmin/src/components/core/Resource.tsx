@@ -4,7 +4,7 @@
  * Creates routes for CRUD operations and registers in ResourceDefinitionContext
  */
 
-import { type ReactNode, useEffect, useMemo } from 'react'
+import { type ReactNode, useEffect, useMemo, memo } from 'react'
 import type { ResourceProps, ResourceDefinition } from '../../types'
 
 // Context for registering resources (used internally by Admin)
@@ -38,7 +38,7 @@ export const ResourceRegistrationContext = createContext<ResourceRegistrationCon
  * </Admin>
  * ```
  */
-export const Resource = ({
+const ResourceComponent = ({
   name,
   list,
   edit,
@@ -50,7 +50,7 @@ export const Resource = ({
 }: ResourceProps): ReactNode => {
   const registration = useContext(ResourceRegistrationContext)
 
-  // Create the resource definition
+  // Create the resource definition - memoized for stable reference
   const definition: ResourceDefinition = useMemo(
     () => ({
       name,
@@ -64,7 +64,7 @@ export const Resource = ({
     [name, icon, options, list, edit, create, show]
   )
 
-  // Create props for route generation
+  // Memoize props object to avoid recreation on each render
   const resourceProps: ResourceProps = useMemo(
     () => ({
       name,
@@ -92,6 +92,12 @@ export const Resource = ({
   // The Admin component handles rendering routes
   return children ?? null
 }
+
+/**
+ * Memoized Resource component to prevent unnecessary re-renders
+ * when parent components update but resource props remain unchanged
+ */
+export const Resource = memo(ResourceComponent)
 
 // Type helper for extracting resource props
 export type ResourcePropsFromResource<R extends typeof Resource> = R extends (

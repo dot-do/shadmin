@@ -5,7 +5,7 @@
  */
 
 import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
 import type {
   RaRecord,
@@ -123,16 +123,19 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
     [mutation, resource]
   ) as DeleteFunction<RecordType>
 
-  const state: UseDeleteMutationState<RecordType> = {
-    data: mutation.data,
-    error: mutation.error ?? null,
-    isLoading: mutation.isPending,
-    isPending: mutation.isPending,
-    isSuccess: mutation.isSuccess,
-    isError: mutation.isError,
-    isIdle: mutation.isIdle,
-    reset: mutation.reset,
-  }
+  const state: UseDeleteMutationState<RecordType> = useMemo(
+    () => ({
+      data: mutation.data,
+      error: mutation.error ?? null,
+      isLoading: mutation.isPending,
+      isPending: mutation.isPending,
+      isSuccess: mutation.isSuccess,
+      isError: mutation.isError,
+      isIdle: mutation.isIdle,
+      reset: mutation.reset,
+    }),
+    [mutation.data, mutation.error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset]
+  )
 
   return [deleteRecord, state]
 }

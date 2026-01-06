@@ -9,11 +9,11 @@
  * - Icon support
  */
 
-import * as React from 'react'
-import { type ReactNode, type ComponentType } from 'react'
-import { cn } from '../../lib/utils'
+import { type ReactNode, type ComponentType, useMemo, useCallback } from 'react'
+import { cn } from '../../utils'
 import { useListContext } from '../../contexts/ListContext'
-import { RecordContextProvider, type RaRecord } from '../../contexts/RecordContext'
+import { RecordContextProvider } from '../../contexts/RecordContext'
+import type { RaRecord } from '../../types'
 
 /**
  * SimpleList component props
@@ -99,35 +99,47 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
   const { data, isLoading, resource: contextResource } = useListContext<RecordType>()
   const resource = resourceProp ?? contextResource
 
-  const getText = (
-    textProp: string | ((record: RecordType) => ReactNode) | undefined,
-    record: RecordType
-  ): ReactNode => {
-    if (!textProp) return null
-    if (typeof textProp === 'function') return textProp(record)
-    // If string, assume it's a field name
-    return (record as Record<string, unknown>)[textProp] as ReactNode
-  }
+  const getText = useCallback(
+    (
+      textProp: string | ((record: RecordType) => ReactNode) | undefined,
+      record: RecordType
+    ): ReactNode => {
+      if (!textProp) return null
+      if (typeof textProp === 'function') return textProp(record)
+      // If string, assume it's a field name
+      return (record as Record<string, unknown>)[textProp] as ReactNode
+    },
+    []
+  )
 
-  const getIcon = (
-    iconProp: ReactNode | ((record: RecordType) => ReactNode) | undefined,
-    record: RecordType
-  ): ReactNode => {
-    if (!iconProp) return null
-    if (typeof iconProp === 'function') return iconProp(record)
-    return iconProp
-  }
+  const getIcon = useCallback(
+    (
+      iconProp: ReactNode | ((record: RecordType) => ReactNode) | undefined,
+      record: RecordType
+    ): ReactNode => {
+      if (!iconProp) return null
+      if (typeof iconProp === 'function') return iconProp(record)
+      return iconProp
+    },
+    []
+  )
 
-  const handleRowClick = (record: RecordType) => {
-    if (rowClick) {
-      rowClick(record.id, record)
-    }
-  }
+  const handleRowClick = useCallback(
+    (record: RecordType) => {
+      if (rowClick) {
+        rowClick(record.id, record)
+      }
+    },
+    [rowClick]
+  )
 
-  const getLink = (record: RecordType): string | null => {
-    if (!linkType || !resource) return null
-    return `/${resource}/${record.id}/${linkType}`
-  }
+  const getLink = useCallback(
+    (record: RecordType): string | null => {
+      if (!linkType || !resource) return null
+      return `/${resource}/${record.id}/${linkType}`
+    },
+    [linkType, resource]
+  )
 
   if (isLoading) {
     return (

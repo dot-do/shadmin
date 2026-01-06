@@ -5,10 +5,16 @@
 
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { Resource } from './Resource'
 import { Admin } from './Admin'
 import { useResource, useResourceDefinitions, useResourceDefinition } from '../../contexts'
 import { createMockDataProvider } from '../../test-utils'
+
+// Helper to wrap Admin with MemoryRouter
+const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/']) => {
+  return render(<MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>)
+}
 
 describe('<Resource />', () => {
   const defaultDataProvider = createMockDataProvider()
@@ -20,7 +26,7 @@ describe('<Resource />', () => {
       return <div data-testid="resources">{names.join(',')}</div>
     }
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider}>
         <Resource name="posts" list={() => <div>Posts</div>} />
         <Resource name="users" list={() => <div>Users</div>} />
@@ -38,7 +44,7 @@ describe('<Resource />', () => {
       return <div data-testid="resource-name">{resource}</div>
     }
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider}>
         <Resource name="posts" list={PostList} />
       </Admin>
@@ -50,7 +56,7 @@ describe('<Resource />', () => {
   it('creates route for list component', () => {
     const PostList = () => <div data-testid="post-list">Posts List</div>
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider} basename="">
         <Resource name="posts" list={PostList} />
       </Admin>
@@ -64,7 +70,7 @@ describe('<Resource />', () => {
   it('creates route for create component', () => {
     const PostCreate = () => <div data-testid="post-create">Create Post</div>
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider} basename="">
         <Resource name="posts" create={PostCreate} />
       </Admin>
@@ -77,7 +83,7 @@ describe('<Resource />', () => {
   it('creates route for edit component', () => {
     const PostEdit = () => <div data-testid="post-edit">Edit Post</div>
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider} basename="">
         <Resource name="posts" edit={PostEdit} />
       </Admin>
@@ -90,7 +96,7 @@ describe('<Resource />', () => {
   it('creates route for show component', () => {
     const PostShow = () => <div data-testid="post-show">Show Post</div>
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider} basename="">
         <Resource name="posts" show={PostShow} />
       </Admin>
@@ -113,7 +119,7 @@ describe('<Resource />', () => {
       )
     }
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider}>
         <Resource name="posts" list={() => <div>List</div>} edit={() => <div>Edit</div>} />
         <TestComponent />
@@ -139,7 +145,7 @@ describe('<Resource />', () => {
       )
     }
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider}>
         <Resource name="posts" list={() => <div>List</div>} icon={PostIcon} />
         <TestComponent />
@@ -159,7 +165,7 @@ describe('<Resource />', () => {
       )
     }
 
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider}>
         <Resource
           name="posts"
@@ -174,7 +180,7 @@ describe('<Resource />', () => {
   })
 
   it('can render without any CRUD components (menu-only resource)', () => {
-    render(
+    renderWithRouter(
       <Admin dataProvider={defaultDataProvider}>
         <Resource name="settings" options={{ label: 'Settings' }} />
       </Admin>

@@ -6,7 +6,7 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
+import { memo, type ReactNode, type ReactElement } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
 /**
@@ -51,7 +51,10 @@ export interface CreateViewProps {
  * </CreateView>
  * ```
  */
-export function CreateView({
+/**
+ * CreateView - Memoized UI wrapper component for create display
+ */
+export const CreateView = memo(function CreateView({
   children,
   title,
   actions,
@@ -59,27 +62,29 @@ export function CreateView({
   aside,
 }: CreateViewProps) {
   return (
-    <Card className={className} data-slot="card">
-      {(title || actions !== false) && (
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div className="flex items-center gap-4">
-            {title && (
-              typeof title === 'string' ? (
-                <CardTitle>{title}</CardTitle>
-              ) : (
-                title
-              )
+    <div className="flex gap-4">
+      <Card className={className} data-slot="card">
+        {(title || actions !== false) && (
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div className="flex items-center gap-4">
+              {title && (
+                typeof title === 'string' ? (
+                  <CardTitle>{title}</CardTitle>
+                ) : (
+                  title
+                )
+              )}
+            </div>
+            {actions !== false && actions && (
+              <div className="flex items-center gap-2">{actions}</div>
             )}
-          </div>
-          {actions !== false && actions && (
-            <div className="flex items-center gap-2">{actions}</div>
-          )}
-        </CardHeader>
-      )}
-      <CardContent>{children}</CardContent>
+          </CardHeader>
+        )}
+        <CardContent>{children}</CardContent>
+      </Card>
       {aside}
-    </Card>
+    </div>
   )
-}
+})
 
 export default CreateView

@@ -3,12 +3,11 @@
  * 100% API-compatible with react-admin
  */
 
-// Record types
-export type Identifier = string | number
-export type RaRecord<IdentifierType extends Identifier = Identifier> = {
-  id: IdentifierType
-  [key: string]: unknown
-}
+// Import core record types from single source of truth
+import type { Identifier, RaRecord } from './record'
+
+// Re-export for backwards compatibility
+export type { Identifier, RaRecord } from './record'
 
 // GetList
 export interface GetListParams {

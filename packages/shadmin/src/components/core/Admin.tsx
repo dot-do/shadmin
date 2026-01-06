@@ -151,16 +151,20 @@ export const Admin = ({
   authProvider,
   layout,
   dashboard,
-  theme,
-  darkTheme,
+  // Theme props reserved for future theming support
+  theme: _theme,
+  darkTheme: _darkTheme,
   basename = '',
-  title = 'Shadmin',
-  disableTelemetry,
-  loginPage,
+  // Title prop reserved for document title/branding
+  title: _title = 'Shadmin',
+  // Reserved for analytics opt-out
+  disableTelemetry: _disableTelemetry,
+  // Custom page components reserved for future auth/loading flows
+  loginPage: _loginPage,
   error,
-  loading,
-  notification,
-  ready,
+  loading: _loading,
+  notification: _notification,
+  ready: _ready,
 }: AdminProps): ReactElement => {
   // Use custom error component or default
   const ErrorComponent = error ?? DefaultErrorComponent

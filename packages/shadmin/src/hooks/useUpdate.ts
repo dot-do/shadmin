@@ -5,7 +5,7 @@
  */
 
 import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
 import type {
   RaRecord,
@@ -137,16 +137,19 @@ export function useUpdate<
     [mutation, resource]
   ) as UpdateFunction<RecordType, TVariables>
 
-  const state: UseUpdateMutationState<RecordType> = {
-    data: mutation.data,
-    error: mutation.error ?? null,
-    isLoading: mutation.isPending,
-    isPending: mutation.isPending,
-    isSuccess: mutation.isSuccess,
-    isError: mutation.isError,
-    isIdle: mutation.isIdle,
-    reset: mutation.reset,
-  }
+  const state: UseUpdateMutationState<RecordType> = useMemo(
+    () => ({
+      data: mutation.data,
+      error: mutation.error ?? null,
+      isLoading: mutation.isPending,
+      isPending: mutation.isPending,
+      isSuccess: mutation.isSuccess,
+      isError: mutation.isError,
+      isIdle: mutation.isIdle,
+      reset: mutation.reset,
+    }),
+    [mutation.data, mutation.error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset]
+  )
 
   return [update, state]
 }

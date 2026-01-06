@@ -6,7 +6,7 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
+import { type ReactNode, type ReactElement, useMemo } from 'react'
 import { useListContext } from '../../contexts/ListContext'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
@@ -70,7 +70,10 @@ export function ListView({
   const { data, isLoading, total } = useListContext()
 
   // Show empty component if data is empty and not loading
-  const showEmpty = !isLoading && data && data.length === 0 && total === 0 && empty
+  const showEmpty = useMemo(
+    () => !isLoading && data && data.length === 0 && total === 0 && empty,
+    [isLoading, data, total, empty]
+  )
 
   return (
     <Card className={className} data-slot="card">

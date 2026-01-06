@@ -7,7 +7,7 @@
  */
 
 import type { ReactNode, ReactElement } from 'react'
-import type { RaRecord } from '../../contexts/RecordContext'
+import type { RaRecord } from '../../types'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
 /**

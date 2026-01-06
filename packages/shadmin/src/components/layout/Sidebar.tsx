@@ -9,8 +9,7 @@
  * - Integration with SidebarProvider from Layout
  */
 
-import * as React from 'react'
-import { type ReactNode, type ComponentType } from 'react'
+import { type ReactNode, type ComponentType, useMemo } from 'react'
 import { cn } from '../../lib/utils'
 import { useSidebar } from './Layout'
 
@@ -103,39 +102,42 @@ export function Sidebar({
 
   const { open = true, isMobile = false, openMobile = false, setOpenMobile } = sidebarContext || {}
 
-  const sidebarContent = (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      {(header || title || logo) && (
-        <div className="flex h-14 items-center border-b px-4">
-          {header || (
-            <>
-              {logo}
-              {title && (
-                <span className={cn(
-                  'font-semibold transition-opacity',
-                  !open && !isMobile && 'opacity-0 w-0 overflow-hidden'
-                )}>
-                  {title}
-                </span>
-              )}
-            </>
-          )}
-        </div>
-      )}
+  const sidebarContent = useMemo(
+    () => (
+      <div className="flex h-full flex-col">
+        {/* Header */}
+        {(header || title || logo) && (
+          <div className="flex h-14 items-center border-b px-4">
+            {header || (
+              <>
+                {logo}
+                {title && (
+                  <span className={cn(
+                    'font-semibold transition-opacity',
+                    !open && !isMobile && 'opacity-0 w-0 overflow-hidden'
+                  )}>
+                    {title}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto py-2">
-        {children}
+        {/* Content */}
+        <div className="flex-1 overflow-auto py-2">
+          {children}
+        </div>
+
+        {/* Footer */}
+        {footer && (
+          <div className="border-t p-4">
+            {footer}
+          </div>
+        )}
       </div>
-
-      {/* Footer */}
-      {footer && (
-        <div className="border-t p-4">
-          {footer}
-        </div>
-      )}
-    </div>
+    ),
+    [children, footer, header, isMobile, logo, open, title]
   )
 
   // Mobile sidebar (drawer)

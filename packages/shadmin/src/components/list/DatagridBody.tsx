@@ -1,6 +1,6 @@
 import type { ReactNode, CSSProperties, MouseEvent } from 'react'
-import type { Row, flexRender } from '@tanstack/react-table'
-import type { RaRecord } from '../../contexts/RecordContext'
+import type { Row, flexRender as FlexRenderType } from '@tanstack/react-table'
+import type { RaRecord } from '../../types'
 import { RecordContextProvider } from '../../contexts/RecordContext'
 import type { Identifier } from '../../contexts/ListContext'
 
@@ -27,7 +27,7 @@ export interface DatagridBodyProps<T extends RaRecord = RaRecord> {
   /** Row click handler */
   onRowClick?: (record: T, index: number, event: MouseEvent) => void
   /** flexRender function from TanStack */
-  flexRender: typeof flexRender
+  flexRender: typeof FlexRenderType
 }
 
 /**

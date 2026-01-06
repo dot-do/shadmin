@@ -582,3 +582,227 @@ describe('<Pagination /> with standalone props', () => {
     expect(contextSetPage).not.toHaveBeenCalled()
   })
 })
+
+describe('<Pagination /> Edge Cases', () => {
+  describe('Boundary conditions', () => {
+    it('handles exactly 2 pages', () => {
+      const context = createMockListContext({ total: 20, perPage: 10, page: 1 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      expect(screen.getByRole('button', { name: /page 1/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /page 2/i })).toBeInTheDocument()
+      expect(screen.queryByText('...')).not.toBeInTheDocument()
+    })
+
+    it('handles page beyond total pages', () => {
+      const context = createMockListContext({ total: 50, perPage: 10, page: 10 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      // Should still render, last page button disabled
+      expect(screen.getByRole('button', { name: /next/i })).toBeDisabled()
+    })
+
+    it('handles very large page count', () => {
+      const context = createMockListContext({ total: 10000, perPage: 10, page: 500 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      // Should show ellipsis and navigation
+      expect(screen.getAllByText('...').length).toBeGreaterThan(0)
+      expect(screen.getByRole('button', { name: /page 1$/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /page 1000/i })).toBeInTheDocument()
+    })
+
+    it('handles page 1 when going to previous', () => {
+      const setPage = vi.fn()
+      const context = createMockListContext({ total: 50, perPage: 10, page: 1, setPage })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      // Previous button should be disabled on first page
+      const prevButton = screen.getByRole('button', { name: /previous/i })
+      expect(prevButton).toBeDisabled()
+      fireEvent.click(prevButton)
+      expect(setPage).not.toHaveBeenCalled()
+    })
+
+    it('handles last page when going to next', () => {
+      const setPage = vi.fn()
+      const context = createMockListContext({ total: 50, perPage: 10, page: 5, setPage })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      // Next button should be disabled on last page
+      const nextButton = screen.getByRole('button', { name: /next/i })
+      expect(nextButton).toBeDisabled()
+      fireEvent.click(nextButton)
+      expect(setPage).not.toHaveBeenCalled()
+    })
+
+    it('handles total that is not evenly divisible by perPage', () => {
+      const context = createMockListContext({ total: 57, perPage: 10, page: 6 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      // Should calculate 6 total pages (57/10 = 5.7, ceil = 6)
+      expect(screen.getByRole('button', { name: /page 6/i })).toBeInTheDocument()
+      expect(screen.getByText(/51-57 of 57/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('Record count display', () => {
+    it('shows correct range for first page', () => {
+      const context = createMockListContext({ total: 100, perPage: 10, page: 1 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      expect(screen.getByText(/1-10 of 100/i)).toBeInTheDocument()
+    })
+
+    it('shows correct range for last page with partial records', () => {
+      const context = createMockListContext({ total: 95, perPage: 10, page: 10 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      expect(screen.getByText(/91-95 of 95/i)).toBeInTheDocument()
+    })
+
+    it('shows correct range for middle page', () => {
+      const context = createMockListContext({ total: 100, perPage: 25, page: 2 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      expect(screen.getByText(/26-50 of 100/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('siblingCount and boundaryCount', () => {
+    it('respects custom siblingCount', () => {
+      const context = createMockListContext({ total: 200, perPage: 10, page: 10 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination siblingCount={2} />
+        </TestWrapper>
+      )
+
+      // With siblingCount=2, should show pages 8, 9, 10, 11, 12 around current
+      expect(screen.getByRole('button', { name: /page 8/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /page 12/i })).toBeInTheDocument()
+    })
+
+    it('respects custom boundaryCount', () => {
+      const context = createMockListContext({ total: 200, perPage: 10, page: 10 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination boundaryCount={2} />
+        </TestWrapper>
+      )
+
+      // With boundaryCount=2, should show first 2 and last 2 pages
+      expect(screen.getByRole('button', { name: /go to page 1$/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /go to page 2$/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /go to page 19$/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /go to page 20$/i })).toBeInTheDocument()
+    })
+  })
+
+  describe('Error handling', () => {
+    it('works without context when all props are provided', () => {
+      const setPage = vi.fn()
+      const setPerPage = vi.fn()
+
+      // Render without ListContext
+      render(
+        <Pagination
+          page={1}
+          perPage={10}
+          total={50}
+          setPage={setPage}
+          setPerPage={setPerPage}
+        />
+      )
+
+      expect(screen.getByRole('navigation')).toBeInTheDocument()
+    })
+
+    it('handles edge case of page greater than calculated total pages', () => {
+      const setPage = vi.fn()
+      const context = createMockListContext({ total: 50, perPage: 10, page: 10, setPage })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      // Page 10 is beyond the 5 total pages, but component should still render
+      expect(screen.getByRole('navigation')).toBeInTheDocument()
+    })
+  })
+
+  describe('Empty and single page scenarios', () => {
+    it('does not render when there are exactly perPage items', () => {
+      const context = createMockListContext({ total: 10, perPage: 10 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+    })
+
+    it('renders when there are perPage+1 items', () => {
+      const context = createMockListContext({ total: 11, perPage: 10 })
+
+      render(
+        <TestWrapper contextValue={context}>
+          <Pagination />
+        </TestWrapper>
+      )
+
+      expect(screen.getByRole('navigation')).toBeInTheDocument()
+    })
+  })
+})

@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react'
-import type { Header, HeaderGroup, flexRender } from '@tanstack/react-table'
-import type { RaRecord } from '../../contexts/RecordContext'
+import type { HeaderGroup } from '@tanstack/react-table'
+import type { RaRecord } from '../../types'
 import type { SortPayload } from '../../contexts/ListContext'
 
 /**

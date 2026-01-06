@@ -437,4 +437,199 @@ describe('SearchInput', () => {
       expect(screen.getByRole('searchbox')).toBeDisabled()
     })
   })
+
+  describe('edge cases', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('clears pending debounce timeout when clear is clicked', () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({
+        setFilters,
+        filterValues: {},
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" debounce={500} />
+        </ListContextProvider>
+      )
+
+      const input = screen.getByRole('searchbox')
+
+      // Type something to start debounce timer
+      fireEvent.change(input, { target: { value: 'test' } })
+
+      // Clear button should appear
+      const clearButton = screen.getByRole('button', { name: /clear/i })
+
+      // Click clear before debounce fires
+      fireEvent.click(clearButton)
+
+      // Advance timers past original debounce
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      // setFilters should be called once (from clear), not twice (clear + debounce)
+      expect(setFilters).toHaveBeenCalledTimes(1)
+      expect(setFilters).toHaveBeenCalledWith({ q: undefined })
+    })
+
+    it('handles unmount during pending debounce', () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({
+        setFilters,
+        filterValues: {},
+      })
+
+      const { unmount } = render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" debounce={500} />
+        </ListContextProvider>
+      )
+
+      const input = screen.getByRole('searchbox')
+
+      // Type to start debounce
+      fireEvent.change(input, { target: { value: 'test' } })
+
+      // Unmount before debounce fires
+      unmount()
+
+      // Advance past debounce time
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      // Should not have been called since component unmounted
+      expect(setFilters).not.toHaveBeenCalled()
+    })
+
+    it('handles empty string in filterValues', () => {
+      const contextValue = createTestListContext({
+        filterValues: { q: '' },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" />
+        </ListContextProvider>
+      )
+
+      expect(screen.getByRole('searchbox')).toHaveValue('')
+      expect(screen.queryByRole('button', { name: /clear/i })).not.toBeInTheDocument()
+    })
+
+    it('syncs with external filterValues changes', () => {
+      const contextValue = createTestListContext({
+        filterValues: { q: 'initial' },
+      })
+
+      const { rerender } = render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" />
+        </ListContextProvider>
+      )
+
+      expect(screen.getByRole('searchbox')).toHaveValue('initial')
+
+      // Update context with new filterValues
+      const newContextValue = createTestListContext({
+        filterValues: { q: 'updated externally' },
+      })
+
+      rerender(
+        <ListContextProvider value={newContextValue}>
+          <SearchInput source="q" />
+        </ListContextProvider>
+      )
+
+      expect(screen.getByRole('searchbox')).toHaveValue('updated externally')
+    })
+
+    it('handles rapid typing correctly', () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({ setFilters })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" debounce={300} />
+        </ListContextProvider>
+      )
+
+      const input = screen.getByRole('searchbox')
+
+      // Simulate rapid typing
+      for (let i = 1; i <= 10; i++) {
+        fireEvent.change(input, { target: { value: 'a'.repeat(i) } })
+        act(() => {
+          vi.advanceTimersByTime(50) // Less than debounce time
+        })
+      }
+
+      // Still should not have called setFilters
+      expect(setFilters).not.toHaveBeenCalled()
+
+      // Wait for full debounce after last keystroke
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
+
+      // Should only be called once with final value
+      expect(setFilters).toHaveBeenCalledTimes(1)
+      expect(setFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ q: 'aaaaaaaaaa' })
+      )
+    })
+
+    it('handles zero debounce value', () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({ setFilters })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" debounce={0} />
+        </ListContextProvider>
+      )
+
+      const input = screen.getByRole('searchbox')
+      fireEvent.change(input, { target: { value: 'instant' } })
+
+      act(() => {
+        vi.advanceTimersByTime(0)
+      })
+
+      expect(setFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ q: 'instant' })
+      )
+    })
+
+    it('handles special characters in search', () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({ setFilters })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <SearchInput source="q" debounce={0} />
+        </ListContextProvider>
+      )
+
+      const input = screen.getByRole('searchbox')
+      fireEvent.change(input, { target: { value: 'test@example.com & <script>' } })
+
+      act(() => {
+        vi.advanceTimersByTime(0)
+      })
+
+      expect(setFilters).toHaveBeenCalledWith(
+        expect.objectContaining({ q: 'test@example.com & <script>' })
+      )
+    })
+  })
 })

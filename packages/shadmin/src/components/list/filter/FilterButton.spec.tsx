@@ -291,4 +291,127 @@ describe('FilterButton', () => {
       expect(screen.getByRole('button')).toBeDisabled()
     })
   })
+
+  describe('edge cases', () => {
+    it('handles multiple filter types correctly', () => {
+      const contextValue = createTestListContext({
+        filterValues: {
+          status: 'active',
+          category: 'tech',
+          search: 'test',
+          tags: ['a', 'b'],
+          date: new Date('2024-01-01'),
+        },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterButton />
+        </ListContextProvider>
+      )
+
+      // Should count all non-empty values
+      expect(screen.getByTestId('filter-count')).toHaveTextContent('5')
+    })
+
+    it('handles boolean false as valid filter value', () => {
+      const contextValue = createTestListContext({
+        filterValues: {
+          isActive: false, // false is a valid filter value
+          status: 'pending',
+        },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterButton />
+        </ListContextProvider>
+      )
+
+      // false should be counted as a valid filter
+      expect(screen.getByTestId('filter-count')).toHaveTextContent('2')
+    })
+
+    it('handles 0 as valid filter value', () => {
+      const contextValue = createTestListContext({
+        filterValues: {
+          count: 0, // 0 is a valid filter value
+        },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterButton />
+        </ListContextProvider>
+      )
+
+      expect(screen.getByTestId('filter-count')).toHaveTextContent('1')
+    })
+
+    it('toggles internal state multiple times', async () => {
+      const contextValue = createTestListContext()
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterButton />
+        </ListContextProvider>
+      )
+
+      const button = screen.getByRole('button')
+
+      // Initially false
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+
+      // Click once - should be true
+      await userEvent.click(button)
+      expect(button).toHaveAttribute('aria-expanded', 'true')
+
+      // Click again - should be false
+      await userEvent.click(button)
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+
+      // Click again - should be true
+      await userEvent.click(button)
+      expect(button).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('does not toggle internal state when onToggle is provided', async () => {
+      const onToggle = vi.fn()
+      const contextValue = createTestListContext()
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterButton onToggle={onToggle} isOpen={false} />
+        </ListContextProvider>
+      )
+
+      const button = screen.getByRole('button')
+
+      await userEvent.click(button)
+
+      // Should call onToggle but not change state (controlled mode)
+      expect(onToggle).toHaveBeenCalledTimes(1)
+      // State should still be false because it's controlled
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+    })
+
+    it('handles very large filter count', () => {
+      const manyFilters: Record<string, string> = {}
+      for (let i = 0; i < 99; i++) {
+        manyFilters[`filter${i}`] = `value${i}`
+      }
+
+      const contextValue = createTestListContext({
+        filterValues: manyFilters,
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterButton />
+        </ListContextProvider>
+      )
+
+      expect(screen.getByTestId('filter-count')).toHaveTextContent('99')
+    })
+  })
 })

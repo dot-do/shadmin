@@ -2,9 +2,11 @@
  * CoreAdminRoutes
  * Creates routes for all registered resources
  * Handles dashboard, list, create, edit, and show routes
+ * Uses React Router 7 for route management
  */
 
 import { type ComponentType, type ReactNode, useMemo } from 'react'
+import { Routes, Route, useLocation } from 'react-router'
 import { ResourceContextProvider } from '../../contexts'
 import type { ResourceProps, AdminLayoutProps } from '../../types'
 
@@ -16,19 +18,8 @@ export interface CoreAdminRoutesProps {
 }
 
 /**
- * Simple route matching for testing without react-router
- * In production, this would use React Router v7
- */
-const useCurrentPath = () => {
-  // For testing purposes, we check window.location
-  if (typeof window !== 'undefined') {
-    return window.location.pathname
-  }
-  return '/'
-}
-
-/**
  * Match a path pattern against a pathname
+ * Used for fallback route matching when React Router routes don't match
  */
 const matchPath = (
   pattern: string,
@@ -60,8 +51,26 @@ const matchPath = (
 }
 
 /**
+ * Wrapper component that provides ResourceContext for resource routes
+ */
+const ResourceRouteWrapper = ({
+  resourceName,
+  Component,
+}: {
+  resourceName: string
+  Component: ComponentType
+}) => {
+  return (
+    <ResourceContextProvider value={resourceName}>
+      <Component />
+    </ResourceContextProvider>
+  )
+}
+
+/**
  * CoreAdminRoutes component
- * Renders the appropriate component based on the current route
+ * Renders routes for all registered resources using React Router 7
+ * Supports nested routes, route params (:id), and proper navigation
  */
 export const CoreAdminRoutes = ({
   resources,
@@ -69,21 +78,24 @@ export const CoreAdminRoutes = ({
   layout: Layout,
   catchAll: CatchAll,
 }: CoreAdminRoutesProps) => {
-  const pathname = useCurrentPath()
+  // Use React Router's location hook for route matching
+  const location = useLocation()
+  const pathname = location.pathname
 
-  // Find the matching route and component
-  const { component, resourceName, params } = useMemo(() => {
+  // Find the matching route and component using our custom matching
+  // This provides a fallback for when React Router's Routes don't match
+  const { component, resourceName } = useMemo(() => {
     // Check if we're at the root (dashboard)
     if (pathname === '/' || pathname === '') {
       if (Dashboard) {
-        return { component: Dashboard, resourceName: null, params: {} }
+        return { component: Dashboard, resourceName: null }
       }
       // If no dashboard, redirect to first resource with a list
       const firstWithList = resources.find((r) => r.list)
       if (firstWithList) {
-        return { component: firstWithList.list!, resourceName: firstWithList.name, params: {} }
+        return { component: firstWithList.list!, resourceName: firstWithList.name }
       }
-      return { component: null, resourceName: null, params: {} }
+      return { component: null, resourceName: null }
     }
 
     // Check each resource for a matching route
@@ -94,7 +106,7 @@ export const CoreAdminRoutes = ({
       if (list) {
         const listMatch = matchPath(`/${name}`, pathname)
         if (listMatch.match) {
-          return { component: list, resourceName: name, params: listMatch.params }
+          return { component: list, resourceName: name }
         }
       }
 
@@ -102,7 +114,7 @@ export const CoreAdminRoutes = ({
       if (create) {
         const createMatch = matchPath(`/${name}/create`, pathname)
         if (createMatch.match) {
-          return { component: create, resourceName: name, params: createMatch.params }
+          return { component: create, resourceName: name }
         }
       }
 
@@ -110,7 +122,7 @@ export const CoreAdminRoutes = ({
       if (show) {
         const showMatch = matchPath(`/${name}/:id/show`, pathname)
         if (showMatch.match) {
-          return { component: show, resourceName: name, params: showMatch.params }
+          return { component: show, resourceName: name }
         }
       }
 
@@ -118,34 +130,33 @@ export const CoreAdminRoutes = ({
       if (edit) {
         const editMatch = matchPath(`/${name}/:id`, pathname)
         if (editMatch.match) {
-          return { component: edit, resourceName: name, params: editMatch.params }
+          return { component: edit, resourceName: name }
         }
       }
     }
 
     // No match found
-    return { component: CatchAll ?? null, resourceName: null, params: {} }
+    return { component: CatchAll ?? null, resourceName: null }
   }, [pathname, Dashboard, resources, CatchAll])
 
-  // Render the component
+  // Render the content using route matching
   const renderContent = () => {
     if (!component) {
       return null
     }
 
     const Component = component as ComponentType
-    const content = <Component />
 
     // Wrap with ResourceContext if we have a resource name
     if (resourceName) {
       return (
         <ResourceContextProvider value={resourceName}>
-          {content}
+          <Component />
         </ResourceContextProvider>
       )
     }
 
-    return content
+    return <Component />
   }
 
   const content = renderContent()

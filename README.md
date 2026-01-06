@@ -149,6 +149,126 @@ npm run dev
 
 ---
 
+## Quick Start Example: ToDo App
+
+A complete, copy-pastable ToDo application in under 100 lines:
+
+```tsx
+import {
+  Admin,
+  Resource,
+  List,
+  Datagrid,
+  TextField,
+  BooleanField,
+  Create,
+  Edit,
+  SimpleForm,
+  TextInput,
+  BooleanInput,
+  DataProvider,
+} from 'shadmin'
+
+// In-memory mock data provider
+let todos = [
+  { id: 1, title: 'Learn Shadmin', completed: true },
+  { id: 2, title: 'Build an admin panel', completed: false },
+  { id: 3, title: 'Deploy to production', completed: false },
+]
+let nextId = 4
+
+const dataProvider: DataProvider = {
+  getList: async () => ({ data: todos, total: todos.length }),
+  getOne: async (resource, { id }) => ({
+    data: todos.find((t) => t.id === Number(id))!,
+  }),
+  getMany: async (resource, { ids }) => ({
+    data: todos.filter((t) => ids.includes(t.id)),
+  }),
+  getManyReference: async () => ({ data: [], total: 0 }),
+  create: async (resource, { data }) => {
+    const newTodo = { ...data, id: nextId++ }
+    todos.push(newTodo)
+    return { data: newTodo }
+  },
+  update: async (resource, { id, data }) => {
+    const index = todos.findIndex((t) => t.id === Number(id))
+    todos[index] = { ...todos[index], ...data }
+    return { data: todos[index] }
+  },
+  updateMany: async (resource, { ids, data }) => {
+    ids.forEach((id) => {
+      const index = todos.findIndex((t) => t.id === Number(id))
+      todos[index] = { ...todos[index], ...data }
+    })
+    return { data: ids }
+  },
+  delete: async (resource, { id }) => {
+    const deleted = todos.find((t) => t.id === Number(id))!
+    todos = todos.filter((t) => t.id !== Number(id))
+    return { data: deleted }
+  },
+  deleteMany: async (resource, { ids }) => {
+    todos = todos.filter((t) => !ids.includes(t.id))
+    return { data: ids }
+  },
+}
+
+// List view with Datagrid
+const TodoList = () => (
+  <List>
+    <Datagrid rowClick="edit">
+      <TextField source="id" />
+      <TextField source="title" />
+      <BooleanField source="completed" />
+    </Datagrid>
+  </List>
+)
+
+// Create form
+const TodoCreate = () => (
+  <Create>
+    <SimpleForm>
+      <TextInput source="title" />
+      <BooleanInput source="completed" defaultValue={false} />
+    </SimpleForm>
+  </Create>
+)
+
+// Edit form
+const TodoEdit = () => (
+  <Edit>
+    <SimpleForm>
+      <TextInput source="title" />
+      <BooleanInput source="completed" />
+    </SimpleForm>
+  </Edit>
+)
+
+// App entry point
+export default function App() {
+  return (
+    <Admin dataProvider={dataProvider}>
+      <Resource
+        name="todos"
+        list={TodoList}
+        create={TodoCreate}
+        edit={TodoEdit}
+      />
+    </Admin>
+  )
+}
+```
+
+Run it:
+
+```bash
+npm install shadmin
+# Add the above code to your App.tsx and start your dev server
+```
+
+---
+
 ## Examples
 
 ### List with Filters and Pagination

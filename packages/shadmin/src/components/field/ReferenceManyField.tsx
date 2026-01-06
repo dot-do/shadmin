@@ -6,9 +6,9 @@
 import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
-import { useRecordContext, RecordContextProvider, type RaRecord } from '../../contexts/RecordContext'
+import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetManyReference } from '../../hooks/useGetManyReference'
-import type { Identifier } from '../../types'
+import type { Identifier, RaRecord } from '../../types'
 
 export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> {
   /** The field name in the record that contains the ID to look up */

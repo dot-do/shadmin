@@ -261,7 +261,8 @@ describe('Package Exports', () => {
 
     it('exports Resource', () => {
       expect(shadmin.Resource).toBeDefined()
-      expect(typeof shadmin.Resource).toBe('function')
+      // Resource is wrapped in memo(), which returns an object (MemoExoticComponent)
+      expect(typeof shadmin.Resource).toMatch(/function|object/)
     })
   })
 

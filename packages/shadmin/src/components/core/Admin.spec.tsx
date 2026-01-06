@@ -5,16 +5,22 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { Admin } from './Admin'
 import { Resource } from './Resource'
 import { useDataProvider, useAuthProviderOptional } from '../../contexts'
 import { createMockDataProvider, createMockAuthProvider } from '../../test-utils'
 
+// Helper to wrap Admin with MemoryRouter
+const renderAdmin = (ui: React.ReactElement) => {
+  return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
+
 describe('<Admin />', () => {
   const defaultDataProvider = createMockDataProvider()
 
   it('renders without crashing', () => {
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider}>
         <div>Test content</div>
       </Admin>
@@ -32,7 +38,7 @@ describe('<Admin />', () => {
       return <div data-testid="has-dataprovider">{dataProvider ? 'yes' : 'no'}</div>
     }
 
-    render(
+    renderAdmin(
       <Admin dataProvider={mockDataProvider}>
         <TestComponent />
       </Admin>
@@ -49,7 +55,7 @@ describe('<Admin />', () => {
       return <div data-testid="has-authprovider">{authProvider ? 'yes' : 'no'}</div>
     }
 
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider} authProvider={mockAuthProvider}>
         <TestComponent />
       </Admin>
@@ -64,7 +70,7 @@ describe('<Admin />', () => {
       return <div data-testid="has-authprovider">{authProvider ? 'yes' : 'no'}</div>
     }
 
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider}>
         <TestComponent />
       </Admin>
@@ -74,7 +80,7 @@ describe('<Admin />', () => {
   })
 
   it('renders children', () => {
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider}>
         <div data-testid="child-1">Child 1</div>
         <div data-testid="child-2">Child 2</div>
@@ -93,7 +99,7 @@ describe('<Admin />', () => {
       </div>
     )
 
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider} layout={CustomLayout}>
         <div>Content</div>
       </Admin>
@@ -106,7 +112,7 @@ describe('<Admin />', () => {
   it('renders dashboard when provided', async () => {
     const Dashboard = () => <div data-testid="dashboard">Welcome to Dashboard</div>
 
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider} dashboard={Dashboard}>
         <Resource name="posts" list={() => <div>Posts List</div>} />
       </Admin>
@@ -117,7 +123,7 @@ describe('<Admin />', () => {
   })
 
   it('accepts basename prop for routing', () => {
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider} basename="/admin">
         <div>Content</div>
       </Admin>
@@ -128,7 +134,7 @@ describe('<Admin />', () => {
   })
 
   it('accepts title prop', () => {
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider} title="My Admin App">
         <div>Content</div>
       </Admin>
@@ -142,7 +148,7 @@ describe('<Admin />', () => {
     const PostList = () => <div data-testid="post-list">Posts</div>
     const UserList = () => <div data-testid="user-list">Users</div>
 
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider}>
         <Resource name="posts" list={PostList} />
         <Resource name="users" list={UserList} />
@@ -157,7 +163,7 @@ describe('<Admin />', () => {
     const theme = { palette: { primary: { main: '#000' } } }
     const darkTheme = { palette: { primary: { main: '#fff' } } }
 
-    render(
+    renderAdmin(
       <Admin dataProvider={defaultDataProvider} theme={theme} darkTheme={darkTheme}>
         <div>Content</div>
       </Admin>
@@ -197,7 +203,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
       // Admin should catch the error and not propagate it
       // Without error boundary, this would cause the test to fail
       expect(() => {
-        render(
+        renderAdmin(
           <Admin dataProvider={defaultDataProvider}>
             <ThrowingComponent />
           </Admin>
@@ -217,7 +223,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
       )
 
       expect(() => {
-        render(
+        renderAdmin(
           <Admin dataProvider={defaultDataProvider}>
             <DeeplyNestedThrower />
           </Admin>
@@ -231,7 +237,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
       }
 
       expect(() => {
-        render(
+        renderAdmin(
           <Admin dataProvider={defaultDataProvider}>
             <Resource name="posts" list={ThrowingList} />
           </Admin>
@@ -242,7 +248,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
 
   describe('error fallback UI', () => {
     it('displays error fallback UI when a child component throws', () => {
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider}>
           <ThrowingComponent />
         </Admin>
@@ -253,7 +259,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
     })
 
     it('displays the error message in the fallback UI', () => {
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider}>
           <ThrowingComponent />
         </Admin>
@@ -271,7 +277,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
         </div>
       )
 
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider} error={CustomErrorComponent}>
           <ThrowingComponent />
         </Admin>
@@ -290,7 +296,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
         </div>
       )
 
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider} error={CustomErrorComponent}>
           <ThrowingComponent />
         </Admin>
@@ -303,7 +309,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
 
   describe('error logging', () => {
     it('logs the error to console when a child component throws', () => {
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider}>
           <ThrowingComponent />
         </Admin>
@@ -314,7 +320,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
     })
 
     it('logs the error with correct error message', () => {
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider}>
           <ThrowingComponent />
         </Admin>
@@ -330,7 +336,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
     })
 
     it('logs component stack trace when error boundary catches error', () => {
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider}>
           <ThrowingComponent />
         </Admin>
@@ -350,7 +356,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
 
   describe('error recovery', () => {
     it('continues to render other content when one child throws', () => {
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider}>
           <div data-testid="sibling-content">Sibling content</div>
           <ThrowingComponent />
@@ -383,7 +389,7 @@ describe('<Admin /> Error Boundary Behavior', () => {
         </div>
       )
 
-      render(
+      renderAdmin(
         <Admin dataProvider={defaultDataProvider} error={CustomErrorComponent}>
           <ConditionalThrow />
         </Admin>

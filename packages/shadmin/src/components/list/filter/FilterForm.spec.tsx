@@ -237,4 +237,206 @@ describe('FilterForm', () => {
       })
     })
   })
+
+  describe('edge cases', () => {
+    it('handles empty defaultValues', async () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({ setFilters })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm defaultValues={{}}>
+            {({ register }) => (
+              <>
+                <input {...register('search')} data-testid="search-input" />
+                <button type="submit">Submit</button>
+              </>
+            )}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      await userEvent.type(screen.getByTestId('search-input'), 'test')
+      await userEvent.click(screen.getByText('Submit'))
+
+      await waitFor(() => {
+        expect(setFilters).toHaveBeenCalled()
+      })
+    })
+
+    it('handles undefined children gracefully', () => {
+      const contextValue = createTestListContext()
+
+      // Should not crash with null/undefined children
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm>
+            {null}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      expect(screen.getByRole('form')).toBeInTheDocument()
+    })
+
+    it('merges defaultValues with filterValues from context', () => {
+      const contextValue = createTestListContext({
+        filterValues: { status: 'active' },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm defaultValues={{ search: 'default' }}>
+            {({ register }) => (
+              <>
+                <input {...register('search')} data-testid="search-input" />
+                <input {...register('status')} data-testid="status-input" />
+              </>
+            )}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      // Context filterValues should override defaultValues
+      expect(screen.getByTestId('status-input')).toHaveValue('active')
+    })
+
+    it('handles multiple form submissions', async () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({ setFilters })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm defaultValues={{ search: '' }}>
+            {({ register }) => (
+              <>
+                <input {...register('search')} data-testid="search-input" />
+                <button type="submit">Submit</button>
+              </>
+            )}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      const input = screen.getByTestId('search-input')
+
+      // First submission
+      await userEvent.type(input, 'first')
+      await userEvent.click(screen.getByText('Submit'))
+
+      await waitFor(() => {
+        expect(setFilters).toHaveBeenCalledWith(
+          expect.objectContaining({ search: 'first' })
+        )
+      })
+
+      // Clear and second submission
+      await userEvent.clear(input)
+      await userEvent.type(input, 'second')
+      await userEvent.click(screen.getByText('Submit'))
+
+      await waitFor(() => {
+        expect(setFilters).toHaveBeenCalledWith(
+          expect.objectContaining({ search: 'second' })
+        )
+      })
+    })
+
+    it('resets page when reset is called', async () => {
+      const setPage = vi.fn()
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({
+        setPage,
+        setFilters,
+        page: 5,
+        filterValues: { search: 'test' },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm>
+            {({ reset }) => (
+              <button type="button" onClick={() => reset()}>
+                Clear
+              </button>
+            )}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      await userEvent.click(screen.getByText('Clear'))
+
+      await waitFor(() => {
+        expect(setPage).toHaveBeenCalledWith(1)
+      })
+    })
+
+    it('handles form submission with Enter key', async () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({ setFilters })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm defaultValues={{ search: '' }}>
+            {({ register }) => (
+              <input {...register('search')} data-testid="search-input" />
+            )}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      const input = screen.getByTestId('search-input')
+      await userEvent.type(input, 'enter test{enter}')
+
+      await waitFor(() => {
+        expect(setFilters).toHaveBeenCalled()
+      })
+    })
+
+    it('provides all react-hook-form methods to render prop', () => {
+      const contextValue = createTestListContext()
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm>
+            {(formMethods) => {
+              // Check that standard react-hook-form methods are available
+              expect(typeof formMethods.register).toBe('function')
+              expect(typeof formMethods.handleSubmit).toBe('function')
+              expect(typeof formMethods.watch).toBe('function')
+              expect(typeof formMethods.reset).toBe('function')
+              expect(typeof formMethods.setValue).toBe('function')
+              expect(typeof formMethods.getValues).toBe('function')
+              return <span>Form rendered</span>
+            }}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      expect(screen.getByText('Form rendered')).toBeInTheDocument()
+    })
+
+    it('handles nested object values in filters', async () => {
+      const setFilters = vi.fn()
+      const contextValue = createTestListContext({
+        setFilters,
+        filterValues: { 'nested.field': 'value' },
+      })
+
+      render(
+        <ListContextProvider value={contextValue}>
+          <FilterForm>
+            {({ register }) => (
+              <>
+                <input {...register('nested.field')} data-testid="nested-input" />
+                <button type="submit">Submit</button>
+              </>
+            )}
+          </FilterForm>
+        </ListContextProvider>
+      )
+
+      expect(screen.getByTestId('nested-input')).toHaveValue('value')
+    })
+  })
 })

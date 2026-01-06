@@ -9,10 +9,10 @@
 import type { ReactNode, ReactElement } from 'react'
 import { EditBase, type EditBaseProps, type RedirectTo } from './EditBase'
 import { EditView, type EditViewProps } from './EditView'
-import { useRecordContext, type RaRecord } from '../../contexts/RecordContext'
+import { useRecordContext } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
 import { useResourceContext } from '../../contexts/ResourceContext'
-import type { Identifier } from '../../types'
+import type { Identifier, RaRecord } from '../../types'
 import type { MutationMode } from '../../contexts/FormContext'
 
 /**

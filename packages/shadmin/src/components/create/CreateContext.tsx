@@ -6,7 +6,7 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, memo, type ReactNode } from 'react'
 import type { RaRecord } from '../../types'
 
 /**
@@ -56,6 +56,7 @@ export interface CreateContextProviderProps<TData = Record<string, unknown>> {
 /**
  * Provider component for CreateContext.
  * Wraps children with create form state and save function.
+ * Memoized to prevent unnecessary re-renders.
  *
  * @example
  * ```tsx
@@ -64,7 +65,7 @@ export interface CreateContextProviderProps<TData = Record<string, unknown>> {
  * </CreateContextProvider>
  * ```
  */
-export function CreateContextProvider<TData = Record<string, unknown>>({
+export const CreateContextProvider = memo(function CreateContextProvider<TData = Record<string, unknown>>({
   value,
   children,
 }: CreateContextProviderProps<TData>) {
@@ -73,7 +74,7 @@ export function CreateContextProvider<TData = Record<string, unknown>>({
       {children}
     </CreateContext.Provider>
   )
-}
+}) as <TData = Record<string, unknown>>(props: CreateContextProviderProps<TData>) => JSX.Element
 
 /**
  * Hook to access the create context.

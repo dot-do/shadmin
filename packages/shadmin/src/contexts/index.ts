@@ -35,9 +35,11 @@ export {
   RecordContext,
   RecordContextProvider,
   useRecordContext,
-  type RaRecord,
   type RecordContextProviderProps,
 } from './RecordContext'
+
+// RaRecord is exported from types/record.ts - re-export for backwards compatibility
+export type { RaRecord } from '../types'
 
 export {
   ListContext,

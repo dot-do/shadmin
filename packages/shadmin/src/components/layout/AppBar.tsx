@@ -10,8 +10,7 @@
  * - Theme toggle support
  */
 
-import * as React from 'react'
-import { type ReactNode } from 'react'
+import { type ReactNode, useState, useCallback } from 'react'
 import { cn } from '../../lib/utils'
 import { useSidebar, SidebarTrigger } from './Layout'
 
@@ -55,13 +54,21 @@ interface UserMenuProps {
 }
 
 function UserMenu({ user }: UserMenuProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const toggleMenu = useCallback(() => {
+    setIsOpen((prev) => !prev)
+  }, [])
+
+  const closeMenu = useCallback(() => {
+    setIsOpen(false)
+  }, [])
 
   return (
     <div className="relative">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleMenu}
         className={cn(
           'flex items-center gap-2 rounded-md px-2 py-1',
           'text-sm font-medium transition-colors',
@@ -109,7 +116,7 @@ function UserMenu({ user }: UserMenuProps) {
         <>
           <div
             className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
+            onClick={closeMenu}
             aria-hidden="true"
           />
           <div
@@ -136,7 +143,7 @@ function UserMenu({ user }: UserMenuProps) {
                 'hover:bg-accent hover:text-accent-foreground',
                 'focus:bg-accent focus:text-accent-foreground focus:outline-none'
               )}
-              onClick={() => setIsOpen(false)}
+              onClick={closeMenu}
             >
               Profile
             </button>
@@ -147,7 +154,7 @@ function UserMenu({ user }: UserMenuProps) {
                 'hover:bg-accent hover:text-accent-foreground',
                 'focus:bg-accent focus:text-accent-foreground focus:outline-none'
               )}
-              onClick={() => setIsOpen(false)}
+              onClick={closeMenu}
             >
               Settings
             </button>
@@ -159,7 +166,7 @@ function UserMenu({ user }: UserMenuProps) {
                 'hover:bg-destructive/10',
                 'focus:bg-destructive/10 focus:outline-none'
               )}
-              onClick={() => setIsOpen(false)}
+              onClick={closeMenu}
             >
               Log out
             </button>

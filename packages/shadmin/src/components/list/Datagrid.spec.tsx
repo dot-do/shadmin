@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { Datagrid, type DatagridProps } from './Datagrid'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
 import { useRecordContext } from '../../contexts/RecordContext'
-import type { RaRecord } from '../../contexts/RecordContext'
+import type { RaRecord } from '../../types'
 
 interface TestRecord extends RaRecord {
   id: number
@@ -475,6 +475,206 @@ describe('Datagrid', () => {
       }).toThrow(/ListContextProvider/i)
 
       consoleSpy.mockRestore()
+    })
+  })
+
+  describe('Edge cases', () => {
+    it('should handle data with a single item', () => {
+      const singleItemData: TestRecord[] = [
+        { id: 1, name: 'Only One', email: 'only@example.com', status: 'active' }
+      ]
+      renderDatagrid({}, { data: singleItemData, total: 1 })
+
+      const rows = screen.getAllByRole('row')
+      // 1 header row + 1 data row
+      expect(rows).toHaveLength(2)
+      expect(screen.getByText('Only One')).toBeInTheDocument()
+    })
+
+    it('should handle many items efficiently', () => {
+      const manyItems: TestRecord[] = Array.from({ length: 100 }, (_, i) => ({
+        id: i + 1,
+        name: `User ${i + 1}`,
+        email: `user${i + 1}@example.com`,
+        status: i % 2 === 0 ? 'active' : 'inactive',
+      }))
+      renderDatagrid({}, { data: manyItems, total: 100 })
+
+      const rows = screen.getAllByRole('row')
+      // 1 header row + 100 data rows
+      expect(rows).toHaveLength(101)
+    })
+
+    it('should handle null and undefined in data fields gracefully', () => {
+      const nullData = [
+        { id: 1, name: null, email: undefined, status: 'active' }
+      ] as unknown as TestRecord[]
+
+      const context = createTestListContext({ data: nullData, total: 1 })
+      render(
+        <ListContextProvider value={context}>
+          <Datagrid>
+            <TextField source="name" />
+            <TextField source="email" />
+          </Datagrid>
+        </ListContextProvider>
+      )
+
+      // Should render without crashing
+      expect(screen.getByRole('table')).toBeInTheDocument()
+    })
+
+    it('should handle data array becoming undefined after having data', () => {
+      const context = createTestListContext({ data: testData, total: 3 })
+      const { rerender } = render(
+        <ListContextProvider value={context}>
+          <Datagrid>
+            <TextField source="name" />
+          </Datagrid>
+        </ListContextProvider>
+      )
+
+      expect(screen.getByText('John Doe')).toBeInTheDocument()
+
+      // Rerender with undefined data
+      const newContext = createTestListContext({ data: undefined, total: 0, isLoading: true })
+      rerender(
+        <ListContextProvider value={newContext}>
+          <Datagrid>
+            <TextField source="name" />
+          </Datagrid>
+        </ListContextProvider>
+      )
+
+      // Should show loading state
+      expect(screen.getByRole('status')).toBeInTheDocument()
+    })
+
+    it('should handle records with special characters in field values', () => {
+      const specialData: TestRecord[] = [
+        { id: 1, name: '<script>alert("xss")</script>', email: 'test@example.com', status: 'active' },
+        { id: 2, name: '& ampersand "quotes"', email: "test'apostrophe@example.com", status: 'inactive' },
+      ]
+      renderDatagrid({}, { data: specialData, total: 2 })
+
+      // Should render special characters as text, not HTML
+      expect(screen.getByText('<script>alert("xss")</script>')).toBeInTheDocument()
+      expect(screen.getByText('& ampersand "quotes"')).toBeInTheDocument()
+    })
+
+    it('should handle columns with custom render function', () => {
+      const context = createTestListContext()
+      render(
+        <ListContextProvider value={context}>
+          <Datagrid
+            columns={[
+              { source: 'name', label: 'Full Name' },
+              {
+                source: 'status',
+                label: 'Status',
+                render: (record) => <span data-testid="custom-render">{String(record.status).toUpperCase()}</span>
+              },
+            ]}
+          />
+        </ListContextProvider>
+      )
+
+      const customElements = screen.getAllByTestId('custom-render')
+      expect(customElements).toHaveLength(3)
+      expect(customElements[0]).toHaveTextContent('ACTIVE')
+    })
+
+    it('should handle columns with sortable set to false', async () => {
+      const user = userEvent.setup()
+      const setSort = vi.fn()
+      const context = createTestListContext({ setSort })
+
+      render(
+        <ListContextProvider value={context}>
+          <Datagrid
+            columns={[
+              { source: 'name', sortable: true },
+              { source: 'status', sortable: false },
+            ]}
+          />
+        </ListContextProvider>
+      )
+
+      // Click on non-sortable column should not trigger setSort
+      const statusHeader = screen.getByRole('columnheader', { name: /status/i })
+      await user.click(statusHeader)
+      expect(setSort).not.toHaveBeenCalled()
+    })
+
+    it('should handle sort when field is undefined', () => {
+      renderDatagrid({}, { sort: undefined })
+      const headers = screen.getAllByRole('columnheader')
+      // No column should have aria-sort
+      headers.forEach(header => {
+        expect(header).not.toHaveAttribute('aria-sort')
+      })
+    })
+
+    it('should handle selection with empty data array', () => {
+      const onSelect = vi.fn()
+      const onUnselectItems = vi.fn()
+      renderDatagrid(
+        { bulkActionButtons: true },
+        { data: [], total: 0, onSelect, onUnselectItems }
+      )
+
+      // Should still show the table but with empty message
+      expect(screen.getByText(/no data available/i)).toBeInTheDocument()
+    })
+
+    it('should handle undefined selectedIds gracefully', () => {
+      // This tests the case where selectedIds might not include expected values
+      renderDatagrid(
+        { bulkActionButtons: true },
+        { selectedIds: [999] } // ID that doesn't exist in data
+      )
+
+      const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[]
+      // None of the row checkboxes should be checked
+      checkboxes.slice(1).forEach(checkbox => {
+        expect(checkbox).not.toBeChecked()
+      })
+    })
+  })
+
+  describe('Loading states with data', () => {
+    it('should show data when isLoading is true but data exists', () => {
+      renderDatagrid({}, { isLoading: true, data: testData })
+
+      // Should show actual data, not skeleton
+      expect(screen.getByText('John Doe')).toBeInTheDocument()
+      expect(screen.queryAllByTestId('skeleton-row')).toHaveLength(0)
+    })
+
+    it('should render correct number of skeleton columns based on children', () => {
+      const context = createTestListContext({ isLoading: true, data: undefined })
+      render(
+        <ListContextProvider value={context}>
+          <Datagrid>
+            <TextField source="name" />
+            <TextField source="email" />
+          </Datagrid>
+        </ListContextProvider>
+      )
+
+      const skeletonRows = screen.getAllByTestId('skeleton-row')
+      expect(skeletonRows.length).toBeGreaterThan(0)
+      // Each skeleton row should have same number of cells as columns
+      const firstRowCells = skeletonRows[0].querySelectorAll('td')
+      expect(firstRowCells).toHaveLength(2)
+    })
+  })
+
+  describe('Size variations', () => {
+    it('should apply lg size styling', () => {
+      renderDatagrid({ size: 'lg' })
+      const table = screen.getByRole('table')
+      expect(table.className).toMatch(/lg|large/i)
     })
   })
 

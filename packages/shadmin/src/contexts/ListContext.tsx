@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import type { RaRecord, Identifier } from '../types'
 
 // Re-export Identifier from types for backward compatibility
@@ -97,8 +97,35 @@ export function ListContextProvider<T extends RaRecord = RaRecord>({
   value,
   children,
 }: ListContextProviderProps<T>) {
+  // Memoize the value to prevent unnecessary re-renders when parent re-renders
+  // but the list state hasn't actually changed
+  const memoizedValue = useMemo(
+    () => value,
+    [
+      value.data,
+      value.total,
+      value.isLoading,
+      value.isFetching,
+      value.error,
+      value.page,
+      value.perPage,
+      value.sort,
+      value.filterValues,
+      value.selectedIds,
+      value.resource,
+      value.setPage,
+      value.setPerPage,
+      value.setSort,
+      value.setFilters,
+      value.onSelect,
+      value.onToggleItem,
+      value.onUnselectItems,
+      value.refetch,
+    ]
+  )
+
   return (
-    <ListContext.Provider value={value as ListControllerResult}>
+    <ListContext.Provider value={memoizedValue as ListControllerResult}>
       {children}
     </ListContext.Provider>
   )

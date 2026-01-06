@@ -7,10 +7,10 @@
  */
 
 import { type ReactNode, useMemo } from 'react'
-import { RecordContextProvider, type RaRecord } from '../../contexts/RecordContext'
+import { RecordContextProvider } from '../../contexts/RecordContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { useGetOne, type UseGetOneOptions } from '../../hooks/useGetOne'
-import type { Identifier } from '../../types'
+import type { Identifier, RaRecord } from '../../types'
 
 /**
  * Controller result passed to children render prop

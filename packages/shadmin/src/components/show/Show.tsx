@@ -9,8 +9,7 @@
 import type { ReactNode, ReactElement } from 'react'
 import { ShowBase, type ShowBaseProps, type ShowControllerResult } from './ShowBase'
 import { ShowView, type ShowViewProps } from './ShowView'
-import type { RaRecord } from '../../contexts/RecordContext'
-import type { Identifier } from '../../types'
+import type { Identifier, RaRecord } from '../../types'
 
 /**
  * Props for Show component

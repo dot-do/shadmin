@@ -5,7 +5,6 @@ import {
   type MouseEvent,
   Children,
   isValidElement,
-  cloneElement,
   useCallback,
   useMemo,
   useRef,
@@ -24,7 +23,8 @@ import {
   type ExpandedState,
 } from '@tanstack/react-table'
 import { useListContext, type SortPayload, type Identifier } from '../../contexts/ListContext'
-import { RecordContextProvider, type RaRecord } from '../../contexts/RecordContext'
+import { RecordContextProvider } from '../../contexts/RecordContext'
+import type { RaRecord } from '../../types'
 import { DatagridHeader } from './DatagridHeader'
 import { DatagridBody } from './DatagridBody'
 import { DatagridRow } from './DatagridRow'

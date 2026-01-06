@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import {
   FormProvider,
   useFormContext as useRHFFormContext,
@@ -77,14 +77,18 @@ export function FormContextProvider<T extends FieldValues = FieldValues>({
   onDelete,
   ...formMethods
 }: FormContextProviderProps<T>) {
-  const shadminContext: ShadminFormContextValue<T> = {
-    record,
-    resource,
-    save,
-    saving,
-    mutationMode,
-    onDelete,
-  }
+  // Memoize the shadmin context to prevent unnecessary re-renders
+  const shadminContext = useMemo<ShadminFormContextValue<T>>(
+    () => ({
+      record,
+      resource,
+      save,
+      saving,
+      mutationMode,
+      onDelete,
+    }),
+    [record, resource, save, saving, mutationMode, onDelete]
+  )
 
   return (
     <FormProvider {...formMethods}>
@@ -123,13 +127,17 @@ export function useShadminFormContext<T extends FieldValues = FieldValues>():
   const rhfContext = useRHFFormContext<T>()
   const shadminContext = useContext(FormContext) as ShadminFormContextValue<T> | undefined
 
-  return {
-    ...rhfContext,
-    record: shadminContext?.record,
-    resource: shadminContext?.resource,
-    save: shadminContext?.save,
-    saving: shadminContext?.saving,
-    mutationMode: shadminContext?.mutationMode,
-    onDelete: shadminContext?.onDelete,
-  }
+  // Memoize the combined context to prevent unnecessary re-renders in consumers
+  return useMemo(
+    () => ({
+      ...rhfContext,
+      record: shadminContext?.record,
+      resource: shadminContext?.resource,
+      save: shadminContext?.save,
+      saving: shadminContext?.saving,
+      mutationMode: shadminContext?.mutationMode,
+      onDelete: shadminContext?.onDelete,
+    }),
+    [rhfContext, shadminContext]
+  )
 }

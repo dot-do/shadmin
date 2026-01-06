@@ -1,9 +1,9 @@
 import { type HTMLAttributes, type ReactNode } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
-import { useRecordContext, RecordContextProvider, type RaRecord } from '../../contexts/RecordContext'
+import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
-import type { Identifier } from '../../types'
+import type { Identifier, RaRecord } from '../../types'
 
 export interface ReferenceFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** The field name in the record that contains the reference ID */

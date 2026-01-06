@@ -9,7 +9,6 @@
  * - Theme switching support
  */
 
-import * as React from 'react'
 import {
   createContext,
   useContext,
@@ -17,6 +16,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   type ReactNode,
   type ComponentType,
 } from 'react'
@@ -204,9 +204,9 @@ interface DefaultSidebarProps {
 
 function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
   const { open, openMobile, setOpenMobile, isMobile } = useSidebar()
-  const sidebarRef = React.useRef<HTMLElement>(null)
-  const triggerRef = React.useRef<HTMLElement | null>(null)
-  const prevOpenMobileRef = React.useRef(false)
+  const sidebarRef = useRef<HTMLElement>(null)
+  const triggerRef = useRef<HTMLElement | null>(null)
+  const prevOpenMobileRef = useRef(false)
 
   // Focus management: store trigger and move focus when sidebar opens
   useEffect(() => {
@@ -476,8 +476,6 @@ export function Layout({
   onThemeChange,
   showThemeToggle = false,
 }: LayoutProps) {
-  const isMobile = useMediaQuery('(max-width: 768px)')
-
   const handleThemeToggle = useCallback(() => {
     if (onThemeChange) {
       const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
@@ -501,7 +499,6 @@ export function Layout({
         theme={theme}
         onThemeChange={handleThemeToggle}
         showThemeToggle={showThemeToggle}
-        isMobile={isMobile}
       >
         {children}
       </LayoutInner>
@@ -510,7 +507,6 @@ export function Layout({
 }
 
 interface LayoutInnerProps extends Omit<LayoutProps, 'defaultOpen' | 'open' | 'onOpenChange'> {
-  isMobile: boolean
   onThemeChange: () => void
 }
 
@@ -525,9 +521,8 @@ function LayoutInner({
   theme,
   onThemeChange,
   showThemeToggle,
-  isMobile,
 }: LayoutInnerProps) {
-  const { open } = useSidebar()
+  const { open, isMobile } = useSidebar()
 
   const sidebarElement = sidebar ?? (
     <DefaultSidebar title={title} menu={menu} menuItems={menuItems} />
