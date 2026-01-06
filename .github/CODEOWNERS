@@ -6,7 +6,7 @@
 
 # Package-specific ownership
 /packages/shadmin/ @nathanclevenger
-/packages/shadmin-mondo/ @nathanclevenger
+/packages/shadmin-db/ @nathanclevenger
 /packages/create-shadmin/ @nathanclevenger
 
 # CI/CD workflows

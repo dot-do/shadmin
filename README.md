@@ -112,7 +112,7 @@ npm install shadmin
 
 ```tsx
 import { Admin, Resource, List, Datagrid, TextField, DateField } from 'shadmin'
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 import { MongoClient } from 'mongo.do'
 
 // Connect to mongo.do
@@ -443,7 +443,7 @@ const myDataProvider: DataProvider = {
 | Package | Description |
 |---------|-------------|
 | `shadmin` | Core components, hooks, and contexts |
-| `shadmin-mondo` | mongo.do DataProvider integration |
+| `shadmin-db` | mongo.do DataProvider integration |
 | `create-shadmin` | CLI scaffolding tool |
 
 ---
@@ -454,7 +454,7 @@ const myDataProvider: DataProvider = {
 
 ```tsx
 import { Admin, Resource } from 'shadmin'
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 import { MongoClient } from 'mongo.do'
 
 const client = new MongoClient('https://your-worker.workers.dev')
@@ -622,7 +622,7 @@ packages/
       hooks/                # useGetList, useCreate, useNotify...
       types/                # TypeScript interfaces
       utils/                # Shared utilities
-  shadmin-mondo/            # mongo.do integration
+  shadmin-db/            # mongo.do integration
     src/
       data-provider.ts      # createMondoDataProvider
   create-shadmin/           # CLI scaffolding

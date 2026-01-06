@@ -128,7 +128,7 @@ packages/
 │   │
 │   └── package.json
 │
-├── shadmin-mondo/               # mongo.do integration
+├── shadmin-db/               # mongo.do integration
 │   ├── src/
 │   │   ├── data-provider.ts     # createMondoDataProvider
 │   │   ├── auth-provider.ts     # createMondoAuthProvider

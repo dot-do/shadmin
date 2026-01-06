@@ -1,10 +1,10 @@
 # mongo.do DataProvider
 
-The `shadmin-mondo` package provides a DataProvider implementation for MongoDB via the [mongo.do](https://mongo.do) API service. This enables you to build admin interfaces directly on top of MongoDB collections with full CRUD support.
+The `shadmin-db` package provides a DataProvider implementation for MongoDB via the [mongo.do](https://mongo.do) API service. This enables you to build admin interfaces directly on top of MongoDB collections with full CRUD support.
 
 ## Overview
 
-`shadmin-mondo` is a separate package that integrates with the Shadmin DataProvider interface, allowing you to:
+`shadmin-db` is a separate package that integrates with the Shadmin DataProvider interface, allowing you to:
 
 - Connect to MongoDB via the mongo.do cloud service
 - Perform all CRUD operations (create, read, update, delete)
@@ -16,17 +16,17 @@ The `shadmin-mondo` package provides a DataProvider implementation for MongoDB v
 
 ## Installation
 
-Install the `shadmin-mondo` package alongside `mongo.do`:
+Install the `shadmin-db` package alongside `mongo.do`:
 
 ```bash
 # Using npm
-npm install shadmin-mondo mongo.do
+npm install shadmin-db mongo.do
 
 # Using pnpm
-pnpm add shadmin-mondo mongo.do
+pnpm add shadmin-db mongo.do
 
 # Using yarn
-yarn add shadmin-mondo mongo.do
+yarn add shadmin-db mongo.do
 ```
 
 ### Peer Dependencies
@@ -43,7 +43,7 @@ yarn add shadmin-mondo mongo.do
 
 ```typescript
 import { MongoClient } from 'mongo.do'
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 
 // Initialize the mongo.do client
 const client = new MongoClient('your-api-key')
@@ -60,7 +60,7 @@ const dataProvider = createMondoDataProvider({
 ```tsx
 import { Admin, Resource, ListGuesser, EditGuesser } from 'shadmin'
 import { MongoClient } from 'mongo.do'
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 
 const client = new MongoClient(process.env.MONGO_DO_API_KEY!)
 const dataProvider = createMondoDataProvider({
@@ -101,7 +101,7 @@ const client = new MongoClient(process.env.MONGO_DO_API_KEY!)
 
 ```typescript
 import { MongoClient } from 'mongo.do'
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 
 const config = {
   development: {
@@ -436,7 +436,7 @@ function PublishedPosts() {
 ### Direct DataProvider Usage
 
 ```typescript
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 import { MongoClient } from 'mongo.do'
 
 const client = new MongoClient('your-api-key')
@@ -554,7 +554,7 @@ data?.forEach(post => {
 
 ### Type Exports
 
-The `shadmin-mondo` package exports all necessary types:
+The `shadmin-db` package exports all necessary types:
 
 ```typescript
 import type {
@@ -580,7 +580,7 @@ import type {
   DeleteResult,
   DeleteManyParams,
   DeleteManyResult
-} from 'shadmin-mondo'
+} from 'shadmin-db'
 ```
 
 ---
@@ -617,7 +617,7 @@ const combinedDataProvider: DataProvider = {
 ### Logging and Debugging
 
 ```typescript
-import { createMondoDataProvider } from 'shadmin-mondo'
+import { createMondoDataProvider } from 'shadmin-db'
 
 // Wrap the DataProvider with logging
 function withLogging(dataProvider: DataProvider): DataProvider {
@@ -643,4 +643,4 @@ const dataProvider = withLogging(baseProvider)
 - [DataProvider Interface](./data-provider.md) - Core DataProvider documentation
 - [Getting Started](./getting-started.md) - Shadmin quick start guide
 - [Installation](./installation.md) - Full installation instructions
-- [shadmin-mondo source](../../shadmin-mondo/src/) - Package source code
+- [shadmin-db source](../../shadmin-db/src/) - Package source code

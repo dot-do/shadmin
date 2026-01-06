@@ -23,7 +23,7 @@ program
   .option('--npm', 'Use npm as package manager')
   .option('--yarn', 'Use yarn as package manager')
   .option('--pnpm', 'Use pnpm as package manager')
-  .option('--mondo', 'Include shadmin-mondo integration')
+  .option('--mondo', 'Include shadmin-db integration')
   .action(async (projectName?: string, options?: { template?: string; npm?: boolean; yarn?: boolean; pnpm?: boolean; mondo?: boolean }) => {
     console.log('')
     console.log(pc.bold(pc.cyan('  create-shadmin')) + pc.dim(' - Create a new shadmin admin project'))
@@ -65,7 +65,7 @@ program
       {
         type: options?.mondo !== undefined ? null : 'confirm',
         name: 'includeMondo',
-        message: 'Include shadmin-mondo (MongoDB integration)?',
+        message: 'Include shadmin-db (MongoDB integration)?',
         initial: false,
       },
     ])
@@ -104,7 +104,7 @@ async function createProject(options: ProjectOptions): Promise<void> {
   }
 
   if (includeMondo) {
-    dependencies['shadmin-mondo'] = '^0.0.1'
+    dependencies['shadmin-db'] = '^0.0.1'
     dependencies['mongo.do'] = '^0.1.0'
   }
 
@@ -263,7 +263,7 @@ dist
 function getBasicAppTemplate(includeMondo: boolean): string {
   if (includeMondo) {
     return `import { Button } from 'shadmin'
-// import { createMondoDataProvider } from 'shadmin-mondo'
+// import { createMondoDataProvider } from 'shadmin-db'
 
 export default function App() {
   return (
@@ -294,7 +294,7 @@ export default function App() {
 function getFullAppTemplate(includeMondo: boolean): string {
   if (includeMondo) {
     return `import { Button } from 'shadmin'
-// import { createMondoDataProvider } from 'shadmin-mondo'
+// import { createMondoDataProvider } from 'shadmin-db'
 
 // Configure your MongoDB connection
 // const dataProvider = createMondoDataProvider({

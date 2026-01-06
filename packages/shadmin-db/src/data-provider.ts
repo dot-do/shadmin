@@ -82,7 +82,7 @@ function translateFilter(filter: FilterPayload): Record<string, unknown> {
  * @example
  * ```typescript
  * import { MongoClient } from 'mongo.do'
- * import { createMondoDataProvider } from 'shadmin-mondo'
+ * import { createMondoDataProvider } from 'shadmin-db'
  *
  * const client = new MongoClient('your-connection-string')
  * const dataProvider = createMondoDataProvider({ client, database: 'myapp' })

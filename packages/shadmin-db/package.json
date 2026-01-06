@@ -1,5 +1,5 @@
 {
-  "name": "shadmin-mondo",
+  "name": "shadmin-db",
   "version": "0.0.1",
   "description": "mongo.do DataProvider integration for Shadmin",
   "type": "module",
@@ -52,6 +52,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/nathanclevenger/shadmin.git",
-    "directory": "packages/shadmin-mondo"
+    "directory": "packages/shadmin-db"
   }
 }
