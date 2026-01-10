@@ -3,7 +3,6 @@
  * A React error boundary with comprehensive error handling, recovery, and reporting features
  */
 
-import * as React from 'react'
 import { Component, createContext, useContext, type ReactNode, type ErrorInfo, type ComponentType } from 'react'
 
 /**
@@ -122,6 +121,7 @@ function DefaultFallback({
   return (
     <div
       role="alert"
+      data-testid="error-boundary-fallback"
       style={{
         padding: '20px',
         margin: '20px',
@@ -131,12 +131,13 @@ function DefaultFallback({
       }}
     >
       <h2 style={{ color: '#dc2626', marginTop: 0 }}>Something went wrong</h2>
-      <p style={{ color: '#991b1b' }}>{error.message}</p>
+      <p data-testid="error-message" style={{ color: '#991b1b' }}>{error.message}</p>
       <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
         {(showRefreshButton || canRetry) && (
           <button
             onClick={resetErrorBoundary}
             disabled={!canRetry}
+            data-testid="error-retry-button"
             style={{
               padding: '8px 16px',
               backgroundColor: canRetry ? '#2563eb' : '#9ca3af',
@@ -152,6 +153,7 @@ function DefaultFallback({
         {showHomeButton && (
           <button
             onClick={() => (window.location.href = '/')}
+            data-testid="error-home-button"
             style={{
               padding: '8px 16px',
               backgroundColor: '#6b7280',
@@ -167,6 +169,7 @@ function DefaultFallback({
         {showLogoutButton && (
           <button
             onClick={() => (window.location.href = '/login')}
+            data-testid="error-logout-button"
             style={{
               padding: '8px 16px',
               backgroundColor: '#6b7280',

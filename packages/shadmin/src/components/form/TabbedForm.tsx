@@ -441,11 +441,12 @@ export function TabbedForm({
         }
       }
 
-      if (newIndex !== currentIndex && tabs[newIndex]) {
+      const newTab = tabs[newIndex]
+      if (newIndex !== currentIndex && newTab) {
         event.preventDefault()
-        setActiveTab(tabs[newIndex].name)
+        setActiveTab(newTab.name)
         // Focus the new tab
-        const tabElement = document.getElementById(`tab-${tabs[newIndex].name}`)
+        const tabElement = document.getElementById(`tab-${newTab.name}`)
         tabElement?.focus()
       }
     },

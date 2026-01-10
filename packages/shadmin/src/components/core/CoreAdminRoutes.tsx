@@ -61,24 +61,6 @@ const matchPath = (
 }
 
 /**
- * Wrapper component that provides ResourceContext for resource routes
- * Note: Available for future use when expanding route patterns
- */
-const _ResourceRouteWrapper = ({
-  resourceName,
-  Component,
-}: {
-  resourceName: string
-  Component: ComponentType
-}) => {
-  return (
-    <ResourceContextProvider value={resourceName}>
-      <Component />
-    </ResourceContextProvider>
-  )
-}
-
-/**
  * CoreAdminRoutes component
  * Renders routes for all registered resources using React Router 7
  * Supports nested routes, route params (:id), and proper navigation

@@ -10,8 +10,6 @@ import {
   type ReactNode,
   type ReactElement,
   type ComponentType,
-  type ErrorInfo,
-  Component,
   Children,
   isValidElement,
   useState,
@@ -26,15 +24,8 @@ import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
 import { ThemeProvider, type CustomTheme } from './ThemeProvider'
-
-/**
- * Menu item added by plugins
- */
-export interface MenuItem {
-  name: string
-  path: string
-  icon?: ReactNode
-}
+import { ErrorBoundary } from './ErrorBoundary'
+import type { MenuItem } from './CoreAdminRoutes'
 
 /**
  * Extract Resource children and convert to ResourceProps[]
@@ -50,92 +41,6 @@ const extractResourceProps = (children: ReactNode): ResourceProps[] => {
   })
 
   return resources
-}
-
-/**
- * Default error component shown when an error occurs
- */
-const DefaultErrorComponent = ({ error, resetErrorBoundary }: ErrorProps) => (
-  <div style={{ padding: '20px', textAlign: 'center' }}>
-    <h1>Something went wrong</h1>
-    <p>Error: {error.message}</p>
-    {resetErrorBoundary && (
-      <button onClick={resetErrorBoundary} style={{ marginTop: '10px' }}>
-        Retry
-      </button>
-    )}
-  </div>
-)
-
-/**
- * Error Boundary state
- */
-interface ErrorBoundaryState {
-  hasError: boolean
-  error: Error | null
-  errorInfo: ErrorInfo | null
-}
-
-/**
- * Error Boundary props
- */
-interface ErrorBoundaryProps {
-  children: ReactNode
-  ErrorComponent: ComponentType<ErrorProps>
-}
-
-/**
- * Error Boundary class component
- * React error boundaries must be class components
- */
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props)
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    }
-  }
-
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return {
-      hasError: true,
-      error,
-    }
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    this.setState({ errorInfo })
-    // Log error with component stack
-    console.error('Error caught by Admin error boundary:', error)
-    console.error('Component stack:', errorInfo.componentStack)
-  }
-
-  resetErrorBoundary = (): void => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    })
-  }
-
-  render() {
-    const { hasError, error, errorInfo } = this.state
-    const { children, ErrorComponent } = this.props
-
-    if (hasError && error) {
-      return (
-        <ErrorComponent
-          error={error}
-          errorInfo={errorInfo ?? undefined}
-          resetErrorBoundary={this.resetErrorBoundary}
-        />
-      )
-    }
-
-    return children
-  }
 }
 
 /**
@@ -173,9 +78,6 @@ export const Admin = ({
   if (!dataProvider) {
     throw new Error('Admin component requires a dataProvider prop')
   }
-
-  // Use custom error component or default
-  const ErrorComponent = error ?? DefaultErrorComponent
 
   // State to track registered resources
   const [registeredResources, setRegisteredResources] = useState<
@@ -332,7 +234,15 @@ export const Admin = ({
         >
           <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
             <ResourceRegistrationContext.Provider value={registrationValue}>
-              <ErrorBoundary ErrorComponent={ErrorComponent}>
+              <ErrorBoundary
+                  fallbackRender={error ? ({ error: err, resetErrorBoundary }) => {
+                    const ErrorComponent = error
+                    return <ErrorComponent error={err} resetErrorBoundary={resetErrorBoundary} />
+                  } : undefined}
+                  id="admin-root"
+                  showHomeButton
+                  showRefreshButton
+                >
                 {/* Render Resource children so they can register */}
                 {children}
                 {/* Render routes with plugin menu items */}

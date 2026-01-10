@@ -2,7 +2,7 @@
 export { Admin } from './Admin'
 export { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
 export { CoreAdminContext, type CoreAdminContextProps } from './CoreAdminContext'
-export { CoreAdminRoutes, type CoreAdminRoutesProps } from './CoreAdminRoutes'
+export { CoreAdminRoutes, type CoreAdminRoutesProps, type MenuItem } from './CoreAdminRoutes'
 export {
   ThemeProvider,
   useTheme,
@@ -13,3 +13,21 @@ export {
   type ThemeContextValue,
   type ColorValue,
 } from './ThemeProvider'
+export {
+  ErrorBoundary,
+  useErrorBoundary,
+  type ErrorBoundaryProps,
+  type ErrorBoundaryErrorInfo,
+  type FallbackRenderProps,
+  type ErrorComponentProps,
+} from './ErrorBoundary'
+export {
+  withLifecycleCallbacks,
+  type LifecycleCallbackContext,
+  type AfterLifecycleCallbackContext,
+  type ResourceLifecycleCallbacks,
+  type AdminPlugin,
+  type AdminPluginContext,
+  type CellRendererProps,
+  type FieldWrapperProps,
+} from './extensions'

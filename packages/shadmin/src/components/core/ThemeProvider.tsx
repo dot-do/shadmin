@@ -122,10 +122,7 @@ function mergeThemes(base: CustomTheme, override: CustomTheme): CustomTheme {
  * Convert theme object to CSS custom properties
  * Returns an object of variable names to values
  */
-function themeToCssVariables(
-  theme: CustomTheme,
-  prefix: string = ''
-): Map<string, string> {
+function themeToCssVariables(theme: CustomTheme): Map<string, string> {
   const variables = new Map<string, string>()
 
   // Process colors

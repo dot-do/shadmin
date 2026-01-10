@@ -103,22 +103,27 @@ export function DataTable<T extends RaRecord = RaRecord>(props: DataTableProps<T
     data: _data,
     total: _total,
     resource: _resource,
+    isLoading: isLoadingProp,
     ...rest
   } = props
 
   // Map 'small' to 'sm' for size prop
-  const mappedSize = size === 'small' ? 'sm' : size
+  const mappedSize: 'default' | 'sm' | 'lg' | undefined = size === 'small' ? 'sm' : size as Exclude<typeof size, 'small'>
 
   // Map isPending to isLoading
-  const isLoading = isPending ?? rest.isLoading
+  const isLoading = isPending ?? isLoadingProp
 
   // Normalize rowClick - convert string/boolean to RowClickHandler
-  let normalizedRowClick: DatagridProps<T>['rowClick'] = undefined
-  if (typeof rowClick === 'string') {
+  let normalizedRowClick: DatagridProps<T>['rowClick']
+  if (rowClick === undefined) {
+    normalizedRowClick = undefined
+  } else if (typeof rowClick === 'string') {
     if (rowClick === 'edit' || rowClick === 'show') {
       normalizedRowClick = rowClick
+    } else {
+      // Other strings are accepted - treat as path
+      normalizedRowClick = undefined
     }
-    // Other strings are accepted but passed through
   } else if (typeof rowClick === 'boolean') {
     normalizedRowClick = rowClick ? 'edit' : false
   } else if (typeof rowClick === 'function') {
@@ -129,14 +134,24 @@ export function DataTable<T extends RaRecord = RaRecord>(props: DataTableProps<T
     normalizedRowClick = rowClick
   }
 
-  return (
-    <Datagrid<T>
-      {...rest}
-      size={mappedSize}
-      isLoading={isLoading}
-      rowClick={normalizedRowClick}
-    />
-  )
+  // Build props object, only including defined values to satisfy exactOptionalPropertyTypes
+  const datagridProps: DatagridProps<T> = {
+    ...rest,
+  }
+
+  if (mappedSize !== undefined) {
+    datagridProps.size = mappedSize
+  }
+
+  if (isLoading !== undefined) {
+    datagridProps.isLoading = isLoading
+  }
+
+  if (normalizedRowClick !== undefined) {
+    datagridProps.rowClick = normalizedRowClick
+  }
+
+  return <Datagrid<T> {...datagridProps} />
 }
 
 DataTable.displayName = 'DataTable'
@@ -237,7 +252,6 @@ export function DataTableNumberCol<T extends RaRecord = RaRecord>({
   locales,
   className,
   emptyText = '',
-  ...rest
 }: DataTableNumberColProps<T>) {
   const record = useRecordContext<T>()
   const value = source ? get(record, source) : undefined
