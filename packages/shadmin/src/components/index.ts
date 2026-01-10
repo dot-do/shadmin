@@ -4,8 +4,7 @@
 export { Button, type ButtonProps } from './Button'
 
 // Core components
-// Note: CoreAdminContext, CoreAdminContextProps, CoreAdminRoutes, CoreAdminRoutesProps, Resource
-// are NOT re-exported here as they come from ra-core
+// Note: Resource comes from ra-core. Admin uses props-based detection to identify Resource children.
 export {
   Admin,
   ResourceRegistrationContext,

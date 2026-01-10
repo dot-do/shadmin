@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RichTextInput } from 'ra-input-rich-text';
 import {
     TopToolbar,
     AutocompleteInput,
@@ -31,6 +30,7 @@ import {
     useCreateSuggestionContext,
     EditActionsProps,
     CanAccess,
+    RichTextInput,
 } from 'shadmin';
 import {
     Box,

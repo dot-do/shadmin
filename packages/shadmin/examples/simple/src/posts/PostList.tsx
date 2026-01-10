@@ -1,7 +1,6 @@
 import * as React from 'react';
 import BookIcon from '@mui/icons-material/Book';
-import { Chip, useMediaQuery } from '@mui/material';
-import { Theme } from '@mui/material/styles';
+import { Chip } from '@mui/material';
 import lodashGet from 'lodash/get.js';
 import jsonExport from 'jsonexport/dist';
 import {
@@ -29,6 +28,7 @@ import {
     TopToolbar,
     useRecordContext,
     useTranslate,
+    useMediaQuery,
 } from 'shadmin';
 
 import ResetViewsButton from './ResetViewsButton';
@@ -208,10 +208,7 @@ const PostListDesktop = () => (
 );
 
 const PostList = () => {
-    const isSmall = useMediaQuery<Theme>(
-        theme => theme.breakpoints.down('md'),
-        { noSsr: true }
-    );
+    const isSmall = useMediaQuery('(max-width: 768px)');
     return isSmall ? <PostListMobile /> : <PostListDesktop />;
 };
 

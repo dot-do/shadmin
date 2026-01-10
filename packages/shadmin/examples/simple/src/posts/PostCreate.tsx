@@ -1,7 +1,6 @@
 import * as React from 'react';
 import type { JSX } from 'react';
 import { useMemo } from 'react';
-import { RichTextInput } from 'ra-input-rich-text';
 import {
     ArrayInput,
     AutocompleteInput,
@@ -22,6 +21,7 @@ import {
     SimpleFormIterator,
     TextInput,
     Toolbar,
+    RichTextInput,
     useNotify,
     useRedirect,
     useCreate,

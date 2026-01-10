@@ -1,6 +1,5 @@
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import fs from 'fs';
 import { defineConfig } from 'vite';
 
 /**
@@ -8,45 +7,43 @@ import { defineConfig } from 'vite';
  * @type { import('vite').UserConfig }
  */
 export default defineConfig(async () => {
-    // In codesandbox, we won't have the packages folder
-    // We ignore errors in this case
-    const aliases: Record<string, string> = {};
-    try {
-        const packages = fs.readdirSync(
-            path.resolve(__dirname, '../../packages')
-        );
-        for (const dirName of packages) {
-            if (dirName === 'create-react-admin') continue;
-            const packageJson = JSON.parse(
-                fs.readFileSync(
-                    path.resolve(
-                        __dirname,
-                        '../../packages',
-                        dirName,
-                        'package.json'
-                    ),
-                    'utf8'
-                )
-            );
-            aliases[packageJson.name] = path.resolve(
-                __dirname,
-                `../../packages/${packageJson.name}/src`
-            );
-        }
-    } catch {}
+    // Shadmin source path
+    const shadminSrc = path.resolve(__dirname, '../../src');
 
     return {
         plugins: [react()],
         resolve: {
+            // Dedupe react-router packages to avoid context mismatch
+            dedupe: [
+                'react',
+                'react-dom',
+                'react-router',
+                'react-router-dom',
+                '@tanstack/react-query',
+            ],
             alias: [
                 {
                     find: /^@mui\/icons-material\/(.*)/,
                     replacement: '@mui/icons-material/esm/$1',
                 },
-                ...Object.keys(aliases).map(packageName => ({
-                    find: packageName,
-                    replacement: aliases[packageName],
-                })),
+                // Alias shadmin to local source
+                {
+                    find: 'shadmin',
+                    replacement: shadminSrc,
+                },
+                // Resolve @/ path aliases within shadmin source
+                {
+                    find: '@/utils',
+                    replacement: path.join(shadminSrc, 'lib/utils'),
+                },
+                {
+                    find: /^@\/contexts\/(.*)/,
+                    replacement: path.join(shadminSrc, 'contexts/$1'),
+                },
+                {
+                    find: /^@\/(.*)/,
+                    replacement: path.join(shadminSrc, '$1'),
+                },
             ],
         },
         server: {
