@@ -98,7 +98,6 @@ export {
   type ListControllerResult,
   type ListContextProviderProps,
   type SortPayload,
-  type SortOrder,
   type FilterPayload,
 } from './contexts/ListContext'
 

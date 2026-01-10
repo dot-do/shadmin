@@ -71,7 +71,8 @@ export const CoreAdminRoutes = ({
   layout: Layout,
   catchAll: CatchAll,
   menuItems = [],
-}: CoreAdminRoutesProps) => {
+  children,
+}: CoreAdminRoutesProps & { children?: ReactNode }) => {
   // Use React Router's location hook for route matching
   const location = useLocation()
   const pathname = location.pathname
@@ -153,6 +154,8 @@ export const CoreAdminRoutes = ({
     return <Component />
   }
 
+  // Always use route matching for rendering content
+  // Children (Resource elements) only register themselves, they don't render routes
   const content = renderContent()
 
   // Render menu items

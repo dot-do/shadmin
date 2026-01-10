@@ -1,17 +1,22 @@
 /**
  * ResourceContext
- * Provides the current resource name and definition
- * 100% API-compatible with react-admin
+ * Re-exports ra-core's ResourceContext for compatibility
+ *
+ * IMPORTANT: We use ra-core's ResourceContext instead of creating our own
+ * because ra-core's Resource component provides its own ResourceContextProvider.
+ * By using the same context, shadmin components can read values provided by ra-core.
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
+import {
+  ResourceContext as RaCoreResourceContext,
+  ResourceContextProvider as RaCoreResourceContextProvider,
+  useResourceContext as useRaCoreResourceContext,
+} from 'ra-core'
 import type { ResourceDefinition } from '../types'
 
-/**
- * ResourceContext provides just the resource name (string)
- * For the full resource definition, use ResourceDefinitionContext
- */
-const ResourceContext = createContext<string | null>(null)
+// Re-export ra-core's ResourceContext as our own
+export const ResourceContext = RaCoreResourceContext
 
 export interface ResourceContextProviderProps {
   children: ReactNode
@@ -20,15 +25,16 @@ export interface ResourceContextProviderProps {
 
 /**
  * Provider component for the current resource name
+ * Wraps ra-core's ResourceContextProvider
  */
 export const ResourceContextProvider = ({
   children,
   value,
 }: ResourceContextProviderProps) => {
   return (
-    <ResourceContext.Provider value={value}>
+    <RaCoreResourceContextProvider value={value}>
       {children}
-    </ResourceContext.Provider>
+    </RaCoreResourceContextProvider>
   )
 }
 
@@ -37,8 +43,8 @@ export const ResourceContextProvider = ({
  * @throws Error if used outside of ResourceContext
  */
 export const useResource = (): string => {
-  const context = useContext(ResourceContext)
-  if (context === null) {
+  const context = useRaCoreResourceContext()
+  if (context === undefined) {
     throw new Error('useResource must be used within a ResourceContextProvider')
   }
   return context
@@ -48,7 +54,8 @@ export const useResource = (): string => {
  * Hook to optionally get the current resource name (may return null)
  */
 export const useResourceOptional = (): string | null => {
-  return useContext(ResourceContext)
+  const context = useRaCoreResourceContext()
+  return context ?? null
 }
 
 /**
@@ -79,18 +86,17 @@ export interface UseResourceContextOptions {
  * ```
  */
 export function useResourceContext(options?: UseResourceContextOptions): string | undefined {
-  const context = useContext(ResourceContext)
+  // Use ra-core's hook directly - it returns string | undefined
+  const context = useRaCoreResourceContext()
 
   // If required and no value, throw
-  if (options?.required && context === null) {
+  if (options?.required && context === undefined) {
     throw new Error('useResourceContext must be used inside a ResourceContextProvider')
   }
 
   // Return context value or default
-  return context ?? options?.defaultValue ?? undefined
+  return context ?? options?.defaultValue
 }
-
-export { ResourceContext }
 
 /**
  * ResourceDefinitionContext

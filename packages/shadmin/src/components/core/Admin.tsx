@@ -18,24 +18,45 @@ import {
   useEffect,
   useRef,
 } from 'react'
+import { HashRouter } from 'react-router-dom'
 import { ResourceDefinitionContextProvider, NotificationContextProvider, type ResourceDefinitions } from '../../contexts'
 import type { ResourceProps, ResourceDefinition, DataProvider } from '../../facade'
 import type { AdminProps, AdminPluginContext } from '../../types'
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
-import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
+import { ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
 import { ThemeProvider, type CustomTheme } from './ThemeProvider'
 import { ErrorBoundary } from './ErrorBoundary'
 import type { MenuItem } from './CoreAdminRoutes'
 
 /**
+ * Check if an element looks like a Resource component based on its props
+ * This allows us to detect Resource components regardless of which package they come from
+ * We check for 'name' prop plus at least one CRUD operation (list, edit, create, show)
+ */
+const isResourceElement = (element: ReactElement): element is ReactElement<ResourceProps> => {
+  const props = element.props as Record<string, unknown>
+  if (typeof props !== 'object' || props === null) {
+    return false
+  }
+  // Must have a string name
+  if (!('name' in props) || typeof props.name !== 'string') {
+    return false
+  }
+  // Must have at least one CRUD operation
+  const hasCrud = 'list' in props || 'edit' in props || 'create' in props || 'show' in props
+  return hasCrud
+}
+
+/**
  * Extract Resource children and convert to ResourceProps[]
+ * Uses props-based detection to work with Resource from any package (ra-core or shadmin)
  */
 const extractResourceProps = (children: ReactNode): ResourceProps[] => {
   const resources: ResourceProps[] = []
 
   Children.forEach(children, (child) => {
-    if (isValidElement(child) && child.type === Resource) {
+    if (isValidElement(child) && isResourceElement(child)) {
       const props = child.props as ResourceProps
       resources.push(props)
     }
@@ -235,38 +256,42 @@ export const Admin = ({
   }, [children, registeredResources, pluginResources])
 
   return (
-    <ThemeProvider theme={theme as CustomTheme} darkTheme={darkTheme as CustomTheme}>
-      <NotificationContextProvider>
-        <CoreAdminContext
-          dataProvider={wrappedDataProvider}
-          authProvider={authProvider}
-          basename={basename}
-        >
-          <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
-            <ResourceRegistrationContext.Provider value={registrationValue}>
-              <ErrorBoundary
-                  fallbackRender={error ? ({ error: err, resetErrorBoundary }) => {
-                    const ErrorComponent = error
-                    return <ErrorComponent error={err} resetErrorBoundary={resetErrorBoundary} />
-                  } : undefined}
-                  id="admin-root"
-                  showHomeButton
-                  showRefreshButton
-                >
-                {/* Render Resource children so they can register */}
-                {children}
-                {/* Render routes with plugin menu items */}
-                <CoreAdminRoutes
-                  resources={resourcesArray}
-                  dashboard={dashboard}
-                  layout={layout}
-                  menuItems={menuItems}
-                />
-              </ErrorBoundary>
-            </ResourceRegistrationContext.Provider>
-          </ResourceDefinitionContextProvider>
-        </CoreAdminContext>
-      </NotificationContextProvider>
-    </ThemeProvider>
+    <HashRouter basename={basename}>
+      <ThemeProvider theme={theme as CustomTheme} darkTheme={darkTheme as CustomTheme}>
+        <NotificationContextProvider>
+          <CoreAdminContext
+            dataProvider={wrappedDataProvider}
+            authProvider={authProvider}
+            basename={basename}
+          >
+            <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
+              <ResourceRegistrationContext.Provider value={registrationValue}>
+                <ErrorBoundary
+                    fallbackRender={error ? ({ error: err, resetErrorBoundary }) => {
+                      const ErrorComponent = error
+                      return <ErrorComponent error={err} resetErrorBoundary={resetErrorBoundary} />
+                    } : undefined}
+                    id="admin-root"
+                    showHomeButton
+                    showRefreshButton
+                  >
+                  {/* CoreAdminRoutes provides layout and dashboard routing.
+                      Resource children (from ra-core) handle their own resource routing. */}
+                  <CoreAdminRoutes
+                    resources={resourcesArray}
+                    dashboard={dashboard}
+                    layout={layout}
+                    menuItems={menuItems}
+                  >
+                    {/* Resource children render inside CoreAdminRoutes' layout */}
+                    {children}
+                  </CoreAdminRoutes>
+                </ErrorBoundary>
+              </ResourceRegistrationContext.Provider>
+            </ResourceDefinitionContextProvider>
+          </CoreAdminContext>
+        </NotificationContextProvider>
+      </ThemeProvider>
+    </HashRouter>
   )
 }

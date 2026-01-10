@@ -4,8 +4,9 @@ import {
   useEffect,
   useCallback,
 } from 'react'
-import { useForm, type UseFormReturn, type FieldValues } from 'react-hook-form'
-import { useListContext, type FilterPayload } from '@/contexts/ListContext'
+import { useForm, FormProvider, type UseFormReturn, type FieldValues } from 'react-hook-form'
+import { ListContext, type FilterPayload } from '@/contexts/ListContext'
+import { useContext } from 'react'
 import { cn } from '@/utils'
 
 /**
@@ -54,7 +55,11 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
   onSubmit: customOnSubmit,
   ...props
 }: FilterFormProps<TFieldValues>) {
-  const { filterValues, setFilters, setPage } = useListContext()
+  // Use context optionally - FilterForm can work without ListContext for standalone filter forms
+  const listContext = useContext(ListContext)
+  const filterValues = listContext?.filterValues ?? {}
+  const setFilters = listContext?.setFilters
+  const setPage = listContext?.setPage
 
   // Merge defaultValues with filterValues from context
   const mergedDefaultValues = {
@@ -78,9 +83,9 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
   const handleFormSubmit = useCallback(
     (data: TFieldValues) => {
       // Reset page to 1 when filters change
-      setPage(1)
+      setPage?.(1)
       // Update filters in context
-      setFilters(data as unknown as FilterPayload)
+      setFilters?.(data as unknown as FilterPayload)
     },
     [setFilters, setPage]
   )
@@ -89,9 +94,9 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
     // Reset form to empty state
     formReset(defaultValues as any)
     // Reset page to 1
-    setPage(1)
+    setPage?.(1)
     // Clear all filters
-    setFilters({})
+    setFilters?.({})
   }, [formReset, defaultValues, setPage, setFilters])
 
   const onSubmit = useCallback(
@@ -111,15 +116,17 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
   }
 
   return (
-    <form
-      role="form"
-      className={cn('filter-form', className)}
-      onSubmit={onSubmit}
-      data-testid="shadmin-filter-form"
-      {...props}
-    >
-      {typeof children === 'function' ? children(formProps) : children}
-    </form>
+    <FormProvider {...form}>
+      <form
+        role="form"
+        className={cn('filter-form', className)}
+        onSubmit={onSubmit}
+        data-testid="shadmin-filter-form"
+        {...props}
+      >
+        {typeof children === 'function' ? children(formProps) : children}
+      </form>
+    </FormProvider>
   )
 }
 

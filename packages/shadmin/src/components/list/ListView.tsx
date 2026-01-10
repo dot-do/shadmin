@@ -9,6 +9,7 @@
 import { type ReactNode, type ReactElement, useMemo } from 'react'
 import { useListContext } from '../../contexts/ListContext'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { FilterForm } from './filter/FilterForm'
 
 /**
  * Props for ListView component
@@ -90,7 +91,11 @@ export function ListView({
                 <span id="react-admin-title">{title}</span>
               )
             )}
-            {filters}
+            {filters && (
+              <FilterForm>
+                {filters}
+              </FilterForm>
+            )}
           </div>
           {actions !== false && actions && (
             <div className="flex items-center gap-2" data-testid="shadmin-list-actions">
