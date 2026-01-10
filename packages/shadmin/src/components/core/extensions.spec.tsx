@@ -968,10 +968,14 @@ describe('onBeforeSave and onAfterSave hooks', () => {
 
       const SaveButton = () => {
         const { save } = useShadminFormContext()
+        const record = useRecordContext()
         return (
-          <button onClick={() => save?.({ title: 'New Title' })}>
-            Save
-          </button>
+          <>
+            <span data-testid="record-title">{record?.title as string}</span>
+            <button onClick={() => save?.({ title: 'New Title' })}>
+              Save
+            </button>
+          </>
         )
       }
 
@@ -983,8 +987,9 @@ describe('onBeforeSave and onAfterSave hooks', () => {
         </Wrapper>
       )
 
+      // Wait for the record to be loaded before clicking
       await waitFor(() => {
-        expect(screen.getByRole('button')).toBeInTheDocument()
+        expect(screen.getByTestId('record-title')).toHaveTextContent('Original')
       })
 
       fireEvent.click(screen.getByRole('button'))
@@ -1325,10 +1330,14 @@ describe('Lifecycle Callbacks Context', () => {
 
     const SaveButton = () => {
       const { save } = useShadminFormContext()
+      const record = useRecordContext()
       return (
-        <button onClick={() => save?.({ title: 'Changed' })}>
-          Save
-        </button>
+        <>
+          <span data-testid="record-title">{record?.title as string}</span>
+          <button onClick={() => save?.({ title: 'Changed' })}>
+            Save
+          </button>
+        </>
       )
     }
 
@@ -1340,8 +1349,9 @@ describe('Lifecycle Callbacks Context', () => {
       </Wrapper>
     )
 
+    // Wait for the record to be loaded
     await waitFor(() => {
-      expect(screen.getByRole('button')).toBeInTheDocument()
+      expect(screen.getByTestId('record-title')).toHaveTextContent('Test')
     })
 
     fireEvent.click(screen.getByRole('button'))
@@ -1367,9 +1377,12 @@ describe('Lifecycle Callbacks Context', () => {
       const { save } = useShadminFormContext()
       const record = useRecordContext()
       return (
-        <button onClick={() => save?.({ ...record, title: 'Changed' })}>
-          Save
-        </button>
+        <>
+          <span data-testid="record-author">{record?.author as string}</span>
+          <button onClick={() => save?.({ ...record, title: 'Changed' })}>
+            Save
+          </button>
+        </>
       )
     }
 
@@ -1381,8 +1394,9 @@ describe('Lifecycle Callbacks Context', () => {
       </Wrapper>
     )
 
+    // Wait for the record to be loaded
     await waitFor(() => {
-      expect(screen.getByRole('button')).toBeInTheDocument()
+      expect(screen.getByTestId('record-author')).toHaveTextContent('John')
     })
 
     fireEvent.click(screen.getByRole('button'))

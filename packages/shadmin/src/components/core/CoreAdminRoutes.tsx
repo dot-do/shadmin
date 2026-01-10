@@ -22,7 +22,7 @@ export interface MenuItem {
 export interface CoreAdminRoutesProps {
   resources: ResourceProps[]
   dashboard?: ComponentType | undefined
-  layout?: ComponentType<{ children: ReactNode }> | ReactElement | undefined
+  layout?: ComponentType<{ children: ReactNode; dashboard?: ComponentType }> | ReactElement | undefined
   catchAll?: ComponentType | undefined
   menuItems?: MenuItem[] | undefined
 }
@@ -181,9 +181,9 @@ export const CoreAdminRoutes = ({
     }
 
     // It's a ComponentType
-    const LayoutComponent = Layout as ComponentType<{ children: ReactNode }>
+    const LayoutComponent = Layout as ComponentType<{ children: ReactNode; dashboard?: ComponentType }>
     return (
-      <LayoutComponent>
+      <LayoutComponent dashboard={Dashboard}>
         {children}
       </LayoutComponent>
     )
