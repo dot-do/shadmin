@@ -327,6 +327,30 @@ export type {
 export * from './utils'
 
 // =============================================================================
+// DOTDO INTEGRATION
+// =============================================================================
+// DO() helper for connecting shadmin to dotdo Durable Objects
+// Creates react-admin compatible DataProvider (DB) and AuthProvider (Auth)
+export {
+  DO,
+  validateBaseUrl,
+  createDataProviderFactory,
+  createAuthProviderFactory,
+  type DOWithResources,
+  type DOConfig,
+  type DBOptions,
+  type AuthOptions,
+  type DOResult,
+  type DOListResponse,
+  type DORecordResponse,
+  type DOBatchResponse,
+  type DOLoginResponse,
+  type DOUserIdentity,
+  type DOErrorResponse,
+  type DORequestOptions,
+} from './dotdo'
+
+// =============================================================================
 // VERSION
 // =============================================================================
 export const VERSION = '0.0.5'
