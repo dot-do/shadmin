@@ -11,8 +11,13 @@ export interface UrlFieldProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Custom text to display instead of the URL */
   text?: string
   /** Whether to truncate the URL to just the domain */
@@ -51,11 +56,14 @@ function getDomain(url: string): string {
  * <UrlField source="website" target="_self" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function UrlField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   text,
   truncateUrl = false,
   className,
@@ -66,6 +74,14 @@ export function UrlField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const rawValue = get(record, source)
 
   // Handle null, undefined, or empty string
@@ -75,14 +91,14 @@ export function UrlField({
         <div>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span className={cn(className)} data-testid={rest['data-testid']}>
-            {emptyText}
+            {resolvedEmptyText}
           </span>
         </div>
       )
     }
     return (
       <span className={cn(className)} data-testid={rest['data-testid']}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }

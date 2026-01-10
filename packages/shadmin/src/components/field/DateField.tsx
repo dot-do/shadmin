@@ -11,8 +11,13 @@ export interface DateFieldProps extends HTMLAttributes<HTMLSpanElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Locale(s) to use for date formatting */
   locales?: string | string[]
   /** Options for Intl.DateTimeFormat */
@@ -42,11 +47,14 @@ export interface DateFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * <DateField source="date" locales="de-DE" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function DateField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   locales,
   options,
   showTime = false,
@@ -56,6 +64,14 @@ export function DateField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const rawValue = get(record, source)
 
   // Handle null, undefined, or empty values
@@ -64,13 +80,13 @@ export function DateField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }
@@ -89,13 +105,13 @@ export function DateField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }
@@ -106,13 +122,13 @@ export function DateField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }

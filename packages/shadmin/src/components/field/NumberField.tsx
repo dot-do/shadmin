@@ -11,8 +11,13 @@ export interface NumberFieldProps extends HTMLAttributes<HTMLSpanElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Locale(s) to use for number formatting */
   locales?: string | string[]
   /** Options for Intl.NumberFormat */
@@ -39,11 +44,14 @@ export interface NumberFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * <NumberField source="amount" locales="de-DE" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function NumberField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   locales,
   options,
   className,
@@ -51,6 +59,14 @@ export function NumberField({
 }: NumberFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
 
   const rawValue = get(record, source)
 
@@ -60,13 +76,13 @@ export function NumberField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }
@@ -80,13 +96,13 @@ export function NumberField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }

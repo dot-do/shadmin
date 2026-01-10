@@ -3,9 +3,11 @@
  * 100% API-compatible with react-admin
  */
 
-import type { ComponentType, ReactNode } from 'react'
+import type { ComponentType, ReactNode, ReactElement } from 'react'
+import type { QueryClient } from '@tanstack/react-query'
 import type { DataProvider } from './data-provider'
 import type { AuthProvider } from 'ra-core'
+import type { I18nProvider } from '../contexts'
 
 /**
  * Plugin interface for extending Admin functionality
@@ -38,8 +40,8 @@ export interface ThemeOptions {
  */
 export interface AdminLayoutProps {
   children: ReactNode
-  dashboard?: ComponentType
-  menu?: ComponentType
+  dashboard?: ComponentType | undefined
+  menu?: ComponentType | undefined
 }
 
 /**
@@ -47,31 +49,37 @@ export interface AdminLayoutProps {
  */
 export interface AdminProps {
   /** Child Resource components */
-  children?: ReactNode
+  children?: ReactNode | undefined
   /** DataProvider for API calls */
-  dataProvider: DataProvider
+  dataProvider?: DataProvider | undefined
   /** AuthProvider for authentication (optional) */
-  authProvider?: AuthProvider
+  authProvider?: AuthProvider | undefined
+  /** I18nProvider for internationalization (optional) */
+  i18nProvider?: I18nProvider | undefined
+  /** Custom QueryClient instance (optional) */
+  queryClient?: QueryClient | undefined
+  /** Application title (optional) */
+  title?: string | undefined
   /** Custom layout component (optional) */
-  layout?: ComponentType<AdminLayoutProps>
+  layout?: ComponentType<{ children: ReactNode }> | ReactElement | undefined
   /** Dashboard component (optional) */
-  dashboard?: ComponentType
+  dashboard?: ComponentType | undefined
   /** Light theme options (optional) */
-  theme?: ThemeOptions
+  theme?: ThemeOptions | undefined
   /** Dark theme options (optional) */
-  darkTheme?: ThemeOptions
+  darkTheme?: ThemeOptions | undefined
   /** Base path for routing (optional) */
-  basename?: string
+  basename?: string | undefined
   /** Error page component (optional) */
-  error?: ComponentType<ErrorProps>
+  error?: ComponentType<ErrorProps> | undefined
   /** Plugins to extend Admin functionality */
-  plugins?: AdminPlugin[]
+  plugins?: AdminPlugin[] | undefined
 }
 
 export interface ErrorProps {
   error: Error
-  errorInfo?: React.ErrorInfo
-  resetErrorBoundary?: () => void
+  errorInfo?: React.ErrorInfo | undefined
+  resetErrorBoundary?: () => void | undefined
 }
 
 /**

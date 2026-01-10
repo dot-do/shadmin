@@ -11,8 +11,13 @@ export interface TextFieldProps extends HTMLAttributes<HTMLSpanElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** MUI sx prop for styling (accepted for compatibility, ignored) */
   sx?: unknown
 }
@@ -37,11 +42,14 @@ export interface TextFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * <TextField source="nickname" emptyText="N/A" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function TextField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   className,
   ...rest
 }: TextFieldProps) {
@@ -49,7 +57,16 @@ export function TextField({
   const record = recordProp ?? recordContext
 
   const value = get(record, source)
-  const displayValue = value == null ? emptyText : String(value)
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
+  const displayValue = value == null ? resolvedEmptyText : String(value)
 
   if (label) {
     return (

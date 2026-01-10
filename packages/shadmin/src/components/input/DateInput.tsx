@@ -50,9 +50,10 @@ export interface DateInputProps<T extends FieldValues = FieldValues>
    */
   maxMessage?: string
   /**
-   * Default value for the field (ISO date string format: YYYY-MM-DD).
+   * Default value for the field.
+   * Accepts ISO date string format (YYYY-MM-DD) or a Date object.
    */
-  defaultValue?: string
+  defaultValue?: string | Date
 }
 
 /**
@@ -141,6 +142,15 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
     const minStr = min !== undefined ? String(min) : undefined
     const maxStr = max !== undefined ? String(max) : undefined
 
+    // Convert defaultValue to string if it's a Date object
+    const normalizedDefaultValue = useMemo(() => {
+      if (defaultValue instanceof Date) {
+        // Format as YYYY-MM-DD for native date input
+        return defaultValue.toISOString().split('T')[0]
+      }
+      return defaultValue
+    }, [defaultValue])
+
     // Build validation rules including min/max checks
     const validationRules = useMemo((): RegisterOptions => {
       const existingValidate = rules?.validate
@@ -192,7 +202,7 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
     } = useController({
       name: source,
       control,
-      defaultValue: defaultValue as never,
+      defaultValue: normalizedDefaultValue as never,
       rules: validationRules,
     })
 

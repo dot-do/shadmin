@@ -154,8 +154,12 @@ export interface TabbedFormProps {
   toolbar?: ReactElement | false | undefined
   /**
    * Custom submit handler for the form
+   * Supports both ra-core's SaveHandler and regular form submit handlers
    */
-  onSubmit?: (data: any, event?: React.BaseSyntheticEvent) => void | Promise<void> | undefined
+  onSubmit?:
+    | ((data: any, callbacks?: { onSuccess?: (data: any) => void; onError?: (error: Error) => void }) => Promise<void | any> | void | Record<string, string>)
+    | ((data: any, event?: React.BaseSyntheticEvent) => void | Promise<void> | Promise<unknown>)
+    | undefined
 }
 
 /**

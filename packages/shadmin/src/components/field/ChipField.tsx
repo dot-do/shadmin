@@ -16,7 +16,7 @@ export interface ChipFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** Visual variant of the chip */
   variant?: 'default' | 'secondary' | 'destructive' | 'outline'
   /** Size of the chip */
-  size?: 'sm' | 'default' | 'lg'
+  size?: 'sm' | 'small' | 'default' | 'lg'
 }
 
 /**
@@ -68,6 +68,7 @@ export function ChipField({
   // Size styles
   const sizeStyles = {
     sm: 'text-xs px-2 py-0.5',
+    small: 'text-xs px-2 py-0.5',
     default: 'text-sm px-2.5 py-0.5',
     lg: 'text-base px-3 py-1',
   }

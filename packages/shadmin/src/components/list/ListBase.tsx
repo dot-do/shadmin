@@ -17,23 +17,23 @@ import { useListParams } from '../../hooks/useListParams'
  */
 export interface ListBaseProps<RecordType extends { id: Identifier } = { id: Identifier }> {
   /** The name of the resource to fetch. If not provided, uses ResourceContext */
-  resource?: string
+  resource?: string | undefined
   /** Child elements to render inside the ListContext */
   children: ReactNode
   /** Number of records per page. Defaults to 10 */
-  perPage?: number
+  perPage?: number | undefined
   /** Default sort configuration */
-  sort?: { field: string; order: 'ASC' | 'DESC' }
+  sort?: { field: string; order: 'ASC' | 'DESC' } | undefined
   /** Permanent filter (always applied, cannot be changed by user) */
-  filter?: FilterPayload
+  filter?: FilterPayload | undefined
   /** Default filter values (can be changed by user) */
-  filterDefaultValues?: FilterPayload
+  filterDefaultValues?: FilterPayload | undefined
   /** If true, don't sync list parameters with URL */
-  disableSyncWithLocation?: boolean
+  disableSyncWithLocation?: boolean | undefined
   /** React Query options to pass to useGetList */
-  queryOptions?: UseGetListOptions<RecordType>
+  queryOptions?: UseGetListOptions<RecordType> | undefined
   /** Custom store key for URL params (for multiple lists on same page) */
-  storeKey?: string
+  storeKey?: string | undefined
 }
 
 /**

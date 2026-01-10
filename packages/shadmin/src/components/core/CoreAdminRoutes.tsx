@@ -21,10 +21,10 @@ export interface MenuItem {
 
 export interface CoreAdminRoutesProps {
   resources: ResourceProps[]
-  dashboard?: ComponentType
-  layout?: ComponentType<AdminLayoutProps>
-  catchAll?: ComponentType
-  menuItems?: MenuItem[]
+  dashboard?: ComponentType | undefined
+  layout?: ComponentType<AdminLayoutProps> | undefined
+  catchAll?: ComponentType | undefined
+  menuItems?: MenuItem[] | undefined
 }
 
 /**

@@ -18,8 +18,8 @@ import type { AuthProvider } from 'ra-core'
 export interface CoreAdminContextProps {
   children: ReactNode
   dataProvider: DataProvider
-  authProvider?: AuthProvider
-  basename?: string
+  authProvider?: AuthProvider | undefined
+  basename?: string | undefined
 }
 
 /**

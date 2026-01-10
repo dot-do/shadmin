@@ -66,6 +66,9 @@ export const Admin = ({
   children,
   dataProvider,
   authProvider,
+  i18nProvider,
+  queryClient,
+  title,
   layout,
   dashboard,
   theme,
@@ -78,6 +81,12 @@ export const Admin = ({
   if (!dataProvider) {
     throw new Error('Admin component requires a dataProvider prop')
   }
+
+  // Note: i18nProvider, queryClient, and title are accepted for API compatibility
+  // but may not be fully implemented yet
+  void i18nProvider
+  void queryClient
+  void title
 
   // State to track registered resources
   const [registeredResources, setRegisteredResources] = useState<

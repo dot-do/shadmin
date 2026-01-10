@@ -11,8 +11,13 @@ export interface EmailFieldProps extends AnchorHTMLAttributes<HTMLAnchorElement>
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
 }
 
 /**
@@ -32,16 +37,27 @@ export interface EmailFieldProps extends AnchorHTMLAttributes<HTMLAnchorElement>
  * <EmailField source="email" className="text-blue-600 underline" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function EmailField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   className,
   ...rest
 }: EmailFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
 
   const rawValue = get(record, source)
 
@@ -52,14 +68,14 @@ export function EmailField({
         <div>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span className={cn(className)} data-testid={rest['data-testid']}>
-            {emptyText}
+            {resolvedEmptyText}
           </span>
         </div>
       )
     }
     return (
       <span className={cn(className)} data-testid={rest['data-testid']}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }
