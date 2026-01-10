@@ -6,6 +6,8 @@
  * 1. Creating virtual modules for the generated entry point
  * 2. Setting up HMR for resource files
  * 3. Configuring the dev server
+ *
+ * @vitest-environment node
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'

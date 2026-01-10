@@ -34,9 +34,11 @@ export {
 // Toolbar and buttons
 export {
   Toolbar,
+  TopToolbar,
   SaveButton,
   DeleteButton,
   type ToolbarProps,
+  type TopToolbarProps,
   type SaveButtonProps,
   type DeleteButtonProps,
 } from './Toolbar'

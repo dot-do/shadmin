@@ -28,6 +28,9 @@ export {
   DatagridRow,
   SimpleDatagridRow,
   SimpleList,
+  InfiniteList,
+  InfiniteListBase,
+  InfiniteListView,
   type ListProps,
   type ListBaseProps,
   type ListViewProps,
@@ -41,6 +44,9 @@ export {
   type DatagridRowProps,
   type SimpleDatagridRowProps,
   type SimpleListProps,
+  type InfiniteListProps,
+  type InfiniteListBaseProps,
+  type InfiniteListViewProps,
 } from './list'
 
 // Input components
@@ -106,6 +112,7 @@ export {
   ReferenceField,
   ReferenceArrayField,
   ReferenceManyField,
+  ReferenceManyCount,
   FunctionField,
   ArrayField,
   RichTextField,
@@ -119,6 +126,7 @@ export {
   type ReferenceFieldProps,
   type ReferenceArrayFieldProps,
   type ReferenceManyFieldProps,
+  type ReferenceManyCountProps,
   type FunctionFieldProps,
   type ArrayFieldProps,
   type RichTextFieldProps,
@@ -136,6 +144,7 @@ export {
   generateTabName,
   FormDataConsumer,
   Toolbar,
+  TopToolbar,
   SaveButton,
   DeleteButton,
   type SimpleFormProps,
@@ -147,6 +156,7 @@ export {
   type FormDataConsumerProps,
   type FormDataConsumerRenderProps,
   type ToolbarProps,
+  type TopToolbarProps,
   type SaveButtonProps,
   type DeleteButtonProps,
 } from './form'
@@ -202,12 +212,20 @@ export {
   Sidebar,
   AppBar,
   ContainerLayout,
+  Title,
+  TitlePortal,
+  TitleContextProvider,
+  useTitleContext,
   type LayoutProps,
   type SidebarContextValue,
   type SidebarProps,
   type SidebarMenuItem,
   type AppBarProps,
   type AppBarUser,
+  type TitleProps,
+  type TitlePortalProps,
+  type TitleContextProviderProps,
+  type TitleContextValue,
 } from './layout'
 
 // Menu components
@@ -219,12 +237,14 @@ export {
   MenuItem,
   DashboardMenuItem,
   SubMenu,
+  ResourceItem,
   type MenuProps,
   type MenuContextValue,
   type MenuItemProps,
   type BadgeVariant,
   type DashboardMenuItemProps,
   type SubMenuProps,
+  type ResourceItemProps,
 } from './menu'
 
 // Auth components
@@ -250,3 +270,25 @@ export {
   type NotificationToastProps,
   type NotificationContainerProps,
 } from './feedback'
+
+// Button components (action buttons for navigation and data manipulation)
+export {
+  CreateButton,
+  EditButton,
+  ShowButton,
+  CloneButton,
+  ExportButton,
+  BulkDeleteButton,
+  BulkDeleteWithConfirmButton,
+  BulkExportButton,
+  DeleteWithConfirmButton,
+  type CreateButtonProps,
+  type EditButtonProps,
+  type ShowButtonProps,
+  type CloneButtonProps,
+  type ExportButtonProps,
+  type BulkDeleteButtonProps,
+  type BulkDeleteWithConfirmButtonProps,
+  type BulkExportButtonProps,
+  type DeleteWithConfirmButtonProps,
+} from './buttons'

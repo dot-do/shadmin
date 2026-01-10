@@ -29,3 +29,15 @@ export {
 
 // ContainerLayout - Alternative container-based layout
 export { ContainerLayout } from './ContainerLayout'
+
+// Title components
+export {
+  Title,
+  TitlePortal,
+  TitleContextProvider,
+  useTitleContext,
+  type TitleProps,
+  type TitlePortalProps,
+  type TitleContextProviderProps,
+  type TitleContextValue,
+} from './Title'

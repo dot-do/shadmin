@@ -8,16 +8,22 @@
 
 /**
  * Result type for validators - can be sync string/undefined or async Promise
+ * Also supports react-admin's message object format
  */
-export type ValidatorResult = string | undefined | Promise<string | undefined>
+export type ValidatorResult =
+  | string
+  | { message: string; args?: Record<string, unknown> }
+  | undefined
+  | Promise<string | { message: string; args?: Record<string, unknown> } | undefined>
 
 /**
  * Validator function signature compatible with ReactAdmin
+ * Matches ra-core's: (value: any, values: any) => string | { message: string; args: any; } | undefined
  */
 export type Validator = ((
   value: unknown,
   values: Record<string, unknown> | null,
-  props: unknown
+  props?: unknown
 ) => ValidatorResult) & {
   isRequired?: boolean
 }

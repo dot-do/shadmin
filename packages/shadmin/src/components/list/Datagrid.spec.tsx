@@ -572,7 +572,7 @@ describe('Datagrid', () => {
               {
                 source: 'status',
                 label: 'Status',
-                render: (record) => <span data-testid="custom-render">{String(record.status).toUpperCase()}</span>
+                render: ({ record }) => <span data-testid="custom-render">{String(record.status).toUpperCase()}</span>
               },
             ]}
           />

@@ -5,8 +5,14 @@
  */
 
 import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
+import {
+  isHttpError,
+  isValidationError,
+  isConflictError as checkConflictError,
+  extractFieldErrors,
+} from '../errors'
 import type {
   RaRecord,
   Identifier,
@@ -49,6 +55,18 @@ export interface UseUpdateMutationState<RecordType extends RaRecord = RaRecord> 
   isError: boolean
   isIdle: boolean
   reset: () => void
+  // Error handling enhancements
+  fieldErrors: Record<string, string[]> | null
+  isServerValidationError: boolean
+  isConflictError: boolean
+  retryAfter: number | undefined
+  getFieldErrors: (field: string) => string[]
+  hasFieldError: (field: string) => boolean
+  clearError: () => void
+  clearFieldError: (field: string) => void
+  lastSubmittedData: unknown
+  submissionCount: number
+  retry: (() => Promise<unknown>) | undefined
 }
 
 /**
@@ -63,12 +81,17 @@ export type UpdateFunction<
 }
 
 /**
- * Return type for useUpdate hook
+ * Return type for useUpdate hook - object with mutation function and state
  */
-export type UseUpdateResult<
+export interface UseUpdateResult<
   RecordType extends RaRecord = RaRecord,
   TVariables = Record<string, unknown>
-> = [UpdateFunction<RecordType, TVariables>, UseUpdateMutationState<RecordType>]
+> extends UseUpdateMutationState<RecordType> {
+  /** Async mutation function */
+  mutateAsync: (params: UseUpdateMutateParams<TVariables>) => Promise<UpdateResult<RecordType>>
+  /** Sync mutation function */
+  mutate: (params: UseUpdateMutateParams<TVariables>) => void
+}
 
 /**
  * Hook to update an existing record using the data provider
@@ -102,6 +125,12 @@ export function useUpdate<
   // Store previous cache state for rollback
   const previousCacheRef = useRef<CacheSnapshot>({ getOne: null, lists: [] })
 
+  // Track last submitted data and submission count
+  const [lastSubmittedData, setLastSubmittedData] = useState<unknown>(undefined)
+  const [submissionCount, setSubmissionCount] = useState(0)
+  const [fieldErrorsState, setFieldErrorsState] = useState<Record<string, string[]>>({})
+  const lastMutationParamsRef = useRef<{ resource: string; params: UseUpdateMutateParams<TVariables> } | null>(null)
+
   const mutation = useMutation<
     UpdateResult<RecordType>,
     Error,
@@ -117,6 +146,11 @@ export function useUpdate<
       return dataProvider.update<RecordType, TVariables>(res, updateParams)
     },
     onMutate: async (variables) => {
+      // Track submission
+      setLastSubmittedData(variables.params.data)
+      setSubmissionCount(prev => prev + 1)
+      lastMutationParamsRef.current = variables
+
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: [variables.resource] })
 
@@ -179,6 +213,9 @@ export function useUpdate<
       })
     },
     onSuccess: (result, variables) => {
+      // Clear field errors on success
+      setFieldErrorsState({})
+
       const cache = queryClient.getQueryCache()
 
       // Apply the server response to getOne caches - find matching queries
@@ -217,7 +254,13 @@ export function useUpdate<
       // Clear the snapshot since we succeeded
       previousCacheRef.current = { getOne: null, lists: [] }
     },
-    onError: () => {
+    onError: (error) => {
+      // Extract field errors from validation errors
+      const extractedErrors = extractFieldErrors(error)
+      if (extractedErrors) {
+        setFieldErrorsState(extractedErrors)
+      }
+
       // Rollback to previous cache state
       const snapshot = previousCacheRef.current
 
@@ -260,19 +303,130 @@ export function useUpdate<
     [mutation, resource]
   ) as UpdateFunction<RecordType, TVariables>
 
-  const state: UseUpdateMutationState<RecordType> = useMemo(
+  // Error handling helpers
+  const error = mutation.error ?? null
+
+  const getFieldErrors = useCallback(
+    (field: string): string[] => {
+      return fieldErrorsState[field] || []
+    },
+    [fieldErrorsState]
+  )
+
+  const hasFieldError = useCallback(
+    (field: string): boolean => {
+      return (fieldErrorsState[field]?.length ?? 0) > 0
+    },
+    [fieldErrorsState]
+  )
+
+  const clearError = useCallback(() => {
+    mutation.reset()
+    setFieldErrorsState({})
+  }, [mutation])
+
+  const clearFieldError = useCallback((field: string) => {
+    setFieldErrorsState((prev) => {
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }, [])
+
+  const retry = useMemo(() => {
+    if (!lastMutationParamsRef.current) return undefined
+    const params = lastMutationParamsRef.current
+    return async () => {
+      return mutation.mutateAsync(params)
+    }
+  }, [mutation])
+
+  // Compute derived error state
+  const fieldErrors = useMemo(() => {
+    if (!error) return null
+    if (Object.keys(fieldErrorsState).length > 0) {
+      return fieldErrorsState
+    }
+    return extractFieldErrors(error)
+  }, [error, fieldErrorsState])
+
+  const isServerValidationError = useMemo(() => {
+    if (!error) return false
+    if (isValidationError(error)) return true
+    if (isHttpError(error)) {
+      const body = error.body as Record<string, unknown> | undefined
+      return (
+        (error.status === 400 || error.status === 422) &&
+        body?.source === 'server'
+      )
+    }
+    return false
+  }, [error])
+
+  const isConflictError = useMemo(() => checkConflictError(error), [error])
+
+  const retryAfter = useMemo(() => {
+    if (isHttpError(error) && error?.status === 429) {
+      const body = error.body as { retryAfter?: number } | undefined
+      return body?.retryAfter
+    }
+    return undefined
+  }, [error])
+
+  // Create mutateAsync function that calls update with pre-configured resource
+  const mutateAsync = useCallback(
+    (params: UseUpdateMutateParams<TVariables>): Promise<UpdateResult<RecordType>> => {
+      if (!resource) {
+        throw new Error('Resource must be provided in useUpdate() when using mutateAsync')
+      }
+      return update(resource, params)
+    },
+    [update, resource]
+  )
+
+  // Create mutate function (fire and forget)
+  const mutate = useCallback(
+    (params: UseUpdateMutateParams<TVariables>): void => {
+      mutateAsync(params).catch(() => {
+        // Errors are handled by the mutation state
+      })
+    },
+    [mutateAsync]
+  )
+
+  const result: UseUpdateResult<RecordType, TVariables> = useMemo(
     () => ({
       data: mutation.data,
-      error: mutation.error ?? null,
+      error,
       isLoading: mutation.isPending,
       isPending: mutation.isPending,
       isSuccess: mutation.isSuccess,
       isError: mutation.isError,
       isIdle: mutation.isIdle,
       reset: mutation.reset,
+      // Mutation functions
+      mutateAsync,
+      mutate,
+      // Error handling enhancements
+      fieldErrors,
+      isServerValidationError,
+      isConflictError,
+      retryAfter,
+      getFieldErrors,
+      hasFieldError,
+      clearError,
+      clearFieldError,
+      lastSubmittedData,
+      submissionCount,
+      retry,
     }),
-    [mutation.data, mutation.error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset]
+    [
+      mutation.data, error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset,
+      mutateAsync, mutate,
+      fieldErrors, isServerValidationError, isConflictError, retryAfter, getFieldErrors, hasFieldError,
+      clearError, clearFieldError, lastSubmittedData, submissionCount, retry,
+    ]
   )
 
-  return [update, state]
+  return result
 }

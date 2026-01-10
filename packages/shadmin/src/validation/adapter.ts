@@ -38,8 +38,12 @@ export function adaptValidators<T extends FieldValues>(
 
   return async (value: unknown, formValues: T): Promise<string | true> => {
     for (const validator of validatorList) {
-      const error = await validator(value, formValues, null)
+      const error = await validator(value, formValues as Record<string, unknown> | null)
       if (error) {
+        // Handle message object format from react-admin
+        if (typeof error === 'object' && 'message' in error) {
+          return error.message
+        }
         return error
       }
     }

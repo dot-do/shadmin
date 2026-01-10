@@ -6,6 +6,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuthProvider } from '../contexts/AuthProviderContext'
+import { isHttpError } from '../errors'
 
 export interface UseLoginOptions {
   /** Callback called on successful login */
@@ -26,6 +27,8 @@ export interface UseLoginResult {
   isLoading: boolean
   /** Error from the last login attempt, or null */
   error: Error | null
+  /** Retry after duration in seconds (for rate limiting) */
+  retryAfter: number | undefined
 }
 
 /**
@@ -87,9 +90,15 @@ export function useLogin(options: UseLoginOptions = {}): UseLoginResult {
     [authProvider, navigate, onSuccess, onError]
   )
 
+  // Extract retryAfter from rate limiting errors
+  const retryAfter = error && isHttpError(error) && error.status === 429
+    ? (error.body as { retryAfter?: number } | undefined)?.retryAfter
+    : undefined
+
   return {
     login,
     isLoading,
     error,
+    retryAfter,
   }
 }

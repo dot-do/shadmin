@@ -18,10 +18,19 @@ import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 
 /**
+ * Accept prop can be a string (for native HTML input) or an object mapping
+ * MIME types to file extensions (for react-dropzone compatibility).
+ * @example
+ * accept="image/*"
+ * accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
+ */
+export type ImageAcceptProp = string | Record<string, string[]>
+
+/**
  * Props for ImageInput component
  */
 export interface ImageInputProps<T extends FieldValues = FieldValues>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'defaultValue' | 'type' | 'value' | 'onChange'> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'defaultValue' | 'type' | 'value' | 'onChange' | 'accept'> {
   /**
    * The field name in the form data. Maps to the `name` attribute on the input.
    */
@@ -49,9 +58,17 @@ export interface ImageInputProps<T extends FieldValues = FieldValues>
    */
   maxSize?: number
   /**
-   * Accept specific file types. Defaults to "image/*".
+   * Accept specific file types. Can be a string or an object mapping
+   * MIME types to extensions. Defaults to "image/*".
+   * @example
+   * accept="image/*"
+   * accept={{ 'image/*': ['.png', '.jpg'] }}
    */
-  accept?: string
+  accept?: ImageAcceptProp
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: File | File[]
 }
 
 /**
@@ -86,6 +103,24 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/**
+ * Convert accept prop to string format for native input element.
+ * Handles both string and object formats.
+ */
+function normalizeAccept(accept: ImageAcceptProp | undefined): string | undefined {
+  if (!accept) return undefined
+  if (typeof accept === 'string') return accept
+  // Convert object format { 'image/*': ['.png', '.jpg'] } to "image/*,.png,.jpg"
+  const parts: string[] = []
+  for (const [mimeType, extensions] of Object.entries(accept)) {
+    parts.push(mimeType)
+    if (Array.isArray(extensions)) {
+      parts.push(...extensions)
+    }
+  }
+  return parts.join(',')
 }
 
 /**
@@ -127,6 +162,7 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
       multiple,
       maxSize,
       accept = 'image/*',
+      defaultValue,
       ...rest
     },
     ref
@@ -137,6 +173,9 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
     const errorId = `${inputId}-error`
     const helperId = `${inputId}-helper`
     const inputRef = useRef<HTMLInputElement>(null)
+
+    // Normalize accept prop to string for native input
+    const acceptString = normalizeAccept(accept)
 
     const [previews, setPreviews] = useState<ImagePreview[]>([])
     const [isDragging, setIsDragging] = useState(false)
@@ -154,6 +193,7 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
     } = useController({
       name: source,
       control,
+      defaultValue: defaultValue as never,
       rules: {
         ...rules,
         required: required ? (rules?.required || true) : rules?.required,
@@ -364,8 +404,7 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
         <input
           {...rest}
           ref={(e) => {
-            // @ts-expect-error - MutableRefObject assignment
-            inputRef.current = e
+            (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = e
             field.ref(e)
             if (typeof ref === 'function') {
               ref(e)
@@ -376,7 +415,7 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
           id={inputId}
           name={field.name}
           type="file"
-          accept={accept}
+          accept={acceptString}
           multiple={multiple}
           disabled={disabled}
           onChange={handleChange}

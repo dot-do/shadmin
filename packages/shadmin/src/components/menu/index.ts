@@ -27,3 +27,6 @@ export { DashboardMenuItem, type DashboardMenuItemProps } from './DashboardMenuI
 
 // SubMenu - Collapsible submenu container
 export { SubMenu, type SubMenuProps } from './SubMenu'
+
+// ResourceItem - Menu item that auto-links to resource list
+export { ResourceItem, type ResourceItemProps } from './ResourceItem'

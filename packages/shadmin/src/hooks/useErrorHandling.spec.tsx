@@ -24,44 +24,7 @@ import { useUpdate } from './useUpdate'
 import { useDelete } from './useDelete'
 import { useLogin } from './useLogin'
 import { useLogout } from './useLogout'
-
-// Custom error classes for standardized error handling
-class HttpError extends Error {
-  status: number
-  statusText?: string
-  body?: unknown
-
-  constructor(message: string, status: number, body?: unknown) {
-    super(message)
-    this.name = 'HttpError'
-    this.status = status
-    this.body = body
-  }
-}
-
-class NetworkError extends Error {
-  constructor(message = 'Network request failed') {
-    super(message)
-    this.name = 'NetworkError'
-  }
-}
-
-class TimeoutError extends Error {
-  constructor(message = 'Request timed out') {
-    super(message)
-    this.name = 'TimeoutError'
-  }
-}
-
-class ValidationError extends Error {
-  errors: Record<string, string[]>
-
-  constructor(message: string, errors: Record<string, string[]>) {
-    super(message)
-    this.name = 'ValidationError'
-    this.errors = errors
-  }
-}
+import { HttpError, NetworkError, TimeoutError, ValidationError } from '../errors'
 
 // Test wrapper with required providers
 const createWrapper = (
@@ -188,9 +151,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         // Expected hook enhancement: isNetworkError helper
         expect((result.current as unknown as { isNetworkError?: boolean }).isNetworkError).toBe(true)
       })
@@ -210,9 +174,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect(result.current.error).toBeInstanceOf(HttpError)
         expect((result.current.error as HttpError).status).toBe(400)
       })
@@ -229,9 +194,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect((result.current.error as HttpError).status).toBe(401)
         // Expected: authProvider.checkError should be called for 401 errors
         expect(authProvider.checkError).toHaveBeenCalledWith(httpError)
@@ -251,9 +217,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect((result.current.error as HttpError).status).toBe(403)
         // Expected hook enhancement: isForbidden helper
         expect((result.current as unknown as { isForbidden?: boolean }).isForbidden).toBe(true)
@@ -270,9 +237,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect((result.current.error as HttpError).status).toBe(404)
         // Expected hook enhancement: isNotFound helper
         expect((result.current as unknown as { isNotFound?: boolean }).isNotFound).toBe(true)
@@ -289,9 +257,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect((result.current.error as HttpError).status).toBe(500)
         // Expected hook enhancement: isServerError helper
         expect((result.current as unknown as { isServerError?: boolean }).isServerError).toBe(true)
@@ -396,9 +365,10 @@ describe('Error Handling Standardization', () => {
         )
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect(result.current.error).toBeInstanceOf(TimeoutError)
         // Expected hook enhancement: isTimeout helper
         expect((result.current as unknown as { isTimeout?: boolean }).isTimeout).toBe(true)
@@ -469,8 +439,13 @@ describe('Error Handling Standardization', () => {
       })
 
       it('should track error count for repeated failures', async () => {
+        // Create a mock that returns a new error instance each time
+        let errorCount = 0
         const dataProvider = createMockDataProvider({
-          getOne: vi.fn().mockRejectedValue(new HttpError('Error', 500)),
+          getOne: vi.fn().mockImplementation(() => {
+            errorCount++
+            return Promise.reject(new HttpError(`Error ${errorCount}`, 500))
+          }),
         })
 
         const { result } = renderHook(() => useGetOne('posts', { id: 1 }), {
@@ -478,9 +453,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         // Expected hook enhancement: errorCount tracking
         expect((result.current as unknown as { errorCount?: number }).errorCount).toBe(1)
 
@@ -626,10 +602,14 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
-        expect(authProvider.checkError).toHaveBeenCalled()
+        expect(result.current.error).toBeDefined()
+        // Wait a bit for the auth check to be called
+        await waitFor(() => {
+          expect(authProvider.checkError).toHaveBeenCalled()
+        })
         // Expected behavior: redirect to login should be triggered
         expect((result.current as unknown as { shouldRedirectToLogin?: boolean }).shouldRedirectToLogin).toBe(true)
       })
@@ -654,10 +634,14 @@ describe('Error Handling Standardization', () => {
         )
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
-        expect(authProvider.checkError).toHaveBeenCalled()
+        expect(result.current.error).toBeDefined()
+        // Wait for the auth check to be called
+        await waitFor(() => {
+          expect(authProvider.checkError).toHaveBeenCalled()
+        })
       })
 
       it('should preserve original request data during session recovery', async () => {
@@ -714,9 +698,10 @@ describe('Error Handling Standardization', () => {
         })
 
         await waitFor(() => {
-          expect(result.current.error).toBeDefined()
+          expect(result.current.isLoading).toBe(false)
         })
 
+        expect(result.current.error).toBeDefined()
         expect((result.current.error as HttpError).status).toBe(403)
         // Expected enhancement: permission info in error
         expect((result.current.error as HttpError).body).toEqual({

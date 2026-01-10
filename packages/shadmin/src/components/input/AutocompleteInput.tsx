@@ -12,6 +12,7 @@ import {
   useMemo,
   useCallback,
   type InputHTMLAttributes,
+  type ReactElement,
 } from 'react'
 import {
   useController,
@@ -21,6 +22,7 @@ import {
 } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
+import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
 
 /**
  * Choice type for autocomplete options
@@ -56,15 +58,21 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
    */
   rules?: RegisterOptions<T>
   /**
+   * ReactAdmin-compatible validators for the validate prop.
+   * Can be a single validator or array of validators.
+   */
+  validate?: ValidateProp
+  /**
    * The property name to use as the option value.
    * @default 'id'
    */
   optionValue?: string
   /**
-   * The property name to use as the option text, or a function to render custom text.
+   * The property name to use as the option text, a function to render custom text,
+   * or a React element for custom rendering.
    * @default 'name'
    */
-  optionText?: string | ((choice: AutocompleteChoice) => string)
+  optionText?: string | ((choice: AutocompleteChoice) => string) | ReactElement
   /**
    * Whether the input should take full width of its container.
    */
@@ -72,6 +80,12 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
   /**
    * Callback to create a new option when the user types a value not in the choices.
    * Should return a promise that resolves to the new choice object.
+   * Can also be a React element to render a create dialog.
+   */
+  create?: ReactElement | ((value: string) => Promise<AutocompleteChoice>)
+  /**
+   * Legacy prop for create - alias for `create`.
+   * @deprecated Use `create` instead
    */
   onCreate?: (value: string) => Promise<AutocompleteChoice>
   /**
@@ -79,6 +93,15 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
    * @default 0
    */
   debounce?: number
+  /**
+   * Open the suggestions dropdown on focus.
+   * @default true
+   */
+  openOnFocus?: boolean
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: string
 }
 
 /**
@@ -129,14 +152,18 @@ export const AutocompleteInput = forwardRef<
       label,
       helperText,
       rules,
+      validate,
       optionValue = 'id',
       optionText = 'name',
       fullWidth,
       className,
       disabled,
       required,
+      create,
       onCreate,
       debounce: debounceDelay = 0,
+      openOnFocus = true,
+      defaultValue,
       ...rest
     },
     ref
@@ -148,6 +175,9 @@ export const AutocompleteInput = forwardRef<
     const helperId = `${inputId}-helper`
     const listboxId = `${inputId}-listbox`
 
+    // Combine create and onCreate (create takes precedence)
+    const createHandler = typeof create === 'function' ? create : onCreate
+
     const [isOpen, setIsOpen] = useState(false)
     const [inputValue, setInputValue] = useState('')
     const [debouncedInputValue, setDebouncedInputValue] = useState('')
@@ -156,15 +186,22 @@ export const AutocompleteInput = forwardRef<
     const containerRef = useRef<HTMLDivElement>(null)
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    // Merge validate prop with rules
+    const mergedRules = mergeValidation(validate, rules)
+
+    // Determine if field is required (from validate prop or required attribute)
+    const isRequired = required || hasRequiredValidator(validate)
+
     const {
       field,
       fieldState: { error },
     } = useController({
       name: source,
       control,
+      defaultValue: defaultValue as never,
       rules: {
-        ...rules,
-        required: required ? rules?.required || true : rules?.required,
+        ...mergedRules,
+        required: required ? mergedRules?.required || true : mergedRules?.required,
       },
     })
 
@@ -173,12 +210,18 @@ export const AutocompleteInput = forwardRef<
 
     /**
      * Get the display text for a choice
+     * Handles string, function, and React element optionText
      */
     const getOptionText = useCallback((choice: AutocompleteChoice): string => {
       if (typeof optionText === 'function') {
         return optionText(choice)
       }
-      return String(choice[optionText] ?? '')
+      // For React elements or when optionText is a string field name
+      if (typeof optionText === 'string') {
+        return String(choice[optionText] ?? '')
+      }
+      // For React elements, fall back to name or id
+      return String(choice['name'] ?? choice['id'] ?? '')
     }, [optionText])
 
     /**
@@ -249,8 +292,8 @@ export const AutocompleteInput = forwardRef<
       )
     }, [choices, inputValue, getOptionText])
 
-    // Show create option when onCreate is provided, there's input, and no exact match
-    const showCreateOption = onCreate && inputValue && !hasExactMatch
+    // Show create option when createHandler is provided (function), there's input, and no exact match
+    const showCreateOption = createHandler && inputValue && !hasExactMatch
 
     // Total number of options including create option
     const totalOptions = filteredChoices.length + (showCreateOption ? 1 : 0)
@@ -276,7 +319,9 @@ export const AutocompleteInput = forwardRef<
     }
 
     const handleInputFocus = () => {
-      setIsOpen(true)
+      if (openOnFocus) {
+        setIsOpen(true)
+      }
     }
 
     const handleSelect = (choice: AutocompleteChoice) => {

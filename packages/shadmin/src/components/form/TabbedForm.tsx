@@ -496,6 +496,9 @@ export function TabbedForm({
 
 TabbedForm.displayName = 'TabbedForm'
 
+// Attach FormTab as static property for <TabbedForm.Tab> pattern
+TabbedForm.Tab = FormTab
+
 // Re-export FormTab for convenience
 export { FormTab } from './FormTab'
 export type { FormTabProps } from './FormTab'

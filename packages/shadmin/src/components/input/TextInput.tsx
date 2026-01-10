@@ -45,9 +45,27 @@ export interface TextInputProps<T extends FieldValues = FieldValues>
    */
   inputProps?: InputHTMLAttributes<HTMLInputElement>
   /**
+   * Props passed to the underlying Input component (Material-UI style passthrough).
+   * Alias for inputProps for react-admin compatibility.
+   */
+  InputProps?: InputHTMLAttributes<HTMLInputElement>
+  /**
    * Whether the input should take full width of its container.
    */
   fullWidth?: boolean
+  /**
+   * If true, renders a textarea element instead of an input.
+   * For react-admin compatibility.
+   */
+  multiline?: boolean
+  /**
+   * Number of rows for multiline mode.
+   */
+  rows?: number
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: string
 }
 
 /**
@@ -102,7 +120,7 @@ const labelStyles = cn(
  * />
  * ```
  */
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, TextInputProps>(
   (
     {
       source,
@@ -111,6 +129,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       rules,
       validate,
       inputProps,
+      InputProps,
       fullWidth,
       className,
       disabled,
@@ -119,10 +138,15 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       placeholder,
       maxLength,
       autoFocus,
+      multiline,
+      rows,
+      defaultValue,
       ...rest
     },
     ref
   ) => {
+    // Merge inputProps and InputProps (InputProps takes precedence for react-admin compat)
+    const mergedInputProps = { ...inputProps, ...InputProps }
     const { control } = useFormContext()
     const generatedId = useId()
     const inputId = inputProps?.id || generatedId
@@ -141,6 +165,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     } = useController({
       name: source,
       control,
+      defaultValue: defaultValue as never,
       rules: {
         ...mergedRules,
         required: required ? (mergedRules?.required || true) : mergedRules?.required,
@@ -150,6 +175,30 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     const showLabel = label !== false
     const displayLabel = label || source
 
+    // Common props for both input and textarea
+    const commonProps = {
+      id: inputId,
+      name: field.name,
+      value: field.value ?? '',
+      onChange: field.onChange,
+      onBlur: field.onBlur,
+      className: cn(
+        inputStyles,
+        multiline && 'min-h-20 resize-y',
+        error && errorInputStyles,
+        className,
+        mergedInputProps?.className
+      ),
+      disabled,
+      required,
+      readOnly,
+      placeholder,
+      maxLength,
+      autoFocus,
+      'aria-invalid': error ? ('true' as const) : undefined,
+      'aria-describedby': error ? errorId : helperText ? helperId : undefined,
+    }
+
     return (
       <div className={cn('space-y-2', fullWidth && 'w-full')}>
         {showLabel && (
@@ -158,40 +207,37 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             {isRequired && <span className="text-destructive ml-1">*</span>}
           </label>
         )}
-        <input
-          {...rest}
-          {...inputProps}
-          ref={(e) => {
-            field.ref(e)
-            if (typeof ref === 'function') {
-              ref(e)
-            } else if (ref) {
-              ref.current = e
-            }
-          }}
-          id={inputId}
-          name={field.name}
-          type="text"
-          value={field.value ?? ''}
-          onChange={field.onChange}
-          onBlur={field.onBlur}
-          className={cn(
-            inputStyles,
-            error && errorInputStyles,
-            className,
-            inputProps?.className
-          )}
-          disabled={disabled}
-          required={required}
-          readOnly={readOnly}
-          placeholder={placeholder}
-          maxLength={maxLength}
-          autoFocus={autoFocus}
-          aria-invalid={error ? 'true' : undefined}
-          aria-describedby={
-            error ? errorId : helperText ? helperId : undefined
-          }
-        />
+        {multiline ? (
+          <textarea
+            {...(rest as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+            {...(mergedInputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+            {...commonProps}
+            rows={rows}
+            ref={(e) => {
+              field.ref(e)
+              if (typeof ref === 'function') {
+                ref(e as HTMLInputElement | HTMLTextAreaElement)
+              } else if (ref) {
+                (ref as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = e
+              }
+            }}
+          />
+        ) : (
+          <input
+            {...rest}
+            {...mergedInputProps}
+            {...commonProps}
+            type="text"
+            ref={(e) => {
+              field.ref(e)
+              if (typeof ref === 'function') {
+                ref(e as HTMLInputElement | HTMLTextAreaElement)
+              } else if (ref) {
+                (ref as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = e
+              }
+            }}
+          />
+        )}
         {helperText && !error && (
           <p id={helperId} className="text-sm text-muted-foreground">
             {helperText}

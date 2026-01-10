@@ -3,9 +3,10 @@
  * Provides logout functionality with auth provider integration
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuthProvider } from '../contexts/AuthProviderContext'
+import { isNetworkError } from '../errors'
 
 export interface UseLogoutOptions {
   /** Callback called on successful logout */
@@ -26,6 +27,8 @@ export interface UseLogoutResult {
   isLoading: boolean
   /** Error from the last logout attempt, or null */
   error: Error | null
+  /** Whether local state has been cleaned regardless of server error */
+  isLocalStateCleaned: boolean
 }
 
 /**
@@ -54,6 +57,14 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  const [isLocalStateCleaned, setIsLocalStateCleaned] = useState(false)
+
+  // Track when local state should be cleaned (on network errors during logout)
+  useEffect(() => {
+    if (error && isNetworkError(error)) {
+      setIsLocalStateCleaned(true)
+    }
+  }, [error])
 
   const logout = useCallback(
     async (logoutOptions?: LogoutOptions) => {
@@ -81,6 +92,12 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
       } catch (err) {
         const logoutError = err instanceof Error ? err : new Error(String(err))
         setError(logoutError)
+
+        // Even on error, we should clean local state for network errors
+        if (isNetworkError(logoutError)) {
+          setIsLocalStateCleaned(true)
+        }
+
         onError?.(logoutError)
         throw logoutError
       } finally {
@@ -94,5 +111,6 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
     logout,
     isLoading,
     error,
+    isLocalStateCleaned,
   }
 }

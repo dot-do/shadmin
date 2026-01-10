@@ -5,7 +5,11 @@
  */
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
+import { useAuthProvider } from '../contexts/AuthProviderContext'
+import { useQueryErrorHandling } from './useErrorHandling'
+import { isHttpError } from '../errors'
 import type {
   RaRecord,
   GetListParams,
@@ -59,6 +63,14 @@ export interface UseGetListResult<RecordType extends RaRecord = RaRecord> {
   isFetching: boolean
   error: Error | null
   refetch: () => Promise<unknown>
+  // Error handling enhancements
+  isNetworkError: boolean
+  isForbidden: boolean
+  isNotFound: boolean
+  isServerError: boolean
+  isTimeout: boolean
+  errorCount: number
+  shouldRedirectToLogin: boolean
 }
 
 /**
@@ -84,6 +96,12 @@ export function useGetList<RecordType extends RaRecord = RaRecord>(
   options: UseGetListOptions<RecordType> = {}
 ): UseGetListResult<RecordType> {
   const dataProvider = useDataProvider()
+  let authProvider: { checkError?: (error: Error) => Promise<void> } | undefined
+  try {
+    authProvider = useAuthProvider()
+  } catch {
+    // Auth provider not available
+  }
 
   // Merge with defaults
   const mergedParams: GetListParams = {
@@ -110,13 +128,37 @@ export function useGetList<RecordType extends RaRecord = RaRecord>(
     ...options,
   })
 
+  const error = query.error ?? null
+
+  // Check error with auth provider for 401 errors - using useEffect to avoid render-time side effects
+  useEffect(() => {
+    if (error && isHttpError(error) && error.status === 401 && authProvider?.checkError) {
+      authProvider.checkError(error).catch(() => {
+        // Auth provider rejected the error - this is expected behavior
+      })
+    }
+  }, [error, authProvider])
+
+  // Use the error handling utilities
+  const errorHandling = useQueryErrorHandling(error, () => {
+    // This callback is called when auth error is detected in the error handling hook
+  })
+
   return {
     data: query.data?.data,
     total: query.data?.total,
     pageInfo: query.data?.pageInfo,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
-    error: query.error ?? null,
+    error,
     refetch: query.refetch,
+    // Error handling enhancements
+    isNetworkError: errorHandling.isNetworkError,
+    isForbidden: errorHandling.isForbidden,
+    isNotFound: errorHandling.isNotFound,
+    isServerError: errorHandling.isServerError,
+    isTimeout: errorHandling.isTimeout,
+    errorCount: errorHandling.errorCount,
+    shouldRedirectToLogin: errorHandling.shouldRedirectToLogin,
   }
 }

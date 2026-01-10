@@ -10,7 +10,7 @@ export default defineConfig({
       include: ['src/**/*'],
       exclude: ['src/**/*.spec.ts', 'src/**/*.spec.tsx', 'src/test-utils/**/*'],
       outDir: 'dist',
-      rollupTypes: true,
+      rollupTypes: false, // Disabled due to ra-core re-export issues
       insertTypesEntry: true,
     }),
   ],
@@ -28,10 +28,22 @@ export default defineConfig({
         'react/jsx-runtime',
         'react-hook-form',
         'react-router',
+        'react-router-dom',
         '@tanstack/react-query',
+        '@tanstack/react-table',
         'lodash-es',
         'zod',
         'vitest',
+        // ra-core and its dependencies
+        'ra-core',
+        'date-fns',
+        'eventemitter3',
+        'inflection',
+        'jsonexport',
+        'lodash',
+        'query-string',
+        'react-error-boundary',
+        'react-is',
       ],
       output: {
         globals: {

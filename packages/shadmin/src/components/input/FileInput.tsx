@@ -10,10 +10,20 @@ import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 
 /**
+ * Accept prop can be a string (for native HTML input) or an object mapping
+ * MIME types to file extensions (for react-dropzone compatibility).
+ * @example
+ * accept="image/*"
+ * accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
+ * accept={{ 'application/pdf': ['.pdf'] }}
+ */
+export type AcceptProp = string | Record<string, string[]>
+
+/**
  * Props for FileInput component
  */
 export interface FileInputProps<T extends FieldValues = FieldValues>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'defaultValue' | 'type' | 'value'> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'defaultValue' | 'type' | 'value' | 'accept'> {
   /**
    * The field name in the form data. Maps to the `name` attribute on the input.
    */
@@ -40,6 +50,18 @@ export interface FileInputProps<T extends FieldValues = FieldValues>
    * Whether the input should take full width of its container.
    */
   fullWidth?: boolean
+  /**
+   * Accepted file types. Can be a string (native HTML) or an object
+   * mapping MIME types to extensions (react-admin/react-dropzone style).
+   * @example
+   * accept="image/*"
+   * accept={{ 'image/*': ['.png', '.jpg'] }}
+   */
+  accept?: AcceptProp
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: File | File[]
 }
 
 /**
@@ -107,6 +129,34 @@ const dropZoneErrorStyles = 'border-destructive'
  * />
  * ```
  */
+/**
+ * Convert accept prop to string format for native input element.
+ * Handles both string and object formats.
+ */
+function normalizeAccept(accept: AcceptProp | undefined): string | undefined {
+  if (!accept) return undefined
+  if (typeof accept === 'string') return accept
+  // Convert object format { 'image/*': ['.png', '.jpg'] } to "image/*,.png,.jpg"
+  const parts: string[] = []
+  for (const [mimeType, extensions] of Object.entries(accept)) {
+    parts.push(mimeType)
+    if (Array.isArray(extensions)) {
+      parts.push(...extensions)
+    }
+  }
+  return parts.join(',')
+}
+
+/**
+ * Get display text for accepted file types.
+ */
+function getAcceptDisplayText(accept: AcceptProp | undefined): string {
+  if (!accept) return 'Any file type'
+  if (typeof accept === 'string') return accept
+  // For object format, show MIME types
+  return Object.keys(accept).join(', ')
+}
+
 export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
   (
     {
@@ -121,6 +171,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
       required,
       accept,
       multiple,
+      defaultValue,
       ...rest
     },
     ref
@@ -135,12 +186,17 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
     const [isDragActive, setIsDragActive] = useState(false)
     const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
+    // Normalize accept prop to string for native input
+    const acceptString = normalizeAccept(accept)
+    const acceptDisplayText = getAcceptDisplayText(accept)
+
     const {
       field,
       fieldState: { error },
     } = useController({
       name: source,
       control,
+      defaultValue: defaultValue as never,
       rules: {
         ...rules,
         required: required ? (rules?.required || true) : rules?.required,
@@ -202,7 +258,8 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
       if (droppedFiles.length === 0) return
 
       // If not multiple, only take the first file
-      const filesToAdd = multiple ? droppedFiles : [droppedFiles[0]]
+      const firstFile = droppedFiles[0]
+      const filesToAdd = multiple ? droppedFiles : (firstFile ? [firstFile] : [])
       updateFiles(filesToAdd)
     }, [disabled, multiple, updateFiles])
 
@@ -264,7 +321,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
           className="sr-only"
           disabled={disabled}
           required={required}
-          accept={accept}
+          accept={acceptString}
           multiple={multiple}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={
@@ -316,7 +373,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
             <span className="font-semibold text-foreground">Click to browse</span> or drag and drop
           </p>
           <p className="text-xs text-muted-foreground">
-            {accept ? `Accepted: ${accept}` : 'Any file type'}
+            {accept ? `Accepted: ${acceptDisplayText}` : 'Any file type'}
             {multiple && ' (multiple files allowed)'}
           </p>
         </div>

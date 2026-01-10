@@ -7,6 +7,7 @@ import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
+import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
 
 /**
  * Props for NumberInput component
@@ -32,6 +33,14 @@ export interface NumberInputProps<T extends FieldValues = FieldValues>
    */
   rules?: RegisterOptions<T>
   /**
+   * ReactAdmin-compatible validators for the validate prop.
+   * Can be a single validator or array of validators.
+   * @example
+   * validate={required()}
+   * validate={[required(), minValue(0)]}
+   */
+  validate?: ValidateProp
+  /**
    * Additional props passed directly to the input element.
    */
   inputProps?: InputHTMLAttributes<HTMLInputElement>
@@ -39,6 +48,10 @@ export interface NumberInputProps<T extends FieldValues = FieldValues>
    * Whether the input should take full width of its container.
    */
   fullWidth?: boolean
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: number
 }
 
 /**
@@ -99,6 +112,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       label,
       helperText,
       rules,
+      validate,
       inputProps,
       fullWidth,
       className,
@@ -110,6 +124,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       max,
       step,
       autoFocus,
+      defaultValue,
       ...rest
     },
     ref
@@ -120,15 +135,22 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     const errorId = `${inputId}-error`
     const helperId = `${inputId}-helper`
 
+    // Merge validate prop with rules
+    const mergedRules = mergeValidation(validate, rules)
+
+    // Determine if field is required (from validate prop or required attribute)
+    const isRequired = required || hasRequiredValidator(validate)
+
     const {
       field,
       fieldState: { error },
     } = useController({
       name: source,
       control,
+      defaultValue: defaultValue as never,
       rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
+        ...mergedRules,
+        required: required ? (mergedRules?.required || true) : mergedRules?.required,
       },
     })
 
@@ -151,7 +173,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>
             {displayLabel}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {isRequired && <span className="text-destructive ml-1">*</span>}
           </label>
         )}
         <input

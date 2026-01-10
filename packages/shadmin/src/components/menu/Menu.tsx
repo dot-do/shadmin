@@ -190,4 +190,10 @@ export function Menu({
 
 Menu.displayName = 'Menu'
 
+// Import ResourceItem for static property assignment
+import { ResourceItem } from './ResourceItem'
+
+// Attach ResourceItem as static property for <Menu.ResourceItem> pattern
+Menu.ResourceItem = ResourceItem
+
 export { MenuContext }

@@ -5,8 +5,15 @@
  */
 
 import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
+import {
+  isHttpError,
+  isValidationError,
+  isConflictError as checkConflictError,
+  extractFieldErrors,
+  ValidationError,
+} from '../errors'
 import type {
   RaRecord,
   CreateParams,
@@ -45,6 +52,18 @@ export interface UseCreateMutationState<RecordType extends RaRecord = RaRecord> 
   isError: boolean
   isIdle: boolean
   reset: () => void
+  // Error handling enhancements
+  fieldErrors: Record<string, string[]> | null
+  isServerValidationError: boolean
+  isConflictError: boolean
+  retryAfter: number | undefined
+  getFieldErrors: (field: string) => string[]
+  hasFieldError: (field: string) => boolean
+  clearError: () => void
+  clearFieldError: (field: string) => void
+  lastSubmittedData: unknown
+  submissionCount: number
+  retry: (() => Promise<unknown>) | undefined
 }
 
 /**
@@ -59,12 +78,17 @@ export type CreateFunction<
 }
 
 /**
- * Return type for useCreate hook
+ * Return type for useCreate hook - object with mutation function and state
  */
-export type UseCreateResult<
+export interface UseCreateResult<
   RecordType extends RaRecord = RaRecord,
   TVariables = Record<string, unknown>
-> = [CreateFunction<RecordType, TVariables>, UseCreateMutationState<RecordType>]
+> extends UseCreateMutationState<RecordType> {
+  /** Async mutation function - same as calling create() */
+  mutateAsync: (params: UseCreateMutateParams<TVariables>) => Promise<CreateResult<RecordType>>
+  /** Sync mutation function - same as calling create() */
+  mutate: (params: UseCreateMutateParams<TVariables>) => void
+}
 
 /**
  * Hook to create a new record using the data provider
@@ -97,6 +121,12 @@ export function useCreate<
   // Store previous cache state for rollback
   const previousCacheRef = useRef<Map<string, unknown>>(new Map())
 
+  // Track last submitted data and submission count
+  const [lastSubmittedData, setLastSubmittedData] = useState<unknown>(undefined)
+  const [submissionCount, setSubmissionCount] = useState(0)
+  const [fieldErrorsState, setFieldErrorsState] = useState<Record<string, string[]>>({})
+  const lastMutationParamsRef = useRef<{ resource: string; params: UseCreateMutateParams<TVariables> } | null>(null)
+
   const mutation = useMutation<
     CreateResult<RecordType>,
     Error,
@@ -110,6 +140,11 @@ export function useCreate<
       return dataProvider.create<RecordType, TVariables>(res, createParams)
     },
     onMutate: async (variables) => {
+      // Track submission
+      setLastSubmittedData(variables.params.data)
+      setSubmissionCount(prev => prev + 1)
+      lastMutationParamsRef.current = variables
+
       // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: [variables.resource, 'getList'] })
 
@@ -123,6 +158,9 @@ export function useCreate<
       })
     },
     onSuccess: (result, variables) => {
+      // Clear field errors on success
+      setFieldErrorsState({})
+
       // Granular cache update: add new record to all list caches and update totals
       const cache = queryClient.getQueryCache()
       const queries = cache.findAll({ queryKey: [variables.resource, 'getList'] })
@@ -169,7 +207,13 @@ export function useCreate<
         }
       })
     },
-    onError: (_error, variables) => {
+    onError: (error, variables) => {
+      // Extract field errors from validation errors
+      const extractedErrors = extractFieldErrors(error)
+      if (extractedErrors) {
+        setFieldErrorsState(extractedErrors)
+      }
+
       // Rollback to previous cache state
       previousCacheRef.current.forEach((data, key) => {
         const queryKey = JSON.parse(key)
@@ -206,19 +250,130 @@ export function useCreate<
     [mutation, resource]
   ) as CreateFunction<RecordType, TVariables>
 
-  const state: UseCreateMutationState<RecordType> = useMemo(
+  // Error handling helpers
+  const error = mutation.error ?? null
+
+  const getFieldErrors = useCallback(
+    (field: string): string[] => {
+      return fieldErrorsState[field] || []
+    },
+    [fieldErrorsState]
+  )
+
+  const hasFieldError = useCallback(
+    (field: string): boolean => {
+      return (fieldErrorsState[field]?.length ?? 0) > 0
+    },
+    [fieldErrorsState]
+  )
+
+  const clearError = useCallback(() => {
+    mutation.reset()
+    setFieldErrorsState({})
+  }, [mutation])
+
+  const clearFieldError = useCallback((field: string) => {
+    setFieldErrorsState((prev) => {
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }, [])
+
+  const retry = useMemo(() => {
+    if (!lastMutationParamsRef.current) return undefined
+    const params = lastMutationParamsRef.current
+    return async () => {
+      return mutation.mutateAsync(params)
+    }
+  }, [mutation])
+
+  // Compute derived error state
+  const fieldErrors = useMemo(() => {
+    if (!error) return null
+    if (Object.keys(fieldErrorsState).length > 0) {
+      return fieldErrorsState
+    }
+    return extractFieldErrors(error)
+  }, [error, fieldErrorsState])
+
+  const isServerValidationError = useMemo(() => {
+    if (!error) return false
+    if (isValidationError(error)) return true
+    if (isHttpError(error)) {
+      const body = error.body as Record<string, unknown> | undefined
+      return (
+        (error.status === 400 || error.status === 422) &&
+        body?.source === 'server'
+      )
+    }
+    return false
+  }, [error])
+
+  const isConflictError = useMemo(() => checkConflictError(error), [error])
+
+  const retryAfter = useMemo(() => {
+    if (isHttpError(error) && error?.status === 429) {
+      const body = error.body as { retryAfter?: number } | undefined
+      return body?.retryAfter
+    }
+    return undefined
+  }, [error])
+
+  // Create mutateAsync function that calls create with pre-configured resource
+  const mutateAsync = useCallback(
+    (params: UseCreateMutateParams<TVariables>): Promise<CreateResult<RecordType>> => {
+      if (!resource) {
+        throw new Error('Resource must be provided in useCreate() when using mutateAsync')
+      }
+      return create(resource, params)
+    },
+    [create, resource]
+  )
+
+  // Create mutate function (fire and forget)
+  const mutate = useCallback(
+    (params: UseCreateMutateParams<TVariables>): void => {
+      mutateAsync(params).catch(() => {
+        // Errors are handled by the mutation state
+      })
+    },
+    [mutateAsync]
+  )
+
+  const result: UseCreateResult<RecordType, TVariables> = useMemo(
     () => ({
       data: mutation.data,
-      error: mutation.error ?? null,
+      error,
       isLoading: mutation.isPending,
       isPending: mutation.isPending,
       isSuccess: mutation.isSuccess,
       isError: mutation.isError,
       isIdle: mutation.isIdle,
       reset: mutation.reset,
+      // Mutation functions
+      mutateAsync,
+      mutate,
+      // Error handling enhancements
+      fieldErrors,
+      isServerValidationError,
+      isConflictError,
+      retryAfter,
+      getFieldErrors,
+      hasFieldError,
+      clearError,
+      clearFieldError,
+      lastSubmittedData,
+      submissionCount,
+      retry,
     }),
-    [mutation.data, mutation.error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset]
+    [
+      mutation.data, error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset,
+      mutateAsync, mutate,
+      fieldErrors, isServerValidationError, isConflictError, retryAfter, getFieldErrors, hasFieldError,
+      clearError, clearFieldError, lastSubmittedData, submissionCount, retry,
+    ]
   )
 
-  return [create, state]
+  return result
 }

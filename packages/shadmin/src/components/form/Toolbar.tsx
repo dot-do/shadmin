@@ -308,3 +308,68 @@ export const DeleteButton = forwardRef<HTMLButtonElement, DeleteButtonProps>(
 )
 
 DeleteButton.displayName = 'DeleteButton'
+
+/**
+ * Props for TopToolbar component
+ */
+export interface TopToolbarProps {
+  /**
+   * Toolbar children (buttons, filters, etc.)
+   */
+  children?: ReactNode
+  /**
+   * Additional CSS classes for the toolbar container
+   */
+  className?: string
+  /**
+   * Data attributes and other HTML attributes
+   */
+  'data-testid'?: string
+}
+
+/**
+ * TopToolbar - Toolbar component for the top of list/show/edit pages.
+ * Used for action buttons like Create, Export, etc.
+ *
+ * @example
+ * ```tsx
+ * // In a List component
+ * <List
+ *   actions={
+ *     <TopToolbar>
+ *       <CreateButton />
+ *       <ExportButton />
+ *     </TopToolbar>
+ *   }
+ * >
+ *   <Datagrid>...</Datagrid>
+ * </List>
+ *
+ * // In a Show component
+ * <Show
+ *   actions={
+ *     <TopToolbar>
+ *       <EditButton />
+ *     </TopToolbar>
+ *   }
+ * >
+ *   <SimpleShowLayout>...</SimpleShowLayout>
+ * </Show>
+ * ```
+ */
+export function TopToolbar({
+  children,
+  className,
+  'data-testid': testId,
+}: TopToolbarProps): ReactElement {
+  return (
+    <div
+      className={cn('flex items-center justify-end gap-2', className)}
+      data-testid={testId}
+    >
+      {children}
+    </div>
+  )
+}
+
+TopToolbar.displayName = 'TopToolbar'

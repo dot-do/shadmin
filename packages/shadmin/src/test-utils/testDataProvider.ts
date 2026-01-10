@@ -4,6 +4,7 @@
  */
 
 import { vi } from 'vitest'
+import { applyFiltersWithOperators } from '../utils/filterOperators'
 
 /**
  * Pagination parameters for list operations
@@ -304,17 +305,11 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
       const { field, order } = params.sort
       const { filter } = params
 
-      // Apply filters
-      let filtered = items.filter((item) => {
-        return Object.entries(filter).every(([key, value]) => {
-          if (value === undefined || value === null || value === '') return true
-          const itemValue = (item as Record<string, unknown>)[key]
-          if (typeof value === 'string') {
-            return String(itemValue).toLowerCase().includes(value.toLowerCase())
-          }
-          return itemValue === value
-        })
-      })
+      // Apply filters with operator support
+      let filtered = applyFiltersWithOperators(
+        items as Record<string, unknown>[],
+        filter
+      ) as T[]
 
       // Apply sorting
       filtered = [...filtered].sort((a, b) => {
@@ -382,13 +377,11 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
           return String((item as Record<string, unknown>)[target]) === String(id)
         })
 
-        // Apply additional filters
-        filtered = filtered.filter((item) => {
-          return Object.entries(filter).every(([key, value]) => {
-            if (value === undefined || value === null || value === '') return true
-            return (item as Record<string, unknown>)[key] === value
-          })
-        })
+        // Apply additional filters with operator support
+        filtered = applyFiltersWithOperators(
+          filtered as Record<string, unknown>[],
+          filter
+        ) as T[]
 
         // Apply sorting
         const { field, order } = sort
