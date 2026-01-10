@@ -1,5 +1,6 @@
 import enMessages from './en';
 import frMessages from './fr';
+import type { TranslationMessages } from 'shadmin';
 
-export const en: Record<string, unknown> = enMessages;
-export const fr: Record<string, unknown> = frMessages;
+export const en: TranslationMessages = enMessages;
+export const fr: TranslationMessages = frMessages;

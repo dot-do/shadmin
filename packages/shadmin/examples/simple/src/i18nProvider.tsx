@@ -21,3 +21,5 @@ const i18nProvider: I18nProvider = polyglotI18nProvider(
         { locale: 'fr', name: 'Français' },
     ]
 );
+
+export default i18nProvider;

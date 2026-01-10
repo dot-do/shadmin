@@ -1,6 +1,7 @@
 import frenchMessages from 'ra-language-french';
+import type { TranslationMessages } from 'shadmin';
 
-const messages: Record<string, unknown> = {
+const messages: TranslationMessages = {
     simple: {
         action: {
             close: 'Fermer',

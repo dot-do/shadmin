@@ -1,6 +1,7 @@
 import englishMessages from 'ra-language-english';
+import type { TranslationMessages } from 'shadmin';
 
-export const messages: Record<string, unknown> = {
+export const messages: TranslationMessages = {
     simple: {
         action: {
             close: 'Close',
