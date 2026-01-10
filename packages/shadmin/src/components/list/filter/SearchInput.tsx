@@ -24,6 +24,13 @@ export interface SearchInputProps
    * This is commonly used for permanent search fields in list toolbars.
    */
   alwaysOn?: boolean
+  /**
+   * If true, shows a remove button to hide/clear this filter.
+   * Useful for dynamic filters that can be shown/hidden.
+   */
+  hideable?: boolean
+  /** Callback when the filter is hidden/removed */
+  onHide?: (source: string) => void
 }
 
 /**
@@ -78,6 +85,8 @@ export function SearchInput({
   className,
   disabled,
   alwaysOn: _alwaysOn,
+  hideable = false,
+  onHide,
   ...props
 }: SearchInputProps) {
   // Try to get ListContext, but don't throw if not available
@@ -158,10 +167,28 @@ export function SearchInput({
     })
   }, [setFilters, setPage, filterValues, source])
 
+  // Handle hiding the filter
+  const handleHide = useCallback(() => {
+    // Clear the filter value first
+    setValue('')
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setPage(1)
+    setFilters({
+      ...filterValues,
+      [source]: undefined,
+    })
+    // Notify parent
+    if (onHide) {
+      onHide(source)
+    }
+  }, [setFilters, setPage, filterValues, source, onHide])
+
   const hasValue = value.length > 0
 
   return (
-    <div className="relative inline-flex items-center" data-testid="shadmin-search-input">
+    <div className="relative inline-flex items-center" data-testid="shadmin-search-input" data-source={source}>
       {/* Search icon */}
       <SearchIcon className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
       <input
@@ -176,15 +203,39 @@ export function SearchInput({
         className={cn(
           'h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
           hasValue && 'pr-8',
+          hideable && 'pr-16',
           className
         )}
         {...props}
       />
-      {hasValue && (
+      {hasValue && !hideable && (
         <button
           type="button"
           onClick={handleClear}
           aria-label="Clear search"
+          className="absolute right-2 inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      )}
+      {hideable && (
+        <button
+          type="button"
+          onClick={handleHide}
+          title="Remove this filter"
+          aria-label="Remove this filter"
           className="absolute right-2 inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
         >
           <svg

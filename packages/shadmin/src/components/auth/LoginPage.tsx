@@ -4,6 +4,7 @@
  */
 
 import { useCallback, useState, type FormEvent } from 'react'
+import { useLocation } from 'react-router'
 import { useLogin, type LoginOptions } from '../../hooks/useLogin'
 import { cn } from '../../utils'
 
@@ -112,7 +113,7 @@ const checkboxStyles = cn(
 export function LoginPage({
   title = 'Sign In',
   className,
-  redirectTo = '/',
+  redirectTo: redirectToProp = '/',
   backgroundImage,
   showRememberMe = false,
   submitButtonText = 'Sign In',
@@ -121,8 +122,16 @@ export function LoginPage({
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+  const location = useLocation()
 
   const { login, isLoading, error } = useLogin()
+
+  // Get the original URL from location state (set by ProtectedRoute)
+  // or use the prop value as fallback
+  const locationState = location.state as { from?: { pathname: string; search: string; hash: string } } | null
+  const redirectTo = locationState?.from
+    ? `${locationState.from.pathname}${locationState.from.search}${locationState.from.hash}`
+    : redirectToProp
 
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {

@@ -207,7 +207,7 @@ function UserMenu({ user, onProfile, onLogout }: UserMenuProps) {
             <div className="-mx-1 my-1 h-px bg-border" />
             <button
               role="menuitem"
-              data-testid="logout-button"
+              data-testid="shadmin-logout-button"
               className={cn(
                 'logout',
                 'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',

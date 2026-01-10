@@ -47,6 +47,13 @@ export interface FilterInputProps
   operators?: FilterOperator[]
   /** Debounce delay in milliseconds */
   debounce?: number
+  /**
+   * If true, shows a remove button to hide/clear this filter.
+   * Useful for dynamic filters that can be shown/hidden.
+   */
+  hideable?: boolean
+  /** Callback when the filter is hidden/removed */
+  onHide?: (source: string) => void
 }
 
 /**
@@ -141,6 +148,8 @@ export function FilterInput({
   className,
   disabled,
   placeholder,
+  hideable = false,
+  onHide,
   ...props
 }: FilterInputProps) {
   const { filterValues, setFilters, setPage } = useListContext()
@@ -307,8 +316,24 @@ export function FilterInput({
   const showLabel = label !== false
   const displayLabel = label || source
 
+  // Handle hiding the filter
+  const handleHide = useCallback(() => {
+    // Clear the filter value
+    const newFilterValues = { ...filterValues }
+    const filterKey = buildFilterKey(source, operator)
+    delete newFilterValues[filterKey]
+    // Also delete the base source key in case it exists
+    delete newFilterValues[source]
+    setFilters(newFilterValues)
+    setPage(1)
+    // Notify parent
+    if (onHide) {
+      onHide(source)
+    }
+  }, [filterValues, setFilters, setPage, source, operator, onHide])
+
   return (
-    <div className="space-y-2" data-testid="shadmin-filter-input">
+    <div className="space-y-2" data-testid="shadmin-filter-input" data-source={source}>
       {showLabel && <label className={labelStyles}>{displayLabel}</label>}
       <div className="flex gap-2">
         {showOperator && (
@@ -325,6 +350,7 @@ export function FilterInput({
         {!isNullOperator && !isBetweenOperator && (
           <input
             type={type}
+            name={source}
             value={Array.isArray(value) ? value[0] : value}
             onChange={(e) => handleValueChange(e.target.value)}
             placeholder={placeholder}
@@ -338,6 +364,7 @@ export function FilterInput({
           <>
             <input
               type={type}
+              name={`${source}_min`}
               value={Array.isArray(value) ? value[0] : value}
               onChange={(e) => {
                 const newValue: [string, string] = [
@@ -354,6 +381,7 @@ export function FilterInput({
             <span className="flex items-center text-muted-foreground">-</span>
             <input
               type={type}
+              name={`${source}_max`}
               value={Array.isArray(value) ? value[1] : ''}
               onChange={(e) => {
                 const newValue: [string, string] = [
@@ -368,6 +396,36 @@ export function FilterInput({
               {...props}
             />
           </>
+        )}
+
+        {hideable && (
+          <button
+            type="button"
+            onClick={handleHide}
+            title="Remove this filter"
+            aria-label="Remove this filter"
+            className={cn(
+              'inline-flex h-10 w-10 items-center justify-center rounded-md',
+              'text-muted-foreground hover:text-foreground hover:bg-accent',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+            )}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         )}
       </div>
     </div>

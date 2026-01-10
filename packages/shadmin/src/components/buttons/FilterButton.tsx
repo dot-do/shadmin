@@ -378,6 +378,7 @@ export function FilterButton({
                 type="button"
                 disabled={isDisabled}
                 aria-disabled={isDisabled}
+                data-key={filter.source}
                 onClick={() => handleSelectFilter(filter.source)}
                 className={cn(
                   'relative flex w-full cursor-pointer select-none items-center',
