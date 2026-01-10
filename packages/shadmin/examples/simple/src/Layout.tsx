@@ -10,7 +10,7 @@ import {
 import '../assets/app.css';
 
 const MyAppBar = () => (
-    <AppBar>
+    <AppBar showUserMenu>
         <TitlePortal />
         <InspectorButton />
     </AppBar>
