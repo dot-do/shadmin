@@ -11,6 +11,7 @@
  */
 
 import { type ReactNode, useState, useCallback } from 'react'
+import { useGetIdentity, useLogout } from 'ra-core'
 import { cn } from '../../lib/utils'
 import { useSidebar, SidebarTrigger } from './Layout'
 
@@ -29,7 +30,7 @@ export interface AppBarProps {
   title?: string
   /** Child elements (rendered as actions) */
   children?: ReactNode
-  /** User data for user menu */
+  /** User data for user menu. If not provided, uses useGetIdentity hook */
   user?: AppBarUser
   /** Additional CSS class */
   className?: string
@@ -43,6 +44,12 @@ export interface AppBarProps {
   showThemeToggle?: boolean
   /** Theme toggle callback */
   onThemeToggle?: () => void
+  /** Profile button callback */
+  onProfile?: () => void
+  /** Logout button callback. If not provided, uses useLogout hook */
+  onLogout?: () => void
+  /** Show user menu even if user data is not available */
+  showUserMenu?: boolean
 }
 
 // ============================================================================
@@ -51,10 +58,21 @@ export interface AppBarProps {
 
 interface UserMenuProps {
   user: AppBarUser
+  onProfile?: () => void
+  onLogout?: () => void
 }
 
-function UserMenu({ user }: UserMenuProps) {
+function UserMenu({ user, onProfile, onLogout }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  // Try to get logout from ra-core, but don't fail if not available
+  let raLogout: (() => Promise<unknown>) | null = null
+  try {
+    raLogout = useLogout()
+  } catch {
+    // Not within an AuthProvider context, that's okay
+  }
 
   const toggleMenu = useCallback(() => {
     setIsOpen((prev) => !prev)
@@ -63,6 +81,25 @@ function UserMenu({ user }: UserMenuProps) {
   const closeMenu = useCallback(() => {
     setIsOpen(false)
   }, [])
+
+  const handleProfileClick = useCallback(() => {
+    closeMenu()
+    onProfile?.()
+  }, [closeMenu, onProfile])
+
+  const handleLogoutClick = useCallback(async () => {
+    closeMenu()
+    if (onLogout) {
+      onLogout()
+    } else if (raLogout) {
+      setIsLoggingOut(true)
+      try {
+        await raLogout()
+      } finally {
+        setIsLoggingOut(false)
+      }
+    }
+  }, [closeMenu, onLogout, raLogout])
 
   return (
     <div data-slot="user-menu" data-testid="shadmin-user-menu" className="relative">
@@ -143,18 +180,20 @@ function UserMenu({ user }: UserMenuProps) {
             <div className="-mx-1 my-1 h-px bg-border" />
             <button
               role="menuitem"
+              data-testid="shadmin-user-menu-profile"
               className={cn(
                 'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
                 'outline-none transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
                 'focus:bg-accent focus:text-accent-foreground'
               )}
-              onClick={closeMenu}
+              onClick={handleProfileClick}
             >
               Profile
             </button>
             <button
               role="menuitem"
+              data-testid="shadmin-user-menu-settings"
               className={cn(
                 'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
                 'outline-none transition-colors',
@@ -168,15 +207,18 @@ function UserMenu({ user }: UserMenuProps) {
             <div className="-mx-1 my-1 h-px bg-border" />
             <button
               role="menuitem"
+              data-testid="logout-button"
               className={cn(
+                'logout',
                 'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
                 'outline-none transition-colors text-destructive',
                 'hover:bg-destructive/10',
                 'focus:bg-destructive/10'
               )}
-              onClick={closeMenu}
+              onClick={handleLogoutClick}
+              disabled={isLoggingOut}
             >
-              Log out
+              {isLoggingOut ? 'Logging out...' : 'Log out'}
             </button>
           </div>
         </>
@@ -276,6 +318,9 @@ export function AppBar({
   rightContent,
   showThemeToggle = false,
   onThemeToggle,
+  onProfile,
+  onLogout,
+  showUserMenu = false,
 }: AppBarProps) {
   // Try to get sidebar context, but don't fail if not available
   let sidebarContext: ReturnType<typeof useSidebar> | null = null
@@ -284,6 +329,27 @@ export function AppBar({
   } catch {
     // Not within a SidebarProvider, that's okay
   }
+
+  // Get user identity from ra-core if not provided via props
+  let identityData: AppBarUser | undefined
+  try {
+    const { data: identity } = useGetIdentity()
+    if (!user && identity) {
+      identityData = {
+        name: identity.fullName ?? 'User',
+        avatar: identity.avatar as string | undefined,
+        email: identity.email as string | undefined,
+      }
+    }
+  } catch {
+    // Not within an AuthProvider context, that's okay
+  }
+
+  // Use provided user prop, or identity from hook, or undefined
+  const effectiveUser = user ?? identityData
+
+  // Determine if user menu should be shown
+  const shouldShowUserMenu = showUserMenu || effectiveUser !== undefined
 
   return (
     <header
@@ -362,7 +428,13 @@ export function AppBar({
         {showThemeToggle && <ThemeToggle onToggle={onThemeToggle} />}
 
         {/* User Menu */}
-        {user && <UserMenu user={user} />}
+        {shouldShowUserMenu && (
+          <UserMenu
+            user={effectiveUser ?? { name: 'User' }}
+            onProfile={onProfile}
+            onLogout={onLogout}
+          />
+        )}
       </div>
     </header>
   )

@@ -64,6 +64,8 @@ export function DatagridHeader<T extends RaRecord = RaRecord>({
                   .filter(Boolean)
                   .join(' ')}
                 aria-sort={sortDirection}
+                data-testid={`column-header-${header.column.id}`}
+                data-field={header.column.id}
                 onClick={
                   canSort && onSortChange
                     ? () => onSortChange(header.column.id)

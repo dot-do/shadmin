@@ -61,7 +61,7 @@ export function DatagridRow<T extends RaRecord = RaRecord>({
   const record = row.original
 
   const rowClasses = [
-    'border-b transition-colors',
+    'border-b transition-colors RaDatagrid-row',
     hover && 'hover:bg-muted/50 hover',
     isClickable && 'cursor-pointer',
     isSelected && 'bg-muted',
@@ -150,7 +150,7 @@ export function SimpleDatagridRow<T extends RaRecord = RaRecord>({
   className = '',
 }: SimpleDatagridRowProps<T>) {
   const rowClasses = [
-    'border-b transition-colors',
+    'border-b transition-colors RaDatagrid-row',
     hover && 'hover:bg-muted/50 hover',
     isClickable && 'cursor-pointer',
     isSelected && 'bg-muted',

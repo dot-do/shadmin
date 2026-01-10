@@ -85,9 +85,9 @@ export function ListView({
           <div className="flex items-center gap-4">
             {title && (
               typeof title === 'string' ? (
-                <CardTitle>{title}</CardTitle>
+                <CardTitle id="react-admin-title">{title}</CardTitle>
               ) : (
-                title
+                <span id="react-admin-title">{title}</span>
               )
             )}
             {filters}
