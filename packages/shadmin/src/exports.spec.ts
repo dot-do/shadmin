@@ -197,12 +197,14 @@ describe('Package Exports', () => {
 
     it('exports Menu', () => {
       expect(shadmin.Menu).toBeDefined()
-      expect(typeof shadmin.Menu).toBe('function')
+      // Menu is a forwardRef component (object) with static properties
+      expect(typeof shadmin.Menu === 'function' || typeof shadmin.Menu === 'object').toBe(true)
     })
 
     it('exports MenuItem', () => {
       expect(shadmin.MenuItem).toBeDefined()
-      expect(typeof shadmin.MenuItem).toBe('function')
+      // MenuItem is a forwardRef component (object)
+      expect(typeof shadmin.MenuItem === 'function' || typeof shadmin.MenuItem === 'object').toBe(true)
     })
 
     it('exports AppBar', () => {

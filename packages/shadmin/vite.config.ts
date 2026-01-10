@@ -4,6 +4,12 @@ import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
 export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test-utils/setup.ts'],
+    include: ['src/**/*.spec.{ts,tsx}'],
+    globals: true,
+  },
   plugins: [
     react(),
     dts({
