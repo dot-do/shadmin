@@ -1,10 +1,22 @@
 /**
  * CanAccess component
- * Conditionally renders children based on user permissions
- * 100% API-compatible with react-admin
+ * Conditionally renders children based on user permissions.
+ *
+ * 100% API-compatible with react-admin.
+ *
+ * Features:
+ * - Simple permission string or array matching
+ * - Resource/action based permission checks
+ * - Wildcard permission support (e.g., "admin.*")
+ * - Custom permission check functions
+ * - Render prop pattern for flexible rendering
+ * - Loading state handling
+ * - Error callbacks
+ *
+ * @module components/auth/CanAccess
  */
 
-import { useEffect, type ReactNode, type ReactElement } from 'react'
+import { useEffect, useMemo, type ReactNode, type ReactElement } from 'react'
 import { useCanAccess, type UseCanAccessParams } from '../../hooks/useCanAccess'
 import { usePermissions } from '../../hooks/usePermissions'
 
@@ -20,9 +32,9 @@ export interface CanAccessRenderProps {
  * Fallback function signature
  */
 export interface CanAccessFallbackProps {
-  permission?: string | string[]
-  resource?: string
-  action?: string
+  permission?: string | string[] | undefined
+  resource?: string | undefined
+  action?: string | undefined
 }
 
 /**
@@ -94,6 +106,18 @@ export function CanAccess({
     }
   }, [error, onError])
 
+  // Memoize fallback props to prevent unnecessary re-renders
+  const fallbackProps = useMemo(
+    () => ({ permission, resource, action }),
+    [permission, resource, action]
+  )
+
+  // Memoize render props to prevent unnecessary re-renders
+  const renderProps = useMemo(
+    () => ({ canAccess, permissions }),
+    [canAccess, permissions]
+  )
+
   // Show loading state
   if (isLoading) {
     if (loading) {
@@ -104,7 +128,7 @@ export function CanAccess({
 
   // Handle render prop pattern
   if (typeof children === 'function') {
-    return children({ canAccess, permissions })
+    return children(renderProps)
   }
 
   // Show children if authorized
@@ -115,7 +139,7 @@ export function CanAccess({
   // Show fallback if unauthorized
   if (fallback) {
     if (typeof fallback === 'function') {
-      return fallback({ permission, resource, action })
+      return fallback(fallbackProps)
     }
     return fallback as ReactElement
   }
@@ -123,3 +147,5 @@ export function CanAccess({
   // Default to null when unauthorized with no fallback
   return null
 }
+
+CanAccess.displayName = 'CanAccess'

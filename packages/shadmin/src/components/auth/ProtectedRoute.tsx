@@ -1,29 +1,48 @@
 /**
  * ProtectedRoute component
- * Guards routes that require authentication
+ * Guards routes that require authentication.
  *
  * Features:
- * 1. Check auth state from AuthProviderContext
- * 2. Show loading spinner during auth check
- * 3. Redirect to /login if not authenticated
- * 4. Render children if authenticated
- * 5. Optionally check roles/permissions
+ * - Authentication state checking via AuthProviderContext
+ * - Loading spinner during auth verification
+ * - Automatic redirect to login for unauthenticated users
+ * - Role-based access control (RBAC)
+ * - Permission-based access control
+ * - Custom permission check functions
+ * - Customizable redirect paths
+ * - Error handling with optional error component
+ * - Location state preservation for post-login redirect
+ *
+ * @module components/auth/ProtectedRoute
  */
 
 import { useState, useEffect, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router'
 import { useAuthProvider } from '../../contexts/AuthProviderContext'
 
+/**
+ * Props for ProtectedRoute component
+ */
 export interface ProtectedRouteProps {
+  /** Content to render when authenticated and authorized */
   children: ReactNode
+  /** Custom loading component to display during auth check */
   loading?: ReactNode
+  /** Path to redirect to when user is not authenticated. @default "/login" */
   loginPath?: string
+  /** Path to redirect to when user lacks permissions. @default "/unauthorized" */
   unauthorizedPath?: string
+  /** Array of roles - user must have at least one (or all with requireAllRoles) */
   requiredRoles?: string[]
+  /** If true, user must have ALL required roles. @default false */
   requireAllRoles?: boolean
+  /** Permission object - all key/value pairs must match */
   requiredPermissions?: Record<string, boolean>
+  /** Custom function to check permissions */
   checkPermissions?: (permissions: unknown) => boolean
+  /** Callback when authentication or permission check fails */
   onError?: (error: Error) => void
+  /** Custom component to render on error (instead of redirect) */
   errorComponent?: React.ComponentType<{ error: Error }>
 }
 
@@ -43,7 +62,38 @@ const DefaultLoading = () => (
 )
 
 /**
- * ProtectedRoute - Guards routes that require authentication
+ * ProtectedRoute - Guards routes that require authentication.
+ *
+ * @example
+ * ```tsx
+ * // Basic authentication check
+ * <ProtectedRoute>
+ *   <Dashboard />
+ * </ProtectedRoute>
+ *
+ * // With role-based access control
+ * <ProtectedRoute requiredRoles={['admin']}>
+ *   <AdminPanel />
+ * </ProtectedRoute>
+ *
+ * // Require all specified roles
+ * <ProtectedRoute requiredRoles={['admin', 'editor']} requireAllRoles>
+ *   <SuperAdminPanel />
+ * </ProtectedRoute>
+ *
+ * // With custom permission check
+ * <ProtectedRoute checkPermissions={(perms) => perms.level >= 3}>
+ *   <AdvancedFeatures />
+ * </ProtectedRoute>
+ *
+ * // With custom loading and error handling
+ * <ProtectedRoute
+ *   loading={<Spinner />}
+ *   onError={(err) => console.error(err)}
+ * >
+ *   <ProtectedContent />
+ * </ProtectedRoute>
+ * ```
  */
 export function ProtectedRoute({
   children,
@@ -91,7 +141,7 @@ export function ProtectedRoute({
             setAuthState('unauthorized')
             return
           }
-          const permissions = await authProvider.getPermissions()
+          const permissions = await authProvider.getPermissions({})
 
           if (!isMounted) return
 
@@ -250,3 +300,5 @@ export function ProtectedRoute({
   // User is authenticated (and has required permissions if specified)
   return <>{children}</>
 }
+
+ProtectedRoute.displayName = 'ProtectedRoute'
