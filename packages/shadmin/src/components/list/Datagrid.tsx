@@ -46,7 +46,7 @@ export interface DatagridColumn<T = RaRecord> {
   source: string
   label?: string
   sortable?: boolean
-  render?: (props: CellRendererProps<T>) => ReactNode
+  render?: (props: CellRendererProps<T>) => ReactNode | unknown
 }
 
 /**
@@ -97,7 +97,7 @@ export interface DatagridProps<T extends RaRecord = RaRecord> {
   /** Function to determine if a row can be expanded */
   isRowExpandable?: (record: T) => boolean
   /** Custom cell renderer for all cells */
-  cellRenderer?: (props: CellRendererProps<T>) => ReactNode
+  cellRenderer?: (props: CellRendererProps<T>) => ReactNode | unknown
 }
 
 /**

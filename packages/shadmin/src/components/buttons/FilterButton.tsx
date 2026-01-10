@@ -66,7 +66,7 @@ export interface FilterButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonE
    * Button size
    * @default 'default'
    */
-  size?: 'default' | 'sm' | 'lg' | 'icon'
+  size?: 'default' | 'sm' | 'small' | 'lg' | 'icon'
 }
 
 const buttonVariants = {
@@ -81,6 +81,7 @@ const buttonVariants = {
 const buttonSizes = {
   default: 'h-10 px-4 py-2',
   sm: 'h-9 rounded-md px-3',
+  small: 'h-9 rounded-md px-3', // alias for 'sm' (react-admin compatibility)
   lg: 'h-11 rounded-md px-8',
   icon: 'h-10 w-10',
 }

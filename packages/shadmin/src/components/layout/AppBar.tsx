@@ -65,15 +65,17 @@ function UserMenu({ user }: UserMenuProps) {
   }, [])
 
   return (
-    <div className="relative">
+    <div data-slot="user-menu" data-testid="user-menu" className="relative">
       <button
         type="button"
+        data-slot="user-menu-trigger"
+        data-testid="user-menu-trigger"
         onClick={toggleMenu}
         className={cn(
-          'flex items-center gap-2 rounded-md px-2 py-1',
-          'text-sm font-medium transition-colors',
+          'flex items-center gap-2 rounded-md px-2 py-1.5',
+          'text-sm font-medium ring-offset-background transition-colors',
           'hover:bg-accent hover:text-accent-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
         )}
         aria-expanded={isOpen}
         aria-haspopup="menu"
@@ -82,10 +84,10 @@ function UserMenu({ user }: UserMenuProps) {
           <img
             src={user.avatar}
             alt={user.name}
-            className="h-8 w-8 rounded-full object-cover"
+            className="size-8 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+          <div className="flex size-8 items-center justify-center rounded-full bg-muted">
             <span className="text-xs font-medium">
               {user.name.charAt(0).toUpperCase()}
             </span>
@@ -103,7 +105,7 @@ function UserMenu({ user }: UserMenuProps) {
           strokeLinecap="round"
           strokeLinejoin="round"
           className={cn(
-            'h-4 w-4 transition-transform',
+            'size-4 transition-transform duration-200',
             isOpen && 'rotate-180'
           )}
         >
@@ -121,9 +123,11 @@ function UserMenu({ user }: UserMenuProps) {
           />
           <div
             role="menu"
+            data-slot="user-menu-content"
+            data-testid="user-menu-content"
             className={cn(
               'absolute right-0 top-full z-50 mt-1',
-              'min-w-[160px] rounded-md border bg-popover p-1 shadow-lg',
+              'min-w-[160px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
               'animate-in fade-in-0 zoom-in-95'
             )}
           >
@@ -139,9 +143,10 @@ function UserMenu({ user }: UserMenuProps) {
             <button
               role="menuitem"
               className={cn(
-                'flex w-full items-center rounded-sm px-2 py-1.5 text-sm',
+                'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
+                'outline-none transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
-                'focus:bg-accent focus:text-accent-foreground focus:outline-none'
+                'focus:bg-accent focus:text-accent-foreground'
               )}
               onClick={closeMenu}
             >
@@ -150,9 +155,10 @@ function UserMenu({ user }: UserMenuProps) {
             <button
               role="menuitem"
               className={cn(
-                'flex w-full items-center rounded-sm px-2 py-1.5 text-sm',
+                'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
+                'outline-none transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
-                'focus:bg-accent focus:text-accent-foreground focus:outline-none'
+                'focus:bg-accent focus:text-accent-foreground'
               )}
               onClick={closeMenu}
             >
@@ -162,9 +168,10 @@ function UserMenu({ user }: UserMenuProps) {
             <button
               role="menuitem"
               className={cn(
-                'flex w-full items-center rounded-sm px-2 py-1.5 text-sm text-destructive',
+                'relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm',
+                'outline-none transition-colors text-destructive',
                 'hover:bg-destructive/10',
-                'focus:bg-destructive/10 focus:outline-none'
+                'focus:bg-destructive/10'
               )}
               onClick={closeMenu}
             >
@@ -176,6 +183,8 @@ function UserMenu({ user }: UserMenuProps) {
     </div>
   )
 }
+
+UserMenu.displayName = 'UserMenu'
 
 // ============================================================================
 // Theme Toggle
@@ -189,12 +198,15 @@ function ThemeToggle({ onToggle }: ThemeToggleProps) {
   return (
     <button
       type="button"
+      data-slot="theme-toggle"
+      data-testid="theme-toggle"
       onClick={onToggle}
       className={cn(
-        'inline-flex items-center justify-center rounded-md p-2',
+        'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
         'text-sm font-medium ring-offset-background transition-colors',
         'hover:bg-accent hover:text-accent-foreground',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0'
       )}
       aria-label="Toggle theme"
     >
@@ -208,7 +220,7 @@ function ThemeToggle({ onToggle }: ThemeToggleProps) {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-5 w-5"
+        className="size-5"
       >
         <circle cx="12" cy="12" r="4" />
         <path d="M12 2v2" />
@@ -223,6 +235,8 @@ function ThemeToggle({ onToggle }: ThemeToggleProps) {
     </button>
   )
 }
+
+ThemeToggle.displayName = 'ThemeToggle'
 
 // ============================================================================
 // AppBar Component
@@ -273,13 +287,17 @@ export function AppBar({
   return (
     <header
       role="banner"
+      data-slot="appbar"
+      data-testid="appbar"
       className={cn(
-        'sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4',
+        'sticky top-0 z-30 flex h-14 shrink-0 items-center gap-4 border-b',
+        'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+        'px-4',
         className
       )}
     >
       {/* Left Section */}
-      <div className="flex items-center gap-2">
+      <div data-slot="appbar-left" className="flex items-center gap-2">
         {/* Sidebar Trigger */}
         {showSidebarTrigger && (
           sidebarContext ? (
@@ -287,12 +305,15 @@ export function AppBar({
           ) : (
             <button
               type="button"
+              data-slot="sidebar-trigger"
+              data-testid="sidebar-trigger"
               className={cn(
-                'inline-flex items-center justify-center rounded-md p-2',
+                'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
                 'text-sm font-medium ring-offset-background transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:pointer-events-none disabled:opacity-50'
+                'disabled:pointer-events-none disabled:opacity-50',
+                '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0'
               )}
               aria-label="Toggle sidebar"
             >
@@ -306,7 +327,7 @@ export function AppBar({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="h-5 w-5"
+                className="size-5"
               >
                 <line x1="4" x2="20" y1="12" y2="12" />
                 <line x1="4" x2="20" y1="6" y2="6" />
@@ -318,7 +339,7 @@ export function AppBar({
 
         {/* Title */}
         {title && (
-          <h1 className="text-lg font-semibold">{title}</h1>
+          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
         )}
 
         {/* Custom Left Content */}
@@ -329,7 +350,7 @@ export function AppBar({
       <div className="flex-1" />
 
       {/* Right Section */}
-      <div className="flex items-center gap-2">
+      <div data-slot="appbar-right" className="flex items-center gap-2">
         {/* Custom Right Content */}
         {rightContent}
 
@@ -345,4 +366,6 @@ export function AppBar({
     </header>
   )
 }
+
+AppBar.displayName = 'AppBar'
 

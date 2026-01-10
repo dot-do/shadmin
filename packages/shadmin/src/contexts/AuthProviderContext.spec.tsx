@@ -6,7 +6,7 @@ import {
   useAuthProvider,
   useAuthProviderOptional,
 } from './AuthProviderContext'
-import type { AuthProvider } from '../types'
+import type { AuthProvider } from 'ra-core'
 
 const createMockAuthProvider = (
   overrides: Partial<AuthProvider> = {}

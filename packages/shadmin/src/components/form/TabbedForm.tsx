@@ -13,6 +13,7 @@ import {
   useEffect,
   Children,
   isValidElement,
+  type ReactElement,
   type ReactNode,
 } from 'react'
 import { useFormContext } from '../../contexts/FormContext'
@@ -146,6 +147,15 @@ export interface TabbedFormProps {
    * This is a react-admin prop for compatibility
    */
   warnWhenUnsavedChanges?: boolean | undefined
+  /**
+   * Custom toolbar element to render form actions
+   * Set to false to hide the toolbar completely
+   */
+  toolbar?: ReactElement | false | undefined
+  /**
+   * Custom submit handler for the form
+   */
+  onSubmit?: (data: any, event?: React.BaseSyntheticEvent) => void | Promise<void> | undefined
 }
 
 /**
@@ -251,6 +261,8 @@ export function TabbedForm({
   mode: _mode,
   defaultValues: _defaultValues,
   warnWhenUnsavedChanges: _warnWhenUnsavedChanges,
+  toolbar: _toolbar,
+  onSubmit: _onSubmit,
 }: TabbedFormProps) {
   // Extract tab configuration from children
   const tabs = useMemo(() => extractTabs(children), [children])

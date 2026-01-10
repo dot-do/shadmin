@@ -30,7 +30,7 @@ export interface ShowTabInfo {
   className?: string | undefined
   triggerClassName?: string | undefined
   children: ReactNode
-  count?: number | undefined
+  count?: number | ReactNode | undefined
   path?: string | undefined
 }
 
@@ -113,7 +113,7 @@ export interface TabProps {
   /**
    * Optional count badge to display on the tab
    */
-  count?: number
+  count?: number | ReactNode
   /**
    * Optional path for tab navigation (for URL sync)
    */
@@ -442,7 +442,7 @@ export function TabbedShowLayout({
               >
                 {tab.icon && <span className="mr-2">{tab.icon}</span>}
                 {tab.label}
-                {tab.count != null && tab.count > 0 && (
+                {tab.count != null && (typeof tab.count !== 'number' || tab.count > 0) && (
                   <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground px-1.5">
                     {tab.count}
                   </span>

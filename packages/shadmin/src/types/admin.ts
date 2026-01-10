@@ -5,7 +5,7 @@
 
 import type { ComponentType, ReactNode } from 'react'
 import type { DataProvider } from './data-provider'
-import type { AuthProvider } from './auth-provider'
+import type { AuthProvider } from 'ra-core'
 
 /**
  * Plugin interface for extending Admin functionality

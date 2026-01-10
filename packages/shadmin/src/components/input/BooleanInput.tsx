@@ -39,13 +39,20 @@ export interface BooleanInputProps<T extends FieldValues = FieldValues>
    * Default value for the field.
    */
   defaultValue?: boolean
+  /**
+   * Size of the switch.
+   * - "small" or "sm": Small size
+   * - "default": Default size
+   * - "lg": Large size
+   */
+  size?: 'small' | 'sm' | 'default' | 'lg'
 }
 
 /**
- * Switch styling based on ShadCN Switch component patterns.
+ * Base switch styling based on ShadCN Switch component patterns.
  */
-const switchStyles = cn(
-  'peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent',
+const switchBaseStyles = cn(
+  'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent',
   'transition-colors',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
   'disabled:cursor-not-allowed disabled:opacity-50',
@@ -53,13 +60,30 @@ const switchStyles = cn(
 )
 
 /**
- * Switch thumb styling
+ * Size-specific switch styles
  */
-const thumbStyles = cn(
-  'pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0',
-  'transition-transform',
-  'data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0'
+const switchSizeStyles = {
+  sm: 'h-5 w-9',
+  default: 'h-6 w-11',
+  lg: 'h-7 w-14',
+}
+
+/**
+ * Base switch thumb styling
+ */
+const thumbBaseStyles = cn(
+  'pointer-events-none block rounded-full bg-background shadow-lg ring-0',
+  'transition-transform'
 )
+
+/**
+ * Size-specific thumb styles
+ */
+const thumbSizeStyles = {
+  sm: 'h-4 w-4 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0',
+  default: 'h-5 w-5 data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0',
+  lg: 'h-6 w-6 data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-0',
+}
 
 /**
  * Label styling based on ShadCN Label component patterns.
@@ -109,6 +133,7 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
       className,
       disabled,
       defaultValue = false,
+      size = 'default',
       ...rest
     },
     ref
@@ -128,6 +153,9 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
       ...(rules && { rules }),
       defaultValue: defaultValue as never,
     })
+
+    // Normalize "small" to "sm"
+    const normalizedSize = size === 'small' ? 'sm' : size
 
     const showLabel = label !== false
     const displayLabel = label || source
@@ -172,13 +200,13 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
               error ? errorId : helperText ? helperId : undefined
             }
             data-state={state}
-            className={cn(switchStyles, className)}
+            className={cn(switchBaseStyles, switchSizeStyles[normalizedSize], className)}
             disabled={disabled}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             onBlur={field.onBlur}
           >
-            <span data-state={state} className={thumbStyles} />
+            <span data-state={state} className={cn(thumbBaseStyles, thumbSizeStyles[normalizedSize])} />
           </button>
           {showLabel && (
             <span className={labelStyles}>

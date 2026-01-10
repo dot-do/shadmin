@@ -38,12 +38,14 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'name' | 'defaultValue'> {
   /**
    * The field name in the form data.
+   * Optional when used inside ReferenceInput (provided via context).
    */
-  source: Path<T>
+  source?: Path<T>
   /**
    * Array of choices to display in the autocomplete dropdown.
+   * Optional when used inside ReferenceInput (provided via context).
    */
-  choices: AutocompleteChoice[]
+  choices?: AutocompleteChoice[]
   /**
    * Label text displayed above the input.
    * Set to `false` to hide the label completely.
@@ -157,8 +159,8 @@ export const AutocompleteInput = forwardRef<
 >(
   (
     {
-      source,
-      choices,
+      source = '' as Path<FieldValues>,
+      choices = [],
       label,
       helperText,
       rules,

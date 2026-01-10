@@ -16,6 +16,7 @@ export * from './record'
 
 // Data provider types (also re-exports record types for backwards compatibility)
 export * from './data-provider'
-export * from './auth-provider'
+// Note: AuthProvider types are exported from ra-core in src/index.ts
+// We don't re-export them here to avoid duplicate export conflicts
 export * from './resource'
 export * from './admin'

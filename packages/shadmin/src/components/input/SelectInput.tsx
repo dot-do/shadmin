@@ -23,12 +23,14 @@ export interface SelectInputProps<T extends FieldValues = FieldValues>
   extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'name' | 'defaultValue'> {
   /**
    * The field name in the form data. Maps to the `name` attribute on the select.
+   * Optional when used inside ReferenceInput (provided via context).
    */
-  source: Path<T>
+  source?: Path<T>
   /**
    * Array of choices to display in the select dropdown.
+   * Optional when used inside ReferenceInput (provided via context).
    */
-  choices: SelectChoice[]
+  choices?: SelectChoice[]
   /**
    * Label text displayed above the select.
    * If not provided, uses the source field name.
@@ -205,8 +207,8 @@ function XIcon({ className }: { className?: string }) {
 export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
   (
     {
-      source,
-      choices,
+      source = '' as Path<FieldValues>,
+      choices = [],
       label,
       helperText,
       rules,

@@ -5,7 +5,7 @@ import type { RaRecord } from '../../types'
 
 export interface FunctionFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** Function that receives the record and returns content to render */
-  render: (record: RaRecord | undefined) => ReactNode
+  render: (record: RaRecord | undefined) => ReactNode | unknown
   /** Optional record to use instead of RecordContext */
   record?: RaRecord
   /** Optional label to display above the value */
@@ -53,7 +53,7 @@ export function FunctionField({
 
   // Check if content is empty (null, undefined, or empty string)
   const isEmpty = content == null || content === ''
-  const displayContent = isEmpty ? emptyText : content
+  const displayContent = (isEmpty ? emptyText : content) as ReactNode
 
   if (label) {
     return (

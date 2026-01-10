@@ -5,7 +5,7 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import type { AuthProvider } from '../types'
+import type { AuthProvider } from 'ra-core'
 
 const AuthProviderContext = createContext<AuthProvider | null>(null)
 

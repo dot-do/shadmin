@@ -10,7 +10,7 @@ import { LoginPage } from './LoginPage'
 import { LogoutButton } from './LogoutButton'
 import { ProtectedRoute } from './ProtectedRoute'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
-import type { AuthProvider, UserIdentity } from '../../types/auth-provider'
+import type { AuthProvider, UserIdentity } from 'ra-core'
 
 // ============================================================================
 // Mock Auth Provider

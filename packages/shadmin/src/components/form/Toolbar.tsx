@@ -25,6 +25,15 @@ const buttonVariants = {
   link: 'text-primary underline-offset-4 hover:underline',
 }
 
+// Valid variant types including 'text' as an alias for 'link'
+export type ButtonVariant = keyof typeof buttonVariants | 'text'
+
+// Resolve variant aliases (e.g., 'text' -> 'link')
+function resolveVariant(variant: ButtonVariant): keyof typeof buttonVariants {
+  if (variant === 'text') return 'link'
+  return variant
+}
+
 const buttonSizes = {
   default: 'h-10 px-4 py-2',
   sm: 'h-9 rounded-md px-3',
@@ -113,21 +122,41 @@ export interface SaveButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
    * Whether the form is currently saving
    * If not provided, uses the saving state from form context
    */
-  saving?: boolean
+  saving?: boolean | undefined
   /**
    * Icon to display before the label
    */
   icon?: ReactNode
   /**
-   * Button variant
+   * Button variant. 'text' is an alias for 'link'.
    * @default 'default'
    */
-  variant?: keyof typeof buttonVariants
+  variant?: ButtonVariant
   /**
    * Button size
    * @default 'default'
    */
   size?: keyof typeof buttonSizes
+  /**
+   * Button type attribute
+   * @default 'submit'
+   */
+  type?: 'button' | 'submit' | undefined
+  /**
+   * Mutation options for form submission callbacks
+   */
+  mutationOptions?: {
+    onSuccess?: (data: any) => void
+    onError?: (error: any) => void
+  } | undefined
+  /**
+   * Transform function to modify form data before submission
+   */
+  transform?: ((data: any) => any) | undefined
+  /**
+   * Style extension prop (for compatibility with MUI-style APIs)
+   */
+  sx?: unknown | undefined
 }
 
 /**
@@ -173,7 +202,7 @@ export const SaveButton = forwardRef<HTMLButtonElement, SaveButtonProps>(
         disabled={disabled || isSubmitting}
         className={cn(
           buttonBaseStyles,
-          buttonVariants[variant],
+          buttonVariants[resolveVariant(variant)],
           buttonSizes[size],
           className
         )}
@@ -223,10 +252,10 @@ export interface DeleteButtonProps extends ButtonHTMLAttributes<HTMLButtonElemen
    */
   icon?: ReactNode
   /**
-   * Button variant
+   * Button variant. 'text' is an alias for 'link'.
    * @default 'destructive'
    */
-  variant?: keyof typeof buttonVariants
+  variant?: ButtonVariant
   /**
    * Button size
    * @default 'default'
@@ -293,7 +322,7 @@ export const DeleteButton = forwardRef<HTMLButtonElement, DeleteButtonProps>(
         disabled={disabled}
         className={cn(
           buttonBaseStyles,
-          buttonVariants[variant],
+          buttonVariants[resolveVariant(variant)],
           buttonSizes[size],
           className
         )}

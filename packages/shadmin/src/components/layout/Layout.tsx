@@ -37,10 +37,10 @@ export interface MenuItem {
 export interface LayoutProps {
   /** Main content */
   children: ReactNode
-  /** Custom sidebar component */
-  sidebar?: ReactNode
-  /** Custom appbar component */
-  appBar?: ReactNode
+  /** Custom sidebar component - can be a ReactNode or a ComponentType */
+  sidebar?: ReactNode | ComponentType
+  /** Custom appbar component - can be a ReactNode or a ComponentType */
+  appBar?: ReactNode | ComponentType
   /** Custom menu component */
   menu?: ComponentType<{ items?: MenuItem[] }>
   /** Menu items to pass to menu component */
@@ -147,6 +147,8 @@ function SidebarProvider({
   )
 }
 
+SidebarProvider.displayName = 'SidebarProvider'
+
 // ============================================================================
 // Sidebar Trigger
 // ============================================================================
@@ -161,13 +163,16 @@ function SidebarTrigger({ className }: SidebarTriggerProps) {
   return (
     <button
       type="button"
+      data-slot="sidebar-trigger"
+      data-testid="sidebar-trigger"
       onClick={toggleSidebar}
       className={cn(
-        'inline-flex items-center justify-center rounded-md p-2',
+        'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
         'text-sm font-medium ring-offset-background transition-colors',
         'hover:bg-accent hover:text-accent-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
+        '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
         className
       )}
       aria-label={isMobile ? 'Menu' : 'Toggle sidebar'}
@@ -182,7 +187,7 @@ function SidebarTrigger({ className }: SidebarTriggerProps) {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-5 w-5"
+        className="size-5"
       >
         <line x1="4" x2="20" y1="12" y2="12" />
         <line x1="4" x2="20" y1="6" y2="6" />
@@ -191,6 +196,8 @@ function SidebarTrigger({ className }: SidebarTriggerProps) {
     </button>
   )
 }
+
+SidebarTrigger.displayName = 'SidebarTrigger'
 
 // ============================================================================
 // Default Sidebar
@@ -295,21 +302,24 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
   }, [setOpenMobile])
 
   const sidebarContent = (
-    <div className="flex h-full flex-col">
+    <div data-slot="sidebar-content" className="flex h-full flex-col">
       {/* Sidebar Header */}
-      <div className="flex h-14 items-center border-b px-4">
-        <span className="font-semibold">{title || 'Admin'}</span>
+      <div data-slot="sidebar-header" className="flex h-14 items-center border-b px-4">
+        <span className="font-semibold tracking-tight">{title || 'Admin'}</span>
       </div>
 
       {/* Sidebar Content */}
-      <div className="flex-1 overflow-auto py-2">
+      <div data-slot="sidebar-menu" className="flex-1 overflow-auto py-2">
         {Menu ? (
           <Menu items={menuItems} />
         ) : (
           <nav className="space-y-1 px-2">
             <a
               href="/"
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
+              className={cn(
+                'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium',
+                'transition-colors hover:bg-accent hover:text-accent-foreground'
+              )}
             >
               Dashboard
             </a>
@@ -336,12 +346,15 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
         <aside
           ref={sidebarRef}
           role="complementary"
+          data-slot="sidebar"
           data-sidebar="sidebar"
+          data-testid="sidebar"
+          data-mobile="true"
           data-mobile-open={openMobile ? 'true' : 'false'}
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-72 bg-background border-r',
+            'fixed inset-y-0 left-0 z-50 w-72 border-r bg-sidebar text-sidebar-foreground',
             'transform transition-transform duration-300 ease-in-out',
-            'hidden md:flex',
+            'hidden md:flex flex-col',
             openMobile ? 'translate-x-0 flex' : '-translate-x-full'
           )}
         >
@@ -355,9 +368,12 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
   return (
     <aside
       role="complementary"
+      data-slot="sidebar"
       data-sidebar="sidebar"
+      data-testid="sidebar"
+      data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
-        'hidden md:flex flex-col border-r bg-background',
+        'hidden md:flex flex-col border-r bg-sidebar text-sidebar-foreground',
         'transition-all duration-300 ease-in-out',
         open ? 'w-72' : 'w-16'
       )}
@@ -366,6 +382,8 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
     </aside>
   )
 }
+
+DefaultSidebar.displayName = 'DefaultSidebar'
 
 // ============================================================================
 // Default AppBar
@@ -383,14 +401,20 @@ function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarP
   return (
     <header
       role="banner"
-      className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4"
+      data-slot="appbar"
+      data-testid="appbar"
+      className={cn(
+        'sticky top-0 z-30 flex h-14 shrink-0 items-center gap-4 border-b',
+        'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+        'px-4'
+      )}
     >
       {/* Sidebar Trigger */}
       <SidebarTrigger />
 
       {/* Title (mobile only) */}
       {isMobile && title && (
-        <span className="font-semibold">{title}</span>
+        <span className="font-semibold tracking-tight">{title}</span>
       )}
 
       {/* Spacer */}
@@ -400,12 +424,15 @@ function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarP
       {showThemeToggle && (
         <button
           type="button"
+          data-slot="theme-toggle"
+          data-testid="theme-toggle"
           onClick={onThemeChange}
           className={cn(
-            'inline-flex items-center justify-center rounded-md p-2',
+            'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
             'text-sm font-medium ring-offset-background transition-colors',
             'hover:bg-accent hover:text-accent-foreground',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0'
           )}
           aria-label="Toggle theme"
         >
@@ -419,7 +446,7 @@ function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarP
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="h-5 w-5"
+            className="size-5"
           >
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v2" />
@@ -436,6 +463,8 @@ function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarP
     </header>
   )
 }
+
+DefaultAppBar.displayName = 'DefaultAppBar'
 
 // ============================================================================
 // Layout Component
@@ -510,6 +539,11 @@ interface LayoutInnerProps extends Omit<LayoutProps, 'defaultOpen' | 'open' | 'o
   onThemeChange: () => void
 }
 
+// Helper to check if a value is a component type (function) vs a ReactNode
+function isComponentType(value: unknown): value is ComponentType {
+  return typeof value === 'function'
+}
+
 function LayoutInner({
   children,
   sidebar,
@@ -524,17 +558,35 @@ function LayoutInner({
 }: LayoutInnerProps) {
   const { open, isMobile } = useSidebar()
 
-  const sidebarElement = sidebar ?? (
-    <DefaultSidebar title={title} menu={menu} menuItems={menuItems} />
-  )
+  // Handle sidebar - can be ReactNode or ComponentType
+  const sidebarElement = useMemo(() => {
+    if (sidebar === undefined) {
+      return <DefaultSidebar title={title} menu={menu} menuItems={menuItems} />
+    }
+    if (isComponentType(sidebar)) {
+      const SidebarComponent = sidebar
+      return <SidebarComponent />
+    }
+    return sidebar
+  }, [sidebar, title, menu, menuItems])
 
-  const appBarElement = appBar ?? (
-    <DefaultAppBar
-      title={title}
-      showThemeToggle={showThemeToggle}
-      onThemeChange={onThemeChange}
-    />
-  )
+  // Handle appBar - can be ReactNode or ComponentType
+  const appBarElement = useMemo(() => {
+    if (appBar === undefined) {
+      return (
+        <DefaultAppBar
+          title={title}
+          showThemeToggle={showThemeToggle}
+          onThemeChange={onThemeChange}
+        />
+      )
+    }
+    if (isComponentType(appBar)) {
+      const AppBarComponent = appBar
+      return <AppBarComponent />
+    }
+    return appBar
+  }, [appBar, title, showThemeToggle, onThemeChange])
 
   return (
     <div
@@ -554,13 +606,21 @@ function LayoutInner({
         {appBarElement}
 
         {/* Content */}
-        <main role="main" className="flex-1 overflow-auto p-4">
+        <main
+          role="main"
+          data-slot="main-content"
+          data-testid="main-content"
+          className="flex-1 overflow-auto p-4 md:p-6"
+        >
           {children}
         </main>
       </div>
     </div>
   )
 }
+
+LayoutInner.displayName = 'LayoutInner'
+Layout.displayName = 'Layout'
 
 export { SidebarProvider, SidebarTrigger }
 export type { SidebarContextValue }

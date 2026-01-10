@@ -12,7 +12,8 @@ import {
   ResourceDefinitionContextProvider,
   type ResourceDefinitions,
 } from '../../contexts'
-import type { DataProvider, AuthProvider } from '../../types'
+import type { DataProvider } from '../../types'
+import type { AuthProvider } from 'ra-core'
 
 export interface CoreAdminContextProps {
   children: ReactNode

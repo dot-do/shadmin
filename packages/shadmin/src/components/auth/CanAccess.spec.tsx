@@ -15,7 +15,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { CanAccess } from './CanAccess'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
-import type { AuthProvider } from '../../types'
+import type { AuthProvider } from 'ra-core'
 
 // Test wrapper with required providers
 const createWrapper = (authProvider: AuthProvider) => {

@@ -104,16 +104,19 @@ export function Sidebar({
 
   const sidebarContent = useMemo(
     () => (
-      <div className="flex h-full flex-col">
+      <div data-slot="sidebar-content" className="flex h-full flex-col">
         {/* Header */}
         {(header || title || logo) && (
-          <div className="flex h-14 items-center border-b px-4">
+          <div
+            data-slot="sidebar-header"
+            className="flex h-14 shrink-0 items-center gap-2 border-b px-4"
+          >
             {header || (
               <>
                 {logo}
                 {title && (
                   <span className={cn(
-                    'font-semibold transition-opacity',
+                    'font-semibold tracking-tight transition-opacity duration-200',
                     !open && !isMobile && 'opacity-0 w-0 overflow-hidden'
                   )}>
                     {title}
@@ -125,13 +128,13 @@ export function Sidebar({
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-auto py-2">
+        <div data-slot="sidebar-menu" className="flex-1 overflow-auto py-2">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="border-t p-4">
+          <div data-slot="sidebar-footer" className="mt-auto border-t p-4">
             {footer}
           </div>
         )}
@@ -147,7 +150,11 @@ export function Sidebar({
         {/* Overlay */}
         {openMobile && (
           <div
-            className="fixed inset-0 z-40 bg-black/50"
+            data-slot="sidebar-overlay"
+            className={cn(
+              'fixed inset-0 z-40 bg-black/80',
+              'transition-opacity duration-300'
+            )}
             onClick={() => setOpenMobile?.(false)}
             aria-hidden="true"
           />
@@ -156,13 +163,15 @@ export function Sidebar({
         {/* Mobile Sidebar */}
         <aside
           role="complementary"
+          data-slot="sidebar"
           data-sidebar="sidebar"
+          data-testid="sidebar"
           data-mobile="true"
           data-mobile-open={openMobile ? 'true' : 'false'}
           className={cn(
-            'fixed inset-y-0 left-0 z-50 bg-background border-r',
+            'fixed inset-y-0 left-0 z-50 border-r bg-sidebar text-sidebar-foreground',
             width,
-            'transform transition-transform duration-300 ease-in-out',
+            'flex flex-col transform transition-transform duration-300 ease-in-out',
             openMobile ? 'translate-x-0' : '-translate-x-full',
             className
           )}
@@ -177,10 +186,12 @@ export function Sidebar({
   return (
     <aside
       role="complementary"
+      data-slot="sidebar"
       data-sidebar="sidebar"
+      data-testid="sidebar"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
-        'hidden md:flex flex-col border-r bg-background',
+        'hidden md:flex flex-col border-r bg-sidebar text-sidebar-foreground',
         'transition-all duration-300 ease-in-out',
         open ? width : collapsedWidth,
         className

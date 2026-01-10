@@ -90,30 +90,48 @@ export function ContainerLayout({
 
   return (
     <div
-      className={cn('min-h-screen flex flex-col', className)}
+      data-slot="container-layout"
+      data-testid="container-layout"
       data-layout="container"
+      className={cn('min-h-screen flex flex-col bg-background', className)}
     >
       {/* Header with navigation */}
       <header
         role="banner"
-        className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        data-slot="container-header"
+        data-testid="container-header"
+        className={cn(
+          'sticky top-0 z-50 w-full border-b',
+          'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+        )}
       >
         <div className="container flex h-14 items-center">
           {/* Logo/Title */}
           {title && (
-            <div className="mr-4 font-semibold">
-              <Link to="/">{title}</Link>
+            <div data-slot="container-title" className="mr-4">
+              <Link
+                to="/"
+                className="font-semibold tracking-tight transition-colors hover:text-primary"
+              >
+                {title}
+              </Link>
             </div>
           )}
 
           {/* Desktop Navigation */}
-          <nav role="navigation" className="hidden md:flex items-center gap-6 flex-1">
+          <nav
+            role="navigation"
+            data-slot="container-nav"
+            data-testid="container-nav"
+            className="hidden md:flex items-center gap-6 flex-1"
+          >
             {menuItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
                 className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
+                  'inline-flex items-center text-sm font-medium transition-colors',
+                  'hover:text-foreground',
                   location.pathname === item.path
                     ? 'text-foreground'
                     : 'text-muted-foreground'
@@ -129,12 +147,21 @@ export function ContainerLayout({
           {isMobile && (
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-accent"
+              data-slot="mobile-menu-trigger"
+              data-testid="mobile-menu-trigger"
+              className={cn(
+                'md:hidden inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
+                'text-sm font-medium ring-offset-background transition-colors',
+                'text-muted-foreground hover:text-foreground hover:bg-accent',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                '[&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0'
+              )}
               onClick={toggleMobileMenu}
               aria-label="Menu"
+              aria-expanded={isMobileMenuOpen}
             >
               <svg
-                className="h-6 w-6"
+                className="size-6"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -153,12 +180,16 @@ export function ContainerLayout({
 
           {/* User menu */}
           {user && (
-            <div className="ml-auto flex items-center gap-2">
+            <div
+              data-slot="container-user"
+              data-testid="container-user"
+              className="ml-auto flex items-center gap-2"
+            >
               {user.avatar && (
                 <img
                   src={user.avatar}
                   alt={user.name}
-                  className="h-8 w-8 rounded-full"
+                  className="size-8 rounded-full object-cover"
                 />
               )}
               <span className="text-sm font-medium">{user.name}</span>
@@ -168,17 +199,22 @@ export function ContainerLayout({
 
         {/* Mobile menu dropdown */}
         {isMobile && isMobileMenuOpen && (
-          <nav className="md:hidden border-t" role="navigation">
+          <nav
+            data-slot="mobile-nav"
+            data-testid="mobile-nav"
+            className="md:hidden border-t"
+            role="navigation"
+          >
             <div className="container py-2 space-y-1">
               {menuItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
-                    'block px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     location.pathname === item.path
-                      ? 'bg-accent text-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
                   onClick={closeMobileMenu}
                 >
@@ -192,7 +228,12 @@ export function ContainerLayout({
       </header>
 
       {/* Main content */}
-      <main className="flex-1 container py-6">
+      <main
+        role="main"
+        data-slot="container-main"
+        data-testid="container-main"
+        className="flex-1 container py-6 md:py-8"
+      >
         {children}
       </main>
     </div>

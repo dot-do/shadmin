@@ -10,7 +10,7 @@ import type { ReactNode } from 'react'
 import { useLogout } from './useLogout'
 import { AuthProviderContextProvider } from '../contexts/AuthProviderContext'
 import { NotificationContextProvider } from '../contexts/NotificationContext'
-import type { AuthProvider } from '../types'
+import type { AuthProvider } from 'ra-core'
 import { MemoryRouter } from 'react-router'
 
 // Test wrapper with required providers

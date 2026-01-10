@@ -64,7 +64,7 @@ export function ProtectedRoute({
     const checkAuthentication = async () => {
       try {
         // First check if user is authenticated
-        await authProvider.checkAuth()
+        await authProvider.checkAuth({})
 
         if (!isMounted) return
 
@@ -81,6 +81,12 @@ export function ProtectedRoute({
 
         // Fetch permissions for role/permission checks
         try {
+          // getPermissions is optional in AuthProvider
+          if (!authProvider.getPermissions) {
+            // No getPermissions method - can't check permissions, treat as unauthorized
+            setAuthState('unauthorized')
+            return
+          }
           const permissions = await authProvider.getPermissions()
 
           if (!isMounted) return

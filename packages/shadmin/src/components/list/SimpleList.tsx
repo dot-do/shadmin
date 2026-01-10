@@ -9,7 +9,7 @@
  * - Icon support
  */
 
-import { type ReactNode, type ComponentType, useCallback } from 'react'
+import { type ReactNode, type ComponentType, type CSSProperties, useCallback } from 'react'
 import { cn } from '../../utils'
 import { useListContext } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
@@ -21,36 +21,47 @@ import type { RaRecord } from '../../types'
 export interface SimpleListProps<RecordType extends RaRecord = RaRecord> {
   /**
    * Function to get primary text from record
+   * Returns ReactNode or unknown (for flexibility with record property access)
    */
-  primaryText?: string | ((record: RecordType) => ReactNode)
+  primaryText?: string | ((record: RecordType) => ReactNode | unknown)
   /**
    * Function to get secondary text from record
+   * Returns ReactNode or unknown (for flexibility with record property access)
    */
-  secondaryText?: string | ((record: RecordType) => ReactNode)
+  secondaryText?: string | ((record: RecordType) => ReactNode | unknown)
   /**
    * Function to get tertiary text from record
+   * Returns ReactNode or unknown (for flexibility with record property access)
    */
-  tertiaryText?: string | ((record: RecordType) => ReactNode)
+  tertiaryText?: string | ((record: RecordType) => ReactNode | unknown)
   /**
-   * Icon component or function returning icon
+   * Left avatar component or function returning avatar
    */
-  leftIcon?: ReactNode | ((record: RecordType) => ReactNode)
+  leftAvatar?: ((record: RecordType) => ReactNode) | (() => ReactNode)
+  /**
+   * Right avatar component or function returning avatar
+   */
+  rightAvatar?: ((record: RecordType) => ReactNode) | (() => ReactNode)
+  /**
+   * Left icon component or function returning icon
+   */
+  leftIcon?: (record: RecordType) => ReactNode
   /**
    * Right icon component or function returning icon
    */
-  rightIcon?: ReactNode | ((record: RecordType) => ReactNode)
+  rightIcon?: (record: RecordType) => ReactNode
   /**
    * Link type for row clicks
    */
-  linkType?: 'edit' | 'show' | false
+  linkType?: 'edit' | 'show' | false | ((record: RecordType, id: RecordType['id']) => string)
   /**
    * Custom row click handler
    */
-  rowClick?: (id: RecordType['id'], record: RecordType) => void
+  rowClick?: string | boolean | ((id: RecordType['id'], resource: string, record: RecordType) => string)
   /**
    * Custom row styles function
    */
-  rowStyle?: (record: RecordType, index: number) => React.CSSProperties
+  rowStyle?: (record: RecordType, index: number) => CSSProperties
   /**
    * Additional CSS class
    */
@@ -86,6 +97,8 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
   primaryText,
   secondaryText,
   tertiaryText,
+  leftAvatar,
+  rightAvatar,
   leftIcon,
   rightIcon,
   linkType = 'edit',
@@ -101,11 +114,11 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
 
   const getText = useCallback(
     (
-      textProp: string | ((record: RecordType) => ReactNode) | undefined,
+      textProp: string | ((record: RecordType) => ReactNode | unknown) | undefined,
       record: RecordType
     ): ReactNode => {
       if (!textProp) return null
-      if (typeof textProp === 'function') return textProp(record)
+      if (typeof textProp === 'function') return textProp(record) as ReactNode
       // If string, assume it's a field name
       return (record as Record<string, unknown>)[textProp] as ReactNode
     },
@@ -114,28 +127,42 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
 
   const getIcon = useCallback(
     (
-      iconProp: ReactNode | ((record: RecordType) => ReactNode) | undefined,
+      iconProp: ((record: RecordType) => ReactNode) | undefined,
       record: RecordType
     ): ReactNode => {
       if (!iconProp) return null
-      if (typeof iconProp === 'function') return iconProp(record)
-      return iconProp
+      return iconProp(record)
+    },
+    []
+  )
+
+  const getAvatar = useCallback(
+    (
+      avatarProp: ((record: RecordType) => ReactNode) | (() => ReactNode) | undefined,
+      record: RecordType
+    ): ReactNode => {
+      if (!avatarProp) return null
+      // Try calling with record first, if the function takes 0 args it will just ignore it
+      return avatarProp(record)
     },
     []
   )
 
   const handleRowClick = useCallback(
     (record: RecordType) => {
-      if (rowClick) {
-        rowClick(record.id, record)
+      if (typeof rowClick === 'function') {
+        rowClick(record.id, resource ?? '', record)
       }
     },
-    [rowClick]
+    [rowClick, resource]
   )
 
   const getLink = useCallback(
     (record: RecordType): string | null => {
       if (!linkType || !resource) return null
+      if (typeof linkType === 'function') {
+        return linkType(record, record.id)
+      }
       return `/${resource}/${record.id}/${linkType}`
     },
     [linkType, resource]
@@ -174,8 +201,10 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
     <ul role="list" className={cn('divide-y divide-border', className)}>
       {data.map((record, index) => {
         const link = getLink(record)
-        const left = getIcon(leftIcon, record)
-        const right = getIcon(rightIcon, record)
+        const leftAvatarContent = getAvatar(leftAvatar, record)
+        const rightAvatarContent = getAvatar(rightAvatar, record)
+        const leftIconContent = getIcon(leftIcon, record)
+        const rightIconContent = getIcon(rightIcon, record)
         const primary = getText(primaryText, record)
         const secondary = getText(secondaryText, record)
         const tertiary = getText(tertiaryText, record)
@@ -191,9 +220,9 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
             style={style}
             onClick={() => !link && handleRowClick(record)}
           >
-            {left && (
+            {(leftAvatarContent || leftIconContent) && (
               <div className="flex-shrink-0">
-                {left}
+                {leftAvatarContent || leftIconContent}
               </div>
             )}
             <div className="flex-1 min-w-0">
@@ -213,9 +242,9 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
                 {tertiary}
               </div>
             )}
-            {right && (
+            {(rightAvatarContent || rightIconContent) && (
               <div className="flex-shrink-0">
-                {right}
+                {rightAvatarContent || rightIconContent}
               </div>
             )}
           </div>
