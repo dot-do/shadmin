@@ -340,3 +340,12 @@ export {
   ColumnsButton,
   type ColumnsButtonProps,
 } from './buttons'
+
+// =============================================================================
+// @MDXUI/ADMIN INTEGRATION
+// =============================================================================
+// The @mdxui/admin integration is available via a separate import:
+//   import { MdxList, MdxDatagrid, DatabaseGrid } from 'shadmin/mdxui'
+//
+// This requires @mdxui/admin to be installed as a peer dependency.
+// See: ./mdxui/index.ts for the full export list.

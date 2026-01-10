@@ -175,6 +175,16 @@
         "types": "./dist/cli/index.d.ts",
         "default": "./src/cli/index.ts"
       }
+    },
+    "./mdxui": {
+      "import": {
+        "types": "./dist/components/mdxui/index.d.ts",
+        "default": "./dist/components/mdxui/index.js"
+      },
+      "require": {
+        "types": "./dist/components/mdxui/index.d.ts",
+        "default": "./dist/components/mdxui/index.cjs"
+      }
     }
   },
   "files": [
@@ -199,7 +209,13 @@
   },
   "peerDependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "@mdxui/admin": ">=0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@mdxui/admin": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
