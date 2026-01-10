@@ -23,6 +23,8 @@ export interface ReferenceArrayFieldProps extends HTMLAttributes<HTMLDivElement>
   emptyText?: string
   /** Children to render for each referenced record */
   children?: ReactNode
+  /** Optional sort order for the referenced records */
+  sort?: { field: string; order: 'ASC' | 'DESC' }
 }
 
 /**
@@ -51,6 +53,7 @@ export function ReferenceArrayField({
   record: recordProp,
   label,
   emptyText,
+  sort,
   className,
   children,
   ...rest
@@ -101,10 +104,28 @@ export function ReferenceArrayField({
     )
   }
 
-  // Sort data to match the order of IDs in the source field
-  const sortedData = referenceIds
+  // Sort data based on sort prop or maintain the order of IDs in the source field
+  let sortedData = referenceIds
     .map((id) => data?.find((item) => item.id === id))
     .filter((item): item is RaRecord => item != null)
+
+  // Apply custom sort if provided
+  if (sort) {
+    sortedData = [...sortedData].sort((a, b) => {
+      const aValue = get(a, sort.field)
+      const bValue = get(b, sort.field)
+
+      // Handle null/undefined values
+      if (aValue == null && bValue == null) return 0
+      if (aValue == null) return sort.order === 'ASC' ? 1 : -1
+      if (bValue == null) return sort.order === 'ASC' ? -1 : 1
+
+      // Compare values
+      if (aValue < bValue) return sort.order === 'ASC' ? -1 : 1
+      if (aValue > bValue) return sort.order === 'ASC' ? 1 : -1
+      return 0
+    })
+  }
 
   // Render each referenced record with its own context
   const content = sortedData.map((item) => (

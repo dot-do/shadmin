@@ -49,7 +49,9 @@ export {
 // DataTable - advanced data grid wrapper
 export {
   DataTable,
+  DataTableCol,
   type DataTableProps,
+  type DataTableColProps,
 } from './DataTable'
 
 // InfiniteList - Infinite scroll list component

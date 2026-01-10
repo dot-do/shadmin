@@ -146,12 +146,16 @@ function normalizeFilters(
     const elements = filters as ReactElement[]
     return Children.toArray(elements)
       .filter(isValidElement)
-      .map((element): FilterDefinition => {
+      .map((element) => {
         const props = element.props as Record<string, unknown>
-        return {
+        const label = props.label as string | undefined
+        const result: FilterDefinition = {
           source: String(props.source || ''),
-          label: props.label as string | undefined,
         }
+        if (label !== undefined) {
+          result.label = label
+        }
+        return result
       })
       .filter((f): f is FilterDefinition => Boolean(f.source))
   }

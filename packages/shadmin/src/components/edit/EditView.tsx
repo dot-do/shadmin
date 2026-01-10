@@ -10,6 +10,21 @@ import type { ReactNode, ReactElement } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
 /**
+ * Props for EditActions component
+ * Used for customizing the actions toolbar in Edit views
+ */
+export interface EditActionsProps {
+  /** Additional CSS class name */
+  className?: string
+  /** Child elements (action buttons) */
+  children?: ReactNode
+  /** Whether the resource has a show view */
+  hasShow?: boolean
+  /** Whether the resource allows deletion */
+  hasDelete?: boolean
+}
+
+/**
  * Props for EditView component
  */
 export interface EditViewProps {

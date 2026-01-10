@@ -16,7 +16,7 @@ export default defineConfig({
     environmentMatchGlobs: [
       ['packages/shadmin/src/cli/**/*.spec.ts', 'node'],
     ],
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./packages/shadmin/src/test-utils/setup.ts'],
     include: ['packages/**/*.spec.{ts,tsx}', 'packages/**/*.test.{ts,tsx}'],
     // Resource optimization
     pool: 'forks',

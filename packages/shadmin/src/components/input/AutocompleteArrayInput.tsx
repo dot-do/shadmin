@@ -103,6 +103,16 @@ export interface AutocompleteArrayInputProps<T extends FieldValues = FieldValues
    * Default value for the field (array of values).
    */
   defaultValue?: string[]
+  /**
+   * Custom function to determine if a suggestion matches the filter value.
+   * Useful for custom matching logic beyond simple text includes.
+   */
+  matchSuggestion?: (filterValue: any, suggestion: any) => boolean
+  /**
+   * Custom function to get the input text to display for a selected record.
+   * Useful when the display text differs from the option text.
+   */
+  inputText?: (record: any) => string
 }
 
 const errorInputStyles = 'border-destructive focus-visible:ring-destructive'
@@ -163,6 +173,8 @@ export const AutocompleteArrayInput = forwardRef<
       debounce: debounceDelay = 0,
       openOnFocus = true,
       defaultValue,
+      matchSuggestion,
+      inputText,
       ...rest
     },
     ref

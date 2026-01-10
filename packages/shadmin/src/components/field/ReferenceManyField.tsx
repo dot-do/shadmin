@@ -11,8 +11,8 @@ import { useGetManyReference } from '../../hooks/useGetManyReference'
 import type { Identifier, RaRecord } from '../../types'
 
 export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> {
-  /** The field name in the record that contains the ID to look up */
-  source: string
+  /** The field name in the record that contains the ID to look up (defaults to 'id' if not provided) */
+  source?: string
   /** The resource name to fetch the related records from */
   reference: string
   /** The foreign key field name in the referenced resource */
@@ -75,7 +75,7 @@ export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> 
  * ```
  */
 export function ReferenceManyField({
-  source,
+  source = 'id',
   reference,
   target,
   record: recordProp,
@@ -92,7 +92,7 @@ export function ReferenceManyField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
-  // Get the ID from the source field
+  // Get the ID from the source field (defaults to 'id')
   const sourceId = get(record, source) as Identifier | null | undefined
 
   // Check if we have a valid source ID

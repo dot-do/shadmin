@@ -134,9 +134,9 @@ describe('<Admin />', () => {
     expect(screen.getByText('Content')).toBeInTheDocument()
   })
 
-  it('accepts title prop', () => {
+  it('accepts basename prop', () => {
     renderAdmin(
-      <Admin dataProvider={defaultDataProvider} title="My Admin App">
+      <Admin dataProvider={defaultDataProvider} basename="/admin">
         <div>Content</div>
       </Admin>
     )

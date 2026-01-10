@@ -30,6 +30,8 @@ export interface ReferenceManyCountProps extends Omit<HTMLAttributes<HTMLSpanEle
   link?: string | boolean
   /** Timeout for loading state (ms) before showing spinner */
   timeout?: number
+  /** MUI sx prop for styling (accepted for compatibility, ignored) */
+  sx?: unknown
 }
 
 /**

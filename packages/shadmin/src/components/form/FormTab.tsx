@@ -18,32 +18,36 @@ export interface FormTabProps {
    * Unique name/identifier for the tab.
    * If not provided, will be generated from the label.
    */
-  name?: string
+  name?: string | undefined
   /**
    * Path used for URL synchronization when syncWithLocation is enabled.
    * If not provided, the name (or generated name from label) will be used.
    */
-  path?: string
+  path?: string | undefined
   /**
    * Content to render inside the tab panel
    */
-  children?: React.ReactNode
+  children?: React.ReactNode | undefined
   /**
    * Optional icon to display before the label
    */
-  icon?: React.ReactNode
+  icon?: React.ReactNode | undefined
   /**
    * Whether the tab is disabled
    */
-  disabled?: boolean
+  disabled?: boolean | undefined
   /**
    * Additional CSS class for the tab panel
    */
-  className?: string
+  className?: string | undefined
   /**
    * Additional CSS class for the tab trigger
    */
-  triggerClassName?: string
+  triggerClassName?: string | undefined
+  /**
+   * Optional badge count to display on the tab
+   */
+  count?: React.ReactNode | undefined
 }
 
 /**
@@ -85,6 +89,7 @@ export function FormTab({
   disabled: _disabled,
   className: _className,
   triggerClassName: _triggerClassName,
+  count: _count,
 }: FormTabProps) {
   // This component is a "configuration" component
   // TabbedForm reads the props and renders the actual tab UI
@@ -110,16 +115,16 @@ export interface FormTabPanelProps {
   /**
    * Additional class names
    */
-  className?: string
+  className?: string | undefined
   /**
    * Whether to force render content even when tab is not active
    * This is needed to register form inputs
    */
-  forceRender?: boolean
+  forceRender?: boolean | undefined
   /**
    * Whether this tab is currently active
    */
-  isActive?: boolean
+  isActive?: boolean | undefined
 }
 
 /**

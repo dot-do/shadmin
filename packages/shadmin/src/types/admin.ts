@@ -62,20 +62,8 @@ export interface AdminProps {
   darkTheme?: ThemeOptions
   /** Base path for routing (optional) */
   basename?: string
-  /** Application title (optional) */
-  title?: string
-  /** Disable telemetry (optional) */
-  disableTelemetry?: boolean
-  /** Login page component (optional) */
-  loginPage?: ComponentType | false
   /** Error page component (optional) */
   error?: ComponentType<ErrorProps>
-  /** Loading indicator component (optional) */
-  loading?: ComponentType
-  /** Notification component (optional) */
-  notification?: ComponentType
-  /** Ready handler (optional) */
-  ready?: ComponentType
   /** Plugins to extend Admin functionality */
   plugins?: AdminPlugin[]
 }

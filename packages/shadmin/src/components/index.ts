@@ -162,6 +162,8 @@ export {
   type SingleFieldListProps,
   type TranslatableFieldsProps,
   type TranslatableFieldsContextValue,
+  RecordField,
+  type RecordFieldProps,
 } from './field'
 
 // Form components
@@ -222,6 +224,7 @@ export {
   type EditProps,
   type EditBaseProps,
   type EditViewProps,
+  type EditActionsProps,
   type MutationMode,
   type Identifier,
 } from './edit'
@@ -339,4 +342,10 @@ export {
   type DeleteWithConfirmButtonProps,
   type FilterButtonProps,
   type FilterDefinition,
+  InspectorButton,
+  type InspectorButtonProps,
+  InPlaceEditor,
+  type InPlaceEditorProps,
+  ColumnsButton,
+  type ColumnsButtonProps,
 } from './buttons'

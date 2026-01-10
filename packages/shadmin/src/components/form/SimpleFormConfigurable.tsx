@@ -38,6 +38,10 @@ export interface FieldConfig {
 export interface SimpleFormConfigurableProps<T extends FieldValues = FieldValues>
   extends SimpleFormProps<T> {
   /**
+   * MUI sx prop for styling (accepted for compatibility, ignored)
+   */
+  sx?: unknown
+  /**
    * Array of field sources to omit (hide) from the form.
    * These fields will not be rendered.
    */

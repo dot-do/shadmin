@@ -1,6 +1,13 @@
 /**
  * Vitest global test setup
- * This file is run before each test file
+ *
+ * This file is run before each test file. It configures:
+ * - Testing Library jest-dom matchers for DOM assertions
+ * - Automatic cleanup after each test
+ * - Browser API mocks (matchMedia, ResizeObserver, IntersectionObserver)
+ *
+ * Environment: jsdom (React Testing Library standard)
+ * Referenced from: /vitest.config.ts
  */
 
 import '@testing-library/jest-dom/vitest'
@@ -12,7 +19,7 @@ afterEach(() => {
   cleanup()
 })
 
-// Browser-specific mocks (only apply in jsdom/happy-dom environment)
+// Browser-specific mocks (only apply in jsdom environment)
 if (typeof window !== 'undefined') {
   // Mock window.matchMedia for responsive tests
   Object.defineProperty(window, 'matchMedia', {

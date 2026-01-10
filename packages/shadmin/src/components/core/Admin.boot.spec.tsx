@@ -149,27 +149,23 @@ describe('Admin Boot Sequence', () => {
     })
   })
 
-  describe('ready state', () => {
-    it('shows ready component while initializing', async () => {
-      const Ready = () => <div data-testid="ready-state">Loading Admin...</div>
-
+  describe('initial state', () => {
+    it('renders content during initialization', async () => {
       renderAdmin(
-        <Admin dataProvider={defaultDataProvider} ready={Ready}>
+        <Admin dataProvider={defaultDataProvider}>
           <Resource name="posts" list={() => <div>Posts</div>} />
         </Admin>
       )
 
-      // The ready component should be shown or we should see content
-      // This test verifies the ready prop is respected
+      // Content should be visible
       expect(document.body).toBeInTheDocument()
     })
 
-    it('transitions from ready to rendered state', async () => {
-      const Ready = () => <div data-testid="ready-state">Initializing...</div>
+    it('transitions to rendered state', async () => {
       const PostList = () => <div data-testid="post-list">Posts List</div>
 
       renderAdmin(
-        <Admin dataProvider={defaultDataProvider} ready={Ready}>
+        <Admin dataProvider={defaultDataProvider}>
           <Resource name="posts" list={PostList} />
         </Admin>
       )
@@ -177,7 +173,7 @@ describe('Admin Boot Sequence', () => {
       // Eventually should show the actual content
       await waitFor(
         () => {
-          // Either ready state or final content should be visible
+          // Content should be visible
           expect(document.body.textContent).toBeTruthy()
         },
         { timeout: 2000 }
@@ -612,13 +608,11 @@ describe('AuthProvider Initialization', () => {
   describe('authentication flow', () => {
     it('redirects to login when not authenticated', async () => {
       const mockAuthProvider = createMockAuthProvider({ isAuthenticated: false })
-      const LoginPage = () => <div data-testid="login-page">Please Login</div>
 
       renderAdmin(
         <Admin
           dataProvider={defaultDataProvider}
           authProvider={mockAuthProvider}
-          loginPage={LoginPage}
         >
           <Resource name="posts" list={() => <div>Posts</div>} />
         </Admin>
@@ -1023,7 +1017,6 @@ describe('Full Boot Integration', () => {
         authProvider={authProvider}
         dashboard={Dashboard}
         layout={Layout}
-        title="Test Admin"
       >
         <Resource name="posts" list={PostList} />
         <Resource name="users" list={UserList} />

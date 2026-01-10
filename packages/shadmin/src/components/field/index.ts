@@ -24,3 +24,4 @@ export {
   type TranslatableFieldsProps,
   type TranslatableFieldsContextValue,
 } from './TranslatableFields'
+export { RecordField, type RecordFieldProps } from './RecordField'

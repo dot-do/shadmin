@@ -13,6 +13,8 @@ export interface TextFieldProps extends HTMLAttributes<HTMLSpanElement> {
   label?: string
   /** Text to display when value is empty/null/undefined */
   emptyText?: string
+  /** MUI sx prop for styling (accepted for compatibility, ignored) */
+  sx?: unknown
 }
 
 /**

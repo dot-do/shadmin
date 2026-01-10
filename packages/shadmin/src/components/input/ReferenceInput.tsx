@@ -7,6 +7,7 @@
 import { cloneElement, type ReactElement } from 'react'
 import { useGetList } from '../../hooks/useGetList'
 import { cn } from '../../utils'
+import { AutocompleteInput } from './AutocompleteInput'
 
 /**
  * Choice record type
@@ -37,8 +38,9 @@ export interface ReferenceInputProps {
   reference: string
   /**
    * Child input component (SelectInput or AutocompleteInput)
+   * Defaults to AutocompleteInput if not provided
    */
-  children: ReactElement
+  children?: ReactElement
   /**
    * Label text displayed above the input
    */
@@ -200,8 +202,8 @@ export function ReferenceInput({
   // Prepare choices for the child input
   const choices = data ?? []
 
-  // Clone the child element with injected props
-  const childWithProps = cloneElement(children, {
+  // Props to pass to the child input
+  const childProps = {
     source,
     choices,
     optionValue,
@@ -210,9 +212,16 @@ export function ReferenceInput({
     ...(label !== undefined && { label }),
     ...(emptyText !== undefined && { emptyText }),
     ...(helperText !== undefined && { helperText }),
-  })
+  }
 
-  return <div className={className}>{childWithProps}</div>
+  // If no children provided, default to AutocompleteInput
+  const childElement = children ? (
+    cloneElement(children, childProps)
+  ) : (
+    <AutocompleteInput {...childProps} />
+  )
+
+  return <div className={className}>{childElement}</div>
 }
 
 ReferenceInput.displayName = 'ReferenceInput'

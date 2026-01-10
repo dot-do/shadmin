@@ -20,8 +20,8 @@ import {
   useEffect,
   useRef,
 } from 'react'
-import { ResourceDefinitionContextProvider, type ResourceDefinitions } from '../../contexts'
-import type { AdminProps, ResourceProps, ResourceDefinition, ErrorProps, DataProvider, AdminPlugin, AdminPluginContext } from '../../types'
+import { ResourceDefinitionContextProvider, NotificationContextProvider, type ResourceDefinitions } from '../../contexts'
+import type { AdminProps, ResourceProps, ResourceDefinition, ErrorProps, DataProvider, AdminPluginContext } from '../../types'
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
@@ -163,22 +163,17 @@ export const Admin = ({
   authProvider,
   layout,
   dashboard,
-  // Theme props for theming support
   theme,
   darkTheme,
   basename = '',
-  // Title prop reserved for document title/branding
-  title: _title = 'Shadmin',
-  // Reserved for analytics opt-out
-  disableTelemetry: _disableTelemetry,
-  // Custom page components reserved for future auth/loading flows
-  loginPage: _loginPage,
   error,
-  loading: _loading,
-  notification: _notification,
-  ready: _ready,
   plugins = [],
 }: AdminProps): ReactElement => {
+  // Validate dataProvider is provided (runtime validation)
+  if (!dataProvider) {
+    throw new Error('Admin component requires a dataProvider prop')
+  }
+
   // Use custom error component or default
   const ErrorComponent = error ?? DefaultErrorComponent
 
@@ -280,6 +275,15 @@ export const Admin = ({
     }
   }, [plugins, dataProvider, addResource, addMenuItem, wrapDataProvider, onUnmount])
 
+  // Call authProvider.checkAuth on mount when authProvider is provided
+  useEffect(() => {
+    if (authProvider?.checkAuth) {
+      authProvider.checkAuth({}).catch(() => {
+        // Silently handle auth check failures - redirect to login will be handled elsewhere
+      })
+    }
+  }, [authProvider])
+
   // Convert registered resources to definitions object for context
   const resourceDefinitions: ResourceDefinitions = useMemo(() => {
     const definitions: ResourceDefinitions = {}
@@ -320,27 +324,29 @@ export const Admin = ({
 
   return (
     <ThemeProvider theme={theme as CustomTheme} darkTheme={darkTheme as CustomTheme}>
-      <CoreAdminContext
-        dataProvider={wrappedDataProvider}
-        authProvider={authProvider}
-        basename={basename}
-      >
-        <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
-          <ResourceRegistrationContext.Provider value={registrationValue}>
-            <ErrorBoundary ErrorComponent={ErrorComponent}>
-              {/* Render Resource children so they can register */}
-              {children}
-              {/* Render routes with plugin menu items */}
-              <CoreAdminRoutes
-                resources={resourcesArray}
-                dashboard={dashboard}
-                layout={layout}
-                menuItems={menuItems}
-              />
-            </ErrorBoundary>
-          </ResourceRegistrationContext.Provider>
-        </ResourceDefinitionContextProvider>
-      </CoreAdminContext>
+      <NotificationContextProvider>
+        <CoreAdminContext
+          dataProvider={wrappedDataProvider}
+          authProvider={authProvider}
+          basename={basename}
+        >
+          <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
+            <ResourceRegistrationContext.Provider value={registrationValue}>
+              <ErrorBoundary ErrorComponent={ErrorComponent}>
+                {/* Render Resource children so they can register */}
+                {children}
+                {/* Render routes with plugin menu items */}
+                <CoreAdminRoutes
+                  resources={resourcesArray}
+                  dashboard={dashboard}
+                  layout={layout}
+                  menuItems={menuItems}
+                />
+              </ErrorBoundary>
+            </ResourceRegistrationContext.Provider>
+          </ResourceDefinitionContextProvider>
+        </CoreAdminContext>
+      </NotificationContextProvider>
     </ThemeProvider>
   )
 }

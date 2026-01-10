@@ -41,6 +41,10 @@ export interface ResourceItemProps extends Omit<MenuItemProps, 'to' | 'label'> {
    * Custom path (defaults to "/{resource}")
    */
   to?: string
+  /**
+   * Keyboard shortcut to display next to the menu item
+   */
+  keyboardShortcut?: string
 }
 
 /**
@@ -69,6 +73,7 @@ export function ResourceItem({
   label,
   to,
   icon,
+  keyboardShortcut,
   ...props
 }: ResourceItemProps) {
   const definitions = useResourceDefinitions()
@@ -88,6 +93,7 @@ export function ResourceItem({
       to={path}
       label={displayLabel}
       icon={displayIcon}
+      {...(keyboardShortcut !== undefined && { keyboardShortcut })}
       {...props}
     />
   )

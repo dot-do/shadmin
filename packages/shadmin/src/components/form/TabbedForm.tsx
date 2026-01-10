@@ -34,6 +34,10 @@ export interface TabInfo {
   disabled?: boolean | undefined
   className?: string | undefined
   triggerClassName?: string | undefined
+  /**
+   * Optional badge count to display on the tab
+   */
+  count?: ReactNode | undefined
   children: ReactNode
 }
 
@@ -107,36 +111,41 @@ export interface TabbedFormProps {
   /**
    * FormTab children
    */
-  children?: ReactNode
+  children?: ReactNode | undefined
   /**
    * Additional CSS class for the form container
    */
-  className?: string
+  className?: string | undefined
   /**
    * Default tab to show on mount
    */
-  defaultTab?: string
+  defaultTab?: string | undefined
   /**
    * Callback when active tab changes
    */
-  onTabChange?: (tabName: string) => void
+  onTabChange?: ((tabName: string) => void) | undefined
   /**
    * Whether to sync active tab with URL
    */
-  syncWithLocation?: boolean
+  syncWithLocation?: boolean | undefined
   /**
    * URL parameter key for tab sync (default: 'tab')
    */
-  locationKey?: string
+  locationKey?: string | undefined
   /**
    * Validation mode for react-hook-form
    * @default 'onSubmit'
    */
-  mode?: 'onBlur' | 'onChange' | 'onSubmit' | 'onTouched' | 'all'
+  mode?: 'onBlur' | 'onChange' | 'onSubmit' | 'onTouched' | 'all' | undefined
   /**
    * Default values for the form fields
    */
-  defaultValues?: Record<string, unknown>
+  defaultValues?: Record<string, unknown> | undefined
+  /**
+   * Warn users before navigating away from unsaved changes
+   * This is a react-admin prop for compatibility
+   */
+  warnWhenUnsavedChanges?: boolean | undefined
 }
 
 /**
@@ -167,6 +176,7 @@ function extractTabs(children: ReactNode): TabInfo[] {
       disabled: props.disabled,
       className: props.className,
       triggerClassName: props.triggerClassName,
+      count: props.count,
       children: props.children,
     })
   })
@@ -240,6 +250,7 @@ export function TabbedForm({
   locationKey = 'tab',
   mode: _mode,
   defaultValues: _defaultValues,
+  warnWhenUnsavedChanges: _warnWhenUnsavedChanges,
 }: TabbedFormProps) {
   // Extract tab configuration from children
   const tabs = useMemo(() => extractTabs(children), [children])
@@ -493,6 +504,11 @@ export function TabbedForm({
               >
                 {tab.icon && <span className="mr-2">{tab.icon}</span>}
                 {tab.label}
+                {tab.count !== undefined && (
+                  <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/20 px-1.5 text-xs font-medium">
+                    {tab.count}
+                  </span>
+                )}
                 {errorCount > 0 && (
                   <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground">
                     {errorCount}

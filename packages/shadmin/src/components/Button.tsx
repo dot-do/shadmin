@@ -3,11 +3,13 @@ import { cn } from '@/utils'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Button variant */
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'text'
   /** Button size */
   size?: 'default' | 'sm' | 'lg' | 'icon'
   /** Loading state */
   loading?: boolean
+  /** Button label (rendered before children) */
+  label?: string | ReactNode
   /** Button content */
   children?: ReactNode
 }
@@ -19,6 +21,7 @@ const buttonVariants = {
   secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   ghost: 'hover:bg-accent hover:text-accent-foreground',
   link: 'text-primary underline-offset-4 hover:underline',
+  text: 'text-primary underline-offset-4 hover:underline', // Alias for 'link' (react-admin compatibility)
 }
 
 const buttonSizes = {
@@ -39,7 +42,7 @@ const buttonSizes = {
  * ```
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'default', size = 'default', loading, disabled, children, ...props }, ref) => {
+  ({ className, variant = 'default', size = 'default', loading, disabled, label, children, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -55,6 +58,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         ) : null}
+        {label}
         {children}
       </button>
     )

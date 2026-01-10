@@ -66,6 +66,10 @@ export interface MenuItemProps extends Omit<React.AnchorHTMLAttributes<HTMLAncho
    * Custom render function for the item
    */
   renderItem?: (props: { label: string; icon?: React.ReactNode; active: boolean }) => React.ReactNode
+  /**
+   * Keyboard shortcut to display next to the menu item
+   */
+  keyboardShortcut?: string
 }
 
 /**
@@ -103,6 +107,7 @@ export function MenuItem({
   exact = false,
   disabled = false,
   renderItem,
+  keyboardShortcut,
   onClick,
   ...props
 }: MenuItemProps) {
@@ -208,6 +213,16 @@ export function MenuItem({
       >
         {renderIcon()}
         <span className={cn(collapsed && 'sr-only')}>{label}</span>
+        {keyboardShortcut && (
+          <kbd
+            className={cn(
+              'ml-auto inline-flex items-center rounded border border-input bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground',
+              collapsed && 'sr-only'
+            )}
+          >
+            {keyboardShortcut}
+          </kbd>
+        )}
         {badge !== undefined && badge !== null && (
           <span
             data-variant={badgeVariant}

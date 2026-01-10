@@ -6,6 +6,8 @@
 
 import { type ReactNode, type ReactElement } from 'react'
 import { cn } from '../../utils'
+import { CreateButton } from '../buttons/CreateButton'
+import { ExportButton } from '../buttons/ExportButton'
 
 /**
  * Props for ListActions component
@@ -23,6 +25,16 @@ export interface ListActionsProps {
    * Data attributes and other HTML attributes
    */
   'data-testid'?: string
+  /**
+   * If true, renders a CreateButton automatically
+   * @default false
+   */
+  hasCreate?: boolean
+  /**
+   * If true, renders an ExportButton automatically
+   * @default false
+   */
+  hasExport?: boolean
 }
 
 /**
@@ -67,12 +79,16 @@ export function ListActions({
   children,
   className,
   'data-testid': testId,
+  hasCreate = false,
+  hasExport = false,
 }: ListActionsProps): ReactElement {
   return (
     <div
       className={cn('flex items-center justify-end gap-2', className)}
       data-testid={testId}
     >
+      {hasCreate && <CreateButton />}
+      {hasExport && <ExportButton />}
       {children}
     </div>
   )
