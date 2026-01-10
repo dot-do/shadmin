@@ -12,7 +12,6 @@ import {
   useEffect,
   useState,
   createElement,
-  memo,
 } from 'react'
 import {
   useReactTable,
@@ -203,7 +202,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
 
     if (columnsProp) {
       // Use explicit columns config with per-column render support
-      columnsProp.forEach((col, index) => {
+      columnsProp.forEach((col) => {
         columnConfigArray.push(col)
         cols.push({
           id: col.source,
@@ -282,10 +281,13 @@ export function Datagrid<T extends RaRecord = RaRecord>({
 
   // Toggle row expansion
   const toggleRowExpanded = useCallback((rowIndex: number) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [rowIndex]: !prev[rowIndex],
-    }))
+    setExpandedRows((prev) => {
+      const prevObj = typeof prev === 'object' && prev !== null ? prev as Record<number, boolean> : {}
+      return {
+        ...prevObj,
+        [rowIndex]: !prevObj[rowIndex],
+      }
+    })
   }, [])
 
   // Check if a row can be expanded
@@ -313,7 +315,10 @@ export function Datagrid<T extends RaRecord = RaRecord>({
           if (!canExpand) return null
 
           // Use ref to access current expand state without causing column recreation
-          const isExpanded = !!expandedRowsRef.current[row.index]
+          const currentExpanded = expandedRowsRef.current
+          const isExpanded = typeof currentExpanded === 'object' && currentExpanded !== null
+            ? !!(currentExpanded as Record<number, boolean>)[row.index]
+            : false
           return (
             <button
               type="button"
@@ -388,7 +393,12 @@ export function Datagrid<T extends RaRecord = RaRecord>({
       }
       if (showExpand) {
         // Insert selection after expand column
-        cols = [cols[0], selectionColumn, ...cols.slice(1)]
+        const expandCol = cols[0]
+        if (expandCol) {
+          cols = [expandCol, selectionColumn, ...cols.slice(1)]
+        } else {
+          cols = [selectionColumn, ...cols]
+        }
       } else {
         // Insert selection at the beginning
         cols = [selectionColumn, ...cols]
@@ -447,7 +457,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
     enableSorting: true,
     manualSorting: true, // We handle sorting via ListContext
     enableRowSelection: showSelection,
-    manualRowSelection: true, // We handle selection via ListContext
+    // Note: row selection is handled via ListContext externally
   })
 
   // Update header checkbox indeterminate state
@@ -460,7 +470,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
 
   // Handle row click
   const handleRowClick = useCallback(
-    (record: T, index: number, event: MouseEvent) => {
+    (record: T, _index: number, event: MouseEvent) => {
       if (rowClick === false || rowClick === undefined) return
 
       if (typeof rowClick === 'function') {
@@ -473,7 +483,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   )
 
   // Determine if rows are clickable
-  const isRowClickable = rowClick && rowClick !== false
+  const isRowClickable = Boolean(rowClick) && rowClick !== false
 
   // Build table classes using cn utility for proper class merging
   const tableClasses = cn(
@@ -579,7 +589,8 @@ export function Datagrid<T extends RaRecord = RaRecord>({
             table.getRowModel().rows.map((row, rowIndex) => {
               const record = row.original
               const customStyle = rowStyle ? rowStyle(record, rowIndex) : undefined
-              const isExpanded = showExpand && expandedRows[rowIndex]
+              const expandedObj = typeof expandedRows === 'object' && expandedRows !== null ? expandedRows as Record<number, boolean> : {}
+              const isExpanded = showExpand && expandedObj[rowIndex]
 
               return (
                 <RecordContextProvider key={row.id} value={record}>

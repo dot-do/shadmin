@@ -41,7 +41,7 @@ import { BooleanField } from '../field/BooleanField'
 import { ChipField } from '../field/ChipField'
 
 // Types
-import type { DataProvider, RaRecord } from '../../types'
+import type { DataProvider, RaRecord } from 'ra-core'
 
 // =============================================================================
 // Mock Data
@@ -120,11 +120,11 @@ const tagChoices = [
 
  
 const createMockDataProvider = (data: Record<string, RaRecord[]> = {}): DataProvider => ({
-  getList: async (resource) => {
+  getList: async (resource: string) => {
     const records = data[resource] || []
     return { data: records, total: records.length }
   },
-  getOne: async (resource, { id }) => {
+  getOne: async (resource: string, { id }: { id: number | string }) => {
     if (resource === 'posts') {
       return { data: mockPost }
     }

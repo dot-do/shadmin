@@ -144,7 +144,7 @@ export function Error({
         <h3 className="text-lg font-semibold text-destructive">{title}</h3>
         {children || (
           errorMessage && (
-            <p className="text-sm text-muted-foreground">{errorMessage}</p>
+            <p className="text-sm text-muted-foreground">{String(errorMessage)}</p>
           )
         )}
       </div>

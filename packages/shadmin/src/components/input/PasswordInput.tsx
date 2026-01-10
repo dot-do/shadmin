@@ -179,16 +179,18 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 
     const [showPassword, setShowPassword] = useState(false)
 
+    const controllerRules = {
+      ...rules,
+      ...(required ? { required: rules?.required || true } : rules?.required !== undefined ? { required: rules.required } : {}),
+    }
+
     const {
       field,
       fieldState: { error },
     } = useController({
       name: source,
       control,
-      rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-      },
+      ...(Object.keys(controllerRules).length > 0 && { rules: controllerRules }),
     })
 
     const showLabel = label !== false

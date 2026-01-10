@@ -38,8 +38,8 @@ export {
   type RecordContextProviderProps,
 } from './RecordContext'
 
-// RaRecord is exported from types/record.ts - re-export for backwards compatibility
-export type { RaRecord } from '../types'
+// Note: RaRecord is exported from ra-core in src/index.ts
+// Not re-exported here to avoid duplicate export conflicts
 
 export {
   ListContext,
@@ -52,8 +52,8 @@ export {
   type FilterPayload,
 } from './ListContext'
 
-// Re-export Identifier from types for backwards compatibility
-export type { Identifier } from '../types'
+// Note: Identifier is exported from ra-core in src/index.ts
+// Not re-exported here to avoid duplicate export conflicts
 
 export {
   FormContext,

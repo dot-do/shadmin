@@ -3,7 +3,7 @@
  * @description React Ink component for interactive CLI menu
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { render, Box, Text } from 'ink'
 import SelectInput from 'ink-select-input'
 import { EXAMPLE_TEMPLATES, getTemplateFiles, type ExampleTemplate } from './interactive'

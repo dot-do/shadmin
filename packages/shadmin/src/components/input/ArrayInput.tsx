@@ -248,10 +248,10 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
     const contextValue: ArrayInputContextValue = {
       source,
       fieldArray,
-      disabled,
-      defaultValue,
-      minItems,
-      maxItems,
+      ...(disabled !== undefined && { disabled }),
+      ...(defaultValue !== undefined && { defaultValue }),
+      ...(minItems !== undefined && { minItems }),
+      ...(maxItems !== undefined && { maxItems }),
     }
 
     return (

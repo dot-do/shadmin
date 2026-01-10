@@ -8,7 +8,7 @@ import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetMany } from '../../hooks/useGetMany'
-import type { Identifier, RaRecord } from '../../types'
+import type { Identifier, RaRecord } from 'ra-core'
 
 export interface ReferenceArrayFieldProps extends HTMLAttributes<HTMLDivElement> {
   /** The field name in the record that contains the array of reference IDs */

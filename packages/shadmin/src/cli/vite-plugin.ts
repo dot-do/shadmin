@@ -102,7 +102,7 @@ function generateIndexHtml(title: string = 'Shadmin'): string {
  * })
  * ```
  */
-export function shadminPlugin(options: ShadminPluginOptions): Plugin {
+export function shadminPlugin(options: ShadminPluginOptions): Plugin & { generateIndexHtml: typeof generateIndexHtml } {
   const {
     root,
     resourcesDir,
@@ -150,11 +150,11 @@ export function shadminPlugin(options: ShadminPluginOptions): Plugin {
         }
 
         const generatorOptions: GeneratorOptions = {
-          dataProviderImport: resolvedDataProviderImport,
-          authProviderImport,
-          layoutImport,
-          dashboardImport,
-          basename,
+          ...(resolvedDataProviderImport !== undefined && { dataProviderImport: resolvedDataProviderImport }),
+          ...(authProviderImport !== undefined && { authProviderImport }),
+          ...(layoutImport !== undefined && { layoutImport }),
+          ...(dashboardImport !== undefined && { dashboardImport }),
+          ...(basename !== undefined && { basename }),
         }
 
         const jsxCode = generateEntryPoint(resources, generatorOptions)

@@ -141,7 +141,7 @@ export function useUpdate<
         ...(params.previousData && { previousData: params.previousData }),
         ...(params.meta && { meta: params.meta }),
       }
-      return dataProvider.update<RecordType, TVariables>(res, updateParams)
+      return dataProvider.update<RecordType>(res, updateParams)
     },
     onMutate: async (variables) => {
       // Track submission
@@ -153,10 +153,10 @@ export function useUpdate<
       await queryClient.cancelQueries({ queryKey: [variables.resource] })
 
       // Create the optimistic record by merging previousData with new data
-      const previousData = variables.params.previousData as RecordType | undefined
+      const previousData = variables.params.previousData as unknown as RecordType | undefined
       const optimisticRecord = {
         ...previousData,
-        ...variables.params.data,
+        ...(variables.params.data as unknown as Partial<RecordType>),
         id: variables.params.id,
       } as RecordType
 
@@ -176,15 +176,17 @@ export function useUpdate<
 
       if (getOneQueries.length > 0) {
         const query = getOneQueries[0]
-        previousCacheRef.current.getOne = {
-          key: JSON.stringify(query.queryKey),
-          data: query.state.data,
-        }
+        if (query) {
+          previousCacheRef.current.getOne = {
+            key: JSON.stringify(query.queryKey),
+            data: query.state.data,
+          }
 
-        // Apply optimistic update to getOne cache using the actual query key
-        queryClient.setQueryData<GetOneResult<RecordType>>(query.queryKey, {
-          data: optimisticRecord,
-        })
+          // Apply optimistic update to getOne cache using the actual query key
+          queryClient.setQueryData<GetOneResult<RecordType>>(query.queryKey, {
+            data: optimisticRecord,
+          })
+        }
       } else {
         previousCacheRef.current.getOne = null
       }
@@ -382,8 +384,8 @@ export function useUpdate<
     [update, resource]
   )
 
-  // Create mutate function (fire and forget)
-  const mutate = useCallback(
+  // Create mutate function (fire and forget) - exported for API compatibility
+  const _mutate = useCallback(
     (params: UseUpdateMutateParams<TVariables>): void => {
       mutateAsync(params).catch(() => {
         // Errors are handled by the mutation state
@@ -391,6 +393,8 @@ export function useUpdate<
     },
     [mutateAsync]
   )
+  // Expose mutate for potential future use
+  void _mutate
 
   const state: UseUpdateMutationState<RecordType> = useMemo(
     () => ({

@@ -94,11 +94,13 @@ function mergeThemes(base: CustomTheme, override: CustomTheme): CustomTheme {
       const baseValue = base.colors?.[key]
       const overrideValue = override.colors[key]
 
-      if (typeof overrideValue === 'object' && typeof baseValue === 'object') {
-        // Merge nested color objects
-        result.colors[key] = { ...baseValue, ...overrideValue }
-      } else {
-        result.colors[key] = overrideValue
+      if (overrideValue !== undefined) {
+        if (typeof overrideValue === 'object' && typeof baseValue === 'object') {
+          // Merge nested color objects
+          result.colors[key] = { ...baseValue, ...overrideValue }
+        } else {
+          result.colors[key] = overrideValue
+        }
       }
     }
   }

@@ -18,7 +18,6 @@ import { cn } from '@/utils'
 import {
   type FilterOperator,
   buildFilterKey,
-  parseFilterOperator,
   getOperatorsForType,
   type OperatorType,
 } from '@/utils/filterOperators'
@@ -218,7 +217,7 @@ export function FilterInput({
       const newFilterValues = { ...filterValues }
 
       // Remove previous filter key if different
-      if (prevFilterKey !== newFilterKey) {
+      if (prevFilterKey && prevFilterKey !== newFilterKey) {
         delete newFilterValues[prevFilterKey]
       }
 

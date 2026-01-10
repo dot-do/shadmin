@@ -8,7 +8,7 @@ import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
 import { useAuthProvider } from '../contexts/AuthProviderContext'
-import { useQueryErrorHandling, analyzeError } from './useErrorHandling'
+import { useQueryErrorHandling } from './useErrorHandling'
 import { isHttpError } from '../errors'
 import type {
   RaRecord,

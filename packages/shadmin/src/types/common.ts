@@ -98,6 +98,6 @@ export interface AsChildProps {
  * Merge component props with HTML element props
  */
 export type ComponentProps<
-  T extends keyof JSX.IntrinsicElements,
+  T extends keyof JSX.IntrinsicElements & keyof HTMLElementTagNameMap,
   P = object,
 > = P & Omit<HTMLAttributes<HTMLElementTagNameMap[T]>, keyof P>

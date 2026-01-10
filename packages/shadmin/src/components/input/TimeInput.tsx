@@ -170,8 +170,8 @@ export const TimeInput = forwardRef<HTMLInputElement, TimeInputProps>(
 
       return {
         ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-        validate: mergedValidate,
+        ...(required ? { required: rules?.required || true } : rules?.required !== undefined ? { required: rules.required } : {}),
+        ...(mergedValidate !== undefined && { validate: mergedValidate }),
       }
     }, [rules, required, minStr, maxStr, minMessage, maxMessage])
 
@@ -181,7 +181,7 @@ export const TimeInput = forwardRef<HTMLInputElement, TimeInputProps>(
     } = useController({
       name: source,
       control,
-      rules: validationRules,
+      ...(Object.keys(validationRules).length > 0 && { rules: validationRules }),
     })
 
     const showLabel = label !== false

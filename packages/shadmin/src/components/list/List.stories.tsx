@@ -870,7 +870,10 @@ export const SimpleListCustomized: Story = {
             </svg>
           )}
           linkType={false}
-          rowClick={(id, record) => alert(`Navigate to post ${id}: ${record.title}`)}
+          rowClick={(id, _resource, record) => {
+            alert(`Navigate to post ${id}: ${record.title}`)
+            return ''
+          }}
         />
         <Pagination />
       </List>
@@ -941,13 +944,13 @@ export const DatagridWithColumnsConfig: Story = {
                 source: 'status',
                 label: 'Status',
                 sortable: true,
-                render: (record) => (
+                render: ({ record }) => (
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    record.status === 'published' ? 'bg-green-100 text-green-800' :
-                    record.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                    (record as Post).status === 'published' ? 'bg-green-100 text-green-800' :
+                    (record as Post).status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
-                    {String(record.status)}
+                    {String((record as Post).status)}
                   </span>
                 ),
               },
@@ -955,7 +958,7 @@ export const DatagridWithColumnsConfig: Story = {
                 source: 'createdAt',
                 label: 'Created',
                 sortable: true,
-                render: (record) => new Date(String(record.createdAt)).toLocaleDateString(),
+                render: ({ record }) => new Date(String((record as Post).createdAt)).toLocaleDateString(),
               },
             ]}
           />

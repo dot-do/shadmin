@@ -19,7 +19,6 @@ import type {
   DeleteParams,
   DeleteResult,
   GetListResult,
-  GetOneResult,
 } from '../types'
 
 // Helper type for cache snapshot
@@ -152,9 +151,11 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
 
       if (getOneQueries.length > 0) {
         const query = getOneQueries[0]
-        previousCacheRef.current.getOne = {
-          key: JSON.stringify(query.queryKey),
-          data: query.state.data,
+        if (query) {
+          previousCacheRef.current.getOne = {
+            key: JSON.stringify(query.queryKey),
+            data: query.state.data,
+          }
         }
         // Optimistically clear getOne cache data - cancel, set to undefined, and remove
         getOneQueries.forEach((q) => {
@@ -340,8 +341,8 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
     [deleteRecord, resource]
   )
 
-  // Create mutate function (fire and forget)
-  const mutate = useCallback(
+  // Create mutate function (fire and forget) - exported for API compatibility
+  const _mutate = useCallback(
     (params: UseDeleteMutateParams<RecordType>): void => {
       mutateAsync(params).catch(() => {
         // Errors are handled by the mutation state
@@ -349,6 +350,8 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
     },
     [mutateAsync]
   )
+  // Expose mutate for potential future use
+  void _mutate
 
   const state: UseDeleteMutationState<RecordType> = useMemo(
     () => ({

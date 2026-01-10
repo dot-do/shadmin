@@ -302,7 +302,7 @@ export function SimpleFormConfigurable<T extends FieldValues = FieldValues>({
       const stored = loadConfig(preferenceKey)
       if (stored) {
         Object.keys(stored).forEach((source) => {
-          if (source in initial) {
+          if (source in initial && stored[source] !== undefined) {
             initial[source] = stored[source]
           }
         })

@@ -82,7 +82,8 @@ export function mergeValidation<T extends FieldValues, P extends Path<T>>(
 
   const combinedValidate = async (value: unknown, formValues: T): Promise<string | true> => {
     // Run adapted validators first
-    const adaptedResult = await adaptedValidate(value, formValues)
+    // adaptedValidate is guaranteed to be a function here since adaptValidators returns a function
+    const adaptedResult = await (adaptedValidate as (v: unknown, fv: T) => Promise<string | true>)(value, formValues)
     if (adaptedResult !== true) {
       return adaptedResult
     }
@@ -90,13 +91,13 @@ export function mergeValidation<T extends FieldValues, P extends Path<T>>(
     // Then run existing validate from rules if present
     if (existingValidate) {
       if (typeof existingValidate === 'function') {
-        const result = await existingValidate(value, formValues)
+        const result = await existingValidate(value as T[P], formValues)
         if (result !== true && result !== undefined) {
           return result as string
         }
       } else if (typeof existingValidate === 'object') {
         // It's an object of validator functions
-        for (const [key, validator] of Object.entries(existingValidate)) {
+        for (const [, validator] of Object.entries(existingValidate)) {
           if (typeof validator === 'function') {
             const result = await (validator as (v: unknown, fv: T) => string | true | Promise<string | true>)(value, formValues)
             if (result !== true && result !== undefined) {

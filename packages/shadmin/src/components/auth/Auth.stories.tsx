@@ -226,7 +226,7 @@ const loginPageMeta: Meta<typeof LoginPage> = {
   tags: ['autodocs'],
   decorators: [
     (Story, context) => (
-      <AuthWrapper authProviderOptions={context.args?.authProviderOptions}>
+      <AuthWrapper authProviderOptions={(context.args as Record<string, unknown>)?.authProviderOptions as MockAuthProviderOptions}>
         <Story />
       </AuthWrapper>
     ),

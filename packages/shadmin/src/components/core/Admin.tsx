@@ -19,7 +19,8 @@ import {
   useRef,
 } from 'react'
 import { ResourceDefinitionContextProvider, NotificationContextProvider, type ResourceDefinitions } from '../../contexts'
-import type { AdminProps, ResourceProps, ResourceDefinition, DataProvider, AdminPluginContext } from '../../types'
+import type { ResourceProps, ResourceDefinition, DataProvider } from 'ra-core'
+import type { AdminProps, AdminPluginContext } from '../../types'
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
@@ -152,7 +153,7 @@ export const Admin = ({
   }, [])
 
   const wrapDataProvider = useCallback((wrapper: (dp: DataProvider) => DataProvider) => {
-    setWrappedDataProvider((prev) => wrapper(prev))
+    setWrappedDataProvider((prev: DataProvider) => wrapper(prev))
   }, [])
 
   const onUnmount = useCallback((cleanup: () => void) => {

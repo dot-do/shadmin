@@ -102,17 +102,6 @@ function safeDecodeURIComponent(value: string): string {
 }
 
 /**
- * Safely encode a URL component, handling special characters
- */
-function safeEncodeURIComponent(value: string): string {
-  try {
-    return encodeURIComponent(value)
-  } catch {
-    return value
-  }
-}
-
-/**
  * Parse filter JSON from URL with robust error handling
  * Handles: empty values, malformed JSON, non-object values, arrays (treated as empty)
  */
@@ -233,8 +222,14 @@ function parseParamsFromUrl(
   const orderValue = getParamValue(searchParams, 'order', resource, storeKey)
   const filterValue = getParamValue(searchParams, 'filter', resource, storeKey)
 
-  result.page = parsePositiveInt(pageValue)
-  result.perPage = parsePositiveInt(perPageValue)
+  const parsedPage = parsePositiveInt(pageValue)
+  const parsedPerPage = parsePositiveInt(perPageValue)
+  if (parsedPage !== undefined) {
+    result.page = parsedPage
+  }
+  if (parsedPerPage !== undefined) {
+    result.perPage = parsedPerPage
+  }
 
   if (sortValue) {
     result.sort = {

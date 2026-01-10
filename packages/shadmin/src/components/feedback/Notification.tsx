@@ -10,10 +10,9 @@
  * - Stacked notification support
  */
 
-import * as React from 'react'
 import { useEffect, useState, useCallback } from 'react'
 import { cn } from '../../lib/utils'
-import type { NotificationType } from '../../types'
+import type { NotificationType } from 'ra-core'
 
 /**
  * Single notification toast props
@@ -24,17 +23,17 @@ export interface NotificationToastProps {
   /** Notification message */
   message: string
   /** Notification type/variant */
-  type?: NotificationType
+  type?: NotificationType | undefined
   /** Duration in ms before auto-dismiss (0 = no auto-dismiss) */
-  autoHideDuration?: number
+  autoHideDuration?: number | undefined
   /** Callback when dismissed */
-  onDismiss?: (id: string) => void
+  onDismiss?: ((id: string) => void) | undefined
   /** Whether the notification supports undo */
-  undoable?: boolean
+  undoable?: boolean | undefined
   /** Callback when undo is clicked */
-  onUndo?: () => void
+  onUndo?: (() => void) | undefined
   /** Additional CSS class */
-  className?: string
+  className?: string | undefined
 }
 
 /**
@@ -229,10 +228,11 @@ export function NotificationToast({
       const timer = setTimeout(handleDismiss, autoHideDuration)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [autoHideDuration, handleDismiss])
 
-  const styles = variantStyles[type]
-  const IconComponent = iconComponents[type]
+  const styles = variantStyles[type as keyof typeof variantStyles]
+  const IconComponent = iconComponents[type as keyof typeof iconComponents]
 
   return (
     <div

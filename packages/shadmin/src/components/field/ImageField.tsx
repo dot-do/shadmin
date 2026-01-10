@@ -2,7 +2,7 @@ import { type HTMLAttributes, type CSSProperties } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
-import type { RaRecord } from '../../types'
+import type { RaRecord } from 'ra-core'
 
 export interface ImageFieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   /** The field name in the record containing the image URL or array of images */

@@ -8,7 +8,7 @@
 import { type ComponentType, type ReactElement, useMemo, type ReactNode, isValidElement, cloneElement } from 'react'
 import { useLocation } from 'react-router'
 import { ResourceContextProvider } from '../../contexts'
-import type { ResourceProps } from '../../types'
+import type { ResourceProps } from 'ra-core'
 
 /**
  * Menu item interface for plugin-added menu items
@@ -183,7 +183,7 @@ export const CoreAdminRoutes = ({
     // It's a ComponentType
     const LayoutComponent = Layout as ComponentType<{ children: ReactNode; dashboard?: ComponentType }>
     return (
-      <LayoutComponent dashboard={Dashboard}>
+      <LayoutComponent {...(Dashboard ? { dashboard: Dashboard } : {})}>
         {children}
       </LayoutComponent>
     )

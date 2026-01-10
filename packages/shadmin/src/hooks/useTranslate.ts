@@ -6,7 +6,6 @@
 
 import { useCallback } from 'react'
 import {
-  useTranslationContext,
   useTranslationContextOptional,
   type TranslateFunction,
   type TranslateOptions,

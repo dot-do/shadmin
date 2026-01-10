@@ -60,22 +60,24 @@ function parseFrontmatter(content: string): { frontmatter: Record<string, string
   const frontmatterRegex = /^---\n([\s\S]*?)\n---\n?/
   const match = content.match(frontmatterRegex)
 
-  if (!match) {
+  const frontmatterText = match?.[1]
+  if (!match || !frontmatterText) {
     return { frontmatter: {}, body: content }
   }
 
-  const frontmatterText = match[1]
   const body = content.slice(match[0].length)
   const frontmatter: Record<string, string> = {}
 
   // Parse simple YAML key: value pairs
   const lines = frontmatterText.split('\n')
   for (const line of lines) {
-    const colonIndex = line.indexOf(':')
-    if (colonIndex > 0) {
-      const key = line.slice(0, colonIndex).trim()
-      const value = line.slice(colonIndex + 1).trim()
-      frontmatter[key] = value
+    if (line) {
+      const colonIndex = line.indexOf(':')
+      if (colonIndex > 0) {
+        const key = line.slice(0, colonIndex).trim()
+        const value = line.slice(colonIndex + 1).trim()
+        frontmatter[key] = value
+      }
     }
   }
 
@@ -93,22 +95,27 @@ function parseExports(content: string): Set<string> {
   const constExportRegex = /export\s+const\s+(\w+)\s*=/g
   let match
   while ((match = constExportRegex.exec(content)) !== null) {
-    exports.add(match[1])
+    const name = match[1]
+    if (name) exports.add(name)
   }
 
   // Match: export function name(...) { ... }
   const funcExportRegex = /export\s+function\s+(\w+)\s*\(/g
   while ((match = funcExportRegex.exec(content)) !== null) {
-    exports.add(match[1])
+    const name = match[1]
+    if (name) exports.add(name)
   }
 
   // Match: export { name, ... }
   const namedExportRegex = /export\s*\{([^}]+)\}/g
   while ((match = namedExportRegex.exec(content)) !== null) {
-    const names = match[1].split(',').map((n) => n.trim().split(/\s+as\s+/)[0].trim())
-    names.forEach((n) => {
-      if (n) exports.add(n)
-    })
+    const matchedNames = match[1]
+    if (matchedNames) {
+      const names = matchedNames.split(',').map((n) => n.trim().split(/\s+as\s+/)[0]?.trim())
+      names.forEach((n) => {
+        if (n) exports.add(n)
+      })
+    }
   }
 
   // Match: export default
@@ -127,7 +134,7 @@ function getResourceName(exports: Set<string>, content: string, filename: string
   if (exports.has('name')) {
     // Try to extract the string value: export const name = 'value' or "value"
     const nameMatch = content.match(/export\s+const\s+name\s*=\s*['"]([^'"]+)['"]/)
-    if (nameMatch) {
+    if (nameMatch && nameMatch[1]) {
       return nameMatch[1]
     }
   }
@@ -295,7 +302,3 @@ export async function scanResources(
   return resources
 }
 
-/**
- * Re-export types for consumers
- */
-export type { ScanOptions }

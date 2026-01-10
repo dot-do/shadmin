@@ -44,8 +44,8 @@ export { useListContext, type ListControllerResult, type SortPayload, type SortO
 // List params hook (URL state persistence)
 export { useListParams, type UseListParamsProps, type UseListParamsResult } from './useListParams'
 
-// Re-export types from types module for convenience
-export type { RaRecord, Identifier } from '../types'
+// Note: RaRecord and Identifier are exported from ra-core in src/index.ts
+// Not re-exported here to avoid duplicate export conflicts
 
 // i18n hooks
 export { useTranslate, type TranslateFunction, type TranslateOptions } from './useTranslate'

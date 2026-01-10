@@ -33,7 +33,7 @@ import {
   useEffect,
 } from 'react'
 import { useListContext, type Identifier } from '../../contexts/ListContext'
-import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
+import { RecordContextProvider } from '../../contexts/RecordContext'
 import { useDataProvider } from '../../contexts/DataProviderContext'
 import type { RaRecord } from '../../types'
 
@@ -166,14 +166,14 @@ interface EditableCellProps<T extends RaRecord = RaRecord> {
   onKeyDown: (e: KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => void
   onBlur: (e: FocusEvent<HTMLInputElement | HTMLSelectElement>) => void
   onRetry: () => void
-  CustomInput?: ComponentType<EditInputProps>
+  CustomInput?: ComponentType<EditInputProps> | undefined
   children: ReactNode
 }
 
 function EditableCell<T extends RaRecord = RaRecord>({
   record,
   source,
-  columnIndex,
+  columnIndex: _columnIndex,
   isEditing,
   editValue,
   validationError,
@@ -181,8 +181,8 @@ function EditableCell<T extends RaRecord = RaRecord>({
   saveError,
   onDoubleClick,
   onEditValueChange,
-  onSave,
-  onCancel,
+  onSave: _onSave,
+  onCancel: _onCancel,
   onKeyDown,
   onBlur,
   onRetry,
@@ -483,6 +483,7 @@ export function EditableDatagrid<T extends RaRecord = RaRecord>({
 
       // Save current cell first (for batch mode, this stores the change)
       const record = displayData[currentRowIndex]
+      if (!record) return
       const { source } = editingCell
 
       if (editValue !== String(originalValue ?? '')) {
@@ -511,7 +512,9 @@ export function EditableDatagrid<T extends RaRecord = RaRecord>({
 
       // Navigate to new cell
       const newRecord = displayData[newRowIndex]
-      const newSource = columnInfo[newColumnIndex].source
+      const newColInfo = columnInfo[newColumnIndex]
+      if (!newRecord || !newColInfo) return
+      const newSource = newColInfo.source
 
       if (isColumnEditable(newSource)) {
         const newRecordWithModifications =
@@ -566,7 +569,7 @@ export function EditableDatagrid<T extends RaRecord = RaRecord>({
 
   // Handle blur
   const handleBlur = useCallback(
-    (e: FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    (_e: FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
       // Don't save on blur if there's a validation error or we're saving
       if (validationError || isSaving) return
 
@@ -737,7 +740,7 @@ export function EditableDatagrid<T extends RaRecord = RaRecord>({
           </tr>
         </thead>
         <tbody className="[&_tr:last-child]:border-0">
-          {displayData.map((record, rowIndex) => (
+          {displayData.map((record) => (
             <tr
               key={record.id}
               className="border-b transition-colors hover:bg-muted/50"

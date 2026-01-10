@@ -338,6 +338,7 @@ export const CollapsedSidebar: Story = {
  * Click the sun icon to cycle through themes.
  */
 export const WithThemeToggle: Story = {
+  args: { children: null },
   render: () => {
     const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light')
 
@@ -360,6 +361,7 @@ export const WithThemeToggle: Story = {
  * Controlled sidebar state - useful for managing sidebar state externally.
  */
 export const ControlledSidebar: Story = {
+  args: { children: null },
   render: () => {
     const [open, setOpen] = useState(true)
 
@@ -393,6 +395,7 @@ export const ControlledSidebar: Story = {
  * Layout with custom AppBar component showing user menu and notifications.
  */
 export const WithCustomAppBar: Story = {
+  args: { children: null },
   render: () => (
     <Layout
       title="Admin Panel"
@@ -425,6 +428,7 @@ export const WithCustomAppBar: Story = {
  * Layout with custom Sidebar component including header, footer, and custom content.
  */
 export const WithCustomSidebar: Story = {
+  args: { children: null },
   render: () => (
     <Layout
       title="Admin Panel"
@@ -530,6 +534,7 @@ export const DarkTheme: Story = {
  * Complete admin layout with all features enabled.
  */
 export const CompleteLayout: Story = {
+  args: { children: null },
   render: () => {
     const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system')
 
@@ -591,8 +596,7 @@ export const CompleteLayout: Story = {
                   to={item.path || `/${item.name}`}
                   label={item.label}
                   icon={item.icon ? <item.icon className="h-5 w-5" /> : undefined}
-                  badge={item.name === 'notifications' ? 3 : undefined}
-                  badgeVariant={item.name === 'notifications' ? 'destructive' : undefined}
+                  {...(item.name === 'notifications' ? { badge: 3, badgeVariant: 'destructive' as const } : {})}
                 />
               ))}
             </Menu>
@@ -609,6 +613,7 @@ export const CompleteLayout: Story = {
  * Minimal layout with no sidebar - just content with appbar.
  */
 export const MinimalLayout: Story = {
+  args: { children: null },
   render: () => (
     <div className="min-h-screen">
       <AppBar title="Minimal Layout" showThemeToggle />
@@ -623,6 +628,7 @@ export const MinimalLayout: Story = {
  * Layout using SidebarProvider directly for more granular control.
  */
 export const WithSidebarProvider: Story = {
+  args: { children: null },
   render: () => {
     const [open, setOpen] = useState(true)
 
@@ -657,6 +663,7 @@ export const WithSidebarProvider: Story = {
  * Different layout configurations comparison.
  */
 export const LayoutConfigurations: Story = {
+  args: { children: null },
   render: () => (
     <div className="space-y-8 p-4">
       <h2 className="text-xl font-bold">Layout Configuration Examples</h2>

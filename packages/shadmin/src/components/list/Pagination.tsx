@@ -6,7 +6,7 @@
  * 100% API compatible with react-admin Pagination.
  */
 
-import { forwardRef, memo, useCallback, type ReactNode } from 'react'
+import { forwardRef, memo, type ReactNode } from 'react'
 import { cn } from '../../utils'
 import { useListContext, type ListControllerResult } from '../../contexts/ListContext'
 import { RowsPerPageSelector } from './RowsPerPageSelector'
@@ -163,6 +163,7 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
       siblingCount = 1,
       boundaryCount = 1,
       limit: _limit,
+      'data-testid': dataTestId,
       ...props
     },
     ref
@@ -204,7 +205,7 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
       <div
         ref={ref}
         className={cn('flex items-center justify-between px-2 py-4', className)}
-        data-testid={props['data-testid']}
+        data-testid={dataTestId}
       >
         {/* Record count display */}
         <div className="flex-1 text-sm text-muted-foreground">

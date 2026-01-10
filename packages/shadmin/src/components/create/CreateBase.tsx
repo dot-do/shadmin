@@ -15,7 +15,7 @@ import { RecordContextProvider } from '../../contexts/RecordContext'
 import { useCreate, type UseCreateOptions } from '../../hooks/useCreate'
 import { useRedirect, type RedirectTo } from '../../hooks/useRedirect'
 import { useNotify } from '../../hooks/useNotify'
-import type { RaRecord } from '../../types'
+import type { RaRecord } from 'ra-core'
 
 /**
  * Transform function type
@@ -143,7 +143,7 @@ export function CreateBase<
     resource,
     {
       ...mutationOptions,
-      onSuccess: async (result, variables, context) => {
+      onSuccess: async (result, variables, context, snapshot) => {
         setIsSaving(false)
         setRecord(result.data)
 
@@ -154,7 +154,7 @@ export function CreateBase<
 
         // Call custom onSuccess from mutationOptions
         if (mutationOptions?.onSuccess) {
-          mutationOptions.onSuccess(result, variables, context)
+          mutationOptions.onSuccess(result, variables, context, snapshot)
         }
 
         // Call onAfterSave if provided
@@ -176,7 +176,7 @@ export function CreateBase<
           redirect(redirectTo, resource, result.data.id, {})
         }
       },
-      onError: (err, variables, context) => {
+      onError: (err, variables, context, snapshot) => {
         setIsSaving(false)
 
         // Show error notification
@@ -186,7 +186,7 @@ export function CreateBase<
 
         // Call custom onError from mutationOptions
         if (mutationOptions?.onError) {
-          mutationOptions.onError(err, variables, context)
+          mutationOptions.onError(err, variables, context, snapshot)
         }
 
         // Call callback from save()
@@ -289,7 +289,7 @@ export function CreateBase<
   // Create a save wrapper that works with FormContext's expected signature
   const formSave = useCallback(
     async (data: FieldValues) => {
-      await save(data as Record<string, unknown>)
+      await save(data as unknown as TData)
     },
     [save]
   )

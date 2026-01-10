@@ -241,7 +241,7 @@ export const edit = () => (
 
 export const icon = () => <span>📁</span>
 `,
-  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts'],
+  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts']!,
   'shadmin.config.ts': SHADMIN_CONFIG,
 }
 
@@ -316,7 +316,7 @@ export const list = () => (
 
 export const icon = () => <span>👥</span>
 `,
-  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts'],
+  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts']!,
   'shadmin.config.ts': SHADMIN_CONFIG,
 }
 
@@ -381,7 +381,7 @@ export const list = () => (
 
 export const icon = () => <span>💰</span>
 `,
-  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts'],
+  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts']!,
   'shadmin.config.ts': SHADMIN_CONFIG,
 }
 
@@ -442,7 +442,7 @@ export const list = () => (
 
 export const icon = () => <span>🧭</span>
 `,
-  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts'],
+  'data-provider.ts': BASIC_TEMPLATE['data-provider.ts']!,
   'shadmin.config.ts': SHADMIN_CONFIG,
 }
 

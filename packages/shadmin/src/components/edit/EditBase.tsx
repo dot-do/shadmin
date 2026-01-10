@@ -15,7 +15,7 @@ import { useGetOne, type UseGetOneOptions } from '../../hooks/useGetOne'
 import { useUpdate } from '../../hooks/useUpdate'
 import { useTestNavigate } from '../../test-utils/TestMemoryRouter'
 import { useNotify } from '../../contexts/NotificationContext'
-import type { Identifier, RaRecord, UpdateResult } from '../../types'
+import type { Identifier, RaRecord, UpdateResult } from 'ra-core'
 
 /**
  * Redirect option type
@@ -135,27 +135,31 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
   }
 
   // Notification
-  let notify: (message: string, options?: { type?: string }) => void
+  let notify: ReturnType<typeof useNotify>
   try {
     notify = useNotify()
   } catch {
     // Not in a notification context, use noop
-    notify = () => {}
+    notify = (() => {}) as ReturnType<typeof useNotify>
   }
 
   // Separate meta from queryOptions
   const { meta, ...restQueryOptions } = queryOptions ?? {}
 
+  // Build params object, only including meta if defined
+  const getOneParams: { id: Identifier; meta?: Record<string, unknown> } = { id }
+  if (meta !== undefined) getOneParams.meta = meta
+
   // Fetch record using useGetOne
   const {
     data: record,
-    isLoading,
+    isLoading: _isLoading,
     isFetching: _isFetching,
     error: _error,
     refetch: _refetch,
   } = useGetOne<RecordType>(
     resource,
-    { id, meta },
+    getOneParams,
     restQueryOptions
   )
 
@@ -315,18 +319,30 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
     [id, update, transform, mutationMode, mutationOptions, getRedirectPath, navigate, notify, onBeforeSave, onAfterSave, resource]
   )
 
-  // Build context value
-  const formContextValue = useMemo(
-    () => ({
+  // Create a wrapper for save that matches FormContext's expected signature
+  const formSave = useCallback(
+    async (data: FieldValues): Promise<void> => {
+      await save(data as Record<string, unknown>)
+    },
+    [save]
+  )
+
+  // Build context value - only include defined optional properties
+  const formContextValue = useMemo(() => {
+    type FormContextValue = Parameters<typeof FormContextProvider>[0]
+    const base: FormContextValue = {
       ...form,
-      record: displayRecord,
       resource,
-      save,
+      save: formSave,
       saving: isUpdating,
       mutationMode,
-    }),
-    [form, displayRecord, resource, save, isUpdating, mutationMode]
-  )
+    }
+    // Only add record if defined to satisfy exactOptionalPropertyTypes
+    if (displayRecord !== undefined) {
+      base.record = displayRecord
+    }
+    return base
+  }, [form, displayRecord, resource, formSave, isUpdating, mutationMode])
 
   // Always render children - let consumer components handle loading/error states
   // This allows Edit component to show loading indicators and error messages

@@ -7,7 +7,7 @@
  */
 
 import { createContext, useContext, memo, type ReactNode } from 'react'
-import type { RaRecord } from '../../types'
+import type { RaRecord } from 'ra-core'
 
 /**
  * Save function type for creating records
@@ -74,7 +74,7 @@ export const CreateContextProvider = memo(function CreateContextProvider<TData =
       {children}
     </CreateContext.Provider>
   )
-}) as <TData = Record<string, unknown>>(props: CreateContextProviderProps<TData>) => JSX.Element
+}) as <TData = Record<string, unknown>>(props: CreateContextProviderProps<TData>) => React.ReactElement
 
 /**
  * Hook to access the create context.

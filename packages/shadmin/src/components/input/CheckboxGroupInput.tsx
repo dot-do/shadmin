@@ -172,7 +172,7 @@ export const CheckboxGroupInput = forwardRef<HTMLInputElement, CheckboxGroupInpu
     } = useController({
       name: source,
       control,
-      rules,
+      ...(rules !== undefined && { rules }),
       defaultValue: [] as unknown as Parameters<typeof useController<FieldValues, Path<FieldValues>>>['0']['defaultValue'],
     })
 

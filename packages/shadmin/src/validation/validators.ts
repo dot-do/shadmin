@@ -71,7 +71,7 @@ export function required(message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     if (isEmpty(value)) {
       return resolveMessage(message, 'Required', value, values, undefined)
@@ -89,7 +89,7 @@ export function minLength(min: number, message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid (use required() for mandatory fields)
     if (isEmpty(value)) return undefined
@@ -117,7 +117,7 @@ export function maxLength(max: number, message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -145,7 +145,7 @@ export function minValue(min: number, message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -174,7 +174,7 @@ export function maxValue(max: number, message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -212,7 +212,7 @@ export function regex(pattern: RegExp, message: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -239,7 +239,7 @@ export function email(message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -261,7 +261,7 @@ export function choices(list: unknown[], message: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -281,7 +281,7 @@ export function number(message?: Message): Validator {
   const validator: Validator = (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): ValidatorResult => {
     // Empty values are valid
     if (isEmpty(value)) return undefined
@@ -316,12 +316,16 @@ export function composeValidators(
   const validator: Validator = async (
     value: unknown,
     values: Record<string, unknown> | null,
-    props: unknown
+    _props: unknown
   ): Promise<string | undefined> => {
     for (const v of validatorList) {
-      const result = await v(value, values, props)
+      const result = await v(value, values, _props)
       if (result !== undefined) {
-        return result
+        // Handle both string and message object formats
+        if (typeof result === 'string') {
+          return result
+        }
+        return result.message
       }
     }
     return undefined

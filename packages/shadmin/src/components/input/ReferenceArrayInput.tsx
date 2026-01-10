@@ -121,9 +121,10 @@ export function ReferenceArrayInput({
 
   // Clone the child element and inject the choices prop
   if (isValidElement<ChildWithChoices>(children)) {
+    const isDisabled = disabled || children.props.disabled === true
     return cloneElement(children as ReactElement<ChildWithChoices>, {
       choices,
-      disabled: disabled || children.props.disabled,
+      disabled: isDisabled,
     })
   }
 

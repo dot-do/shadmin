@@ -5,7 +5,7 @@
  */
 
 import { type ReactNode, useEffect, useMemo, memo } from 'react'
-import type { ResourceProps, ResourceDefinition } from '../../types'
+import type { ResourceProps, ResourceDefinition } from 'ra-core'
 
 // Context for registering resources (used internally by Admin)
 import { createContext, useContext } from 'react'
@@ -54,8 +54,8 @@ const ResourceComponent = ({
   const definition: ResourceDefinition = useMemo(
     () => ({
       name,
-      icon,
-      options,
+      ...(icon !== undefined && { icon }),
+      ...(options !== undefined && { options }),
       hasList: !!list,
       hasEdit: !!edit,
       hasCreate: !!create,
@@ -68,12 +68,12 @@ const ResourceComponent = ({
   const resourceProps: ResourceProps = useMemo(
     () => ({
       name,
-      list,
-      edit,
-      create,
-      show,
-      icon,
-      options,
+      ...(list !== undefined && { list }),
+      ...(edit !== undefined && { edit }),
+      ...(create !== undefined && { create }),
+      ...(show !== undefined && { show }),
+      ...(icon !== undefined && { icon }),
+      ...(options !== undefined && { options }),
     }),
     [name, list, edit, create, show, icon, options]
   )
@@ -86,6 +86,7 @@ const ResourceComponent = ({
         registration.unregister(name)
       }
     }
+    return undefined
   }, [registration, definition, resourceProps, name])
 
   // Resource doesn't render anything directly

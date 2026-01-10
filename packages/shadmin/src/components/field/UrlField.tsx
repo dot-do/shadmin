@@ -2,7 +2,7 @@ import { type AnchorHTMLAttributes } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
-import type { RaRecord } from '../../types'
+import type { RaRecord } from 'ra-core'
 
 export interface UrlFieldProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   /** The field name in the record to display */
@@ -89,18 +89,19 @@ export function UrlField({
 
   // Handle null, undefined, or empty string
   if (rawValue == null || rawValue === '') {
+    const testId = (rest as Record<string, unknown>)['data-testid'] as string | undefined
     if (label) {
       return (
         <div className={cn('ra-field', sourceClass)}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <p><span className={cn(className)} data-testid={rest['data-testid']}>
+          <p><span className={cn(className)} data-testid={testId}>
             {resolvedEmptyText}
           </span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} data-testid={rest['data-testid']}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid={testId}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )

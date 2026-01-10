@@ -120,16 +120,18 @@ export const DateTimeInput = forwardRef<HTMLInputElement, DateTimeInputProps>(
     const errorId = `${inputId}-error`
     const helperId = `${inputId}-helper`
 
+    const controllerRules = {
+      ...rules,
+      ...(required ? { required: rules?.required || true } : rules?.required !== undefined ? { required: rules.required } : {}),
+    }
+
     const {
       field,
       fieldState: { error },
     } = useController({
       name: source,
       control,
-      rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-      },
+      ...(Object.keys(controllerRules).length > 0 && { rules: controllerRules }),
     })
 
     const showLabel = label !== false

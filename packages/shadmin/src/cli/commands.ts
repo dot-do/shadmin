@@ -88,7 +88,10 @@ export function parseArgs(args: string[]): CLIArgs {
 
     // Port option
     if (arg === '--port' || arg === '-p') {
-      result.port = parseInt(args[++i], 10)
+      const portValue = args[++i]
+      if (portValue !== undefined) {
+        result.port = parseInt(portValue, 10)
+      }
       i++
       continue
     }
@@ -115,21 +118,30 @@ export function parseArgs(args: string[]): CLIArgs {
 
     // Root option
     if (arg === '--root') {
-      result.root = args[++i]
+      const rootValue = args[++i]
+      if (rootValue !== undefined) {
+        result.root = rootValue
+      }
       i++
       continue
     }
 
     // Config option
     if (arg === '--config' || arg === '-c') {
-      result.configFile = args[++i]
+      const configValue = args[++i]
+      if (configValue !== undefined) {
+        result.configFile = configValue
+      }
       i++
       continue
     }
 
     // OutDir option
     if (arg === '--outDir') {
-      result.outDir = args[++i]
+      const outDirValue = args[++i]
+      if (outDirValue !== undefined) {
+        result.outDir = outDirValue
+      }
       i++
       continue
     }
@@ -142,7 +154,7 @@ export function parseArgs(args: string[]): CLIArgs {
     }
 
     // Positional argument - could be root path
-    if (!arg.startsWith('-')) {
+    if (arg && !arg.startsWith('-')) {
       result.root = arg
       i++
       continue
@@ -205,13 +217,13 @@ export function createViteConfig(
   // Build shadmin plugin options
   const pluginOptions: ShadminPluginOptions = {
     root,
-    resourcesDir,
-    dataProviderImport,
-    authProviderImport,
-    layoutImport,
-    dashboardImport,
-    basename,
-    mdxOptions,
+    ...(resourcesDir !== undefined && { resourcesDir }),
+    ...(dataProviderImport !== undefined && { dataProviderImport }),
+    ...(authProviderImport !== undefined && { authProviderImport }),
+    ...(layoutImport !== undefined && { layoutImport }),
+    ...(dashboardImport !== undefined && { dashboardImport }),
+    ...(basename !== undefined && { basename }),
+    ...(mdxOptions !== undefined && { mdxOptions }),
   }
 
   return {
@@ -221,12 +233,12 @@ export function createViteConfig(
       shadminPlugin(pluginOptions),
     ],
     server: {
-      port,
-      host,
-      open,
+      ...(port !== undefined && { port }),
+      ...(host !== undefined && { host }),
+      ...(open !== undefined && { open }),
     },
     build: {
-      outDir,
+      ...(outDir !== undefined && { outDir }),
       // Production optimizations
       minify: 'esbuild',
       target: 'esnext',

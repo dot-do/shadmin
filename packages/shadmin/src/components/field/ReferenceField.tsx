@@ -3,7 +3,7 @@ import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
-import type { Identifier, RaRecord } from '../../types'
+import type { Identifier, RaRecord } from 'ra-core'
 
 export interface ReferenceFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** The field name in the record that contains the reference ID */

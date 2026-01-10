@@ -169,7 +169,7 @@ export function useQueryErrorHandling(
 /**
  * Hook to create enhanced error handling for mutation results
  */
-export function useMutationErrorHandling<TData = unknown>(
+export function useMutationErrorHandling<_TData = unknown>(
   error: Error | null,
   reset: () => void
 ): Omit<MutationErrorAnalysis, 'lastSubmittedData' | 'submissionCount' | 'retry'> {

@@ -204,7 +204,10 @@ export function TestMemoryRouter({
 
   // Wrap in React Router's MemoryRouter to provide useLocation context
   return (
-    <ReactRouterMemoryRouter initialEntries={initialEntries} initialIndex={initialIndex}>
+    <ReactRouterMemoryRouter
+      initialEntries={initialEntries}
+      {...(initialIndex !== undefined && { initialIndex })}
+    >
       <RouterContext.Provider value={value}>{children}</RouterContext.Provider>
     </ReactRouterMemoryRouter>
   )
@@ -319,7 +322,7 @@ export function Link({ to, replace, state, children, onClick, ...props }: LinkPr
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     onClick?.(event)
-    navigate(to, { replace, state })
+    navigate(to, { ...(replace !== undefined && { replace }), state })
   }
 
   return (

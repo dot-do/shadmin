@@ -9,7 +9,7 @@
  * Epic: shadmin-zwnj
  */
 
-import type { DataProvider } from '../../types'
+import type { DataProvider } from 'ra-core'
 
 /**
  * Lifecycle callback context passed to before/after hooks
@@ -86,8 +86,8 @@ export function withLifecycleCallbacks(
   dataProvider: DataProvider,
   callbacks: ResourceLifecycleCallbacks[]
 ): DataProvider {
-  return {
-    getList: async (resource, params) => {
+  const wrapped = {
+    getList: async (resource: string, params: Parameters<DataProvider['getList']>[1]) => {
       const resourceCallbacks = findCallbacksForResource(callbacks, resource)
       let finalParams = params
 
@@ -118,7 +118,7 @@ export function withLifecycleCallbacks(
       return response
     },
 
-    getOne: async (resource, params) => {
+    getOne: async (resource: string, params: Parameters<DataProvider['getOne']>[1]) => {
       const resourceCallbacks = findCallbacksForResource(callbacks, resource)
       let finalParams = params
 
@@ -149,15 +149,15 @@ export function withLifecycleCallbacks(
       return response
     },
 
-    getMany: async (resource, params) => {
+    getMany: async (resource: string, params: Parameters<DataProvider['getMany']>[1]) => {
       return dataProvider.getMany(resource, params)
     },
 
-    getManyReference: async (resource, params) => {
+    getManyReference: async (resource: string, params: Parameters<DataProvider['getManyReference']>[1]) => {
       return dataProvider.getManyReference(resource, params)
     },
 
-    create: async (resource, params) => {
+    create: async (resource: string, params: Parameters<DataProvider['create']>[1]) => {
       const resourceCallbacks = findCallbacksForResource(callbacks, resource)
       let finalParams = params
 
@@ -188,7 +188,7 @@ export function withLifecycleCallbacks(
       return response
     },
 
-    update: async (resource, params) => {
+    update: async (resource: string, params: Parameters<DataProvider['update']>[1]) => {
       const resourceCallbacks = findCallbacksForResource(callbacks, resource)
       let finalParams = params
 
@@ -219,11 +219,11 @@ export function withLifecycleCallbacks(
       return response
     },
 
-    updateMany: async (resource, params) => {
+    updateMany: async (resource: string, params: Parameters<DataProvider['updateMany']>[1]) => {
       return dataProvider.updateMany(resource, params)
     },
 
-    delete: async (resource, params) => {
+    delete: async (resource: string, params: Parameters<DataProvider['delete']>[1]) => {
       const resourceCallbacks = findCallbacksForResource(callbacks, resource)
       let finalParams = params
 
@@ -254,10 +254,12 @@ export function withLifecycleCallbacks(
       return response
     },
 
-    deleteMany: async (resource, params) => {
+    deleteMany: async (resource: string, params: Parameters<DataProvider['deleteMany']>[1]) => {
       return dataProvider.deleteMany(resource, params)
     },
   }
+
+  return wrapped as DataProvider
 }
 
 /**

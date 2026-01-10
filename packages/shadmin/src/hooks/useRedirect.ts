@@ -116,8 +116,8 @@ export function useRedirect(): RedirectFunction {
       }
 
       navigate(path, {
-        replace: options.replace,
-        state: options.state,
+        ...(options.replace !== undefined && { replace: options.replace }),
+        ...(options.state !== undefined && { state: options.state }),
       })
     },
     [navigate]

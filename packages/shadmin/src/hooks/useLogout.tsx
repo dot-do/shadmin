@@ -74,7 +74,7 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
       setError(null)
 
       try {
-        const result = await authProvider.logout()
+        const result = await authProvider.logout({})
 
         // Clear permissions cache on logout
         queryClient.removeQueries({ queryKey: ['permissions'] })

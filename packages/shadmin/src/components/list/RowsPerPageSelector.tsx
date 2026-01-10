@@ -74,7 +74,7 @@ export const RowsPerPageSelector = forwardRef<HTMLButtonElement, RowsPerPageSele
           case 'Enter':
           case ' ':
             event.preventDefault()
-            if (isOpen && highlightedIndex >= 0) {
+            if (isOpen && highlightedIndex >= 0 && options[highlightedIndex] !== undefined) {
               onChange(options[highlightedIndex])
               setIsOpen(false)
             } else {

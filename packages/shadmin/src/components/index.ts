@@ -4,21 +4,19 @@
 export { Button, type ButtonProps } from './Button'
 
 // Core components
+// Note: CoreAdminContext, CoreAdminContextProps, CoreAdminRoutes, CoreAdminRoutesProps, Resource
+// are NOT re-exported here as they come from ra-core
 export {
   Admin,
-  Resource,
-  CoreAdminContext,
-  CoreAdminRoutes,
   ResourceRegistrationContext,
-  type CoreAdminContextProps,
-  type CoreAdminRoutesProps,
   type ResourceRegistrationContextValue,
 } from './core'
 
 // List components
+// Note: ListBase, ListBaseProps, InfiniteListBase, InfiniteListBaseProps
+// are NOT re-exported here as they come from ra-core
 export {
   List,
-  ListBase,
   ListView,
   ListActions,
   ListToolbar,
@@ -31,11 +29,9 @@ export {
   SimpleDatagridRow,
   SimpleList,
   InfiniteList,
-  InfiniteListBase,
   InfiniteListView,
   DataTable,
   type ListProps,
-  type ListBaseProps,
   type ListViewProps,
   type ListActionsProps,
   type ListToolbarProps,
@@ -50,12 +46,12 @@ export {
   type SimpleDatagridRowProps,
   type SimpleListProps,
   type InfiniteListProps,
-  type InfiniteListBaseProps,
   type InfiniteListViewProps,
   type DataTableProps,
 } from './list'
 
 // Input components
+// Note: ArrayInputContext, ArrayInputContextValue are NOT re-exported here as they come from ra-core
 export {
   TextInput,
   NumberInput,
@@ -72,7 +68,6 @@ export {
   AutocompleteInput,
   AutocompleteArrayInput,
   ArrayInput,
-  ArrayInputContext,
   useArrayInputContext,
   SimpleFormIterator,
   TimeInput,
@@ -105,7 +100,6 @@ export {
   type AutocompleteArrayInputProps,
   type AutocompleteArrayChoice,
   type ArrayInputProps,
-  type ArrayInputContextValue,
   type SimpleFormIteratorProps,
   type TimeInputProps,
   type FileInputProps,
@@ -198,41 +192,33 @@ export {
 } from './form'
 
 // Create components
+// Note: CreateBase, CreateBaseProps, CreateContext, CreateContextProvider, useCreateContext,
+// SaveHandler, TransformData are NOT re-exported here as they come from ra-core
 export {
   Create,
-  CreateBase,
   CreateView,
-  CreateContext,
-  CreateContextProvider,
-  useCreateContext,
   useOptionalCreateContext,
   type CreateProps,
-  type CreateBaseProps,
   type CreateViewProps,
   type CreateContextValue,
   type CreateContextProviderProps,
-  type SaveHandler,
-  type TransformData,
   type RedirectTo,
 } from './create'
 
 // Edit components
+// Note: EditBase, EditBaseProps, MutationMode, Identifier are NOT re-exported here as they come from ra-core
 export {
   Edit,
-  EditBase,
   EditView,
   type EditProps,
-  type EditBaseProps,
   type EditViewProps,
   type EditActionsProps,
-  type MutationMode,
-  type Identifier,
 } from './edit'
 
 // Show components
+// Note: ShowBase, ShowBaseProps, ShowControllerResult are NOT re-exported here as they come from ra-core
 export {
   Show,
-  ShowBase,
   ShowView,
   SimpleShowLayout,
   TabbedShowLayout,
@@ -241,9 +227,7 @@ export {
   useOptionalTabbedShowLayoutContext,
   generateShowTabName,
   type ShowProps,
-  type ShowBaseProps,
   type ShowViewProps,
-  type ShowControllerResult,
   type SimpleShowLayoutProps,
   type TabbedShowLayoutProps,
   type TabbedShowLayoutContextValue,

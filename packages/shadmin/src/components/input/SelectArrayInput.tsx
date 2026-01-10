@@ -190,7 +190,7 @@ export const SelectArrayInput = forwardRef<HTMLDivElement, SelectArrayInputProps
     } = useController({
       name: source,
       control,
-      rules,
+      ...(rules !== undefined && { rules }),
       defaultValue: [] as never,
     })
 

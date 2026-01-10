@@ -6,7 +6,7 @@ import { Button } from './Button'
  * Button component with multiple variants and sizes.
  * Built with Tailwind CSS and fully customizable.
  */
-const meta = {
+const meta: Meta<typeof Button> = {
   title: 'Components/Primitives/Button',
   component: Button,
   parameters: {
@@ -53,10 +53,10 @@ const meta = {
     onClick: fn(),
     children: 'Button',
   },
-} satisfies Meta<typeof Button>
+}
 
 export default meta
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof Button>
 
 /**
  * Default button style - primary action

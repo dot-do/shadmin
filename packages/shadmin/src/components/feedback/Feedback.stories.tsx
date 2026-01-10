@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { fn } from '@storybook/test'
 import { useState } from 'react'
 import { Loading } from './Loading'
-import { Error } from './Error'
+import { Error as ErrorComponent } from './Error'
 import { Empty } from './Empty'
 import { Confirm } from './Confirm'
 import { NotificationToast, NotificationContainer } from './Notification'
@@ -165,9 +165,9 @@ export const LoadingFullscreen: LoadingStory = {
 /**
  * Basic error display
  */
-export const ErrorBasic: StoryObj<typeof Error> = {
+export const ErrorBasic: StoryObj<typeof ErrorComponent> = {
   render: () => (
-    <Error error="Something went wrong. Please try again later." />
+    <ErrorComponent error="Something went wrong. Please try again later." />
   ),
   name: 'Error - Basic',
 }
@@ -175,9 +175,9 @@ export const ErrorBasic: StoryObj<typeof Error> = {
 /**
  * Error with retry button
  */
-export const ErrorWithRetry: StoryObj<typeof Error> = {
+export const ErrorWithRetry: StoryObj<typeof ErrorComponent> = {
   render: () => (
-    <Error
+    <ErrorComponent
       error="Failed to load data from server"
       onRetry={fn()}
     />
@@ -188,9 +188,9 @@ export const ErrorWithRetry: StoryObj<typeof Error> = {
 /**
  * Error from Error object
  */
-export const ErrorFromObject: StoryObj<typeof Error> = {
+export const ErrorFromObject: StoryObj<typeof ErrorComponent> = {
   render: () => (
-    <Error
+    <ErrorComponent
       error={new Error('Network request failed: Connection timeout')}
       onRetry={fn()}
     />
@@ -201,9 +201,9 @@ export const ErrorFromObject: StoryObj<typeof Error> = {
 /**
  * Error with custom title
  */
-export const ErrorCustomTitle: StoryObj<typeof Error> = {
+export const ErrorCustomTitle: StoryObj<typeof ErrorComponent> = {
   render: () => (
-    <Error
+    <ErrorComponent
       title="Unable to save changes"
       error="The server returned an unexpected response. Your changes were not saved."
       onRetry={fn()}
@@ -216,9 +216,9 @@ export const ErrorCustomTitle: StoryObj<typeof Error> = {
 /**
  * Error without icon
  */
-export const ErrorNoIcon: StoryObj<typeof Error> = {
+export const ErrorNoIcon: StoryObj<typeof ErrorComponent> = {
   render: () => (
-    <Error
+    <ErrorComponent
       error="A minor error occurred"
       hideIcon
     />
@@ -229,15 +229,15 @@ export const ErrorNoIcon: StoryObj<typeof Error> = {
 /**
  * Error with custom content
  */
-export const ErrorCustomContent: StoryObj<typeof Error> = {
+export const ErrorCustomContent: StoryObj<typeof ErrorComponent> = {
   render: () => (
-    <Error title="Validation Failed">
+    <ErrorComponent title="Validation Failed">
       <ul className="text-sm text-muted-foreground list-disc list-inside">
         <li>Email is required</li>
         <li>Password must be at least 8 characters</li>
         <li>Terms must be accepted</li>
       </ul>
-    </Error>
+    </ErrorComponent>
   ),
   name: 'Error - Custom Content',
 }
@@ -698,10 +698,12 @@ export const NotificationWithUndo: StoryObj<typeof NotificationToast> = {
  */
 export const NotificationStacked: StoryObj<typeof NotificationContainer> = {
   render: () => {
-    const [notifications, setNotifications] = useState([
-      { id: '1', message: 'File uploaded successfully', options: { type: 'success' as const } },
-      { id: '2', message: 'Processing your request...', options: { type: 'info' as const } },
-      { id: '3', message: 'Warning: Large file detected', options: { type: 'warning' as const } },
+    const [notifications, setNotifications] = useState<
+      Array<{ id: string; message: string; options: { type: 'success' | 'error' | 'warning' | 'info' } }>
+    >([
+      { id: '1', message: 'File uploaded successfully', options: { type: 'success' } },
+      { id: '2', message: 'Processing your request...', options: { type: 'info' } },
+      { id: '3', message: 'Warning: Large file detected', options: { type: 'warning' } },
     ])
 
     const handleDismiss = (id: string) => {
@@ -716,12 +718,14 @@ export const NotificationStacked: StoryObj<typeof NotificationContainer> = {
         'Action completed',
         'Update available',
       ]
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)] ?? 'New notification'
+      const randomType = types[Math.floor(Math.random() * types.length)] ?? 'info'
       setNotifications((prev) => [
         ...prev,
         {
           id: String(Date.now()),
-          message: messages[Math.floor(Math.random() * messages.length)],
-          options: { type: types[Math.floor(Math.random() * types.length)] },
+          message: randomMessage,
+          options: { type: randomType },
         },
       ])
     }
@@ -865,8 +869,8 @@ export const FeedbackShowcase: StoryObj = {
         <section>
           <h3 className="text-lg font-semibold mb-4">Error States</h3>
           <div className="grid grid-cols-2 gap-4">
-            <Error error="Simple error message" />
-            <Error
+            <ErrorComponent error="Simple error message" />
+            <ErrorComponent
               title="Failed to load"
               error="Network error: Connection refused"
               onRetry={() => addNotification('info', 'Retrying...')}

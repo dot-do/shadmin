@@ -133,9 +133,10 @@ function SimpleFormIteratorItem({
           const childSource = childElement.props.source
           const fieldSource = `${source}.${index}.${childSource}`
 
+          const isDisabled = disabled === true || childElement.props.disabled === true
           return cloneElement(childElement, {
             source: fieldSource,
-            disabled: disabled || childElement.props.disabled,
+            disabled: isDisabled,
           })
         })}
       </div>
@@ -227,10 +228,10 @@ export function SimpleFormIterator({
             index={index}
             source={source}
             inline={inline}
-            disabled={disabled}
+            disabled={disabled === true}
             disableRemove={disableRemove}
             canRemove={canRemove}
-            getItemLabel={getItemLabel}
+            {...(getItemLabel !== undefined && { getItemLabel })}
             onRemove={handleRemove}
           >
             {children}

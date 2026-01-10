@@ -2,7 +2,7 @@ import { type HTMLAttributes } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
-import type { RaRecord } from '../../types'
+import type { RaRecord } from 'ra-core'
 
 /**
  * Choice type for SelectField options

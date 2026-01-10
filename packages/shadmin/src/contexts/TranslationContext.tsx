@@ -94,16 +94,6 @@ const getNestedValue = (obj: TranslationMessages, path: string): string | undefi
   return typeof current === 'string' ? current : undefined
 }
 
-/**
- * Interpolate values into a translation string
- * Supports {name} syntax for placeholders
- */
-const interpolate = (str: string, values: TranslateOptions): string => {
-  return str.replace(/\{(\w+)\}/g, (match, key) => {
-    const value = values[key]
-    return value !== undefined ? String(value) : match
-  })
-}
 
 /**
  * Handle plural forms
@@ -111,17 +101,18 @@ const interpolate = (str: string, values: TranslateOptions): string => {
  */
 const pluralize = (str: string, count: number | undefined): string => {
   if (count === undefined) {
-    return str.split('||||')[0].trim()
+    const firstForm = str.split('||||')[0]
+    return firstForm?.trim() ?? str
   }
 
   const forms = str.split('||||').map(s => s.trim())
 
   if (forms.length === 1) {
-    return forms[0]
+    return forms[0] ?? str
   }
 
   // Simple plural logic: use first form for 1, second form for everything else
-  return count === 1 ? forms[0] : forms[1] || forms[0]
+  return count === 1 ? (forms[0] ?? str) : (forms[1] ?? forms[0] ?? str)
 }
 
 /**

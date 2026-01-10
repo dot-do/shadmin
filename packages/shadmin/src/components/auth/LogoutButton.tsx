@@ -160,8 +160,8 @@ export function LogoutButton({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   const { logout, isLoading } = useLogout({
-    onSuccess,
-    onError,
+    ...(onSuccess !== undefined && { onSuccess }),
+    ...(onError !== undefined && { onError }),
   })
 
   const handleClick = useCallback(() => {
@@ -174,7 +174,7 @@ export function LogoutButton({
 
   const performLogout = useCallback(async () => {
     try {
-      await logout({ redirectTo })
+      await logout(redirectTo !== undefined ? { redirectTo } : {})
     } catch {
       // Error is handled by useLogout hook and callbacks
     }

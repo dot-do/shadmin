@@ -7,7 +7,6 @@ import {
   useCallback,
   useEffect,
   useState,
-  cloneElement,
   isValidElement,
   Children,
   type FormHTMLAttributes,
@@ -197,12 +196,15 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
   const [saving, setSaving] = useState(false)
   const [submitError, setSubmitError] = useState<Error | null>(null)
 
-  const form = useForm<T>({
-    defaultValues,
+  // Build form options, only including defined values
+  const formOptions: Parameters<typeof useForm<T>>[0] = {
     mode,
     reValidateMode,
-    resolver,
-  })
+  }
+  if (defaultValues !== undefined) formOptions.defaultValues = defaultValues
+  if (resolver !== undefined) formOptions.resolver = resolver
+
+  const form = useForm<T>(formOptions)
 
   const {
     handleSubmit,
@@ -297,18 +299,17 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
          childProps.rules.required === true)
       )
 
-      return (
-        <FieldWrapperWithError
-          key={source}
-          FieldWrapper={FieldWrapper}
-          source={source}
-          label={label}
-          isRequired={isRequired}
-          control={form.control}
-        >
-          {child}
-        </FieldWrapperWithError>
-      )
+      // Build props, only including label if defined
+      const wrapperProps: Parameters<typeof FieldWrapperWithError>[0] = {
+        FieldWrapper,
+        source,
+        isRequired,
+        control: form.control as unknown as UseFormReturn<FieldValues>['control'],
+        children: child,
+      }
+      if (label !== undefined) wrapperProps.label = label
+
+      return <FieldWrapperWithError key={source} {...wrapperProps} />
     })
   }
 
@@ -326,7 +327,7 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
     >
       <form
         role="form"
-        onSubmit={handleSubmit(onFormSubmit)}
+        onSubmit={handleSubmit(onFormSubmit as (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>)}
         className={cn('space-y-4', className)}
         noValidate={noValidate}
         {...formProps}
@@ -350,7 +351,7 @@ SimpleForm.displayName = 'SimpleForm'
 /**
  * Helper component that wraps a field with the fieldWrapper and provides error from form state
  */
-function FieldWrapperWithError<T extends FieldValues>({
+function FieldWrapperWithError({
   FieldWrapper,
   source,
   label,
@@ -362,23 +363,23 @@ function FieldWrapperWithError<T extends FieldValues>({
   source: string
   label?: string
   isRequired: boolean
-  control: UseFormReturn<T>['control']
+  control: UseFormReturn<FieldValues>['control']
   children: ReactNode
 }) {
-  const { errors } = useFormState({ control, name: source as never })
+  const { errors } = useFormState({ control, name: source })
   const fieldError = errors[source]
   const errorMessage = fieldError?.message as string | undefined
 
-  return (
-    <FieldWrapper
-      source={source}
-      label={label}
-      isRequired={isRequired}
-      error={errorMessage}
-    >
-      {children}
-    </FieldWrapper>
-  )
+  // Build props, only including optional values if defined
+  const wrapperProps: FieldWrapperProps = {
+    source,
+    isRequired,
+    children,
+  }
+  if (label !== undefined) wrapperProps.label = label
+  if (errorMessage !== undefined) wrapperProps.error = errorMessage
+
+  return <FieldWrapper {...wrapperProps} />
 }
 
 /**

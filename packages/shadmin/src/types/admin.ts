@@ -5,8 +5,7 @@
 
 import type { ComponentType, ReactNode, ReactElement } from 'react'
 import type { QueryClient } from '@tanstack/react-query'
-import type { DataProvider } from './data-provider'
-import type { AuthProvider } from 'ra-core'
+import type { DataProvider, AuthProvider } from 'ra-core'
 import type { I18nProvider } from '../contexts'
 
 /**

@@ -192,7 +192,7 @@ UserMenu.displayName = 'UserMenu'
 // ============================================================================
 
 interface ThemeToggleProps {
-  onToggle?: () => void
+  onToggle?: (() => void) | undefined
 }
 
 function ThemeToggle({ onToggle }: ThemeToggleProps) {

@@ -12,7 +12,6 @@ import {
   isValidationError,
   isConflictError as checkConflictError,
   extractFieldErrors,
-  ValidationError,
 } from '../errors'
 import type {
   RaRecord,
@@ -205,7 +204,7 @@ export function useCreate<
         }
       })
     },
-    onError: (error, variables) => {
+    onError: (error, _variables) => {
       // Extract field errors from validation errors
       const extractedErrors = extractFieldErrors(error)
       if (extractedErrors) {
@@ -329,8 +328,8 @@ export function useCreate<
     [create, resource]
   )
 
-  // Create mutate function (fire and forget)
-  const mutate = useCallback(
+  // Create mutate function (fire and forget) - exported for API compatibility
+  const _mutate = useCallback(
     (params: UseCreateMutateParams<TVariables>): void => {
       mutateAsync(params).catch(() => {
         // Errors are handled by the mutation state
@@ -338,6 +337,8 @@ export function useCreate<
     },
     [mutateAsync]
   )
+  // Expose mutate for potential future use
+  void _mutate
 
   const state: UseCreateMutationState<RecordType> = useMemo(
     () => ({

@@ -110,13 +110,13 @@ function DefaultFallback({
   error,
   resetErrorBoundary,
   canRetry,
-  showHomeButton,
-  showLogoutButton,
-  showRefreshButton,
+  showHomeButton = false,
+  showLogoutButton = false,
+  showRefreshButton = false,
 }: FallbackRenderProps & {
-  showHomeButton?: boolean
-  showLogoutButton?: boolean
-  showRefreshButton?: boolean
+  showHomeButton?: boolean | undefined
+  showLogoutButton?: boolean | undefined
+  showRefreshButton?: boolean | undefined
 }) {
   return (
     <div

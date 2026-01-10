@@ -14,7 +14,7 @@ import { EditView, type EditViewProps } from './EditView'
 // import { useRecordContext } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
 import { useResourceContext } from '../../contexts/ResourceContext'
-import type { Identifier, RaRecord } from '../../types'
+import type { Identifier, RaRecord } from 'ra-core'
 import type { MutationMode } from '../../contexts/FormContext'
 
 /**
@@ -166,13 +166,15 @@ function EditViewWrapper({
   aside?: ReactElement
   className?: string
 }) {
+  // Build props object, only including defined values to satisfy exactOptionalPropertyTypes
+  const viewProps: { title?: ReactNode; actions?: ReactElement | false; aside?: ReactElement; className?: string } = {}
+  if (title !== undefined) viewProps.title = title
+  if (actions !== undefined) viewProps.actions = actions
+  if (aside !== undefined) viewProps.aside = aside
+  if (className !== undefined) viewProps.className = className
+
   return (
-    <EditView
-      title={title}
-      actions={actions}
-      aside={aside}
-      className={className}
-    >
+    <EditView {...viewProps}>
       {children}
     </EditView>
   )
@@ -259,10 +261,14 @@ export function Edit<RecordType extends RaRecord = RaRecord>({
   // Separate meta from queryOptions
   const { meta, ...restQueryOptions } = queryOptions ?? {}
 
+  // Build params object, only including meta if defined
+  const getOneParams: { id: Identifier; meta?: Record<string, unknown> } = { id }
+  if (meta !== undefined) getOneParams.meta = meta
+
   // Use useGetOne to check loading/error states
   const { data, isLoading, error } = useGetOne<RecordType>(
     resource,
-    { id, meta },
+    getOneParams,
     restQueryOptions
   )
 
@@ -291,25 +297,26 @@ export function Edit<RecordType extends RaRecord = RaRecord>({
     return EmptyComponent
   }
 
+  // Build EditBase props, only including defined optional values
+  const editBaseProps: EditBaseProps<RecordType> = { id, children: null }
+  if (resourceProp !== undefined) editBaseProps.resource = resourceProp
+  if (mutationMode !== undefined) editBaseProps.mutationMode = mutationMode
+  if (redirect !== undefined) editBaseProps.redirect = redirect
+  if (transform !== undefined) editBaseProps.transform = transform
+  if (queryOptions !== undefined) editBaseProps.queryOptions = queryOptions
+  if (mutationOptions !== undefined) editBaseProps.mutationOptions = mutationOptions
+  if (disableAuthentication !== undefined) editBaseProps.disableAuthentication = disableAuthentication
+
+  // Build EditViewWrapper props, only including defined values
+  const viewWrapperProps: Parameters<typeof EditViewWrapper>[0] = { children }
+  if (title !== undefined) viewWrapperProps.title = title
+  if (actions !== undefined) viewWrapperProps.actions = actions
+  if (aside !== undefined) viewWrapperProps.aside = aside
+  if (className !== undefined) viewWrapperProps.className = className
+
   return (
-    <EditBase<RecordType>
-      resource={resourceProp}
-      id={id}
-      mutationMode={mutationMode}
-      redirect={redirect}
-      transform={transform}
-      queryOptions={queryOptions}
-      mutationOptions={mutationOptions}
-      disableAuthentication={disableAuthentication}
-    >
-      <EditViewWrapper
-        title={title}
-        actions={actions}
-        aside={aside}
-        className={className}
-      >
-        {children}
-      </EditViewWrapper>
+    <EditBase<RecordType> {...editBaseProps}>
+      <EditViewWrapper {...viewWrapperProps} />
     </EditBase>
   )
 }

@@ -38,29 +38,29 @@ export interface LayoutProps {
   /** Main content */
   children: ReactNode
   /** Custom sidebar component - can be a ReactNode or a ComponentType */
-  sidebar?: ReactNode | ComponentType
+  sidebar?: ReactNode | ComponentType | undefined
   /** Custom appbar component - can be a ReactNode or a ComponentType */
-  appBar?: ReactNode | ComponentType
+  appBar?: ReactNode | ComponentType | undefined
   /** Custom menu component */
-  menu?: ComponentType<{ items?: MenuItem[] }>
+  menu?: ComponentType<{ items?: MenuItem[] }> | undefined
   /** Menu items to pass to menu component */
-  menuItems?: MenuItem[]
+  menuItems?: MenuItem[] | undefined
   /** Application title */
-  title?: string
+  title?: string | undefined
   /** Additional CSS class */
-  className?: string
+  className?: string | undefined
   /** Initial sidebar open state (uncontrolled) */
-  defaultOpen?: boolean
+  defaultOpen?: boolean | undefined
   /** Controlled sidebar open state */
-  open?: boolean
+  open?: boolean | undefined
   /** Callback when sidebar state changes */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: ((open: boolean) => void) | undefined
   /** Theme setting */
-  theme?: 'light' | 'dark' | 'system'
+  theme?: 'light' | 'dark' | 'system' | undefined
   /** Callback when theme changes */
-  onThemeChange?: (theme: 'light' | 'dark' | 'system') => void
+  onThemeChange?: ((theme: 'light' | 'dark' | 'system') => void) | undefined
   /** Show theme toggle button */
-  showThemeToggle?: boolean
+  showThemeToggle?: boolean | undefined
 }
 
 // ============================================================================
@@ -93,8 +93,8 @@ export function useSidebar(): SidebarContextValue {
 interface SidebarProviderProps {
   children: ReactNode
   defaultOpen?: boolean
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
+  open?: boolean | undefined
+  onOpenChange?: ((open: boolean) => void) | undefined
 }
 
 function SidebarProvider({
@@ -204,9 +204,9 @@ SidebarTrigger.displayName = 'SidebarTrigger'
 // ============================================================================
 
 interface DefaultSidebarProps {
-  title?: string
-  menu?: ComponentType<{ items?: MenuItem[] }>
-  menuItems?: MenuItem[]
+  title?: string | undefined
+  menu?: ComponentType<{ items?: MenuItem[] }> | undefined
+  menuItems?: MenuItem[] | undefined
 }
 
 function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
@@ -227,9 +227,10 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
         const focusableElements = sidebarRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
-        if (focusableElements.length > 0) {
+        const firstElement = focusableElements[0]
+        if (firstElement) {
           requestAnimationFrame(() => {
-            focusableElements[0].focus()
+            firstElement.focus()
           })
         }
       }
@@ -272,6 +273,7 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
 
       const firstFocusable = focusableElements[0]
       const lastFocusable = focusableElements[focusableElements.length - 1]
+      if (!firstFocusable || !lastFocusable) return
 
       if (event.shiftKey) {
         // Shift+Tab: if on first element, wrap to last
@@ -311,7 +313,7 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
       {/* Sidebar Content */}
       <div data-slot="sidebar-menu" className="flex-1 overflow-auto py-2">
         {Menu ? (
-          <Menu items={menuItems} />
+          menuItems ? <Menu items={menuItems} /> : <Menu />
         ) : (
           <nav className="space-y-1 px-2">
             <a
@@ -408,9 +410,9 @@ DefaultSidebar.displayName = 'DefaultSidebar'
 // ============================================================================
 
 interface DefaultAppBarProps {
-  title?: string
-  showThemeToggle?: boolean
-  onThemeChange?: () => void
+  title?: string | undefined
+  showThemeToggle?: boolean | undefined
+  onThemeChange?: (() => void) | undefined
 }
 
 function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarProps) {
@@ -553,8 +555,17 @@ export function Layout({
   )
 }
 
-interface LayoutInnerProps extends Omit<LayoutProps, 'defaultOpen' | 'open' | 'onOpenChange'> {
+interface LayoutInnerProps {
+  children: ReactNode
+  sidebar?: ReactNode | ComponentType | undefined
+  appBar?: ReactNode | ComponentType | undefined
+  menu?: ComponentType<{ items?: MenuItem[] }> | undefined
+  menuItems?: MenuItem[] | undefined
+  title?: string | undefined
+  className?: string | undefined
+  theme?: 'light' | 'dark' | 'system' | undefined
   onThemeChange: () => void
+  showThemeToggle?: boolean | undefined
 }
 
 // Helper to check if a value is a component type (function) vs a ReactNode
