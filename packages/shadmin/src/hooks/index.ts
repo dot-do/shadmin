@@ -46,3 +46,7 @@ export { useListParams, type UseListParamsProps, type UseListParamsResult } from
 
 // Re-export types from types module for convenience
 export type { RaRecord, Identifier } from '../types'
+
+// i18n hooks
+export { useTranslate, type TranslateFunction, type TranslateOptions } from './useTranslate'
+export { useLocale, type UseLocaleResult } from './useLocale'

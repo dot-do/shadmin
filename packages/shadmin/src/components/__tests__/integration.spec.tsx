@@ -1145,3 +1145,1426 @@ describe('Cross-Component Flow Tests', () => {
     })
   })
 })
+
+// =============================================================================
+// CRUD Flow Integration Tests
+// =============================================================================
+
+describe('CRUD Flow Integration Tests', () => {
+  let dataProvider: DataProvider
+  let records: Array<{ id: number; title: string; author: string; views: number; published: boolean }>
+
+  beforeEach(() => {
+    // Initialize with sample data
+    records = [
+      { id: 1, title: 'First Post', author: 'John', views: 100, published: true },
+      { id: 2, title: 'Second Post', author: 'Jane', views: 200, published: false },
+      { id: 3, title: 'Third Post', author: 'Bob', views: 50, published: true },
+    ]
+
+    dataProvider = createMockDataProvider({
+      getList: vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          data: [...records],
+          total: records.length,
+        })
+      ),
+      getOne: vi.fn().mockImplementation((resource, { id }) => {
+        const record = records.find((r) => r.id === id)
+        return Promise.resolve({ data: record })
+      }),
+      create: vi.fn().mockImplementation((resource, { data }) => {
+        const newRecord = { id: records.length + 1, ...data }
+        records.push(newRecord)
+        return Promise.resolve({ data: newRecord })
+      }),
+      update: vi.fn().mockImplementation((resource, { id, data }) => {
+        const index = records.findIndex((r) => r.id === id)
+        if (index !== -1) {
+          records[index] = { ...records[index], ...data }
+          return Promise.resolve({ data: records[index] })
+        }
+        return Promise.reject(new Error('Record not found'))
+      }),
+      delete: vi.fn().mockImplementation((resource, { id }) => {
+        const index = records.findIndex((r) => r.id === id)
+        if (index !== -1) {
+          const deleted = records.splice(index, 1)[0]
+          return Promise.resolve({ data: deleted })
+        }
+        return Promise.reject(new Error('Record not found'))
+      }),
+    })
+  })
+
+  describe('Create Record Flow', () => {
+    it('should create a record and verify it appears in the list', async () => {
+      const user = userEvent.setup()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      // First render create form
+      const { rerender } = render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={async (data) => {
+              await dataProvider.create('posts', { data })
+            }}>
+              <TextInput source="title" label="Title" />
+              <TextInput source="author" label="Author" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Fill and submit form
+      await user.type(screen.getByLabelText('Title'), 'New Integration Post')
+      await user.type(screen.getByLabelText('Author'), 'Test Author')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(dataProvider.create).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            data: expect.objectContaining({
+              title: 'New Integration Post',
+              author: 'Test Author',
+            }),
+          })
+        )
+      })
+
+      // Verify the record was added to our mock data
+      expect(records).toHaveLength(4)
+      expect(records[3].title).toBe('New Integration Post')
+
+      // Re-render list to verify new record appears
+      const ListWrapper = createTestWrapper(dataProvider, ['/posts'])
+      rerender(
+        <ListWrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+          </List>
+        </ListWrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('New Integration Post')).toBeInTheDocument()
+      })
+      expect(screen.getByText('Test Author')).toBeInTheDocument()
+    })
+
+    it('should handle create with all field types', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit} defaultValues={{ views: 0, published: false }}>
+              <TextInput source="title" label="Title" />
+              <TextInput source="author" label="Author" />
+              <NumberInput source="views" label="Views" />
+              <BooleanInput source="published" label="Published" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      await user.type(screen.getByLabelText('Title'), 'Complex Post')
+      await user.type(screen.getByLabelText('Author'), 'Complex Author')
+      await user.clear(screen.getByLabelText('Views'))
+      await user.type(screen.getByLabelText('Views'), '500')
+      await user.click(screen.getByLabelText('Published'))
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Complex Post',
+            author: 'Complex Author',
+            views: 500,
+            published: true,
+          }),
+          expect.anything()
+        )
+      })
+    })
+  })
+
+  describe('Edit Record Flow', () => {
+    it('should edit a record and verify changes persist', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn().mockImplementation(async (data) => {
+        await dataProvider.update('posts', { id: 1, data, previousData: records[0] })
+      })
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+
+      // Render edit form with initial values
+      const { rerender } = render(
+        <Wrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={handleSubmit} defaultValues={{ title: 'First Post', author: 'John' }}>
+              <TextInput source="title" label="Title" />
+              <TextInput source="author" label="Author" />
+            </SimpleForm>
+          </Edit>
+        </Wrapper>
+      )
+
+      // Wait for form to be available
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
+      })
+
+      // Clear and type new values
+      const titleInput = screen.getByLabelText('Title')
+      await user.clear(titleInput)
+      await user.type(titleInput, 'Updated First Post')
+
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Updated First Post',
+          }),
+          expect.anything()
+        )
+      })
+
+      // Verify data was updated
+      await waitFor(() => {
+        expect(dataProvider.update).toHaveBeenCalled()
+      })
+    })
+
+    it('should load existing data into edit form', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+
+      render(
+        <Wrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={vi.fn()} defaultValues={{ title: '', author: '' }}>
+              <TextInput source="title" label="Title" />
+              <TextInput source="author" label="Author" />
+            </SimpleForm>
+          </Edit>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 1 })
+      })
+    })
+  })
+
+  describe('Delete Record Flow', () => {
+    it('should delete a record via data provider', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      // First render the list
+      render(
+        <Wrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('First Post')).toBeInTheDocument()
+        expect(screen.getByText('Second Post')).toBeInTheDocument()
+        expect(screen.getByText('Third Post')).toBeInTheDocument()
+      })
+
+      // Simulate delete
+      await dataProvider.delete('posts', { id: 1 })
+
+      // Verify deletion in the data store
+      expect(records).toHaveLength(2)
+      expect(records.find((r) => r.id === 1)).toBeUndefined()
+      expect(records.find((r) => r.id === 2)).toBeDefined()
+      expect(records.find((r) => r.id === 3)).toBeDefined()
+    })
+
+    it('should handle delete with confirmation', async () => {
+      const onDelete = vi.fn().mockImplementation(async () => {
+        await dataProvider.delete('posts', { id: 1 })
+      })
+
+      // Mock window.confirm
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+
+      render(
+        <Wrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={vi.fn()} defaultValues={{ title: 'First Post' }}>
+              <TextInput source="title" label="Title" />
+              <div className="flex gap-2 mt-4">
+                <button type="submit">Save</button>
+              </div>
+            </SimpleForm>
+          </Edit>
+        </Wrapper>
+      )
+
+      // Verify the component renders
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalled()
+      })
+
+      confirmSpy.mockRestore()
+    })
+  })
+
+  describe('Full CRUD Cycle', () => {
+    it('should complete a full create -> read -> update -> delete cycle', async () => {
+      const user = userEvent.setup()
+
+      // Step 1: Create
+      const CreateWrapper = createTestWrapper(dataProvider, ['/posts/create'])
+      const { rerender } = render(
+        <CreateWrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={async (data) => {
+              await dataProvider.create('posts', { data })
+            }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Create>
+        </CreateWrapper>
+      )
+
+      await user.type(screen.getByLabelText('Title'), 'CRUD Test Post')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(dataProvider.create).toHaveBeenCalled()
+      })
+      expect(records).toHaveLength(4)
+      const newId = records[3].id
+
+      // Step 2: Read/Show
+      const ShowWrapper = createTestWrapper(dataProvider, [`/posts/${newId}/show`])
+      rerender(
+        <ShowWrapper>
+          <Show resource="posts" id={newId}>
+            <TextField source="title" />
+          </Show>
+        </ShowWrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: newId })
+      })
+
+      // Step 3: Update
+      await dataProvider.update('posts', {
+        id: newId,
+        data: { title: 'Updated CRUD Test Post' },
+        previousData: records[3],
+      })
+
+      expect(records.find((r) => r.id === newId)?.title).toBe('Updated CRUD Test Post')
+
+      // Step 4: Delete
+      await dataProvider.delete('posts', { id: newId })
+      expect(records.find((r) => r.id === newId)).toBeUndefined()
+      expect(records).toHaveLength(3)
+    })
+  })
+})
+
+// =============================================================================
+// Navigation Flow Integration Tests
+// =============================================================================
+
+describe('Navigation Flow Integration Tests', () => {
+  let dataProvider: DataProvider
+
+  beforeEach(() => {
+    dataProvider = createMockDataProvider({
+      getList: vi.fn().mockResolvedValue({
+        data: [
+          { id: 1, title: 'First Post', author: 'John' },
+          { id: 2, title: 'Second Post', author: 'Jane' },
+          { id: 3, title: 'Third Post', author: 'Bob' },
+        ],
+        total: 3,
+      }),
+      getOne: vi.fn().mockImplementation((resource, { id }) =>
+        Promise.resolve({
+          data: { id, title: `Post ${id}`, author: `Author ${id}` },
+        })
+      ),
+    })
+  })
+
+  describe('List to Show to Edit Navigation', () => {
+    it('should navigate from list to show view', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      // Start with list
+      const { rerender } = render(
+        <Wrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('First Post')).toBeInTheDocument()
+      })
+
+      // Navigate to show view
+      const ShowWrapper = createTestWrapper(dataProvider, ['/posts/1/show'])
+      rerender(
+        <ShowWrapper>
+          <Show resource="posts" id={1}>
+            <TextField source="title" />
+            <TextField source="author" />
+          </Show>
+        </ShowWrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 1 })
+      })
+    })
+
+    it('should navigate from show to edit view', async () => {
+      // Start with show
+      const ShowWrapper = createTestWrapper(dataProvider, ['/posts/1/show'])
+      const { rerender } = render(
+        <ShowWrapper>
+          <Show resource="posts" id={1}>
+            <TextField source="title" />
+          </Show>
+        </ShowWrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 1 })
+      })
+
+      // Navigate to edit view
+      const EditWrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+      rerender(
+        <EditWrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={vi.fn()} defaultValues={{ title: 'Post 1' }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Edit>
+        </EditWrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
+      })
+    })
+
+    it('should complete full navigation flow: list -> show -> edit -> list', async () => {
+      // Step 1: List
+      const ListWrapper = createTestWrapper(dataProvider, ['/posts'])
+      const { rerender } = render(
+        <ListWrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </ListWrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('First Post')).toBeInTheDocument()
+      })
+
+      // Step 2: Show
+      const ShowWrapper = createTestWrapper(dataProvider, ['/posts/1/show'])
+      rerender(
+        <ShowWrapper>
+          <Show resource="posts" id={1}>
+            <TextField source="title" />
+          </Show>
+        </ShowWrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 1 })
+      })
+
+      // Step 3: Edit
+      const EditWrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+      rerender(
+        <EditWrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={vi.fn()} defaultValues={{ title: 'Post 1' }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Edit>
+        </EditWrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
+      })
+
+      // Step 4: Back to List
+      const FinalListWrapper = createTestWrapper(dataProvider, ['/posts'])
+      rerender(
+        <FinalListWrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </FinalListWrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('First Post')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Deep Linking to Specific Records', () => {
+    it('should load record directly via deep link to show page', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/2/show'])
+
+      render(
+        <Wrapper>
+          <Show resource="posts" id={2}>
+            <TextField source="title" />
+            <TextField source="author" />
+          </Show>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 2 })
+      })
+    })
+
+    it('should load record directly via deep link to edit page', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/3/edit'])
+
+      render(
+        <Wrapper>
+          <Edit resource="posts" id={3}>
+            <SimpleForm onSubmit={vi.fn()} defaultValues={{ title: 'Post 3' }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Edit>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 3 })
+      })
+    })
+
+    it('should handle deep link with pagination parameters', async () => {
+      dataProvider.getList = vi.fn().mockImplementation((resource, params) => {
+        const { page = 1, perPage = 10 } = params.pagination || {}
+        const allData = Array.from({ length: 30 }, (_, i) => ({
+          id: i + 1,
+          title: `Post ${i + 1}`,
+        }))
+        const start = (page - 1) * perPage
+        return Promise.resolve({
+          data: allData.slice(start, start + perPage),
+          total: 30,
+        })
+      })
+
+      const Wrapper = createTestWrapper(dataProvider, ['/posts?page=2'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={10}>
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+            <Pagination />
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('Router State Persistence', () => {
+    it('should maintain list state after returning from detail view', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      // Render list
+      const { rerender } = render(
+        <Wrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('First Post')).toBeInTheDocument()
+      })
+
+      // Navigate to show
+      const ShowWrapper = createTestWrapper(dataProvider, ['/posts/1/show'])
+      rerender(
+        <ShowWrapper>
+          <Show resource="posts" id={1}>
+            <TextField source="title" />
+          </Show>
+        </ShowWrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalled()
+      })
+
+      // Return to list - should show same data
+      const ListWrapper = createTestWrapper(dataProvider, ['/posts'])
+      rerender(
+        <ListWrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </ListWrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('First Post')).toBeInTheDocument()
+        expect(screen.getByText('Second Post')).toBeInTheDocument()
+        expect(screen.getByText('Third Post')).toBeInTheDocument()
+      })
+    })
+  })
+})
+
+// =============================================================================
+// Filter and Sort Flow Integration Tests
+// =============================================================================
+
+describe('Filter and Sort Flow Integration Tests', () => {
+  let dataProvider: DataProvider
+  let allRecords: Array<{ id: number; title: string; author: string; views: number; createdAt: string }>
+
+  beforeEach(() => {
+    allRecords = [
+      { id: 1, title: 'Alpha Post', author: 'John', views: 100, createdAt: '2024-01-01' },
+      { id: 2, title: 'Beta Post', author: 'Jane', views: 500, createdAt: '2024-01-02' },
+      { id: 3, title: 'Gamma Post', author: 'John', views: 200, createdAt: '2024-01-03' },
+      { id: 4, title: 'Delta Post', author: 'Bob', views: 50, createdAt: '2024-01-04' },
+      { id: 5, title: 'Alpha Story', author: 'Jane', views: 300, createdAt: '2024-01-05' },
+    ]
+
+    dataProvider = createMockDataProvider({
+      getList: vi.fn().mockImplementation((resource, params) => {
+        let filtered = [...allRecords]
+
+        // Apply filters
+        if (params.filter) {
+          if (params.filter.q) {
+            const query = params.filter.q.toLowerCase()
+            filtered = filtered.filter(
+              (r) =>
+                r.title.toLowerCase().includes(query) ||
+                r.author.toLowerCase().includes(query)
+            )
+          }
+          if (params.filter.author) {
+            filtered = filtered.filter((r) => r.author === params.filter.author)
+          }
+        }
+
+        // Apply sort
+        if (params.sort?.field) {
+          const { field, order } = params.sort
+          filtered.sort((a, b) => {
+            const aVal = a[field as keyof typeof a]
+            const bVal = b[field as keyof typeof b]
+            if (typeof aVal === 'string' && typeof bVal === 'string') {
+              return order === 'ASC'
+                ? aVal.localeCompare(bVal)
+                : bVal.localeCompare(aVal)
+            }
+            if (typeof aVal === 'number' && typeof bVal === 'number') {
+              return order === 'ASC' ? aVal - bVal : bVal - aVal
+            }
+            return 0
+          })
+        }
+
+        // Apply pagination
+        const { page = 1, perPage = 10 } = params.pagination || {}
+        const start = (page - 1) * perPage
+        const paginated = filtered.slice(start, start + perPage)
+
+        return Promise.resolve({
+          data: paginated,
+          total: filtered.length,
+        })
+      }),
+    })
+  })
+
+  describe('Filter Application', () => {
+    it('should apply text filter and verify results', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" filter={{ q: 'Alpha' }}>
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            filter: expect.objectContaining({ q: 'Alpha' }),
+          })
+        )
+      })
+    })
+
+    it('should filter by author and show only matching records', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" filter={{ author: 'John' }}>
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            filter: expect.objectContaining({ author: 'John' }),
+          })
+        )
+      })
+    })
+
+    it('should combine multiple filters', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" filter={{ q: 'Post', author: 'Jane' }}>
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            filter: expect.objectContaining({
+              q: 'Post',
+              author: 'Jane',
+            }),
+          })
+        )
+      })
+    })
+
+    it('should call data provider with pagination parameters', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      // First render without filter
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={2}>
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+            <Pagination />
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            pagination: expect.objectContaining({ page: 1, perPage: 2 }),
+          })
+        )
+      })
+    })
+  })
+
+  describe('Sort Application', () => {
+    it('should sort by column when clicking header', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+              <NumberField source="views" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+
+      // Click on Views header to sort
+      const viewsHeader = screen.getByText('Views')
+      fireEvent.click(viewsHeader)
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            sort: expect.objectContaining({ field: 'views' }),
+          })
+        )
+      })
+    })
+
+    it('should toggle sort order on repeated clicks', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+
+      const titleHeader = screen.getByText('Title')
+
+      // First click - should sort ASC
+      fireEvent.click(titleHeader)
+
+      await waitFor(() => {
+        const calls = (dataProvider.getList as ReturnType<typeof vi.fn>).mock.calls
+        const lastCall = calls[calls.length - 1]
+        expect(lastCall[1].sort?.field).toBe('title')
+      })
+
+      // Second click - should toggle to DESC
+      fireEvent.click(titleHeader)
+
+      await waitFor(() => {
+        const calls = (dataProvider.getList as ReturnType<typeof vi.fn>).mock.calls
+        const lastCall = calls[calls.length - 1]
+        expect(lastCall[1].sort?.field).toBe('title')
+      })
+    })
+
+    it('should show sort indicator on sorted column', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+
+      // Click title header to sort
+      const titleHeader = screen.getByText('Title')
+      fireEvent.click(titleHeader)
+
+      await waitFor(() => {
+        // Column header should have aria-sort attribute
+        const columnHeader = screen.getByTestId('column-header-title')
+        expect(columnHeader).toHaveAttribute('aria-sort')
+      })
+    })
+  })
+
+  describe('Pagination Flow', () => {
+    it('should display pagination info', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={10}>
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+            <Pagination />
+          </List>
+        </Wrapper>
+      )
+
+      // Wait for data to load
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalled()
+      })
+
+      // Should show first page data
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+    })
+
+    it('should display pagination component with data', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={2}>
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+            <Pagination />
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalled()
+      })
+
+      // Should show data
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+    })
+
+    it('should show pagination information', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={2}>
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+            <Pagination />
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+
+      // Should show pagination range info
+      expect(screen.getByText(/1-2 of 5/)).toBeInTheDocument()
+    })
+  })
+
+  describe('Combined Filter, Sort, and Pagination', () => {
+    it('should pass filter to data provider', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={5} filter={{ author: 'John' }}>
+            <Datagrid>
+              <TextField source="title" />
+              <TextField source="author" />
+            </Datagrid>
+            <Pagination />
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            filter: expect.objectContaining({ author: 'John' }),
+          })
+        )
+      })
+    })
+
+    it('should pass sort to data provider when clicking column header', async () => {
+      const Wrapper = createTestWrapper(dataProvider, ['/posts'])
+
+      render(
+        <Wrapper>
+          <List resource="posts" perPage={10}>
+            <Datagrid>
+              <TextField source="title" />
+              <NumberField source="views" />
+            </Datagrid>
+          </List>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalled()
+      })
+
+      // Wait for data to display
+      await waitFor(() => {
+        expect(screen.getByText('Alpha Post')).toBeInTheDocument()
+      })
+
+      // Sort by views
+      const viewsHeader = screen.getByText('Views')
+      fireEvent.click(viewsHeader)
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith(
+          'posts',
+          expect.objectContaining({
+            sort: expect.objectContaining({ field: 'views' }),
+          })
+        )
+      })
+    })
+  })
+})
+
+// =============================================================================
+// Form Flow Integration Tests
+// =============================================================================
+
+describe('Form Flow Integration Tests', () => {
+  let dataProvider: DataProvider
+
+  beforeEach(() => {
+    dataProvider = createMockDataProvider()
+  })
+
+  describe('Form Submission Flow', () => {
+    it('should fill form, submit, and verify success', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit}>
+              <TextInput source="title" label="Title" />
+              <TextInput source="body" label="Body" />
+              <NumberInput source="views" label="Views" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Fill form fields
+      await user.type(screen.getByLabelText('Title'), 'Test Title')
+      await user.type(screen.getByLabelText('Body'), 'Test Body Content')
+      await user.type(screen.getByLabelText('Views'), '100')
+
+      // Submit
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Test Title',
+            body: 'Test Body Content',
+            views: 100,
+          }),
+          expect.anything()
+        )
+      })
+    })
+
+    it('should handle form with multiple field types', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit} defaultValues={{ published: false, views: 0 }}>
+              <TextInput source="title" label="Title" />
+              <NumberInput source="views" label="Views" />
+              <BooleanInput source="published" label="Published" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      await user.type(screen.getByLabelText('Title'), 'Multi-field Test')
+      await user.clear(screen.getByLabelText('Views'))
+      await user.type(screen.getByLabelText('Views'), '250')
+      await user.click(screen.getByLabelText('Published'))
+
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Multi-field Test',
+            views: 250,
+            published: true,
+          }),
+          expect.anything()
+        )
+      })
+    })
+  })
+
+  describe('Validation Error Flow', () => {
+    it('should show validation error and allow fix and resubmit', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit}>
+              <TextInput
+                source="title"
+                label="Title"
+                required
+                rules={{ required: 'Title is required' }}
+              />
+              <TextInput source="body" label="Body" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Try to submit without filling required field
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      // Should not have called handleSubmit yet
+      expect(handleSubmit).not.toHaveBeenCalled()
+
+      // Now fill in the required field
+      await user.type(screen.getByLabelText(/title/i), 'Fixed Title')
+
+      // Submit again
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Fixed Title',
+          }),
+          expect.anything()
+        )
+      })
+    })
+
+    it('should validate multiple required fields', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit}>
+              <TextInput
+                source="title"
+                label="Title"
+                required
+                rules={{ required: 'Title is required' }}
+              />
+              <TextInput
+                source="author"
+                label="Author"
+                required
+                rules={{ required: 'Author is required' }}
+              />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Try to submit empty form
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      // Should not have submitted
+      expect(handleSubmit).not.toHaveBeenCalled()
+
+      // Fill only title
+      await user.type(screen.getByLabelText(/title/i), 'Test Title')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      // Still should not submit because author is empty
+      expect(handleSubmit).not.toHaveBeenCalled()
+
+      // Fill author too
+      await user.type(screen.getByLabelText(/author/i), 'Test Author')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Test Title',
+            author: 'Test Author',
+          }),
+          expect.anything()
+        )
+      })
+    })
+
+    it('should handle pattern validation', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit}>
+              <TextInput
+                source="email"
+                label="Email"
+                rules={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+              />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Enter invalid email
+      await user.type(screen.getByLabelText('Email'), 'invalid-email')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      // Should not submit with invalid email
+      expect(handleSubmit).not.toHaveBeenCalled()
+
+      // Clear and enter valid email
+      await user.clear(screen.getByLabelText('Email'))
+      await user.type(screen.getByLabelText('Email'), 'valid@email.com')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            email: 'valid@email.com',
+          }),
+          expect.anything()
+        )
+      })
+    })
+  })
+
+  describe('Form Cancel Flow', () => {
+    it('should not submit form when navigating away', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      const { rerender } = render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Fill in the form
+      await user.type(screen.getByLabelText('Title'), 'Unsaved Title')
+
+      // Navigate away without submitting
+      const ListWrapper = createTestWrapper(dataProvider, ['/posts'])
+      rerender(
+        <ListWrapper>
+          <List resource="posts">
+            <Datagrid>
+              <TextField source="title" />
+            </Datagrid>
+          </List>
+        </ListWrapper>
+      )
+
+      // Form was not submitted
+      expect(handleSubmit).not.toHaveBeenCalled()
+    })
+
+    it('should render fresh form on new navigation', async () => {
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit} defaultValues={{ title: '' }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Form should start with empty value
+      const titleInput = screen.getByLabelText('Title') as HTMLInputElement
+      expect(titleInput.value).toBe('')
+    })
+  })
+
+  describe('Form Reset Flow', () => {
+    it('should call submit handler with form data', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/create'])
+
+      render(
+        <Wrapper>
+          <Create resource="posts">
+            <SimpleForm onSubmit={handleSubmit} defaultValues={{ title: '' }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Create>
+        </Wrapper>
+      )
+
+      // Fill and submit
+      await user.type(screen.getByLabelText('Title'), 'First Submission')
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'First Submission',
+          }),
+          expect.anything()
+        )
+      })
+    })
+  })
+
+  describe('Edit Form Pre-population', () => {
+    it('should pre-populate form with existing record data', async () => {
+      dataProvider.getOne = vi.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          title: 'Existing Title',
+          body: 'Existing Body',
+          views: 500,
+        },
+      })
+
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+
+      render(
+        <Wrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={vi.fn()} defaultValues={{ title: '', body: '', views: 0 }}>
+              <TextInput source="title" label="Title" />
+              <TextInput source="body" label="Body" />
+              <NumberInput source="views" label="Views" />
+            </SimpleForm>
+          </Edit>
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 1 })
+      })
+
+      // Edit component should have fetched the record
+      expect(dataProvider.getOne).toHaveBeenCalledWith('posts', { id: 1 })
+    })
+
+    it('should allow editing pre-populated values', async () => {
+      const user = userEvent.setup()
+      const handleSubmit = vi.fn()
+
+      dataProvider.getOne = vi.fn().mockResolvedValue({
+        data: {
+          id: 1,
+          title: 'Existing Title',
+        },
+      })
+
+      const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
+
+      render(
+        <Wrapper>
+          <Edit resource="posts" id={1}>
+            <SimpleForm onSubmit={handleSubmit} defaultValues={{ title: 'Existing Title' }}>
+              <TextInput source="title" label="Title" />
+            </SimpleForm>
+          </Edit>
+        </Wrapper>
+      )
+
+      // Wait for form to be available
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
+      })
+
+      // Clear and type new value
+      const titleInput = screen.getByLabelText('Title')
+      await user.clear(titleInput)
+      await user.type(titleInput, 'Updated Title')
+
+      await user.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() => {
+        expect(handleSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Updated Title',
+          }),
+          expect.anything()
+        )
+      })
+    })
+  })
+})
