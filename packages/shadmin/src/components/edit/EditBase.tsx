@@ -6,7 +6,7 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import { type ReactNode, useCallback, useMemo, useState, useEffect } from 'react'
+import { type ReactNode, useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import { useForm, type FieldValues } from 'react-hook-form'
 import { RecordContextProvider } from '../../contexts/RecordContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
@@ -27,6 +27,26 @@ export type RedirectTo =
   | false
   | string
   | ((resource: string, id: Identifier, data?: RaRecord) => string)
+
+/**
+ * Context passed to onBeforeSave callback
+ */
+export interface BeforeSaveContext {
+  resource: string
+  id: Identifier
+  data: Record<string, unknown>
+  previousData?: RaRecord
+}
+
+/**
+ * Context passed to onAfterSave callback
+ */
+export interface AfterSaveContext<RecordType extends RaRecord = RaRecord> {
+  resource: string
+  id: Identifier
+  data: Record<string, unknown>
+  result: UpdateResult<RecordType>
+}
 
 /**
  * Props for EditBase component
@@ -54,6 +74,10 @@ export interface EditBaseProps<RecordType extends RaRecord = RaRecord> {
   }
   /** Whether to disable authentication check */
   disableAuthentication?: boolean
+  /** Called before save - can modify data or abort by returning false or throwing */
+  onBeforeSave?: (context: BeforeSaveContext) => Record<string, unknown> | false | void | Promise<Record<string, unknown> | false | void>
+  /** Called after successful save */
+  onAfterSave?: (context: AfterSaveContext<RecordType>) => void | Promise<void>
 }
 
 /**
@@ -89,7 +113,9 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
   transform,
   queryOptions,
   mutationOptions,
-  disableAuthentication = false,
+  disableAuthentication: _disableAuthentication = false,
+  onBeforeSave,
+  onAfterSave,
 }: EditBaseProps<RecordType>) {
   // Get resource from context if not provided
   const resourceFromContext = useResourceContext()
@@ -124,9 +150,9 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
   const {
     data: record,
     isLoading,
-    isFetching,
-    error,
-    refetch,
+    isFetching: _isFetching,
+    error: _error,
+    refetch: _refetch,
   } = useGetOne<RecordType>(
     resource,
     { id, meta },
@@ -148,6 +174,10 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
 
   // The record to show - use localRecord which gets updated after save
   const displayRecord = localRecord ?? record
+
+  // Ref to hold the current displayRecord for use in save callback
+  const displayRecordRef = useRef<RecordType | undefined>(displayRecord)
+  displayRecordRef.current = displayRecord
 
   // Form setup
   const form = useForm<FieldValues>({
@@ -193,13 +223,34 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
   // Save function
   const save = useCallback(
     async (values: Record<string, unknown>) => {
+      // Use ref to get the most recent record data (works even if displayRecord changed after save was created)
+      const previousData = displayRecordRef.current as RecordType
+
+      // Call onBeforeSave if provided
+      if (onBeforeSave) {
+        const beforeSaveResult = await onBeforeSave({
+          resource,
+          id,
+          data: values,
+          previousData,
+        })
+
+        // If onBeforeSave returns false, abort the save
+        if (beforeSaveResult === false) {
+          return
+        }
+
+        // If onBeforeSave returns modified data, use it
+        if (beforeSaveResult && typeof beforeSaveResult === 'object') {
+          values = beforeSaveResult
+        }
+      }
+
       // Transform data if transform function provided
       let dataToSave = values
       if (transform) {
         dataToSave = await transform(values)
       }
-
-      const previousData = record as RecordType
 
       // For optimistic mode, update local state immediately
       if (mutationMode === 'optimistic') {
@@ -226,6 +277,16 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
         // Call onSuccess callback if provided
         mutationOptions?.onSuccess?.(result, { id, data: dataToSave, previousData }, undefined)
 
+        // Call onAfterSave if provided
+        if (onAfterSave) {
+          await onAfterSave({
+            resource,
+            id,
+            data: dataToSave,
+            result,
+          })
+        }
+
         // Show success notification
         notify('Element updated', { type: 'success' })
 
@@ -251,7 +312,7 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
         throw err
       }
     },
-    [id, record, update, transform, mutationMode, mutationOptions, getRedirectPath, navigate, notify]
+    [id, update, transform, mutationMode, mutationOptions, getRedirectPath, navigate, notify, onBeforeSave, onAfterSave, resource]
   )
 
   // Build context value
@@ -266,6 +327,11 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
     }),
     [form, displayRecord, resource, save, isUpdating, mutationMode]
   )
+
+  // Don't render children until record is loaded
+  if (isLoading || !displayRecord) {
+    return null
+  }
 
   // Wrap with ResourceContext if resource prop was provided
   const content = (

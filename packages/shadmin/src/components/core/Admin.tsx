@@ -17,12 +17,24 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
+  useRef,
 } from 'react'
 import { ResourceDefinitionContextProvider, type ResourceDefinitions } from '../../contexts'
-import type { AdminProps, ResourceProps, ResourceDefinition, ErrorProps } from '../../types'
+import type { AdminProps, ResourceProps, ResourceDefinition, ErrorProps, DataProvider, AdminPlugin, AdminPluginContext } from '../../types'
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
+import { ThemeProvider, type CustomTheme } from './ThemeProvider'
+
+/**
+ * Menu item added by plugins
+ */
+export interface MenuItem {
+  name: string
+  path: string
+  icon?: ReactNode
+}
 
 /**
  * Extract Resource children and convert to ResourceProps[]
@@ -151,9 +163,9 @@ export const Admin = ({
   authProvider,
   layout,
   dashboard,
-  // Theme props reserved for future theming support
-  theme: _theme,
-  darkTheme: _darkTheme,
+  // Theme props for theming support
+  theme,
+  darkTheme,
   basename = '',
   // Title prop reserved for document title/branding
   title: _title = 'Shadmin',
@@ -165,6 +177,7 @@ export const Admin = ({
   loading: _loading,
   notification: _notification,
   ready: _ready,
+  plugins = [],
 }: AdminProps): ReactElement => {
   // Use custom error component or default
   const ErrorComponent = error ?? DefaultErrorComponent
@@ -173,6 +186,18 @@ export const Admin = ({
   const [registeredResources, setRegisteredResources] = useState<
     Map<string, { definition: ResourceDefinition; props: ResourceProps }>
   >(new Map())
+
+  // State for plugin-added resources
+  const [pluginResources, setPluginResources] = useState<ResourceProps[]>([])
+
+  // State for plugin-added menu items
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
+
+  // State for wrapped data provider
+  const [wrappedDataProvider, setWrappedDataProvider] = useState<DataProvider>(dataProvider)
+
+  // Ref to track cleanup functions from plugins
+  const cleanupFunctionsRef = useRef<Array<() => void>>([])
 
   // Registration functions for Resource components
   const register = useCallback(
@@ -199,47 +224,123 @@ export const Admin = ({
     [register, unregister]
   )
 
+  // Plugin system functions
+  const addResource = useCallback((resource: { name: string; list?: ComponentType; edit?: ComponentType; create?: ComponentType; show?: ComponentType }) => {
+    setPluginResources((prev) => {
+      // Check if resource already exists
+      if (prev.some(r => r.name === resource.name)) {
+        return prev
+      }
+      return [...prev, resource as ResourceProps]
+    })
+  }, [])
+
+  const addMenuItem = useCallback((item: { name: string; path: string; icon?: ReactNode }) => {
+    setMenuItems((prev) => {
+      // Check if menu item already exists
+      if (prev.some(m => m.path === item.path)) {
+        return prev
+      }
+      return [...prev, item]
+    })
+  }, [])
+
+  const wrapDataProvider = useCallback((wrapper: (dp: DataProvider) => DataProvider) => {
+    setWrappedDataProvider((prev) => wrapper(prev))
+  }, [])
+
+  const onUnmount = useCallback((cleanup: () => void) => {
+    cleanupFunctionsRef.current.push(cleanup)
+  }, [])
+
+  // Install plugins
+  useEffect(() => {
+    const pluginContext: AdminPluginContext = {
+      dataProvider,
+      addResource,
+      addMenuItem,
+      wrapDataProvider,
+      onUnmount,
+    }
+
+    // Install each plugin
+    plugins.forEach((plugin) => {
+      if (typeof plugin.install === 'function') {
+        const cleanup = plugin.install(pluginContext)
+        if (typeof cleanup === 'function') {
+          cleanupFunctionsRef.current.push(cleanup)
+        }
+      }
+    })
+
+    // Return cleanup function
+    return () => {
+      cleanupFunctionsRef.current.forEach((cleanup) => cleanup())
+      cleanupFunctionsRef.current = []
+    }
+  }, [plugins, dataProvider, addResource, addMenuItem, wrapDataProvider, onUnmount])
+
   // Convert registered resources to definitions object for context
   const resourceDefinitions: ResourceDefinitions = useMemo(() => {
     const definitions: ResourceDefinitions = {}
     registeredResources.forEach(({ definition }, name) => {
       definitions[name] = definition
     })
+    // Add plugin resources
+    pluginResources.forEach((resource) => {
+      definitions[resource.name] = {
+        name: resource.name,
+        hasList: !!resource.list,
+        hasEdit: !!resource.edit,
+        hasShow: !!resource.show,
+        hasCreate: !!resource.create,
+      }
+    })
     return definitions
-  }, [registeredResources])
+  }, [registeredResources, pluginResources])
 
   // Get resources array for routing
   const resourcesArray: ResourceProps[] = useMemo(() => {
     // First try to extract from direct children
     const fromChildren = extractResourceProps(children)
-    if (fromChildren.length > 0) {
-      return fromChildren
+
+    // Combine children resources with plugin resources
+    const allResources = [
+      ...fromChildren,
+      ...pluginResources,
+    ]
+
+    if (allResources.length > 0) {
+      return allResources
     }
 
     // Fall back to registered resources
     return Array.from(registeredResources.values()).map(({ props }) => props)
-  }, [children, registeredResources])
+  }, [children, registeredResources, pluginResources])
 
   return (
-    <CoreAdminContext
-      dataProvider={dataProvider}
-      authProvider={authProvider}
-      basename={basename}
-    >
-      <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
-        <ResourceRegistrationContext.Provider value={registrationValue}>
-          <ErrorBoundary ErrorComponent={ErrorComponent}>
-            {/* Render Resource children so they can register */}
-            {children}
-            {/* Render routes */}
-            <CoreAdminRoutes
-              resources={resourcesArray}
-              dashboard={dashboard}
-              layout={layout}
-            />
-          </ErrorBoundary>
-        </ResourceRegistrationContext.Provider>
-      </ResourceDefinitionContextProvider>
-    </CoreAdminContext>
+    <ThemeProvider theme={theme as CustomTheme} darkTheme={darkTheme as CustomTheme}>
+      <CoreAdminContext
+        dataProvider={wrappedDataProvider}
+        authProvider={authProvider}
+        basename={basename}
+      >
+        <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
+          <ResourceRegistrationContext.Provider value={registrationValue}>
+            <ErrorBoundary ErrorComponent={ErrorComponent}>
+              {/* Render Resource children so they can register */}
+              {children}
+              {/* Render routes with plugin menu items */}
+              <CoreAdminRoutes
+                resources={resourcesArray}
+                dashboard={dashboard}
+                layout={layout}
+                menuItems={menuItems}
+              />
+            </ErrorBoundary>
+          </ResourceRegistrationContext.Provider>
+        </ResourceDefinitionContextProvider>
+      </CoreAdminContext>
+    </ThemeProvider>
   )
 }

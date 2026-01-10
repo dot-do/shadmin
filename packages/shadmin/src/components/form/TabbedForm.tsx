@@ -14,7 +14,6 @@ import {
   Children,
   isValidElement,
   type ReactNode,
-  type ReactElement,
 } from 'react'
 import { useFormContext } from '../../contexts/FormContext'
 import { useTestSearchParams } from '../../test-utils/TestMemoryRouter'
@@ -138,7 +137,7 @@ type FieldTabMap = Map<string, string>
 function extractTabs(children: ReactNode): TabInfo[] {
   const tabs: TabInfo[] = []
 
-  Children.forEach(children, (child, index) => {
+  Children.forEach(children, (child, _index) => {
     if (!isValidElement(child)) return
     if (child.type !== FormTab) return
 

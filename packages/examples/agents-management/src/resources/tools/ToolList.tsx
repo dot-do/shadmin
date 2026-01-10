@@ -8,7 +8,6 @@ import {
   TextField,
   NumberField,
   DateField,
-  BooleanField,
   FunctionField,
 } from 'shadmin'
 import type { Tool } from '../../dataProvider'

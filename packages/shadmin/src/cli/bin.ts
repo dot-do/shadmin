@@ -15,8 +15,11 @@ import { parseArgs, createViteConfig } from './commands'
 import { scanResources } from './scanner'
 import { shouldShowInteractiveMenu } from './interactive'
 import { showInteractiveMenu } from './InteractiveMenu'
+import { createRequire } from 'module'
 
-const VERSION = '0.0.1'
+const require = createRequire(import.meta.url)
+const pkg = require('../../package.json')
+const VERSION = pkg.version
 
 const HELP_TEXT = `
 shadmin - Zero-config admin runner
@@ -35,7 +38,7 @@ Commands:
 Options:
   -p, --port <port>    Port number (default: 5173)
   --host [host]        Expose to network (default: localhost)
-  --no-open            Don't open browser on start (opens by default)
+  -o, --open           Open browser on start
   --root <path>        Root directory (default: .)
   -c, --config <path>  Path to shadmin config file
   --outDir <dir>       Output directory for build (default: dist)
@@ -43,10 +46,9 @@ Options:
   -v, --version        Show version
 
 Examples:
-  shadmin                   # Dev server, opens browser
+  shadmin                   # Dev server (shows menu if no resources)
   shadmin ./my-admin        # Dev server in ./my-admin
-  shadmin --no-open         # Dev server without opening browser
-  shadmin -p 3000           # Dev server on port 3000
+  shadmin -p 3000 -o        # Dev server on port 3000, open browser
   shadmin init              # Interactive template selection
   shadmin build             # Build for production
   shadmin preview           # Preview production build

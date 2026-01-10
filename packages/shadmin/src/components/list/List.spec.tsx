@@ -24,7 +24,7 @@ import { useListContext, type ListControllerResult } from '../../contexts/ListCo
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
 import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import type { DataProvider } from '../../types'
-import { TestMemoryRouter, useTestSearchParams, useTestLocation } from '../../test-utils'
+import { TestMemoryRouter, useTestSearchParams, useTestLocation, useTestRouter } from '../../test-utils'
 
 // Test wrapper with required providers
 const createWrapper = (dataProvider: DataProvider, initialEntries: string[] = ['/posts']) => {
@@ -1274,5 +1274,680 @@ describe('ListView Component', () => {
     )
 
     expect(screen.getByTestId('empty')).toBeInTheDocument()
+  })
+})
+
+/**
+ * List URL Integration Tests
+ * TDD: RED phase - Write failing tests first
+ *
+ * Issue: shadmin-1cve
+ *
+ * These tests verify that List component properly integrates with URL state:
+ * - Reads initial state from URL on mount
+ * - Updates URL when Datagrid sort clicks occur
+ * - Updates URL when Pagination clicks occur
+ * - Updates URL when Filter changes occur
+ */
+describe('List URL Integration', () => {
+  let dataProvider: DataProvider
+
+  beforeEach(() => {
+    dataProvider = {
+      getList: vi.fn().mockResolvedValue({
+        data: [
+          { id: 1, title: 'Post 1', author: 'John' },
+          { id: 2, title: 'Post 2', author: 'Jane' },
+          { id: 3, title: 'Post 3', author: 'Bob' },
+        ],
+        total: 30, // Enough for pagination
+      }),
+      getOne: vi.fn(),
+      getMany: vi.fn(),
+      getManyReference: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+    }
+  })
+
+  describe('List reads filters from URL on mount', () => {
+    it('should read page from URL and use it for data fetching', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts?page=3']}>
+              <ResourceContextProvider value="posts">
+                <List>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith('posts', expect.objectContaining({
+          pagination: expect.objectContaining({ page: 3 }),
+        }))
+      })
+    })
+
+    it('should read perPage from URL and use it for data fetching', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts?perPage=50']}>
+              <ResourceContextProvider value="posts">
+                <List>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith('posts', expect.objectContaining({
+          pagination: expect.objectContaining({ perPage: 50 }),
+        }))
+      })
+    })
+
+    it('should read sort from URL and use it for data fetching', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts?sort=title&order=DESC']}>
+              <ResourceContextProvider value="posts">
+                <List>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith('posts', expect.objectContaining({
+          sort: { field: 'title', order: 'DESC' },
+        }))
+      })
+    })
+
+    it('should read filter from URL and use it for data fetching', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+      const filter = { search: 'test', status: 'active' }
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={[`/posts?filter=${encodeURIComponent(JSON.stringify(filter))}`]}>
+              <ResourceContextProvider value="posts">
+                <List>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith('posts', expect.objectContaining({
+          filter: expect.objectContaining({ search: 'test', status: 'active' }),
+        }))
+      })
+    })
+
+    it('should read multiple URL params and combine them', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+      const filter = { author: 'John' }
+      const url = `/posts?page=2&perPage=25&sort=author&order=ASC&filter=${encodeURIComponent(JSON.stringify(filter))}`
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={[url]}>
+              <ResourceContextProvider value="posts">
+                <List>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith('posts', expect.objectContaining({
+          pagination: { page: 2, perPage: 25 },
+          sort: { field: 'author', order: 'ASC' },
+          filter: expect.objectContaining({ author: 'John' }),
+        }))
+      })
+    })
+  })
+
+  describe('Datagrid sort clicks update URL', () => {
+    it('should update URL when clicking a sortable column header', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      // Import Datagrid for this test
+      const { Datagrid } = await import('./Datagrid')
+      const { TextField } = await import('../field/TextField')
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List>
+                  <Datagrid>
+                    <TextField source="title" />
+                    <TextField source="author" />
+                  </Datagrid>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      // Wait for initial render
+      await waitFor(() => {
+        expect(screen.getByTestId('column-header-title')).toBeInTheDocument()
+      })
+
+      // Click on title column header to sort
+      fireEvent.click(screen.getByTestId('column-header-title'))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('sort=title')
+      })
+    })
+
+    it('should toggle sort order in URL on subsequent clicks', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const { Datagrid } = await import('./Datagrid')
+      const { TextField } = await import('../field/TextField')
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts?sort=title&order=ASC']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List>
+                  <Datagrid>
+                    <TextField source="title" />
+                  </Datagrid>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('column-header-title')).toBeInTheDocument()
+      })
+
+      // Click on title column header to toggle sort order
+      fireEvent.click(screen.getByTestId('column-header-title'))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('order=DESC')
+      })
+    })
+  })
+
+  describe('Pagination clicks update URL', () => {
+    it('should update URL when clicking next page', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const { Pagination } = await import('./Pagination')
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List pagination={<Pagination />}>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('page=2')
+      })
+    })
+
+    it('should update URL when clicking a specific page number', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const { Pagination } = await import('./Pagination')
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List pagination={<Pagination />}>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /page 3/i })).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByRole('button', { name: /page 3/i }))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('page=3')
+      })
+    })
+
+    it('should update URL when changing perPage', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const { Pagination } = await import('./Pagination')
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List pagination={<Pagination rowsPerPageOptions={[10, 25, 50]} />}>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      // Open the select dropdown and choose 25
+      fireEvent.click(screen.getByRole('combobox'))
+      fireEvent.click(screen.getByRole('option', { name: '25' }))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('perPage=25')
+      })
+    })
+  })
+
+  describe('Filter changes update URL', () => {
+    it('should update URL when filter values change via setFilters', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const FilterButton = () => {
+        const { setFilters } = useListContext()
+        return (
+          <button onClick={() => setFilters({ search: 'hello' })}>
+            Apply Filter
+          </button>
+        )
+      }
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List>
+                  <FilterButton />
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Apply Filter')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('Apply Filter'))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('filter=')
+        const params = new URLSearchParams(locationSearch)
+        const filterParam = params.get('filter')
+        expect(filterParam).toBeTruthy()
+        expect(JSON.parse(filterParam!)).toEqual({ search: 'hello' })
+      })
+    })
+
+    it('should encode complex filter values in URL', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const FilterButton = () => {
+        const { setFilters } = useListContext()
+        return (
+          <button onClick={() => setFilters({
+            search: 'test & value',
+            status: ['active', 'pending'],
+            nested: { field: 'value' }
+          })}>
+            Apply Complex Filter
+          </button>
+        )
+      }
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List>
+                  <FilterButton />
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Apply Complex Filter')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByText('Apply Complex Filter'))
+
+      await waitFor(() => {
+        const params = new URLSearchParams(locationSearch)
+        const filterParam = params.get('filter')
+        expect(filterParam).toBeTruthy()
+        const parsed = JSON.parse(filterParam!)
+        expect(parsed.search).toBe('test & value')
+        expect(parsed.status).toEqual(['active', 'pending'])
+        expect(parsed.nested).toEqual({ field: 'value' })
+      })
+    })
+
+    it('should clear filter from URL when filter is emptied', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let locationSearch = ''
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        locationSearch = location.search
+        return null
+      }
+
+      const FilterControl = () => {
+        const { setFilters, filterValues } = useListContext()
+        return (
+          <div>
+            <button onClick={() => setFilters({ search: 'test' })}>Add Filter</button>
+            <button onClick={() => setFilters({})}>Clear Filter</button>
+            <span data-testid="filter-count">{Object.keys(filterValues).length}</span>
+          </div>
+        )
+      }
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List>
+                  <FilterControl />
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Add Filter')).toBeInTheDocument()
+      })
+
+      // Add a filter
+      fireEvent.click(screen.getByText('Add Filter'))
+
+      await waitFor(() => {
+        expect(locationSearch).toContain('filter=')
+      })
+
+      // Clear the filter
+      fireEvent.click(screen.getByText('Clear Filter'))
+
+      await waitFor(() => {
+        // Filter param should be removed or empty
+        const params = new URLSearchParams(locationSearch)
+        const filterParam = params.get('filter')
+        if (filterParam) {
+          expect(JSON.parse(filterParam)).toEqual({})
+        }
+      })
+    })
+  })
+
+  describe('URL state persistence across navigation', () => {
+    it('should preserve URL params when navigating back', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      let currentLocation = { pathname: '', search: '' }
+
+      const LocationDisplay = () => {
+        const location = useTestLocation()
+        currentLocation = { pathname: location.pathname, search: location.search }
+        return null
+      }
+
+      const NavigationTest = () => {
+        const { setPage } = useListContext()
+        const { navigate, goBack } = useTestRouter()
+        return (
+          <div>
+            <button onClick={() => setPage(5)}>Go to page 5</button>
+            <button onClick={() => navigate('/other')}>Navigate Away</button>
+            <button onClick={() => goBack()}>Go Back</button>
+          </div>
+        )
+      }
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={['/posts']}>
+              <ResourceContextProvider value="posts">
+                <LocationDisplay />
+                <List>
+                  <NavigationTest />
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Go to page 5')).toBeInTheDocument()
+      })
+
+      // Set page to 5
+      fireEvent.click(screen.getByText('Go to page 5'))
+
+      await waitFor(() => {
+        expect(currentLocation.search).toContain('page=5')
+      })
+
+      // Navigate away
+      fireEvent.click(screen.getByText('Navigate Away'))
+
+      await waitFor(() => {
+        expect(currentLocation.pathname).toBe('/other')
+      })
+
+      // Go back
+      fireEvent.click(screen.getByText('Go Back'))
+
+      await waitFor(() => {
+        expect(currentLocation.pathname).toBe('/posts')
+        expect(currentLocation.search).toContain('page=5')
+      })
+    })
+  })
+
+  describe('Shareable URLs', () => {
+    it('should produce a URL that can be shared and restored', async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      })
+
+      // Build a complex URL with all parameters
+      const filter = { search: 'react', category: 'tutorial' }
+      const shareableUrl = `/posts?page=3&perPage=25&sort=title&order=DESC&filter=${encodeURIComponent(JSON.stringify(filter))}`
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <DataProviderContextProvider dataProvider={dataProvider}>
+            <TestMemoryRouter initialEntries={[shareableUrl]}>
+              <ResourceContextProvider value="posts">
+                <List>
+                  <div data-testid="content">Content</div>
+                </List>
+              </ResourceContextProvider>
+            </TestMemoryRouter>
+          </DataProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      // Verify all params are correctly read and used
+      await waitFor(() => {
+        expect(dataProvider.getList).toHaveBeenCalledWith('posts', {
+          pagination: { page: 3, perPage: 25 },
+          sort: { field: 'title', order: 'DESC' },
+          filter: { search: 'react', category: 'tutorial' },
+        })
+      })
+    })
   })
 })

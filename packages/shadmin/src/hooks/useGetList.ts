@@ -8,7 +8,6 @@ import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { useDataProvider } from '../contexts/DataProviderContext'
 import type {
   RaRecord,
-  Identifier,
   GetListParams,
   GetListResult,
 } from '../types'

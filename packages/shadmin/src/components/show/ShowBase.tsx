@@ -6,7 +6,7 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import { type ReactNode, useMemo } from 'react'
+import { type ReactNode, useMemo, useEffect, useRef } from 'react'
 import { RecordContextProvider } from '../../contexts/RecordContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { useGetOne, type UseGetOneOptions } from '../../hooks/useGetOne'
@@ -43,7 +43,17 @@ export interface ShowBaseProps<RecordType extends RaRecord = RaRecord> {
   /** Child elements - can be ReactNode or a render function receiving controller result */
   children: ReactNode | ((props: ShowControllerResult<RecordType>) => ReactNode)
   /** React Query options to pass to useGetOne */
-  queryOptions?: UseGetOneOptions<RecordType> & { meta?: Record<string, unknown> }
+  queryOptions?: UseGetOneOptions<RecordType> & { meta?: Record<string, unknown>; onSuccess?: (data: RecordType) => void }
+  /** Transform the record data before providing to context */
+  transform?: (record: RecordType) => RecordType
+  /** Called when data is loaded */
+  onLoad?: (record: RecordType) => void
+  /** Called when there's an error */
+  onError?: (error: Error) => void
+  /** Called when component mounts */
+  onMount?: () => void
+  /** Called when component unmounts */
+  onUnmount?: () => void
 }
 
 /**
@@ -74,6 +84,11 @@ export function ShowBase<RecordType extends RaRecord = RaRecord>({
   resource: resourceProp,
   children,
   queryOptions,
+  transform,
+  onLoad,
+  onError,
+  onMount,
+  onUnmount,
 }: ShowBaseProps<RecordType>) {
   // Get resource from context if not provided
   const resourceFromContext = useResourceContext()
@@ -83,12 +98,12 @@ export function ShowBase<RecordType extends RaRecord = RaRecord>({
     throw new Error('ShowBase requires a resource prop or must be used inside a ResourceContextProvider')
   }
 
-  // Extract meta from queryOptions for the getOne params
-  const { meta, ...restQueryOptions } = queryOptions ?? {}
+  // Extract meta and onSuccess from queryOptions for the getOne params
+  const { meta, onSuccess, ...restQueryOptions } = queryOptions ?? {}
 
   // Fetch record using useGetOne
   const {
-    data: record,
+    data: rawRecord,
     isLoading,
     isFetching,
     error,
@@ -98,6 +113,51 @@ export function ShowBase<RecordType extends RaRecord = RaRecord>({
     { id, meta },
     restQueryOptions
   )
+
+  // Apply transform if provided and record exists
+  const record = useMemo(() => {
+    if (rawRecord && transform) {
+      return transform(rawRecord)
+    }
+    return rawRecord
+  }, [rawRecord, transform])
+
+  // Track if callbacks have been called to avoid duplicate calls
+  const onLoadCalledRef = useRef(false)
+  const onErrorCalledRef = useRef(false)
+  const prevRecordIdRef = useRef<Identifier | undefined>(undefined)
+
+  // Handle onMount and onUnmount callbacks
+  useEffect(() => {
+    onMount?.()
+    return () => {
+      onUnmount?.()
+    }
+  }, []) // Empty deps - only run on mount/unmount
+
+  // Handle onLoad callback
+  useEffect(() => {
+    // Reset the flag when id changes
+    if (prevRecordIdRef.current !== id) {
+      onLoadCalledRef.current = false
+      onErrorCalledRef.current = false
+      prevRecordIdRef.current = id
+    }
+
+    if (rawRecord && !onLoadCalledRef.current) {
+      onLoadCalledRef.current = true
+      onLoad?.(rawRecord)
+      onSuccess?.(rawRecord)
+    }
+  }, [rawRecord, id, onLoad, onSuccess])
+
+  // Handle onError callback
+  useEffect(() => {
+    if (error && !onErrorCalledRef.current) {
+      onErrorCalledRef.current = true
+      onError?.(error)
+    }
+  }, [error, onError])
 
   // Build controller result for render prop
   const controllerResult = useMemo<ShowControllerResult<RecordType>>(

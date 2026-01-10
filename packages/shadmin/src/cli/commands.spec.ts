@@ -9,7 +9,7 @@
  * 4. Preview production builds
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
 // Mock the Vite React plugin to avoid esbuild issues in test environment
 vi.mock('@vitejs/plugin-react', () => ({
@@ -84,24 +84,6 @@ describe('CLI Commands', () => {
       const args = parseArgs(['dev', '-o'])
 
       expect(args.open).toBe(true)
-    })
-
-    it('should default open to true for dev command', () => {
-      const args = parseArgs(['dev'])
-
-      expect(args.open).toBe(true)
-    })
-
-    it('should default open to true when no command specified', () => {
-      const args = parseArgs([])
-
-      expect(args.open).toBe(true)
-    })
-
-    it('should parse --no-open to disable auto-open', () => {
-      const args = parseArgs(['dev', '--no-open'])
-
-      expect(args.open).toBe(false)
     })
 
     it('should parse --root option', () => {

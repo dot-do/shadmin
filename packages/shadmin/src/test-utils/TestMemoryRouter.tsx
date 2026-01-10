@@ -5,6 +5,7 @@
 
 import * as React from 'react'
 import { createContext, useContext, useState, useCallback, useMemo } from 'react'
+import { MemoryRouter as ReactRouterMemoryRouter } from 'react-router'
 
 /**
  * Location object representing the current route
@@ -201,7 +202,12 @@ export function TestMemoryRouter({
     [location, navigate, goBack, goForward]
   )
 
-  return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>
+  // Wrap in React Router's MemoryRouter to provide useLocation context
+  return (
+    <ReactRouterMemoryRouter initialEntries={initialEntries} initialIndex={initialIndex}>
+      <RouterContext.Provider value={value}>{children}</RouterContext.Provider>
+    </ReactRouterMemoryRouter>
+  )
 }
 
 /**

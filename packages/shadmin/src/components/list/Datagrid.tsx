@@ -15,28 +15,46 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getExpandedRowModel,
   flexRender,
   type ColumnDef,
   type SortingState,
   type RowSelectionState,
   type ExpandedState,
 } from '@tanstack/react-table'
-import { useListContext, type SortPayload, type Identifier } from '../../contexts/ListContext'
+import { useListContext, type Identifier } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
 import type { RaRecord } from '../../types'
-import { DatagridHeader } from './DatagridHeader'
-import { DatagridBody } from './DatagridBody'
-import { DatagridRow } from './DatagridRow'
+// Note: These components are available for future use
+// import { DatagridHeader } from './DatagridHeader'
+// import { DatagridBody } from './DatagridBody'
+// import { DatagridRow } from './DatagridRow'
+
+/**
+ * Cell renderer props for custom cell rendering
+ */
+export interface CellRendererProps<T = RaRecord> {
+  record: T
+  column: string
+  value: unknown
+  rowIndex: number
+}
 
 /**
  * Column configuration for Datagrid
  */
-export interface DatagridColumn {
+export interface DatagridColumn<T = RaRecord> {
   source: string
   label?: string
   sortable?: boolean
-  render?: (record: RaRecord) => ReactNode
+  render?: (props: CellRendererProps<T>) => ReactNode
+}
+
+/**
+ * Render props children for Datagrid
+ */
+export interface DatagridRenderProps<T = RaRecord> {
+  data: T[]
+  columns: DatagridColumn<T>[]
 }
 
 /**
@@ -52,10 +70,10 @@ export type RowClickHandler<T extends RaRecord = RaRecord> =
  * Props for Datagrid component
  */
 export interface DatagridProps<T extends RaRecord = RaRecord> {
-  /** Child field components - each becomes a column */
-  children?: ReactNode
+  /** Child field components - each becomes a column, or render props function */
+  children?: ReactNode | ((props: DatagridRenderProps<T>) => ReactNode)
   /** Explicit column configuration (alternative to children) */
-  columns?: DatagridColumn[]
+  columns?: DatagridColumn<T>[]
   /** Enable bulk action checkboxes */
   bulkActionButtons?: ReactNode | boolean
   /** Row click handler - 'edit', 'show', false, or custom function */
@@ -78,14 +96,16 @@ export interface DatagridProps<T extends RaRecord = RaRecord> {
   expand?: ReactNode
   /** Function to determine if a row can be expanded */
   isRowExpandable?: (record: T) => boolean
+  /** Custom cell renderer for all cells */
+  cellRenderer?: (props: CellRendererProps<T>) => ReactNode
 }
 
 /**
  * Extract column source from a child element
  */
 function getChildSource(child: ReactElement): string | undefined {
-  const props = child.props as { source?: string }
-  return props.source
+  const props = child.props as { source?: string; 'data-source'?: string }
+  return props.source || props['data-source']
 }
 
 /**
@@ -143,6 +163,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   size = 'default',
   expand,
   isRowExpandable,
+  cellRenderer,
 }: DatagridProps<T>) {
   const listContext = useListContext<T>()
   const {
@@ -171,41 +192,72 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   const expandedRowsRef = useRef(expandedRows)
   expandedRowsRef.current = expandedRows
 
+  // Check if children is a render props function
+  const isRenderProps = typeof children === 'function'
+
   // Build columns from children or columnsProp
-  const { tableColumns, childElements } = useMemo(() => {
+  const { tableColumns, childElements: _childElements, columnConfig } = useMemo(() => {
     const childElements: ReactElement[] = []
     const cols: ColumnDef<T>[] = []
+    const columnConfigArray: DatagridColumn<T>[] = []
 
     if (columnsProp) {
-      // Use explicit columns config
-      columnsProp.forEach((col) => {
+      // Use explicit columns config with per-column render support
+      columnsProp.forEach((col, index) => {
+        columnConfigArray.push(col)
         cols.push({
           id: col.source,
           accessorKey: col.source,
           header: col.label || capitalize(col.source),
           enableSorting: col.sortable !== false,
-          cell: col.render
-            ? ({ row }) => col.render!(row.original as RaRecord)
-            : ({ getValue }) => String(getValue() ?? ''),
+          cell: ({ row, getValue }) => {
+            const record = row.original
+            const value = getValue()
+            const rowIndex = row.index
+
+            // If column has its own render function, use it
+            if (col.render) {
+              return col.render({ record, column: col.source, value, rowIndex })
+            }
+
+            // If global cellRenderer is provided, use it
+            if (cellRenderer) {
+              return cellRenderer({ record, column: col.source, value, rowIndex })
+            }
+
+            return String(value ?? '')
+          },
         })
       })
-    } else if (children) {
+    } else if (children && !isRenderProps) {
       // Extract columns from children
-      Children.forEach(children, (child) => {
+      Children.forEach(children as ReactNode, (child) => {
         if (isValidElement(child)) {
           const source = getChildSource(child)
           if (source) {
             childElements.push(child)
+            columnConfigArray.push({ source })
             cols.push({
               id: source,
               accessorKey: source,
               header: capitalize(source),
               enableSorting: isChildSortable(child),
-              cell: ({ row }) => (
-                <RecordContextProvider value={row.original}>
-                  {child}
-                </RecordContextProvider>
-              ),
+              cell: ({ row, getValue }) => {
+                const record = row.original
+                const value = getValue()
+                const rowIndex = row.index
+
+                // If global cellRenderer is provided, use it
+                if (cellRenderer) {
+                  return cellRenderer({ record, column: source, value, rowIndex })
+                }
+
+                return (
+                  <RecordContextProvider value={record}>
+                    {child}
+                  </RecordContextProvider>
+                )
+              },
             })
           } else {
             // Child without source - still include it
@@ -225,8 +277,8 @@ export function Datagrid<T extends RaRecord = RaRecord>({
       })
     }
 
-    return { tableColumns: cols, childElements }
-  }, [children, columnsProp])
+    return { tableColumns: cols, childElements, columnConfig: columnConfigArray }
+  }, [children, columnsProp, cellRenderer, isRenderProps])
 
   // Toggle row expansion
   const toggleRowExpanded = useCallback((rowIndex: number) => {
@@ -443,6 +495,14 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   // Empty state
   const isEmpty = !data || data.length === 0
 
+  // If children is a render props function, call it with data and columns
+  if (isRenderProps && typeof children === 'function') {
+    return (children as (props: DatagridRenderProps<T>) => ReactNode)({
+      data: data ?? [],
+      columns: columnConfig,
+    })
+  }
+
   return (
     <div className="relative w-full overflow-auto">
       <table className={tableClasses}>
@@ -458,6 +518,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
                   <th
                     key={header.id}
                     scope="col"
+                    data-testid={`column-header-${header.column.id}`}
                     className={[
                       'h-10 px-2 text-left align-middle font-medium text-muted-foreground',
                       canSort && 'cursor-pointer select-none',

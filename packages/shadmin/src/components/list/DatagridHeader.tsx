@@ -37,7 +37,7 @@ export function DatagridHeader<T extends RaRecord = RaRecord>({
   headerGroups,
   sort,
   onSortChange,
-  showSelection = false,
+  showSelection: _showSelection = false,
 }: DatagridHeaderProps<T>) {
   return (
     <thead className="[&_tr]:border-b">

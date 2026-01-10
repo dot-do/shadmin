@@ -75,7 +75,7 @@ export function Dashboard() {
     filter: {},
   })
 
-  const { data: prompts = [], total: totalPrompts = 0 } = useGetList<Prompt>('prompts', {
+  const { total: totalPrompts = 0 } = useGetList<Prompt>('prompts', {
     pagination: { page: 1, perPage: 100 },
     sort: { field: 'usageCount', order: 'DESC' },
     filter: {},

@@ -7,6 +7,25 @@ import type { ComponentType, ReactNode } from 'react'
 import type { DataProvider } from './data-provider'
 import type { AuthProvider } from './auth-provider'
 
+/**
+ * Plugin interface for extending Admin functionality
+ */
+export interface AdminPlugin {
+  name: string
+  install: (context: AdminPluginContext) => void | (() => void)
+}
+
+/**
+ * Context passed to plugin install function
+ */
+export interface AdminPluginContext {
+  dataProvider: DataProvider
+  addResource: (resource: { name: string; list?: ComponentType; edit?: ComponentType; create?: ComponentType; show?: ComponentType }) => void
+  addMenuItem: (item: { name: string; path: string; icon?: ReactNode }) => void
+  wrapDataProvider: (wrapper: (dp: DataProvider) => DataProvider) => void
+  onUnmount: (cleanup: () => void) => void
+}
+
 export interface ThemeOptions {
   palette?: Record<string, unknown>
   typography?: Record<string, unknown>
@@ -57,6 +76,8 @@ export interface AdminProps {
   notification?: ComponentType
   /** Ready handler (optional) */
   ready?: ComponentType
+  /** Plugins to extend Admin functionality */
+  plugins?: AdminPlugin[]
 }
 
 export interface ErrorProps {

@@ -1,6 +1,6 @@
 {
   "name": "create-shadmin",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "CLI scaffolding tool for creating shadmin projects",
   "type": "module",
   "bin": {

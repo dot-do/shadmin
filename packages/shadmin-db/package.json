@@ -1,6 +1,6 @@
 {
   "name": "shadmin-db",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "mongo.do DataProvider integration for Shadmin",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -9,7 +9,7 @@
  * - Icon support
  */
 
-import { type ReactNode, type ComponentType, useMemo, useCallback } from 'react'
+import { type ReactNode, type ComponentType, useCallback } from 'react'
 import { cn } from '../../utils'
 import { useListContext } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'

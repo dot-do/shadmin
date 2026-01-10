@@ -53,18 +53,8 @@ function TicketHeader() {
   )
 }
 
-function TicketDescription() {
-  const { record } = useShowContext<Ticket>()
-
-  if (!record) return null
-
-  return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 className="text-lg font-semibold mb-4">Description</h2>
-      <p className="text-gray-700 whitespace-pre-wrap">{record.description}</p>
-    </div>
-  )
-}
+// Note: TicketDescription available for future use
+// function TicketDescription() { ... }
 
 function ConversationThread() {
   const { record } = useShowContext<Ticket>()

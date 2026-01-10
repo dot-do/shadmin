@@ -9,7 +9,7 @@ import { withThemeByClassName } from '@storybook/addon-themes'
  * Admin context decorator for Storybook
  * Provides necessary context for components that require admin providers
  */
-const withAdminContext: Decorator = (Story, context) => {
+const withAdminContext: Decorator = (Story, _context) => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Story />

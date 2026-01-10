@@ -24,6 +24,8 @@ export interface ListViewProps {
   filters?: ReactElement
   /** Component to display when the list is empty */
   empty?: ReactElement
+  /** Pagination component */
+  pagination?: ReactElement | false
   /** Additional CSS class name */
   className?: string
   /** Aside content (e.g., bulk action buttons) */
@@ -64,6 +66,7 @@ export function ListView({
   actions,
   filters,
   empty,
+  pagination,
   className,
   aside,
 }: ListViewProps) {
@@ -98,6 +101,7 @@ export function ListView({
       )}
       <CardContent>
         {showEmpty ? empty : children}
+        {pagination !== false && pagination}
       </CardContent>
       {aside}
     </Card>

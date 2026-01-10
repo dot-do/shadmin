@@ -9,7 +9,8 @@
  */
 
 import * as React from 'react'
-import { isValidElement, createElement } from 'react'
+// Note: isValidElement and createElement available for future use
+// import { isValidElement, createElement } from 'react'
 import { MenuItem, type MenuItemProps } from './MenuItem'
 
 /**

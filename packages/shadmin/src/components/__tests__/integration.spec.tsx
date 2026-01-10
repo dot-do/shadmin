@@ -13,7 +13,6 @@ import type { ReactNode } from 'react'
 
 // Components
 import { List } from '../list/List'
-import { ListBase } from '../list/ListBase'
 import { Datagrid } from '../list/Datagrid'
 import { Pagination } from '../list/Pagination'
 import { Create } from '../create/Create'
@@ -32,7 +31,6 @@ import { BooleanInput } from '../input/BooleanInput'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
 import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import { useListContext } from '../../contexts/ListContext'
 import type { DataProvider } from '../../types'
 import { MemoryRouter } from 'react-router'
 

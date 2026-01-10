@@ -7,8 +7,11 @@
  */
 
 import { type ReactNode, useCallback, useMemo, useState, useRef } from 'react'
+import { useForm, type FieldValues } from 'react-hook-form'
 import { CreateContextProvider, type SaveHandler } from './CreateContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
+import { FormContextProvider } from '../../contexts/FormContext'
+import { RecordContextProvider } from '../../contexts/RecordContext'
 import { useCreate, type UseCreateOptions } from '../../hooks/useCreate'
 import { useRedirect, type RedirectTo } from '../../hooks/useRedirect'
 import { useNotify } from '../../hooks/useNotify'
@@ -20,6 +23,23 @@ import type { RaRecord } from '../../types'
 export type TransformData<TData = Record<string, unknown>> = (
   data: TData
 ) => TData | Promise<TData>
+
+/**
+ * Context passed to onBeforeSave callback for create
+ */
+export interface CreateBeforeSaveContext<TData = Record<string, unknown>> {
+  resource: string
+  data: TData
+}
+
+/**
+ * Context passed to onAfterSave callback for create
+ */
+export interface CreateAfterSaveContext<RecordType extends RaRecord = RaRecord, TData = Record<string, unknown>> {
+  resource: string
+  data: TData
+  result: { data: RecordType }
+}
 
 /**
  * Props for CreateBase component
@@ -42,6 +62,10 @@ export interface CreateBaseProps<
   disableSuccessNotification?: boolean | undefined
   /** Disable the error notification */
   disableErrorNotification?: boolean | undefined
+  /** Called before save - can modify data or abort by returning false or throwing */
+  onBeforeSave?: (context: CreateBeforeSaveContext<TData>) => TData | false | void | Promise<TData | false | void>
+  /** Called after successful save */
+  onAfterSave?: (context: CreateAfterSaveContext<RecordType, TData>) => void | Promise<void>
 }
 
 /**
@@ -79,6 +103,8 @@ export function CreateBase<
   mutationOptions,
   disableSuccessNotification = false,
   disableErrorNotification = false,
+  onBeforeSave,
+  onAfterSave,
 }: CreateBaseProps<RecordType, TData>) {
   // Get resource from context if not provided
   const resourceFromContext = useResourceContext()
@@ -109,12 +135,15 @@ export function CreateBase<
     onError?: (error: Error) => void
   }>({})
 
+  // Store original data for onAfterSave callback
+  const originalDataRef = useRef<TData | null>(null)
+
   // Create the mutation with callbacks that read from ref
   const [create, { error: mutationError, reset }] = useCreate<RecordType, TData>(
     resource,
     {
       ...mutationOptions,
-      onSuccess: (result, variables, context) => {
+      onSuccess: async (result, variables, context) => {
         setIsSaving(false)
         setRecord(result.data)
 
@@ -126,6 +155,15 @@ export function CreateBase<
         // Call custom onSuccess from mutationOptions
         if (mutationOptions?.onSuccess) {
           mutationOptions.onSuccess(result, variables, context)
+        }
+
+        // Call onAfterSave if provided
+        if (onAfterSave && originalDataRef.current !== null) {
+          await onAfterSave({
+            resource,
+            data: originalDataRef.current,
+            result: { data: result.data },
+          })
         }
 
         // Call callback from save()
@@ -171,6 +209,29 @@ export function CreateBase<
         setLocalError(null)
         setIsSaving(true)
 
+        // Store original data for onAfterSave
+        originalDataRef.current = data
+
+        // Call onBeforeSave if provided
+        if (onBeforeSave) {
+          const beforeSaveResult = await onBeforeSave({
+            resource,
+            data,
+          })
+
+          // If onBeforeSave returns false, abort the save
+          if (beforeSaveResult === false) {
+            setIsSaving(false)
+            return
+          }
+
+          // If onBeforeSave returns modified data, use it
+          if (beforeSaveResult && typeof beforeSaveResult === 'object') {
+            data = beforeSaveResult as TData
+            originalDataRef.current = data
+          }
+        }
+
         // Apply transform if provided
         let transformedData = data
         if (transform) {
@@ -195,7 +256,7 @@ export function CreateBase<
         }
       }
     },
-    [create, transform, notify, disableErrorNotification]
+    [create, transform, notify, disableErrorNotification, onBeforeSave, resource]
   )
 
   // Reset handler
@@ -220,9 +281,41 @@ export function CreateBase<
     [resource, save, isSaving, error, handleReset, record]
   )
 
+  // Create a form for FormContext (empty for create)
+  const form = useForm<FieldValues>({
+    defaultValues: {},
+  })
+
+  // Create a save wrapper that works with FormContext's expected signature
+  const formSave = useCallback(
+    async (data: FieldValues) => {
+      await save(data as Record<string, unknown>)
+    },
+    [save]
+  )
+
+  // Build form context value for compatibility with useShadminFormContext
+  const formContextValue = useMemo(
+    () => ({
+      ...form,
+      record: record ?? undefined,
+      resource,
+      save: formSave,
+      saving: isSaving,
+      mutationMode: 'pessimistic' as const,
+    }),
+    [form, record, resource, formSave, isSaving]
+  )
+
   // Wrap with ResourceContext if resource prop was provided
   const content = (
-    <CreateContextProvider value={contextValue}>{children}</CreateContextProvider>
+    <CreateContextProvider value={contextValue}>
+      <RecordContextProvider value={record ?? undefined}>
+        <FormContextProvider {...formContextValue}>
+          {children}
+        </FormContextProvider>
+      </RecordContextProvider>
+    </CreateContextProvider>
   )
 
   if (resourceProp) {

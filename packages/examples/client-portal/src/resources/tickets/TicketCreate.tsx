@@ -1,6 +1,5 @@
-import { Create, SimpleForm, TextInput, SelectInput, useCreate, useNotify, useRedirect } from 'shadmin'
+import { useCreate, useNotify, useRedirect } from 'shadmin'
 import { useState } from 'react'
-import type { Ticket } from '../../dataProvider'
 
 /**
  * Ticket Create View
@@ -62,7 +61,7 @@ function TicketFormContent() {
 
       notify('Ticket created successfully', { type: 'success' })
       redirect('/tickets')
-    } catch (error) {
+    } catch {
       notify('Failed to create ticket', { type: 'error' })
     }
   }

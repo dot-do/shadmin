@@ -162,7 +162,7 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
       className,
       siblingCount = 1,
       boundaryCount = 1,
-      limit,
+      limit: _limit,
       ...props
     },
     ref

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act, type RenderResult } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm, useFormContext } from 'react-hook-form'
 import { SimpleForm, type SimpleFormProps } from './SimpleForm'
@@ -12,6 +12,18 @@ import { FormDataConsumer } from './FormDataConsumer'
 import { Toolbar, SaveButton, DeleteButton } from './Toolbar'
 import { TextInput } from '../input/TextInput'
 import { useShadminFormContext } from '../../contexts/FormContext'
+
+/**
+ * Helper to render SimpleForm and wait for react-hook-form to initialize.
+ * This ensures all async state updates from useForm are complete before assertions.
+ */
+async function renderSimpleForm(ui: React.ReactElement): Promise<RenderResult> {
+  let result: RenderResult
+  await act(async () => {
+    result = render(ui)
+  })
+  return result!
+}
 
 // Helper component that displays form context values for testing
 function FormContextDisplay() {
@@ -40,8 +52,8 @@ function ShadminContextDisplay() {
 
 describe('<SimpleForm />', () => {
   describe('Basic Props Interface', () => {
-    it('renders children inside a form element', () => {
-      render(
+    it('renders children inside a form element', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()}>
           <TextInput source="name" label="Name" />
         </SimpleForm>
@@ -51,8 +63,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByLabelText('Name')).toBeInTheDocument()
     })
 
-    it('applies className to form element', () => {
-      render(
+    it('applies className to form element', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} className="custom-form-class">
           <TextInput source="name" />
         </SimpleForm>
@@ -61,8 +73,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByRole('form')).toHaveClass('custom-form-class')
     })
 
-    it('applies id to form element', () => {
-      render(
+    it('applies id to form element', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} id="my-form">
           <TextInput source="name" />
         </SimpleForm>
@@ -71,8 +83,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByRole('form')).toHaveAttribute('id', 'my-form')
     })
 
-    it('passes resource prop to form context', () => {
-      render(
+    it('passes resource prop to form context', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} resource="users">
           <ShadminContextDisplay />
         </SimpleForm>
@@ -81,9 +93,9 @@ describe('<SimpleForm />', () => {
       expect(screen.getByTestId('resource')).toHaveTextContent('users')
     })
 
-    it('passes record prop to form context', () => {
+    it('passes record prop to form context', async () => {
       const record = { id: 123, name: 'Test User' }
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} record={record}>
           <ShadminContextDisplay />
         </SimpleForm>
@@ -92,8 +104,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByTestId('record-id')).toHaveTextContent('123')
     })
 
-    it('renders multiple children inputs', () => {
-      render(
+    it('renders multiple children inputs', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()}>
           <TextInput source="firstName" label="First Name" />
           <TextInput source="lastName" label="Last Name" />
@@ -106,8 +118,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByLabelText('Email')).toBeInTheDocument()
     })
 
-    it('renders inputs in a vertical stack layout', () => {
-      render(
+    it('renders inputs in a vertical stack layout', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()}>
           <TextInput source="firstName" />
           <TextInput source="lastName" />
@@ -121,9 +133,9 @@ describe('<SimpleForm />', () => {
   })
 
   describe('react-hook-form Integration', () => {
-    it('populates form with defaultValues', () => {
+    it('populates form with defaultValues', async () => {
       const defaultValues = { firstName: 'John', lastName: 'Doe' }
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} defaultValues={defaultValues}>
           <TextInput source="firstName" label="First Name" />
           <TextInput source="lastName" label="Last Name" />
@@ -138,7 +150,7 @@ describe('<SimpleForm />', () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ name: '' }}>
           <TextInput source="name" label="Name" />
         </SimpleForm>
@@ -161,7 +173,7 @@ describe('<SimpleForm />', () => {
         await new Promise((resolve) => setTimeout(resolve, 100))
       })
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ name: 'Test' }}>
           <TextInput source="name" label="Name" />
         </SimpleForm>
@@ -177,7 +189,7 @@ describe('<SimpleForm />', () => {
     it('supports mode prop for validation timing', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ email: '' }}
@@ -203,7 +215,7 @@ describe('<SimpleForm />', () => {
     it('supports reValidateMode prop', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: '' }}
@@ -239,8 +251,8 @@ describe('<SimpleForm />', () => {
   })
 
   describe('FormContext Provider', () => {
-    it('provides react-hook-form context to children', () => {
-      render(
+    it('provides react-hook-form context to children', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} defaultValues={{ test: 'value' }}>
           <FormContextDisplay />
         </SimpleForm>
@@ -249,8 +261,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByTestId('form-values')).toHaveTextContent('{"test":"value"}')
     })
 
-    it('provides shadmin form context to children', () => {
-      render(
+    it('provides shadmin form context to children', async () => {
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           resource="posts"
@@ -276,7 +288,7 @@ describe('<SimpleForm />', () => {
         )
       }
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} defaultValues={{ name: '' }}>
           <TextInput source="name" label="Name" />
           <ChildWithFormAccess />
@@ -294,7 +306,7 @@ describe('<SimpleForm />', () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ email: '' }}>
           <TextInput
             source="email"
@@ -315,7 +327,7 @@ describe('<SimpleForm />', () => {
     it('displays validation errors for multiple fields', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} defaultValues={{ firstName: '', lastName: '' }}>
           <TextInput
             source="firstName"
@@ -345,7 +357,7 @@ describe('<SimpleForm />', () => {
         return value === 'taken' ? 'Username is already taken' : true
       })
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ username: '' }}
@@ -370,7 +382,7 @@ describe('<SimpleForm />', () => {
     it('clears errors when valid input is provided', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: '' }}
@@ -413,7 +425,7 @@ describe('<SimpleForm />', () => {
         }
       })
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: '' }}
@@ -435,7 +447,7 @@ describe('<SimpleForm />', () => {
     it('tracks dirty state when form values change', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} defaultValues={{ name: 'Original' }}>
           <TextInput source="name" label="Name" />
           <FormContextDisplay />
@@ -455,7 +467,7 @@ describe('<SimpleForm />', () => {
     it('resets dirty state after successful submit', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: 'Original' }}
@@ -483,7 +495,7 @@ describe('<SimpleForm />', () => {
     it('returns to pristine when values match default', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} defaultValues={{ name: 'Original' }}>
           <TextInput source="name" label="Name" />
           <FormContextDisplay />
@@ -508,8 +520,8 @@ describe('<SimpleForm />', () => {
   })
 
   describe('Submit Button with Loading State', () => {
-    it('renders a save button by default', () => {
-      render(
+    it('renders a save button by default', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()}>
           <TextInput source="name" />
         </SimpleForm>
@@ -527,7 +539,7 @@ describe('<SimpleForm />', () => {
         })
       })
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ name: 'Test' }}>
           <TextInput source="name" label="Name" />
         </SimpleForm>
@@ -555,7 +567,7 @@ describe('<SimpleForm />', () => {
     it('disables submit button when form is invalid', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: '' }}
@@ -579,7 +591,7 @@ describe('<SimpleForm />', () => {
       })
     })
 
-    it('accepts custom toolbar component', () => {
+    it('accepts custom toolbar component', async () => {
       function CustomToolbar() {
         return (
           <div data-testid="custom-toolbar">
@@ -589,7 +601,7 @@ describe('<SimpleForm />', () => {
         )
       }
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} toolbar={<CustomToolbar />}>
           <TextInput source="name" />
         </SimpleForm>
@@ -600,8 +612,8 @@ describe('<SimpleForm />', () => {
       expect(screen.getByRole('button', { name: 'Custom Cancel' })).toBeInTheDocument()
     })
 
-    it('hides toolbar when toolbar is false', () => {
-      render(
+    it('hides toolbar when toolbar is false', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} toolbar={false}>
           <TextInput source="name" />
         </SimpleForm>
@@ -619,7 +631,7 @@ describe('<SimpleForm />', () => {
         })
       })
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ name: 'Test' }}>
           <TextInput source="name" label="Name" />
           <ShadminContextDisplay />
@@ -649,7 +661,7 @@ describe('<SimpleForm />', () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn().mockRejectedValue(new Error('Server error: Failed to save'))
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ name: 'Test' }}>
           <TextInput source="name" label="Name" />
         </SimpleForm>
@@ -668,7 +680,7 @@ describe('<SimpleForm />', () => {
         .mockRejectedValueOnce(new Error('Server error'))
         .mockResolvedValueOnce(undefined)
 
-      render(
+      await renderSimpleForm(
         <SimpleForm onSubmit={onSubmit} defaultValues={{ name: 'Test' }}>
           <TextInput source="name" label="Name" />
         </SimpleForm>
@@ -695,7 +707,7 @@ describe('<SimpleForm />', () => {
       const error = new Error('Custom error')
       const onSubmit = vi.fn().mockRejectedValue(error)
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={onSubmit}
           onError={onError}
@@ -746,7 +758,7 @@ describe('<SimpleForm />', () => {
     it('registers beforeunload handler when warnWhenUnsavedChanges is true and form is dirty', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: 'Original' }}
@@ -771,7 +783,7 @@ describe('<SimpleForm />', () => {
     it('does not register beforeunload handler when warnWhenUnsavedChanges is false', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: 'Original' }}
@@ -792,7 +804,7 @@ describe('<SimpleForm />', () => {
     it('removes beforeunload handler when form becomes pristine', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: 'Original' }}
@@ -824,15 +836,19 @@ describe('<SimpleForm />', () => {
     it('removes beforeunload handler on unmount', async () => {
       const user = userEvent.setup()
 
-      const { unmount } = render(
-        <SimpleForm
-          onSubmit={vi.fn()}
-          defaultValues={{ name: 'Original' }}
-          warnWhenUnsavedChanges
-        >
-          <TextInput source="name" label="Name" />
-        </SimpleForm>
-      )
+      let unmount: () => void
+      await act(async () => {
+        const result = render(
+          <SimpleForm
+            onSubmit={vi.fn()}
+            defaultValues={{ name: 'Original' }}
+            warnWhenUnsavedChanges
+          >
+            <TextInput source="name" label="Name" />
+          </SimpleForm>
+        )
+        unmount = result.unmount
+      })
 
       await user.clear(screen.getByLabelText('Name'))
       await user.type(screen.getByLabelText('Name'), 'Changed')
@@ -841,7 +857,7 @@ describe('<SimpleForm />', () => {
         expect(beforeUnloadHandler).not.toBeNull()
       })
 
-      unmount()
+      unmount!()
 
       expect(beforeUnloadHandler).toBeNull()
     })
@@ -849,7 +865,7 @@ describe('<SimpleForm />', () => {
     it('beforeunload handler prevents page leave with message', async () => {
       const user = userEvent.setup()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={vi.fn()}
           defaultValues={{ name: 'Original' }}
@@ -876,8 +892,8 @@ describe('<SimpleForm />', () => {
   })
 
   describe('Additional Features', () => {
-    it('supports noValidate prop', () => {
-      render(
+    it('supports noValidate prop', async () => {
+      await renderSimpleForm(
         <SimpleForm onSubmit={vi.fn()} noValidate>
           <TextInput source="email" type="email" />
         </SimpleForm>
@@ -890,7 +906,7 @@ describe('<SimpleForm />', () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={onSubmit}
           defaultValues={{ name: '', age: '' }}
@@ -924,7 +940,7 @@ describe('<SimpleForm />', () => {
         name: (data.name as string).toUpperCase(),
       }))
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={onSubmit}
           defaultValues={{ name: '' }}
@@ -951,7 +967,7 @@ describe('<SimpleForm />', () => {
       const onSuccess = vi.fn()
       const onSubmit = vi.fn().mockResolvedValue({ id: 1 })
 
-      render(
+      await renderSimpleForm(
         <SimpleForm
           onSubmit={onSubmit}
           onSuccess={onSuccess}
@@ -971,8 +987,8 @@ describe('<SimpleForm />', () => {
 })
 
 describe('<FormDataConsumer />', () => {
-  it('provides form data to render function', () => {
-    render(
+  it('provides form data to render function', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} defaultValues={{ firstName: 'John', lastName: 'Doe' }}>
         <FormDataConsumer>
           {({ formData }) => (
@@ -990,7 +1006,7 @@ describe('<FormDataConsumer />', () => {
   it('updates when form data changes', async () => {
     const user = userEvent.setup()
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} defaultValues={{ name: '' }}>
         <TextInput source="name" label="Name" />
         <FormDataConsumer>
@@ -1015,7 +1031,7 @@ describe('<FormDataConsumer />', () => {
   it('provides form methods (setValue, getValues, etc.)', async () => {
     const user = userEvent.setup()
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} defaultValues={{ count: 0 }}>
         <FormDataConsumer>
           {({ formData, setValue }) => (
@@ -1042,8 +1058,8 @@ describe('<FormDataConsumer />', () => {
     })
   })
 
-  it('supports source prop to scope data access', () => {
-    render(
+  it('supports source prop to scope data access', async () => {
+    await renderSimpleForm(
       <SimpleForm
         onSubmit={vi.fn()}
         defaultValues={{ user: { firstName: 'John', lastName: 'Doe' } }}
@@ -1063,8 +1079,8 @@ describe('<FormDataConsumer />', () => {
 })
 
 describe('<Toolbar />', () => {
-  it('renders default save button', () => {
-    render(
+  it('renders default save button', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar />
@@ -1074,8 +1090,8 @@ describe('<Toolbar />', () => {
     expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
   })
 
-  it('renders custom children', () => {
-    render(
+  it('renders custom children', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1089,8 +1105,8 @@ describe('<Toolbar />', () => {
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
   })
 
-  it('applies className to toolbar container', () => {
-    render(
+  it('applies className to toolbar container', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar className="custom-toolbar" data-testid="toolbar" />
@@ -1102,8 +1118,8 @@ describe('<Toolbar />', () => {
 })
 
 describe('<SaveButton />', () => {
-  it('renders with Save label by default', () => {
-    render(
+  it('renders with Save label by default', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1115,8 +1131,8 @@ describe('<SaveButton />', () => {
     expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
   })
 
-  it('accepts custom label', () => {
-    render(
+  it('accepts custom label', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1137,7 +1153,7 @@ describe('<SaveButton />', () => {
       })
     })
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={onSubmit} defaultValues={{ name: 'Test' }} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1162,8 +1178,8 @@ describe('<SaveButton />', () => {
     })
   })
 
-  it('supports disabled prop', () => {
-    render(
+  it('supports disabled prop', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1175,10 +1191,10 @@ describe('<SaveButton />', () => {
     expect(screen.getByRole('button', { name: /save/i })).toBeDisabled()
   })
 
-  it('supports icon prop', () => {
+  it('supports icon prop', async () => {
     const CustomIcon = () => <span data-testid="custom-icon">Icon</span>
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1192,8 +1208,8 @@ describe('<SaveButton />', () => {
 })
 
 describe('<DeleteButton />', () => {
-  it('renders delete button', () => {
-    render(
+  it('renders delete button', async () => {
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1213,7 +1229,7 @@ describe('<DeleteButton />', () => {
     const originalConfirm = window.confirm
     window.confirm = vi.fn().mockReturnValue(true)
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1237,7 +1253,7 @@ describe('<DeleteButton />', () => {
     const originalConfirm = window.confirm
     window.confirm = vi.fn().mockReturnValue(false)
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1259,7 +1275,7 @@ describe('<DeleteButton />', () => {
     const onDelete = vi.fn()
     const confirmSpy = vi.spyOn(window, 'confirm')
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>
@@ -1280,7 +1296,7 @@ describe('<DeleteButton />', () => {
     const user = userEvent.setup()
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
 
-    render(
+    await renderSimpleForm(
       <SimpleForm onSubmit={vi.fn()} toolbar={false}>
         <TextInput source="name" />
         <Toolbar>

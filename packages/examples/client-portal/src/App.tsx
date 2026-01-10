@@ -1,4 +1,4 @@
-import { Admin, Resource, Login, Layout, useGetIdentity, useLogout } from 'shadmin'
+import { Admin, Resource, useGetIdentity, useLogout } from 'shadmin'
 import type { ReactNode } from 'react'
 import { dataProvider } from './dataProvider'
 import { authProvider, DEMO_CREDENTIALS } from './authProvider'

@@ -7,12 +7,17 @@ import {
   useCallback,
   useEffect,
   useState,
+  cloneElement,
+  isValidElement,
+  Children,
   type FormHTMLAttributes,
   type ReactElement,
   type ReactNode,
+  type ComponentType,
 } from 'react'
 import {
   useForm,
+  useFormState,
   type DefaultValues,
   type FieldValues,
   type Mode,
@@ -23,6 +28,17 @@ import { FormContextProvider } from '../../contexts/FormContext'
 import type { RaRecord } from '../../types'
 import { cn } from '../../utils'
 import { Toolbar as DefaultToolbar } from './Toolbar'
+
+/**
+ * Props passed to the fieldWrapper component
+ */
+export interface FieldWrapperProps {
+  children: ReactNode
+  source: string
+  label?: string
+  isRequired?: boolean
+  error?: string
+}
 
 /**
  * Props for SimpleForm component
@@ -95,6 +111,10 @@ export interface SimpleFormProps<T extends FieldValues = FieldValues>
    * Handler called on submission error
    */
   onError?: (error: Error) => void
+  /**
+   * Custom component to wrap each field
+   */
+  fieldWrapper?: ComponentType<FieldWrapperProps>
 }
 
 /**
@@ -160,6 +180,7 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
   onError,
   className,
   noValidate,
+  fieldWrapper: FieldWrapper,
   ...formProps
 }: SimpleFormProps<T>): ReactElement {
   const [saving, setSaving] = useState(false)
@@ -174,7 +195,7 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
 
   const {
     handleSubmit,
-    formState: { isDirty, isValid, isSubmitting },
+    formState: { isDirty, isValid, isSubmitting: _isSubmitting },
     reset,
   } = form
 
@@ -234,6 +255,50 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
     )
   }
 
+  // Render children with fieldWrapper if provided
+  const renderChildren = () => {
+    if (!FieldWrapper) {
+      return children
+    }
+
+    return Children.map(children, (child) => {
+      if (!isValidElement(child)) {
+        return child
+      }
+
+      const childProps = child.props as {
+        source?: string
+        label?: string
+        rules?: { required?: string | boolean }
+      }
+
+      if (!childProps.source) {
+        return child
+      }
+
+      const source = childProps.source
+      const label = childProps.label
+      const isRequired = Boolean(
+        childProps.rules &&
+        (typeof childProps.rules.required === 'string' ||
+         childProps.rules.required === true)
+      )
+
+      return (
+        <FieldWrapperWithError
+          key={source}
+          FieldWrapper={FieldWrapper}
+          source={source}
+          label={label}
+          isRequired={isRequired}
+          control={form.control}
+        >
+          {child}
+        </FieldWrapperWithError>
+      )
+    })
+  }
+
   return (
     <FormContextProvider
       {...(form as unknown as UseFormReturn<FieldValues>)}
@@ -249,7 +314,7 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
         {...formProps}
       >
         <div className="flex flex-col space-y-4">
-          {children}
+          {renderChildren()}
         </div>
         {submitError && (
           <div className="text-sm text-destructive" role="alert">
@@ -263,6 +328,40 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
 }
 
 SimpleForm.displayName = 'SimpleForm'
+
+/**
+ * Helper component that wraps a field with the fieldWrapper and provides error from form state
+ */
+function FieldWrapperWithError<T extends FieldValues>({
+  FieldWrapper,
+  source,
+  label,
+  isRequired,
+  control,
+  children,
+}: {
+  FieldWrapper: ComponentType<FieldWrapperProps>
+  source: string
+  label?: string
+  isRequired: boolean
+  control: UseFormReturn<T>['control']
+  children: ReactNode
+}) {
+  const { errors } = useFormState({ control, name: source as never })
+  const fieldError = errors[source]
+  const errorMessage = fieldError?.message as string | undefined
+
+  return (
+    <FieldWrapper
+      source={source}
+      label={label}
+      isRequired={isRequired}
+      error={errorMessage}
+    >
+      {children}
+    </FieldWrapper>
+  )
+}
 
 /**
  * Hook to handle beforeunload warning when there are unsaved changes

@@ -101,7 +101,7 @@ interface ChildWithChoices {
  * ```
  */
 export function ReferenceArrayInput({
-  source,
+  source: _source,
   reference,
   filter = {},
   sort = { field: 'id', order: 'ASC' },
@@ -110,7 +110,7 @@ export function ReferenceArrayInput({
   children,
 }: ReferenceArrayInputProps) {
   // Fetch choices from the referenced resource
-  const { data, isLoading, error } = useGetList(reference, {
+  const { data, isLoading: _isLoading, error: _error } = useGetList(reference, {
     pagination: { page: 1, perPage },
     sort,
     filter,

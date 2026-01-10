@@ -9,7 +9,8 @@
 import type { ReactNode, ReactElement } from 'react'
 import { EditBase, type EditBaseProps, type RedirectTo } from './EditBase'
 import { EditView, type EditViewProps } from './EditView'
-import { useRecordContext } from '../../contexts/RecordContext'
+// Note: useRecordContext available for future use
+// import { useRecordContext } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
 import { useResourceContext } from '../../contexts/ResourceContext'
 import type { Identifier, RaRecord } from '../../types'

@@ -4,7 +4,6 @@ import {
   TextField,
   UrlField,
   FunctionField,
-  NumberField,
 } from 'shadmin'
 import type { Company } from '../../dataProvider'
 

@@ -66,7 +66,6 @@ export function parseArgs(args: string[]): CLIArgs {
     command: 'dev',
     root: process.cwd(),
     outDir: 'dist',
-    open: true,  // Auto-open browser by default
   }
 
   let i = 0
@@ -110,13 +109,6 @@ export function parseArgs(args: string[]): CLIArgs {
     // Open option
     if (arg === '--open' || arg === '-o') {
       result.open = true
-      i++
-      continue
-    }
-
-    // No-open option (disable auto-open)
-    if (arg === '--no-open') {
-      result.open = false
       i++
       continue
     }

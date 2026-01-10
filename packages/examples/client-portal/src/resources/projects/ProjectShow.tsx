@@ -1,4 +1,4 @@
-import { Show, SimpleShowLayout, TextField, DateField, NumberField, useShowContext } from 'shadmin'
+import { Show, useShowContext } from 'shadmin'
 import type { Project } from '../../dataProvider'
 
 /**

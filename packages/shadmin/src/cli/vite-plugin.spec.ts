@@ -13,7 +13,8 @@ import { mkdirSync, writeFileSync, rmSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { shadminPlugin, type ShadminPluginOptions } from './vite-plugin'
-import type { Plugin, ResolvedConfig } from 'vite'
+// Note: Vite types available for future use
+// import type { Plugin, ResolvedConfig } from 'vite'
 
 describe('shadmin Vite Plugin', () => {
   let testDir: string
@@ -98,7 +99,7 @@ describe('shadmin Vite Plugin', () => {
 
       const result = await load('\0virtual:shadmin-app.tsx')
 
-      // esbuild transforms JSX to js - uses double quotes and jsx() function calls
+      // esbuild classic JSX transform uses React.createElement with double quotes
       expect(result).toContain('import { Admin, Resource } from "shadmin"')
       expect(result).toContain('function App()')
       expect(result).toContain('export {')
@@ -127,11 +128,11 @@ describe('shadmin Vite Plugin', () => {
 
       const result = await load('\0virtual:shadmin-entry.tsx')
 
-      // esbuild transforms JSX to js - uses double quotes and jsx() function calls
+      // esbuild classic JSX transform uses React.createElement
       expect(result).toContain('import { createRoot } from "react-dom/client"')
       expect(result).toContain('import { App } from "virtual:shadmin-app"')
       expect(result).toContain('createRoot')
-      expect(result).toContain('jsx(App')
+      expect(result).toContain('React.createElement(App')
     })
 
     it('should return null for non-virtual modules', async () => {
@@ -312,8 +313,8 @@ describe('shadmin Vite Plugin', () => {
 
       const result = await load('\0virtual:shadmin-app.tsx')
 
-      // esbuild transforms JSX to js - jsx(Admin, {}) for empty children
-      expect(result).toContain('jsx(Admin')
+      // esbuild classic JSX transform uses React.createElement
+      expect(result).toContain('React.createElement(Admin')
       expect(result).not.toContain('Resource')
     })
   })

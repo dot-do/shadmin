@@ -8,13 +8,13 @@ function MetricCard({
   title,
   value,
   subtitle,
-  trend,
+  _trend,
   icon,
 }: {
   title: string
   value: string | number
   subtitle?: string
-  trend?: 'up' | 'down' | 'neutral'
+  _trend?: 'up' | 'down' | 'neutral'
   icon?: string
 }) {
   return (

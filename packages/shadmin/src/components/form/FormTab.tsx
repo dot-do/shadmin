@@ -72,13 +72,13 @@ export function generateTabName(label: string): string {
  * ```
  */
 export function FormTab({
-  label,
-  name,
-  children,
-  icon,
-  disabled,
-  className,
-  triggerClassName,
+  label: _label,
+  name: _name,
+  children: _children,
+  icon: _icon,
+  disabled: _disabled,
+  className: _className,
+  triggerClassName: _triggerClassName,
 }: FormTabProps) {
   // This component is a "configuration" component
   // TabbedForm reads the props and renders the actual tab UI

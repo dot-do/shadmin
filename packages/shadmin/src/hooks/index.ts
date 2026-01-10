@@ -34,10 +34,15 @@ export { useRefresh, type RefreshOptions, type RefreshFunction } from './useRefr
 // Auth hooks
 export { useLogin, type UseLoginOptions, type LoginOptions, type UseLoginResult } from './useLogin'
 export { useLogout, type UseLogoutOptions, type LogoutOptions, type UseLogoutResult } from './useLogout'
+export { usePermissions, type UsePermissionsOptions, type UsePermissionsResult } from './usePermissions'
+export { useCanAccess, type UseCanAccessParams, type UseCanAccessResult } from './useCanAccess'
 
 // Re-export context hooks for convenience
 export { useRecordContext } from '../contexts/RecordContext'
 export { useListContext, type ListControllerResult, type SortPayload, type SortOrder, type FilterPayload } from '../contexts/ListContext'
+
+// List params hook (URL state persistence)
+export { useListParams, type UseListParamsProps, type UseListParamsResult } from './useListParams'
 
 // Re-export types from types module for convenience
 export type { RaRecord, Identifier } from '../types'

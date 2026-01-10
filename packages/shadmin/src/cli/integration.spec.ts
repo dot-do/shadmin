@@ -10,10 +10,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'fs'
+import { mkdirSync, writeFileSync, rmSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
-import { scanResources, type ResourceDefinition } from './scanner'
+import { scanResources } from './scanner'
 import { generateEntryPoint, generateImports, generateResourceConfig } from './generator'
 import { shadminPlugin } from './vite-plugin'
 import { parseArgs, createViteConfig } from './commands'
@@ -342,11 +342,11 @@ export const options = { label: 'Products' }
       const load = plugin.load as Function
       const result = await load('\0virtual:shadmin-entry.tsx')
 
-      // Assert: Entry module bootstraps React (esbuild transforms JSX to js)
+      // Assert: Entry module bootstraps React (esbuild classic JSX transform)
       expect(result).toContain('import { createRoot } from "react-dom/client"')
       expect(result).toContain('import { App } from "virtual:shadmin-app"')
       expect(result).toContain('createRoot')
-      expect(result).toContain('jsx(App')
+      expect(result).toContain('React.createElement(App')
     })
 
     it('should respect plugin options in generated code', async () => {

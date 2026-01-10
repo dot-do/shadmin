@@ -4,7 +4,6 @@ import {
   ReferenceField,
   FunctionField,
   DateField,
-  BooleanField,
 } from 'shadmin'
 import type { Activity } from '../../dataProvider'
 

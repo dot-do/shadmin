@@ -5,16 +5,26 @@
  * Uses React Router 7 for route management
  */
 
-import { type ComponentType, type ReactNode, useMemo } from 'react'
-import { Routes, Route, useLocation } from 'react-router'
+import { type ComponentType, useMemo, type ReactNode } from 'react'
+import { useLocation } from 'react-router'
 import { ResourceContextProvider } from '../../contexts'
 import type { ResourceProps, AdminLayoutProps } from '../../types'
+
+/**
+ * Menu item interface for plugin-added menu items
+ */
+export interface MenuItem {
+  name: string
+  path: string
+  icon?: ReactNode
+}
 
 export interface CoreAdminRoutesProps {
   resources: ResourceProps[]
   dashboard?: ComponentType
   layout?: ComponentType<AdminLayoutProps>
   catchAll?: ComponentType
+  menuItems?: MenuItem[]
 }
 
 /**
@@ -52,8 +62,9 @@ const matchPath = (
 
 /**
  * Wrapper component that provides ResourceContext for resource routes
+ * Note: Available for future use when expanding route patterns
  */
-const ResourceRouteWrapper = ({
+const _ResourceRouteWrapper = ({
   resourceName,
   Component,
 }: {
@@ -77,6 +88,7 @@ export const CoreAdminRoutes = ({
   dashboard: Dashboard,
   layout: Layout,
   catchAll: CatchAll,
+  menuItems = [],
 }: CoreAdminRoutesProps) => {
   // Use React Router's location hook for route matching
   const location = useLocation()
@@ -161,14 +173,30 @@ export const CoreAdminRoutes = ({
 
   const content = renderContent()
 
+  // Render menu items
+  const renderMenuItems = () => {
+    return menuItems.map((item) => (
+      <div key={item.path} data-menu-item data-path={item.path}>
+        {item.icon}
+        <span>{item.name}</span>
+      </div>
+    ))
+  }
+
   // Wrap with Layout if provided
   if (Layout) {
     return (
       <Layout dashboard={Dashboard}>
+        {renderMenuItems()}
         {content}
       </Layout>
     )
   }
 
-  return <>{content}</>
+  return (
+    <>
+      {renderMenuItems()}
+      {content}
+    </>
+  )
 }

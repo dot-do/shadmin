@@ -115,7 +115,9 @@ export function generateEntryPoint(
     options
 
   // Build imports section
+  // Note: React import is required for classic JSX transform (React.createElement)
   const imports: string[] = [
+    "import React from 'react'",
     "import { BrowserRouter } from 'react-router'",
     "import { Admin, Resource } from 'shadmin'",
   ]

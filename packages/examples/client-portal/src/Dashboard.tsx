@@ -242,13 +242,8 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
     urgent: 'bg-red-100 text-red-700',
   }
 
-  const statusIcons: Record<string, string> = {
-    open: 'circle-dot',
-    in_progress: 'loader',
-    waiting_client: 'alert-circle',
-    resolved: 'check-circle',
-    closed: 'x-circle',
-  }
+  // Note: statusIcons available for future use
+  // const statusIcons = { open: 'circle-dot', in_progress: 'loader', ... }
 
   return (
     <div className="flex items-start space-x-3 p-3 border rounded-lg hover:border-blue-300 transition-colors">
@@ -282,18 +277,13 @@ function DocumentCard({ document }: { document: Document }) {
     other: 'bg-gray-100 text-gray-700',
   }
 
-  const fileIcons: Record<string, string> = {
-    pdf: 'file-text',
-    doc: 'file-text',
-    xls: 'table',
-    zip: 'archive',
-    img: 'image',
-  }
+  // Note: fileIcons available for future use
+  // const fileIcons = { pdf: 'file-text', doc: 'file-text', ... }
 
   return (
     <div className="flex items-center space-x-3 p-3 border rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
       <div className="flex-shrink-0 p-2 bg-gray-100 rounded">
-        <FileIcon type={document.fileType} />
+        <FileIcon />
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium text-gray-900 truncate">{document.name}</h4>
@@ -367,7 +357,7 @@ function StatusIcon({ status }: { status: string }) {
   )
 }
 
-function FileIcon({ type }: { type: string }) {
+function FileIcon() {
   return (
     <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />

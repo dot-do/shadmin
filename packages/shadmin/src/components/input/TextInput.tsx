@@ -7,6 +7,7 @@ import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
+import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
 
 /**
  * Props for TextInput component
@@ -31,6 +32,14 @@ export interface TextInputProps<T extends FieldValues = FieldValues>
    * Validation rules passed to react-hook-form.
    */
   rules?: RegisterOptions<T>
+  /**
+   * ReactAdmin-compatible validators for the validate prop.
+   * Can be a single validator or array of validators.
+   * @example
+   * validate={required()}
+   * validate={[required(), minLength(3)]}
+   */
+  validate?: ValidateProp
   /**
    * Additional props passed directly to the input element.
    */
@@ -100,6 +109,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       label,
       helperText,
       rules,
+      validate,
       inputProps,
       fullWidth,
       className,
@@ -119,6 +129,12 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     const errorId = `${inputId}-error`
     const helperId = `${inputId}-helper`
 
+    // Merge validate prop with rules
+    const mergedRules = mergeValidation(validate, rules)
+
+    // Determine if field is required (from validate prop or required attribute)
+    const isRequired = required || hasRequiredValidator(validate)
+
     const {
       field,
       fieldState: { error },
@@ -126,8 +142,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       name: source,
       control,
       rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
+        ...mergedRules,
+        required: required ? (mergedRules?.required || true) : mergedRules?.required,
       },
     })
 
@@ -139,7 +155,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>
             {displayLabel}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {isRequired && <span className="text-destructive ml-1">*</span>}
           </label>
         )}
         <input

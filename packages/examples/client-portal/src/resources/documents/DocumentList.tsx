@@ -125,26 +125,8 @@ function UploadButton() {
   )
 }
 
-function DocumentFilters() {
-  return (
-    <div className="flex gap-4 mb-4">
-      <select className="px-3 py-2 border rounded-md text-sm" defaultValue="">
-        <option value="">All Types</option>
-        <option value="contract">Contracts</option>
-        <option value="invoice">Invoices</option>
-        <option value="report">Reports</option>
-        <option value="deliverable">Deliverables</option>
-        <option value="other">Other</option>
-      </select>
-      <select className="px-3 py-2 border rounded-md text-sm" defaultValue="">
-        <option value="">All Projects</option>
-        <option value="proj-1">Website Redesign</option>
-        <option value="proj-2">Mobile App Development</option>
-        <option value="proj-3">SEO Campaign</option>
-      </select>
-    </div>
-  )
-}
+// Note: DocumentFilters available for future use
+// function DocumentFilters() { ... }
 
 export function DocumentList() {
   return (

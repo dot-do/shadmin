@@ -5,14 +5,22 @@
  */
 
 import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
 import type {
   RaRecord,
   Identifier,
   DeleteParams,
   DeleteResult,
+  GetListResult,
+  GetOneResult,
 } from '../types'
+
+// Helper type for cache snapshot
+interface DeleteCacheSnapshot {
+  getOne: { key: string; data: unknown } | null
+  lists: Array<{ key: string; data: unknown }>
+}
 
 /**
  * Parameters for the delete mutation
@@ -78,6 +86,9 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
   const dataProvider = useDataProvider()
   const queryClient = useQueryClient()
 
+  // Store previous cache state for rollback
+  const previousCacheRef = useRef<DeleteCacheSnapshot>({ getOne: null, lists: [] })
+
   const mutation = useMutation<
     DeleteResult<RecordType>,
     Error,
@@ -91,10 +102,97 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
       }
       return dataProvider.delete<RecordType>(res, deleteParams)
     },
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: [variables.resource] })
+
+      const cache = queryClient.getQueryCache()
+
+      // Snapshot the previous getOne cache - need to find all matching queries
+      // The getOne key can be either { id } or { id, meta }
+      const getOneQueries = cache.findAll({
+        queryKey: [variables.resource, 'getOne'],
+        predicate: (query) => {
+          const key = query.queryKey
+          if (key.length >= 3 && typeof key[2] === 'object' && key[2] !== null) {
+            return (key[2] as { id?: unknown }).id === variables.params.id
+          }
+          return false
+        },
+      })
+
+      if (getOneQueries.length > 0) {
+        const query = getOneQueries[0]
+        previousCacheRef.current.getOne = {
+          key: JSON.stringify(query.queryKey),
+          data: query.state.data,
+        }
+        // Optimistically clear getOne cache data - cancel, set to undefined, and remove
+        getOneQueries.forEach((q) => {
+          queryClient.cancelQueries({ queryKey: q.queryKey, exact: true })
+          // Set data to undefined first to prevent refetch
+          queryClient.setQueryData(q.queryKey, undefined)
+          queryClient.removeQueries({ queryKey: q.queryKey, exact: true })
+        })
+      } else {
+        previousCacheRef.current.getOne = null
+      }
+
+      // Snapshot and optimistically update list caches
+      const listQueries = cache.findAll({ queryKey: [variables.resource, 'getList'] })
+
+      previousCacheRef.current.lists = []
+      listQueries.forEach((query) => {
+        previousCacheRef.current.lists.push({
+          key: JSON.stringify(query.queryKey),
+          data: query.state.data,
+        })
+
+        queryClient.setQueryData<GetListResult<RecordType>>(query.queryKey, (oldData) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            data: oldData.data.filter((record) => record.id !== variables.params.id),
+            total: (oldData.total ?? 0) - 1,
+          }
+        })
+      })
+    },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getList'] })
-      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getMany'] })
-      queryClient.removeQueries({ queryKey: [variables.resource, 'getOne', { id: variables.params.id }] })
+      // Ensure the record is removed from caches (already done optimistically)
+      // Need to match any getOne query for this id
+      const cache = queryClient.getQueryCache()
+      const getOneQueries = cache.findAll({
+        queryKey: [variables.resource, 'getOne'],
+        predicate: (query) => {
+          const key = query.queryKey
+          if (key.length >= 3 && typeof key[2] === 'object' && key[2] !== null) {
+            return (key[2] as { id?: unknown }).id === variables.params.id
+          }
+          return false
+        },
+      })
+      getOneQueries.forEach((query) => {
+        queryClient.removeQueries({ queryKey: query.queryKey, exact: true })
+      })
+      // Clear the snapshot since we succeeded
+      previousCacheRef.current = { getOne: null, lists: [] }
+    },
+    onError: () => {
+      // Rollback to previous cache state
+      const snapshot = previousCacheRef.current
+
+      if (snapshot.getOne && snapshot.getOne.data) {
+        const queryKey = JSON.parse(snapshot.getOne.key)
+        queryClient.setQueryData(queryKey, snapshot.getOne.data)
+      }
+
+      snapshot.lists.forEach(({ key, data }) => {
+        const queryKey = JSON.parse(key)
+        queryClient.setQueryData(queryKey, data)
+      })
+
+      previousCacheRef.current = { getOne: null, lists: [] }
     },
     ...options,
   })

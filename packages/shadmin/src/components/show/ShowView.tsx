@@ -102,7 +102,7 @@ export function ShowView({
   aside,
   isLoading,
   error,
-  record,
+  record: _record,
   loading,
   errorComponent,
   emptyWhileLoading,

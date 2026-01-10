@@ -118,7 +118,7 @@ const tagChoices = [
 // Mock Data Provider
 // =============================================================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const createMockDataProvider = (data: Record<string, RaRecord[]> = {}): DataProvider => ({
   getList: async (resource) => {
     const records = data[resource] || []

@@ -10,6 +10,7 @@ import { Admin } from './Admin'
 import { Resource } from './Resource'
 import { useDataProvider, useAuthProviderOptional } from '../../contexts'
 import { createMockDataProvider, createMockAuthProvider } from '../../test-utils'
+import { useTheme } from './ThemeProvider'
 
 // Helper to wrap Admin with MemoryRouter
 const renderAdmin = (ui: React.ReactElement) => {
@@ -404,6 +405,237 @@ describe('<Admin /> Error Boundary Behavior', () => {
       await user.click(screen.getByRole('button', { name: 'Retry' }))
 
       expect(screen.getByTestId('recovered-content')).toBeInTheDocument()
+    })
+  })
+})
+
+/**
+ * Admin Theme Integration Tests
+ * TDD: RED phase - These tests should FAIL because theme integration doesn't exist
+ *
+ * Tests that Admin component properly passes theme props to ThemeProvider
+ */
+describe('<Admin /> Theme Integration', () => {
+  const defaultDataProvider = createMockDataProvider()
+
+  // Suppress console.error for these tests
+  const originalError = console.error
+  beforeEach(() => {
+    console.error = vi.fn()
+    // Reset document styles
+    document.documentElement.removeAttribute('style')
+    document.documentElement.classList.remove('light', 'dark')
+  })
+  afterEach(() => {
+    console.error = originalError
+    document.documentElement.removeAttribute('style')
+    document.documentElement.classList.remove('light', 'dark')
+  })
+
+  describe('theme prop integration', () => {
+    it('should pass theme prop to ThemeProvider and apply CSS variables', () => {
+      const customTheme = {
+        colors: {
+          primary: '#3b82f6',
+          secondary: '#8b5cf6',
+        },
+      }
+
+      renderAdmin(
+        <Admin dataProvider={defaultDataProvider} theme={customTheme}>
+          <div>Content</div>
+        </Admin>
+      )
+
+      // CSS variables should be applied to document root
+      const rootStyles = document.documentElement.style
+      expect(rootStyles.getPropertyValue('--color-primary')).toBe('#3b82f6')
+      expect(rootStyles.getPropertyValue('--color-secondary')).toBe('#8b5cf6')
+    })
+
+    it('should apply background color from theme', () => {
+      const customTheme = {
+        colors: {
+          background: '#fafafa',
+          foreground: '#171717',
+        },
+      }
+
+      renderAdmin(
+        <Admin dataProvider={defaultDataProvider} theme={customTheme}>
+          <div>Content</div>
+        </Admin>
+      )
+
+      const rootStyles = document.documentElement.style
+      expect(rootStyles.getPropertyValue('--color-background')).toBe('#fafafa')
+      expect(rootStyles.getPropertyValue('--color-foreground')).toBe('#171717')
+    })
+  })
+
+  describe('darkTheme prop integration', () => {
+    it('should pass darkTheme prop to ThemeProvider', () => {
+      const lightTheme = {
+        colors: {
+          background: '#ffffff',
+          foreground: '#000000',
+        },
+      }
+
+      const darkTheme = {
+        colors: {
+          background: '#0a0a0a',
+          foreground: '#fafafa',
+        },
+      }
+
+      // Note: This test requires a way to enable dark mode to verify darkTheme is applied
+      // For now, we verify Admin accepts both props without error
+      renderAdmin(
+        <Admin dataProvider={defaultDataProvider} theme={lightTheme} darkTheme={darkTheme}>
+          <div>Content</div>
+        </Admin>
+      )
+
+      expect(screen.getByText('Content')).toBeInTheDocument()
+    })
+
+    it('should apply darkTheme CSS variables when dark mode is active', async () => {
+      const lightTheme = {
+        colors: {
+          primary: '#3b82f6',
+        },
+      }
+
+      const darkTheme = {
+        colors: {
+          primary: '#60a5fa',
+        },
+      }
+
+      // Mock that we're testing a hook consumer
+      const ThemeConsumer = () => {
+        const { isDarkMode, toggleDarkMode } = useTheme()
+        return (
+          <div>
+            <span data-testid="is-dark">{isDarkMode ? 'dark' : 'light'}</span>
+            <button onClick={toggleDarkMode}>Toggle</button>
+          </div>
+        )
+      }
+
+      renderAdmin(
+        <Admin dataProvider={defaultDataProvider} theme={lightTheme} darkTheme={darkTheme}>
+          <ThemeConsumer />
+        </Admin>
+      )
+
+      // Initially light mode
+      expect(document.documentElement.style.getPropertyValue('--color-primary')).toBe('#3b82f6')
+
+      // Toggle to dark mode
+      const { userEvent } = await import('@testing-library/user-event')
+      const user = userEvent.setup()
+      await user.click(screen.getByText('Toggle'))
+
+      // Should now apply dark theme
+      expect(document.documentElement.style.getPropertyValue('--color-primary')).toBe('#60a5fa')
+    })
+  })
+
+  describe('ThemeProvider context availability', () => {
+    it('should provide useTheme hook to children', () => {
+      const ThemeConsumer = () => {
+        const { theme, isDarkMode, toggleDarkMode, mode, setMode } = useTheme()
+
+        return (
+          <div>
+            <span data-testid="has-theme">{theme ? 'yes' : 'no'}</span>
+            <span data-testid="has-isDarkMode">{typeof isDarkMode === 'boolean' ? 'yes' : 'no'}</span>
+            <span data-testid="has-toggleDarkMode">{typeof toggleDarkMode === 'function' ? 'yes' : 'no'}</span>
+            <span data-testid="has-mode">{typeof mode === 'string' ? 'yes' : 'no'}</span>
+            <span data-testid="has-setMode">{typeof setMode === 'function' ? 'yes' : 'no'}</span>
+          </div>
+        )
+      }
+
+      renderAdmin(
+        <Admin dataProvider={defaultDataProvider} theme={{ colors: { primary: '#000' } }}>
+          <ThemeConsumer />
+        </Admin>
+      )
+
+      expect(screen.getByTestId('has-theme')).toHaveTextContent('yes')
+      expect(screen.getByTestId('has-isDarkMode')).toHaveTextContent('yes')
+      expect(screen.getByTestId('has-toggleDarkMode')).toHaveTextContent('yes')
+      expect(screen.getByTestId('has-mode')).toHaveTextContent('yes')
+      expect(screen.getByTestId('has-setMode')).toHaveTextContent('yes')
+    })
+
+    it('should allow access to current theme values from useTheme', () => {
+      const customTheme = {
+        colors: {
+          primary: '#3b82f6',
+          accent: '#f59e0b',
+        },
+        spacing: {
+          md: '16px',
+        },
+      }
+
+      const ThemeValueConsumer = () => {
+        const { theme } = useTheme()
+
+        return (
+          <div>
+            <span data-testid="primary">{theme.colors?.primary}</span>
+            <span data-testid="accent">{theme.colors?.accent}</span>
+            <span data-testid="spacing">{theme.spacing?.md}</span>
+          </div>
+        )
+      }
+
+      renderAdmin(
+        <Admin dataProvider={defaultDataProvider} theme={customTheme}>
+          <ThemeValueConsumer />
+        </Admin>
+      )
+
+      expect(screen.getByTestId('primary')).toHaveTextContent('#3b82f6')
+      expect(screen.getByTestId('accent')).toHaveTextContent('#f59e0b')
+      expect(screen.getByTestId('spacing')).toHaveTextContent('16px')
+    })
+  })
+
+  describe('theme prop reactivity', () => {
+    it('should update CSS variables when theme prop changes', () => {
+      const theme1 = {
+        colors: { primary: '#3b82f6' },
+      }
+
+      const theme2 = {
+        colors: { primary: '#ef4444' },
+      }
+
+      const { rerender } = render(
+        <MemoryRouter>
+          <Admin dataProvider={defaultDataProvider} theme={theme1}>
+            <div>Content</div>
+          </Admin>
+        </MemoryRouter>
+      )
+
+      expect(document.documentElement.style.getPropertyValue('--color-primary')).toBe('#3b82f6')
+
+      rerender(
+        <MemoryRouter>
+          <Admin dataProvider={defaultDataProvider} theme={theme2}>
+            <div>Content</div>
+          </Admin>
+        </MemoryRouter>
+      )
+
+      expect(document.documentElement.style.getPropertyValue('--color-primary')).toBe('#ef4444')
     })
   })
 })

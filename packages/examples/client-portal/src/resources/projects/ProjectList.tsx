@@ -2,10 +2,8 @@ import {
   List,
   Datagrid,
   TextField,
-  NumberField,
   DateField,
   FunctionField,
-  useListContext,
 } from 'shadmin'
 import type { Project } from '../../dataProvider'
 
@@ -80,22 +78,8 @@ function TaskProgress({ tasks }: { tasks: { total: number; completed: number } }
   )
 }
 
-function ProjectFilters() {
-  return (
-    <div className="flex gap-4 mb-4">
-      <select
-        className="px-3 py-2 border rounded-md text-sm"
-        defaultValue=""
-      >
-        <option value="">All Statuses</option>
-        <option value="planning">Planning</option>
-        <option value="in_progress">In Progress</option>
-        <option value="review">In Review</option>
-        <option value="completed">Completed</option>
-      </select>
-    </div>
-  )
-}
+// Note: ProjectFilters available for future use
+// function ProjectFilters() { ... }
 
 export function ProjectList() {
   return (

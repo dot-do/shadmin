@@ -4,9 +4,6 @@
 
 import {
   Show,
-  TextField,
-  DateField,
-  ReferenceField,
   useRecordContext,
 } from 'shadmin'
 import type { Conversation, Message } from '../../dataProvider'

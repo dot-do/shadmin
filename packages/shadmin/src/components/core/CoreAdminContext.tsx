@@ -29,7 +29,7 @@ export const CoreAdminContext = ({
   children,
   dataProvider,
   authProvider,
-  basename,
+  basename: _basename,
 }: CoreAdminContextProps) => {
   // Create QueryClient with sensible defaults
   const [queryClient] = useState(

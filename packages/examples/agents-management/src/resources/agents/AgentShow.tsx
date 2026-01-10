@@ -4,11 +4,6 @@
 
 import {
   Show,
-  TextField,
-  NumberField,
-  DateField,
-  FunctionField,
-  ReferenceArrayField,
   useRecordContext,
 } from 'shadmin'
 import type { Agent } from '../../dataProvider'

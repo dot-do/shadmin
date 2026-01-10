@@ -51,9 +51,11 @@ export interface ShadminPluginOptions {
 
 /**
  * Generates the entry module code that bootstraps React
+ * Note: React import required for classic JSX transform (React.createElement)
  */
 function generateEntryModule(): string {
-  return `import { createRoot } from 'react-dom/client'
+  return `import React from 'react'
+import { createRoot } from 'react-dom/client'
 import { App } from 'virtual:shadmin-app'
 
 const container = document.getElementById('root')
@@ -157,10 +159,14 @@ export function shadminPlugin(options: ShadminPluginOptions): Plugin {
 
         const jsxCode = generateEntryPoint(resources, generatorOptions)
 
-        // Transform JSX to JS using esbuild
+        // Transform JSX to JS using esbuild with classic transform
+        // Classic transform uses React.createElement() instead of jsx() from react/jsx-runtime
+        // This avoids module resolution issues with virtual modules
         const result = await transform(jsxCode, {
           loader: 'tsx',
-          jsx: 'automatic',
+          jsx: 'transform',
+          jsxFactory: 'React.createElement',
+          jsxFragment: 'React.Fragment',
           format: 'esm',
         })
 
@@ -170,10 +176,12 @@ export function shadminPlugin(options: ShadminPluginOptions): Plugin {
       if (id === RESOLVED_VIRTUAL_ENTRY_ID) {
         const jsxCode = generateEntryModule()
 
-        // Transform JSX to JS using esbuild
+        // Transform JSX to JS using esbuild with classic transform
         const result = await transform(jsxCode, {
           loader: 'tsx',
-          jsx: 'automatic',
+          jsx: 'transform',
+          jsxFactory: 'React.createElement',
+          jsxFragment: 'React.Fragment',
           format: 'esm',
         })
 
@@ -238,7 +246,7 @@ export function shadminPlugin(options: ShadminPluginOptions): Plugin {
     /**
      * Transform index.html for production builds
      */
-    transformIndexHtml(html: string, ctx: IndexHtmlTransformContext) {
+    transformIndexHtml(html: string, _ctx: IndexHtmlTransformContext) {
       // For production builds, ensure proper meta tags are present
       let transformedHtml = html
 

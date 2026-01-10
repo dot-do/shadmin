@@ -16,7 +16,6 @@ import {
   useFormContext,
   type RegisterOptions,
   type FieldValues,
-  type Path,
   type UseFieldArrayReturn,
   type FieldArrayPath,
 } from 'react-hook-form'

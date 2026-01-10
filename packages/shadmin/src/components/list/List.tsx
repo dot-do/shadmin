@@ -6,7 +6,7 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
+import type { ReactNode } from 'react'
 import { ListBase, type ListBaseProps } from './ListBase'
 import { ListView, type ListViewProps } from './ListView'
 import type { SortPayload, FilterPayload, Identifier } from '../../contexts/ListContext'
@@ -17,7 +17,7 @@ import type { SortPayload, FilterPayload, Identifier } from '../../contexts/List
  */
 export interface ListProps<RecordType extends { id: Identifier } = { id: Identifier }>
   extends Omit<ListBaseProps<RecordType>, 'children'>,
-    Pick<ListViewProps, 'actions' | 'filters' | 'empty' | 'className' | 'aside'> {
+    Pick<ListViewProps, 'actions' | 'filters' | 'empty' | 'pagination' | 'className' | 'aside'> {
   /** Child elements to render inside the list (typically Datagrid) */
   children: ReactNode
   /** Title to display in the list header */
@@ -73,6 +73,7 @@ export function List<RecordType extends { id: Identifier } = { id: Identifier }>
   actions,
   filters,
   empty,
+  pagination,
   className,
   aside,
   // Children
@@ -93,6 +94,7 @@ export function List<RecordType extends { id: Identifier } = { id: Identifier }>
         actions={actions}
         filters={filters}
         empty={empty}
+        pagination={pagination}
         className={className}
         aside={aside}
       >

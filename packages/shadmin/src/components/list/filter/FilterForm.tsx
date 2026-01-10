@@ -66,7 +66,7 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
     defaultValues: mergedDefaultValues as any,
   })
 
-  const { handleSubmit, reset: formReset, setValue, watch } = form
+  const { handleSubmit, reset: formReset, setValue, watch: _watch } = form
 
   // Sync form values with filterValues from context
   useEffect(() => {

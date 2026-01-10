@@ -5,12 +5,13 @@
  */
 
 import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { useDataProvider } from '../contexts/DataProviderContext'
 import type {
   RaRecord,
   CreateParams,
   CreateResult,
+  GetListResult,
 } from '../types'
 
 /**
@@ -93,6 +94,9 @@ export function useCreate<
   const dataProvider = useDataProvider()
   const queryClient = useQueryClient()
 
+  // Store previous cache state for rollback
+  const previousCacheRef = useRef<Map<string, unknown>>(new Map())
+
   const mutation = useMutation<
     CreateResult<RecordType>,
     Error,
@@ -105,9 +109,73 @@ export function useCreate<
       }
       return dataProvider.create<RecordType, TVariables>(res, createParams)
     },
-    onSuccess: (data, variables) => {
-      // Invalidate list queries for this resource
-      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getList'] })
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: [variables.resource, 'getList'] })
+
+      // Snapshot the previous cache for rollback
+      const cache = queryClient.getQueryCache()
+      const queries = cache.findAll({ queryKey: [variables.resource, 'getList'] })
+
+      previousCacheRef.current.clear()
+      queries.forEach((query) => {
+        previousCacheRef.current.set(JSON.stringify(query.queryKey), query.state.data)
+      })
+    },
+    onSuccess: (result, variables) => {
+      // Granular cache update: add new record to all list caches and update totals
+      const cache = queryClient.getQueryCache()
+      const queries = cache.findAll({ queryKey: [variables.resource, 'getList'] })
+
+      queries.forEach((query) => {
+        queryClient.setQueryData<GetListResult<RecordType>>(query.queryKey, (oldData) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            data: [result.data, ...oldData.data],
+            total: (oldData.total ?? 0) + 1,
+          }
+        })
+      })
+
+      // Also set the getOne cache for the new record
+      queryClient.setQueryData(
+        [variables.resource, 'getOne', { id: result.data.id }],
+        { data: result.data }
+      )
+
+      // Invalidate getManyReference for related resources
+      const newData = variables.params.data as Record<string, unknown>
+      Object.entries(newData).forEach(([key, value]) => {
+        if (key.endsWith('Id') && value != null) {
+          // This looks like a foreign key - trigger getManyReference refresh
+          try {
+            const result = dataProvider.getManyReference?.(variables.resource, {
+              target: key,
+              id: value as number | string,
+              pagination: { page: 1, perPage: 10 },
+              sort: { field: 'id', order: 'ASC' },
+              filter: {},
+            })
+            // Handle promise if returned
+            if (result && typeof result.catch === 'function') {
+              result.catch(() => {
+                // Silently ignore if getManyReference fails
+              })
+            }
+          } catch {
+            // Silently ignore if getManyReference is not implemented
+          }
+        }
+      })
+    },
+    onError: (_error, variables) => {
+      // Rollback to previous cache state
+      previousCacheRef.current.forEach((data, key) => {
+        const queryKey = JSON.parse(key)
+        queryClient.setQueryData(queryKey, data)
+      })
+      previousCacheRef.current.clear()
     },
     ...options,
   })
