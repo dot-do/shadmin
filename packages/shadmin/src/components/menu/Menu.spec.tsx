@@ -147,7 +147,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toBeInTheDocument()
       expect(link).toHaveAttribute('href', '/users')
     })
@@ -185,7 +185,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveClass('custom-item')
     })
   })
@@ -200,7 +200,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveAttribute('data-active', 'true')
     })
 
@@ -213,7 +213,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).not.toHaveAttribute('data-active', 'true')
     })
 
@@ -226,7 +226,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveAttribute('data-active', 'true')
     })
 
@@ -239,7 +239,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).not.toHaveAttribute('data-active', 'true')
     })
 
@@ -252,7 +252,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveClass('is-active')
     })
   })
@@ -320,7 +320,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveAttribute('aria-disabled', 'true')
     })
 
@@ -343,7 +343,7 @@ describe('MenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       await user.click(link)
 
       expect(currentLocation).toBe('/')
@@ -629,7 +629,7 @@ describe('MenuItemLink Component', () => {
         </Wrapper>
       )
 
-      expect(screen.getByRole('link', { name: /users/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /users/i })).toBeInTheDocument()
     })
 
     it('should render with leftIcon', () => {
@@ -666,7 +666,7 @@ describe('MenuItemLink Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       await user.click(link)
 
       expect(handleClick).toHaveBeenCalled()
@@ -681,7 +681,7 @@ describe('MenuItemLink Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveAttribute('data-active', 'true')
     })
   })
@@ -700,7 +700,7 @@ describe('MenuItemLink Component', () => {
       )
 
       // When sidebar is collapsed, text should be hidden but accessible via tooltip
-      expect(screen.getByRole('link')).toHaveAttribute('data-sidebar-open', 'false')
+      expect(screen.getByRole('menuitem')).toHaveAttribute('data-sidebar-open', 'false')
     })
   })
 })
@@ -716,7 +716,7 @@ describe('DashboardMenuItem Component', () => {
         </Wrapper>
       )
 
-      expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /dashboard/i })).toBeInTheDocument()
     })
 
     it('should link to root by default', () => {
@@ -728,7 +728,7 @@ describe('DashboardMenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /dashboard/i })
+      const link = screen.getByRole('menuitem', { name: /dashboard/i })
       expect(link).toHaveAttribute('href', '/')
     })
 
@@ -741,7 +741,7 @@ describe('DashboardMenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /dashboard/i })
+      const link = screen.getByRole('menuitem', { name: /dashboard/i })
       expect(link).toHaveAttribute('href', '/home')
     })
 
@@ -754,7 +754,7 @@ describe('DashboardMenuItem Component', () => {
         </Wrapper>
       )
 
-      expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /home/i })).toBeInTheDocument()
     })
 
     it('should render with icon', () => {
@@ -778,7 +778,7 @@ describe('DashboardMenuItem Component', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /dashboard/i })
+      const link = screen.getByRole('menuitem', { name: /dashboard/i })
       expect(link).toHaveAttribute('data-active', 'true')
     })
   })
@@ -799,12 +799,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const firstLink = screen.getByRole('link', { name: /users/i })
+      const firstLink = screen.getByRole('menuitem', { name: /users/i })
       firstLink.focus()
 
       await user.keyboard('{ArrowDown}')
 
-      expect(screen.getByRole('link', { name: /posts/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /posts/i })).toHaveFocus()
     })
 
     it('should move focus up with ArrowUp', async () => {
@@ -820,12 +820,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const secondLink = screen.getByRole('link', { name: /posts/i })
+      const secondLink = screen.getByRole('menuitem', { name: /posts/i })
       secondLink.focus()
 
       await user.keyboard('{ArrowUp}')
 
-      expect(screen.getByRole('link', { name: /users/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /users/i })).toHaveFocus()
     })
 
     it('should wrap to first item when pressing ArrowDown on last item', async () => {
@@ -840,12 +840,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const lastLink = screen.getByRole('link', { name: /posts/i })
+      const lastLink = screen.getByRole('menuitem', { name: /posts/i })
       lastLink.focus()
 
       await user.keyboard('{ArrowDown}')
 
-      expect(screen.getByRole('link', { name: /users/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /users/i })).toHaveFocus()
     })
 
     it('should wrap to last item when pressing ArrowUp on first item', async () => {
@@ -860,12 +860,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const firstLink = screen.getByRole('link', { name: /users/i })
+      const firstLink = screen.getByRole('menuitem', { name: /users/i })
       firstLink.focus()
 
       await user.keyboard('{ArrowUp}')
 
-      expect(screen.getByRole('link', { name: /posts/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /posts/i })).toHaveFocus()
     })
   })
 
@@ -883,12 +883,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const lastLink = screen.getByRole('link', { name: /comments/i })
+      const lastLink = screen.getByRole('menuitem', { name: /comments/i })
       lastLink.focus()
 
       await user.keyboard('{Home}')
 
-      expect(screen.getByRole('link', { name: /users/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /users/i })).toHaveFocus()
     })
 
     it('should focus last item with End key', async () => {
@@ -904,12 +904,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const firstLink = screen.getByRole('link', { name: /users/i })
+      const firstLink = screen.getByRole('menuitem', { name: /users/i })
       firstLink.focus()
 
       await user.keyboard('{End}')
 
-      expect(screen.getByRole('link', { name: /comments/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /comments/i })).toHaveFocus()
     })
   })
 
@@ -933,7 +933,7 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       link.focus()
 
       await user.keyboard('{Enter}')
@@ -1050,7 +1050,7 @@ describe('Keyboard Navigation', () => {
 
       await user.keyboard('{ArrowDown}')
 
-      expect(screen.getByRole('link', { name: /general/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /general/i })).toHaveFocus()
     })
   })
 
@@ -1068,12 +1068,12 @@ describe('Keyboard Navigation', () => {
         </Wrapper>
       )
 
-      const firstLink = screen.getByRole('link', { name: /users/i })
+      const firstLink = screen.getByRole('menuitem', { name: /users/i })
       firstLink.focus()
 
       await user.keyboard('{ArrowDown}')
 
-      expect(screen.getByRole('link', { name: /comments/i })).toHaveFocus()
+      expect(screen.getByRole('menuitem', { name: /comments/i })).toHaveFocus()
     })
   })
 })
@@ -1101,7 +1101,7 @@ describe('Accessibility', () => {
         </Wrapper>
       )
 
-      const link = screen.getByRole('link', { name: /users/i })
+      const link = screen.getByRole('menuitem', { name: /users/i })
       expect(link).toHaveAttribute('aria-current', 'page')
     })
 
@@ -1174,7 +1174,7 @@ describe('Accessibility', () => {
       )
 
       // Label should be available for screen readers even when visually hidden
-      expect(screen.getByRole('link', { name: /users/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /users/i })).toBeInTheDocument()
     })
 
     it('should announce badge content', () => {
@@ -1231,7 +1231,7 @@ describe('Collapsed Mode', () => {
       </Wrapper>
     )
 
-    const link = screen.getByRole('link', { name: /users/i })
+    const link = screen.getByRole('menuitem', { name: /users/i })
     await user.hover(link)
 
     // Tooltip content should be visible

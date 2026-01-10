@@ -326,6 +326,24 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
           </nav>
         )}
       </div>
+
+      {/* Sidebar Footer with Profile */}
+      <div data-slot="sidebar-footer" className="border-t p-4">
+        <button
+          type="button"
+          aria-label="Profile"
+          className={cn(
+            'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm',
+            'hover:bg-accent hover:text-accent-foreground',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+          )}
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
+            JD
+          </span>
+          <span className="flex-1 truncate text-left">John Doe</span>
+        </button>
+      </div>
     </div>
   )
 
@@ -557,6 +575,19 @@ function LayoutInner({
   showThemeToggle,
 }: LayoutInnerProps) {
   const { open, isMobile } = useSidebar()
+  const [skipNavVisible, setSkipNavVisible] = useState(false)
+
+  // Show skip nav button on first Tab keypress
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab' && !skipNavVisible) {
+        setSkipNavVisible(true)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [skipNavVisible])
 
   // Handle sidebar - can be ReactNode or ComponentType
   const sidebarElement = useMemo(() => {
@@ -597,6 +628,23 @@ function LayoutInner({
       data-mobile={isMobile ? '' : undefined}
       className={cn('flex min-h-screen w-full', className)}
     >
+      {/* Skip Navigation Button */}
+      {skipNavVisible && (
+        <a
+          href="#main-content"
+          className={cn(
+            'skip-nav-button',
+            'sr-only focus:not-sr-only',
+            'fixed top-4 left-4 z-[100]',
+            'inline-flex items-center justify-center rounded-md px-4 py-2',
+            'bg-primary text-primary-foreground font-medium',
+            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+          )}
+        >
+          Skip to main content
+        </a>
+      )}
+
       {/* Sidebar */}
       {sidebarElement}
 
@@ -607,10 +655,12 @@ function LayoutInner({
 
         {/* Content */}
         <main
+          id="main-content"
           role="main"
           data-slot="main-content"
           data-testid="main-content"
           className="flex-1 overflow-auto p-4 md:p-6"
+          tabIndex={-1}
         >
           {children}
         </main>

@@ -8,7 +8,8 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
 import { FormContextProvider } from '../../contexts/FormContext'
-import { TestMemoryRouter, useTestSearchParams } from '../../test-utils/TestMemoryRouter'
+import { useLocation } from 'react-router'
+import { TestMemoryRouter, useTestSearchParams, useTestLocation } from '../../test-utils/TestMemoryRouter'
 import { TabbedForm, useTabbedFormContext, type TabbedFormContextValue } from './TabbedForm'
 import { FormTab } from './FormTab'
 import { TextInput } from '../input/TextInput'
@@ -685,11 +686,12 @@ describe('<TabbedForm />', () => {
   describe('URL Sync for Active Tab', () => {
     it('syncs active tab to URL when syncWithLocation is true', async () => {
       const user = userEvent.setup()
-      let searchParams: URLSearchParams | undefined
+      let currentLocation: { pathname: string } | undefined
 
-      function UrlReader() {
-        const [params] = useTestSearchParams()
-        searchParams = params
+      function LocationReader() {
+        // Use react-router's useLocation since TabbedForm uses react-router's navigate
+        const location = useLocation()
+        currentLocation = location
         return null
       }
 
@@ -697,17 +699,17 @@ describe('<TabbedForm />', () => {
         const form = useForm({ defaultValues: {} })
 
         return (
-          <TestMemoryRouter>
+          <TestMemoryRouter initialEntries={['/users/1']}>
             <FormContextProvider {...form}>
               <TabbedForm syncWithLocation>
                 <FormTab label="General" name="general">
                   <TextInput source="name" />
                 </FormTab>
-                <FormTab label="Details" name="details">
+                <FormTab label="Details" name="details" path="details">
                   <TextInput source="description" />
                 </FormTab>
               </TabbedForm>
-              <UrlReader />
+              <LocationReader />
             </FormContextProvider>
           </TestMemoryRouter>
         )
@@ -718,7 +720,8 @@ describe('<TabbedForm />', () => {
       await user.click(screen.getByRole('tab', { name: 'Details' }))
 
       await waitFor(() => {
-        expect(searchParams?.get('tab')).toBe('details')
+        // URL should be updated to include tab path segment
+        expect(currentLocation?.pathname).toBe('/users/1/details')
       })
     })
 
@@ -727,13 +730,14 @@ describe('<TabbedForm />', () => {
         const form = useForm({ defaultValues: {} })
 
         return (
-          <TestMemoryRouter initialEntries={['/?tab=details']}>
+          // Start at edit route with 'details' tab path
+          <TestMemoryRouter initialEntries={['/users/1/details']}>
             <FormContextProvider {...form}>
               <TabbedForm syncWithLocation>
                 <FormTab label="General" name="general">
                   <TextInput source="name" />
                 </FormTab>
-                <FormTab label="Details" name="details">
+                <FormTab label="Details" name="details" path="details">
                   <TextInput source="description" />
                 </FormTab>
               </TabbedForm>
@@ -750,42 +754,44 @@ describe('<TabbedForm />', () => {
       )
     })
 
-    it('uses custom URL parameter name when provided', async () => {
+    it('uses custom tab path when provided', async () => {
       const user = userEvent.setup()
-      let searchParams: URLSearchParams | undefined
+      let currentLocation: { pathname: string } | undefined
 
-      function UrlReader() {
-        const [params] = useTestSearchParams()
-        searchParams = params
+      function LocationReader() {
+        // Use react-router's useLocation since TabbedForm uses react-router's navigate
+        const location = useLocation()
+        currentLocation = location
         return null
       }
 
-      function FormWithCustomParam() {
+      function FormWithCustomPath() {
         const form = useForm({ defaultValues: {} })
 
         return (
-          <TestMemoryRouter>
+          <TestMemoryRouter initialEntries={['/users/1']}>
             <FormContextProvider {...form}>
-              <TabbedForm syncWithLocation locationKey="section">
+              <TabbedForm syncWithLocation>
                 <FormTab label="General" name="general">
                   <TextInput source="name" />
                 </FormTab>
-                <FormTab label="Details" name="details">
+                <FormTab label="Details" name="details" path="security">
                   <TextInput source="description" />
                 </FormTab>
               </TabbedForm>
-              <UrlReader />
+              <LocationReader />
             </FormContextProvider>
           </TestMemoryRouter>
         )
       }
 
-      render(<FormWithCustomParam />)
+      render(<FormWithCustomPath />)
 
       await user.click(screen.getByRole('tab', { name: 'Details' }))
 
       await waitFor(() => {
-        expect(searchParams?.get('section')).toBe('details')
+        // URL should use the custom 'security' path instead of 'details'
+        expect(currentLocation?.pathname).toBe('/users/1/security')
       })
     })
   })

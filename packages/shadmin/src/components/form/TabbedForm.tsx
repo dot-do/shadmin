@@ -16,8 +16,8 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react'
+import { useLocation, useNavigate, matchPath } from 'react-router'
 import { useFormContext } from '../../contexts/FormContext'
-import { useTestSearchParams } from '../../test-utils/TestMemoryRouter'
 import { cn } from '../../utils'
 import { FormTab, FormTabPanel, generateTabName, type FormTabProps } from './FormTab'
 
@@ -255,13 +255,49 @@ function buildFieldTabMap(tabs: TabInfo[]): FieldTabMap {
  * </TabbedForm>
  * ```
  */
+/**
+ * Get the tab path for URL synchronization.
+ * First tab (index 0) has empty path, others use their path or index.
+ */
+function getTabFullPath(tab: TabInfo, index: number): string {
+  if (index === 0) return ''
+  return tab.path || index.toString()
+}
+
+/**
+ * Hook to get the form root path (the base URL without tab segments).
+ * For Edit routes: /{resource}/{id}
+ */
+function useFormRootPath(): string {
+  let location: { pathname: string }
+  try {
+    location = useLocation()
+  } catch {
+    return ''
+  }
+
+  // Match edit route pattern: :resource/:id/*
+  const editMatch = matchPath(':resource/:id/*', location.pathname)
+  if (editMatch) {
+    return editMatch.pathnameBase
+  }
+
+  // Match create route pattern: :resource/create/*
+  const createMatch = matchPath(':resource/create/*', location.pathname)
+  if (createMatch) {
+    return createMatch.pathnameBase
+  }
+
+  return ''
+}
+
 export function TabbedForm({
   children,
   className,
   defaultTab,
   onTabChange,
   syncWithLocation = false,
-  locationKey = 'tab',
+  locationKey: _locationKey = 'tab',
   mode: _mode,
   defaultValues: _defaultValues,
   warnWhenUnsavedChanges: _warnWhenUnsavedChanges,
@@ -278,38 +314,65 @@ export function TabbedForm({
   const formContext = useFormContext()
   const { formState } = formContext || { formState: { errors: {}, dirtyFields: {} } }
 
-  // URL sync hook
-  const [searchParams, setSearchParams] = useTestSearchParams()
+  // Router hooks for URL sync
+  let location: { pathname: string } | undefined
+  let navigate: ((to: string) => void) | undefined
+  try {
+    location = useLocation()
+    navigate = useNavigate()
+  } catch {
+    // Not in a router context - URL sync won't work
+  }
+
+  const formRootPath = useFormRootPath()
+
+  // Get the current tab path from the URL
+  const getTabPathFromUrl = useCallback((): string => {
+    if (!location || !formRootPath) return ''
+    // Extract the part after the form root path
+    const remaining = location.pathname.slice(formRootPath.length)
+    // Remove leading slash
+    return remaining.replace(/^\//, '')
+  }, [location, formRootPath])
 
   // Determine initial tab
   const getInitialTab = useCallback(() => {
-    if (syncWithLocation) {
-      const urlPath = searchParams.get(locationKey)
-      // Find tab by path for URL synchronization
-      const matchingTab = tabs.find((t) => t.path === urlPath)
-      if (matchingTab) {
-        return matchingTab.name
+    if (syncWithLocation && location) {
+      const urlTabPath = getTabPathFromUrl()
+      // Find tab by its full path
+      const matchingTabIndex = tabs.findIndex((tab, index) => {
+        const tabPath = getTabFullPath(tab, index)
+        return tabPath === urlTabPath
+      })
+      if (matchingTabIndex >= 0) {
+        return tabs[matchingTabIndex]!.name
       }
     }
     if (defaultTab && tabs.some((t) => t.name === defaultTab)) {
       return defaultTab
     }
     return tabs[0]?.name || ''
-  }, [syncWithLocation, searchParams, locationKey, defaultTab, tabs])
+  }, [syncWithLocation, location, getTabPathFromUrl, defaultTab, tabs])
 
   const [activeTab, setActiveTabState] = useState(getInitialTab)
 
-  // Sync with URL on mount
+  // Sync with URL changes (for browser back/forward)
   useEffect(() => {
-    if (syncWithLocation) {
-      const urlPath = searchParams.get(locationKey)
-      // Find tab by path for URL synchronization
-      const matchingTab = tabs.find((t) => t.path === urlPath)
-      if (matchingTab) {
-        setActiveTabState(matchingTab.name)
+    if (syncWithLocation && location) {
+      const urlTabPath = getTabPathFromUrl()
+      // Find tab by its full path
+      const matchingTabIndex = tabs.findIndex((tab, index) => {
+        const tabPath = getTabFullPath(tab, index)
+        return tabPath === urlTabPath
+      })
+      if (matchingTabIndex >= 0) {
+        const matchingTab = tabs[matchingTabIndex]!
+        if (matchingTab.name !== activeTab) {
+          setActiveTabState(matchingTab.name)
+        }
       }
     }
-  }, [])
+  }, [syncWithLocation, location?.pathname, getTabPathFromUrl, tabs, activeTab])
 
   // Handle tab change
   const setActiveTab = useCallback(
@@ -317,17 +380,17 @@ export function TabbedForm({
       setActiveTabState(tabName)
       onTabChange?.(tabName)
 
-      if (syncWithLocation) {
+      if (syncWithLocation && navigate && formRootPath) {
         // Find the tab to get its path for URL synchronization
-        const tab = tabs.find((t) => t.name === tabName)
-        if (tab) {
-          const newParams = new URLSearchParams(searchParams)
-          newParams.set(locationKey, tab.path)
-          setSearchParams(newParams)
+        const tabIndex = tabs.findIndex((t) => t.name === tabName)
+        if (tabIndex >= 0) {
+          const tabPath = getTabFullPath(tabs[tabIndex]!, tabIndex)
+          const newPath = tabPath ? `${formRootPath}/${tabPath}` : formRootPath
+          navigate(newPath)
         }
       }
     },
-    [onTabChange, syncWithLocation, locationKey, searchParams, setSearchParams, tabs]
+    [onTabChange, syncWithLocation, navigate, formRootPath, tabs]
   )
 
   // Get tabs with errors

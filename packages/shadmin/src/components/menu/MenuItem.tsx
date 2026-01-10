@@ -194,7 +194,7 @@ export function MenuItem({
       <a
         ref={linkRef}
         href={to}
-        role="link"
+        role="menuitem"
         data-active={isActive ? 'true' : undefined}
         aria-current={isActive ? 'page' : undefined}
         aria-disabled={disabled ? 'true' : undefined}

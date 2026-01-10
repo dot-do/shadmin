@@ -15,6 +15,7 @@ import {
   isValidElement,
   type ReactNode,
 } from 'react'
+import { useLocation, useNavigate, matchPath } from 'react-router'
 import { cn } from '../../utils'
 import { useRecordContext } from '../../contexts/RecordContext'
 import type { RaRecord } from '../../types'
@@ -237,6 +238,36 @@ function extractTabs(children: ReactNode): ShowTabInfo[] {
 }
 
 /**
+ * Get the tab path for URL synchronization.
+ * First tab (index 0) has empty path, others use their path or index.
+ */
+function getShowTabFullPath(tab: ShowTabInfo, index: number): string {
+  if (index === 0) return ''
+  return tab.path || index.toString()
+}
+
+/**
+ * Hook to get the show root path (the base URL without tab segments).
+ * For Show routes: /{resource}/{id}/show
+ */
+function useShowRootPath(): string {
+  let location: { pathname: string }
+  try {
+    location = useLocation()
+  } catch {
+    return ''
+  }
+
+  // Match show route pattern: :resource/:id/show/*
+  const showMatch = matchPath(':resource/:id/show/*', location.pathname)
+  if (showMatch) {
+    return showMatch.pathnameBase
+  }
+
+  return ''
+}
+
+/**
  * TabbedShowLayout - Organizes show fields into accessible tabs
  *
  * @example
@@ -278,7 +309,7 @@ export function TabbedShowLayout({
   defaultTab,
   onTabChange,
   syncWithLocation = false,
-  locationKey = 'tab',
+  locationKey: _locationKey = 'tab',
   record: recordProp,
   gap = 'gap-4',
 }: TabbedShowLayoutProps) {
@@ -288,38 +319,65 @@ export function TabbedShowLayout({
   // Extract tab configuration from children
   const tabs = useMemo(() => extractTabs(children), [children])
 
-  // Get URL search params (simplified - in production would use router)
-  const getUrlTab = useCallback(() => {
-    if (typeof window === 'undefined') return null
-    const params = new URLSearchParams(window.location.search)
-    return params.get(locationKey)
-  }, [locationKey])
+  // Router hooks for URL sync
+  let location: { pathname: string } | undefined
+  let navigate: ((to: string) => void) | undefined
+  try {
+    location = useLocation()
+    navigate = useNavigate()
+  } catch {
+    // Not in a router context - URL sync won't work
+  }
+
+  const showRootPath = useShowRootPath()
+
+  // Get the current tab path from the URL
+  const getTabPathFromUrl = useCallback((): string => {
+    if (!location || !showRootPath) return ''
+    // Extract the part after the show root path
+    const remaining = location.pathname.slice(showRootPath.length)
+    // Remove leading slash
+    return remaining.replace(/^\//, '')
+  }, [location, showRootPath])
 
   // Determine initial tab
   const getInitialTab = useCallback(() => {
-    if (syncWithLocation) {
-      const urlTab = getUrlTab()
-      if (urlTab && tabs.some((t) => t.name === urlTab)) {
-        return urlTab
+    if (syncWithLocation && location) {
+      const urlTabPath = getTabPathFromUrl()
+      // Find tab by its full path
+      const matchingTabIndex = tabs.findIndex((tab, index) => {
+        const tabPath = getShowTabFullPath(tab, index)
+        return tabPath === urlTabPath
+      })
+      if (matchingTabIndex >= 0) {
+        return tabs[matchingTabIndex]!.name
       }
     }
     if (defaultTab && tabs.some((t) => t.name === defaultTab)) {
       return defaultTab
     }
     return tabs[0]?.name || ''
-  }, [syncWithLocation, getUrlTab, defaultTab, tabs])
+  }, [syncWithLocation, location, getTabPathFromUrl, defaultTab, tabs])
 
   const [activeTab, setActiveTabState] = useState(getInitialTab)
 
-  // Sync with URL on mount
+  // Sync with URL changes (for browser back/forward)
   useEffect(() => {
-    if (syncWithLocation) {
-      const urlTab = getUrlTab()
-      if (urlTab && tabs.some((t) => t.name === urlTab)) {
-        setActiveTabState(urlTab)
+    if (syncWithLocation && location) {
+      const urlTabPath = getTabPathFromUrl()
+      // Find tab by its full path
+      const matchingTabIndex = tabs.findIndex((tab, index) => {
+        const tabPath = getShowTabFullPath(tab, index)
+        return tabPath === urlTabPath
+      })
+      if (matchingTabIndex >= 0) {
+        const matchingTab = tabs[matchingTabIndex]!
+        if (matchingTab.name !== activeTab) {
+          setActiveTabState(matchingTab.name)
+        }
       }
     }
-  }, [syncWithLocation, getUrlTab, tabs])
+  }, [syncWithLocation, location?.pathname, getTabPathFromUrl, tabs, activeTab])
 
   // Handle tab change
   const setActiveTab = useCallback(
@@ -327,13 +385,17 @@ export function TabbedShowLayout({
       setActiveTabState(tabName)
       onTabChange?.(tabName)
 
-      if (syncWithLocation && typeof window !== 'undefined') {
-        const url = new URL(window.location.href)
-        url.searchParams.set(locationKey, tabName)
-        window.history.pushState({}, '', url.toString())
+      if (syncWithLocation && navigate && showRootPath) {
+        // Find the tab to get its path for URL synchronization
+        const tabIndex = tabs.findIndex((t) => t.name === tabName)
+        if (tabIndex >= 0) {
+          const tabPath = getShowTabFullPath(tabs[tabIndex]!, tabIndex)
+          const newPath = tabPath ? `${showRootPath}/${tabPath}` : showRootPath
+          navigate(newPath)
+        }
       }
     },
-    [onTabChange, syncWithLocation, locationKey]
+    [onTabChange, syncWithLocation, navigate, showRootPath, tabs]
   )
 
   // Handle keyboard navigation

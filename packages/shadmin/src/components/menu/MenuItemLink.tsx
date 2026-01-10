@@ -76,6 +76,7 @@ export function MenuItemLink({
   return (
     <a
       href={to}
+      role="menuitem"
       onClick={handleClick}
       data-active={isActive ? 'true' : undefined}
       data-sidebar-open={sidebarOpen ? 'true' : 'false'}
