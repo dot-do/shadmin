@@ -1,0 +1,31 @@
+{
+  "name": "@shadmin/example-ra-compat",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.ts",
+    "build": "vite build --config vite.config.ts",
+    "preview": "vite preview --config vite.config.ts"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^5.15.0",
+    "@mui/material": "^5.15.0",
+    "fakerest": "^4.0.0",
+    "lodash": "^4.17.21",
+    "ra-data-fakerest": "^5.0.0",
+    "ra-i18n-polyglot": "^5.0.0",
+    "ra-input-rich-text": "^5.0.0",
+    "ra-language-english": "^5.0.0",
+    "ra-language-french": "^5.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router": "^7.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

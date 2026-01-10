@@ -2,7 +2,7 @@ import { defineConfig } from 'cypress';
 import vitePreprocessor from 'cypress-vite';
 
 export default defineConfig({
-    fixturesFolder: 'fixtures',
+    fixturesFolder: 'cypress/fixtures',
     screenshotsFolder: 'screenshots',
     downloadsFolder: 'downloads',
     videosFolder: 'videos',
@@ -28,7 +28,7 @@ export default defineConfig({
             on('file:preprocessor', vitePreprocessor());
         },
         baseUrl: 'http://localhost:8080',
-        specPattern: 'e2e/**/*.cy.{js,jsx,ts,tsx}',
-        supportFile: 'support/index.js',
+        specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+        supportFile: 'cypress/support/index.js',
     },
 });

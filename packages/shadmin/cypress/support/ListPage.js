@@ -22,9 +22,9 @@ export default url => ({
         sortBy: name => `th[data-testid="column-header-${name}"], th[aria-sort]`,
         svg: (name, criteria = '') =>
             `th[data-testid="column-header-${name}"] svg${criteria}`,
-        // User menu - shadmin uses data-testid and aria-label
-        profile: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
-        logout: '.logout, [data-testid="logout-button"]',
+        // User menu - shadmin uses data-testid with shadmin- prefix and aria-label
+        profile: '[data-testid="shadmin-user-menu-trigger"], [data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        logout: '[data-testid="shadmin-logout-button"], .logout, [data-testid="logout-button"]',
         // Bulk actions - shadmin uses role="toolbar"
         bulkActionsToolbar: '[role="toolbar"], [data-testid="bulk-actions-toolbar"]',
         customBulkActionsButton:
@@ -35,7 +35,7 @@ export default url => ({
         selectAll: 'thead input[type="checkbox"][aria-label="Select all rows"]',
         selectedItem: 'tbody input[type="checkbox"]:checked',
         selectItem: 'tbody input[type="checkbox"]',
-        userMenu: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        userMenu: '[data-testid="shadmin-user-menu-trigger"], [data-testid="user-menu-trigger"], button[aria-label="Profile"]',
         // Title - shadmin keeps #react-admin-title for compatibility
         title: '#react-admin-title, [data-testid="list-title"], h1',
         headroomUnfixed: '.headroom--unfixed, [data-testid="appbar"]',

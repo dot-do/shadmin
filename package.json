@@ -14,6 +14,7 @@
     "test:e2e:cypress:open": "cypress open --config-file packages/shadmin/cypress.config.js",
     "test:e2e:ra-compat": "cypress run --config-file vendor/react-admin/cypress/cypress.config.js",
     "test:e2e:ra-compat:open": "cypress open --config-file vendor/react-admin/cypress/cypress.config.js",
+    "dev:ra-compat": "pnpm --filter @shadmin/example-ra-compat dev",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
