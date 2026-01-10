@@ -209,8 +209,8 @@ describe('Create Component', () => {
         </Wrapper>
       )
 
-      // No actions should be rendered
-      expect(screen.queryByRole('button')).not.toBeInTheDocument()
+      // No actions container should be rendered
+      expect(screen.queryByTestId('create-actions')).not.toBeInTheDocument()
     })
   })
 

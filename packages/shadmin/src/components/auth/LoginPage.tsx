@@ -99,16 +99,28 @@ const buttonStyles = cn(
  * />
  * ```
  */
+/**
+ * Checkbox styling based on ShadCN Checkbox component patterns.
+ */
+const checkboxStyles = cn(
+  'peer h-4 w-4 shrink-0 rounded-sm border border-primary',
+  'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  'disabled:cursor-not-allowed disabled:opacity-50',
+  'accent-primary'
+)
+
 export function LoginPage({
   title = 'Sign In',
   className,
   redirectTo = '/',
   backgroundImage,
+  showRememberMe = false,
   submitButtonText = 'Sign In',
   loadingButtonText = 'Signing in...',
 }: LoginPageProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
 
   const { login, isLoading, error } = useLogin()
 
@@ -126,12 +138,12 @@ export function LoginPage({
       }
 
       try {
-        await login({ username, password }, options)
+        await login({ username, password, rememberMe }, options)
       } catch {
         // Error is handled by useLogin hook and displayed in the UI
       }
     },
-    [username, password, login, redirectTo]
+    [username, password, rememberMe, login, redirectTo]
   )
 
   const containerStyles = cn(
@@ -155,11 +167,18 @@ export function LoginPage({
     : undefined
 
   return (
-    <div className={containerStyles} style={backgroundStyles}>
-      <div className={formContainerStyles}>
+    <div
+      className={containerStyles}
+      style={backgroundStyles}
+      data-testid="login-page"
+    >
+      <div className={formContainerStyles} data-testid="login-form-container">
         <div className="space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            <h1
+              className="text-2xl font-bold tracking-tight text-foreground"
+              data-testid="login-title"
+            >
               {title}
             </h1>
           </div>
@@ -168,12 +187,13 @@ export function LoginPage({
             <div
               className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md"
               role="alert"
+              data-testid="login-error"
             >
               {error.message || 'Authentication failed, please retry'}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
             <div className="space-y-2">
               <label htmlFor="username" className={labelStyles}>
                 Username
@@ -189,6 +209,7 @@ export function LoginPage({
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
                 placeholder="Enter your username"
+                data-testid="login-username"
               />
             </div>
 
@@ -207,13 +228,36 @@ export function LoginPage({
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 placeholder="Enter your password"
+                data-testid="login-password"
               />
             </div>
+
+            {showRememberMe && (
+              <div className="flex items-center space-x-2">
+                <input
+                  id="remember-me"
+                  name="rememberMe"
+                  type="checkbox"
+                  className={checkboxStyles}
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isLoading}
+                  data-testid="login-remember-me"
+                />
+                <label
+                  htmlFor="remember-me"
+                  className={cn(labelStyles, 'cursor-pointer')}
+                >
+                  Remember me
+                </label>
+              </div>
+            )}
 
             <button
               type="submit"
               className={buttonStyles}
               disabled={isLoading}
+              data-testid="login-submit"
             >
               {isLoading ? loadingButtonText : submitButtonText}
             </button>

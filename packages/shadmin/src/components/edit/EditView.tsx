@@ -8,6 +8,7 @@
 
 import type { ReactNode, ReactElement } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { cn } from '../../utils'
 
 /**
  * Props for EditActions component
@@ -74,31 +75,38 @@ export function EditView({
   className,
 }: EditViewProps) {
   return (
-    <div className="edit-page flex gap-4">
-      <Card className={className} data-slot="card">
+    <div className="edit-page flex gap-4" data-testid="edit-view">
+      <Card className={cn('flex-1', className)} data-slot="card" data-testid="edit-card">
         {(title || actions) && (
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-4"
+            data-testid="edit-header"
+          >
             <div className="flex items-center gap-4">
               {title && (
                 typeof title === 'string' ? (
-                  <CardTitle>{title}</CardTitle>
+                  <CardTitle data-testid="edit-title">{title}</CardTitle>
                 ) : (
                   title
                 )
               )}
             </div>
             {actions !== false && actions && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-testid="edit-actions">
                 {actions}
               </div>
             )}
           </CardHeader>
         )}
-        <CardContent>
+        <CardContent data-testid="edit-content">
           {children}
         </CardContent>
       </Card>
-      {aside}
+      {aside && (
+        <div className="edit-aside" data-testid="edit-aside">
+          {aside}
+        </div>
+      )}
     </div>
   )
 }

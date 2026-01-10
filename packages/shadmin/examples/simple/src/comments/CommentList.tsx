@@ -138,10 +138,10 @@ const CommentGrid = () => {
 
 const CommentMobileList = () => (
     <SimpleList
-        primaryText={record => record.author.name}
+        primaryText={record => (record.author as { name: string })?.name}
         secondaryText={record => record.body}
         tertiaryText={record =>
-            new Date(record.created_at).toLocaleDateString()
+            new Date(record.created_at as string).toLocaleDateString()
         }
         leftAvatar={() => <PersonIcon />}
     />

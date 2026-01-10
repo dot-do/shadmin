@@ -471,19 +471,20 @@ export function TabbedForm({
 
   if (tabs.length === 0) {
     return (
-      <div data-slot="tabbed-form" className={className}>
-        <div role="tablist" />
+      <div data-slot="tabbed-form" data-testid="tabbed-form" className={className}>
+        <div role="tablist" data-testid="tabbed-form-tablist" />
       </div>
     )
   }
 
   return (
     <TabbedFormContext.Provider value={contextValue}>
-      <div data-slot="tabbed-form" className={cn('w-full', className)}>
-        {/* Tab List */}
+      <div data-slot="tabbed-form" data-testid="tabbed-form" className={cn('w-full', className)}>
+        {/* Tab List - follows shadcn/ui Tabs pattern */}
         <div
           role="tablist"
           aria-orientation="horizontal"
+          data-testid="tabbed-form-tablist"
           className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground"
           onKeyDown={handleKeyDown}
         >
@@ -501,6 +502,7 @@ export function TabbedForm({
                 type="button"
                 aria-selected={isActive}
                 aria-controls={`tabpanel-${tab.name}`}
+                data-testid={`tab-${tab.name}`}
                 data-state={isActive ? 'active' : 'inactive'}
                 data-has-error={hasError ? 'true' : undefined}
                 data-error-count={errorCount > 0 ? String(errorCount) : undefined}
@@ -509,12 +511,15 @@ export function TabbedForm({
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => !tab.disabled && setActiveTab(tab.name)}
                 className={cn(
+                  // Base tab trigger styles following shadcn/ui Tabs pattern
                   'form-tab inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                   'disabled:pointer-events-none disabled:opacity-50',
+                  // Active/inactive state
                   isActive
                     ? 'bg-background text-foreground shadow-sm'
                     : 'hover:bg-background/50',
+                  // Error state styling
                   hasError && 'text-destructive',
                   tab.triggerClassName
                 )}

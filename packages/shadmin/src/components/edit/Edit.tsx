@@ -71,23 +71,81 @@ export interface EditProps<RecordType extends RaRecord = RaRecord>
 }
 
 /**
- * Default loading component
+ * Spinner icon for loading state
+ */
+function LoaderIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  )
+}
+
+/**
+ * Alert circle icon for error state
+ */
+function AlertCircleIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  )
+}
+
+/**
+ * Default loading component with improved styling
  */
 function DefaultLoading() {
   return (
-    <div data-testid="edit-loading" className="flex items-center justify-center p-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    <div
+      data-testid="edit-loading"
+      className="flex flex-col items-center justify-center gap-3 p-8 text-muted-foreground"
+    >
+      <LoaderIcon className="h-8 w-8 animate-spin" />
+      <span className="text-sm">Loading...</span>
     </div>
   )
 }
 
 /**
- * Default error component
+ * Default error component with improved styling following shadcn/ui patterns
  */
 function DefaultError({ message }: { message: string }) {
   return (
-    <div data-testid="edit-error" className="p-4 text-destructive">
-      {message}
+    <div
+      data-testid="edit-error"
+      role="alert"
+      className="flex flex-col items-center justify-center gap-4 rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center"
+    >
+      <AlertCircleIcon className="h-12 w-12 text-destructive" />
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-destructive">Error loading record</h3>
+        <p className="text-sm text-muted-foreground">{message}</p>
+      </div>
     </div>
   )
 }

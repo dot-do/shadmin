@@ -38,10 +38,11 @@ const buttonSizes = {
 export interface CloneButtonProps<RecordType extends RaRecord = any>
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   /**
-   * The record to clone
-   * If not provided, uses the record from context
+   * The record to clone or partial record with initial values.
+   * Can be a full record from context (with id) or just initial field values (without id).
+   * If not provided, uses the record from context.
    */
-  record?: RecordType
+  record?: RecordType | Record<string, unknown>
   /**
    * The resource to create
    * If not provided, uses the resource from context

@@ -5,7 +5,7 @@
  * Uses shadcn/ui-inspired styling with a custom select implementation.
  */
 
-import { forwardRef, useState, useRef, useEffect, useCallback } from 'react'
+import { forwardRef, useState, useRef, useEffect, useCallback, memo } from 'react'
 import { cn } from '../../utils'
 
 /**
@@ -195,9 +195,9 @@ export const RowsPerPageSelector = forwardRef<HTMLButtonElement, RowsPerPageSele
 RowsPerPageSelector.displayName = 'RowsPerPageSelector'
 
 /**
- * ChevronDown icon component
+ * ChevronDown icon component (memoized for performance)
  */
-function ChevronDownIcon({ className }: { className?: string }) {
+const ChevronDownIcon = memo(function ChevronDownIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -210,16 +210,17 @@ function ChevronDownIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
     >
       <path d="m6 9 6 6 6-6" />
     </svg>
   )
-}
+})
 
 /**
- * Check icon component
+ * Check icon component (memoized for performance)
  */
-function CheckIcon({ className }: { className?: string }) {
+const CheckIcon = memo(function CheckIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -232,8 +233,9 @@ function CheckIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
     >
       <path d="M20 6 9 17l-5-5" />
     </svg>
   )
-}
+})

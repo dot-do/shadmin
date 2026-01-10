@@ -1,6 +1,6 @@
 import frenchMessages from 'ra-language-french';
 
-export default {
+const messages: Record<string, unknown> = {
     simple: {
         action: {
             close: 'Fermer',
@@ -109,3 +109,5 @@ export default {
         },
     },
 };
+
+export default messages;

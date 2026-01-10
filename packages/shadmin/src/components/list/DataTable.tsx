@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { get } from 'lodash-es'
 import type { RaRecord } from '../../types'
 import { useRecordContext } from '../../contexts/RecordContext'
@@ -23,6 +23,10 @@ export interface DataTableProps<T extends RaRecord = RaRecord> extends Omit<Data
   rowClick?: RowClickHandler<T> | string | boolean | ((id: any, resource: string, record: T) => string)
   /** Bulk action buttons or false to disable */
   bulkActionButtons?: ReactNode | false
+  /** Expandable row content - component or element to render when row is expanded */
+  expand?: ReactNode | ComponentType<any>
+  /** Columns to hide from the table */
+  hiddenColumns?: string[]
   /** Resource name */
   resource?: string
   /** Table density size (small is mapped to sm) */

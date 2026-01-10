@@ -4,6 +4,7 @@ import {
   useCallback,
   useRef,
   useContext,
+  memo,
   type InputHTMLAttributes,
 } from 'react'
 import { ListContext } from '@/contexts/ListContext'
@@ -26,9 +27,9 @@ export interface SearchInputProps
 }
 
 /**
- * Search icon SVG component
+ * Search icon SVG component (memoized for performance)
  */
-function SearchIcon({ className }: { className?: string }) {
+const SearchIcon = memo(function SearchIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -41,12 +42,13 @@ function SearchIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
     >
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
   )
-}
+})
 
 /**
  * SearchInput component provides a debounced text search filter

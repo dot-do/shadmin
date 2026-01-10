@@ -3,6 +3,7 @@ import {
   type ReactElement,
   type CSSProperties,
   type MouseEvent,
+  type ComponentType,
   Children,
   isValidElement,
   useCallback,
@@ -10,6 +11,8 @@ import {
   useRef,
   useEffect,
   useState,
+  createElement,
+  memo,
 } from 'react'
 import {
   useReactTable,
@@ -23,11 +26,8 @@ import {
 } from '@tanstack/react-table'
 import { useListContext, type Identifier } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
+import { cn } from '../../utils'
 import type { RaRecord } from '../../types'
-// Note: These components are available for future use
-// import { DatagridHeader } from './DatagridHeader'
-// import { DatagridBody } from './DatagridBody'
-// import { DatagridRow } from './DatagridRow'
 
 /**
  * Cell renderer props for custom cell rendering
@@ -93,7 +93,7 @@ export interface DatagridProps<T extends RaRecord = RaRecord> {
   /** Whether the table is currently loading */
   isLoading?: boolean
   /** Component to render when row is expanded */
-  expand?: ReactNode
+  expand?: ReactNode | ComponentType
   /** Function to determine if a row can be expanded */
   isRowExpandable?: (record: T) => boolean
   /** Custom cell renderer for all cells */
@@ -323,9 +323,25 @@ export function Datagrid<T extends RaRecord = RaRecord>({
               }}
               aria-expanded={isExpanded}
               aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
-              className="p-1 hover:bg-muted rounded"
+              className={cn(
+                'inline-flex h-6 w-6 items-center justify-center rounded-sm',
+                'text-muted-foreground hover:bg-muted hover:text-foreground',
+                'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+                'transition-colors'
+              )}
             >
-              {isExpanded ? '\u25BC' : '\u25B6'}
+              <svg
+                className={cn('h-4 w-4 transition-transform', isExpanded && 'rotate-90')}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </button>
           )
         },
@@ -335,6 +351,9 @@ export function Datagrid<T extends RaRecord = RaRecord>({
     }
 
     // Add selection column at the beginning (after expand if present)
+    // Checkbox styling for shadcn pattern
+    const checkboxClassName = 'h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 accent-primary'
+
     if (showSelection) {
       const selectionColumn: ColumnDef<T> = {
         id: 'selection',
@@ -342,6 +361,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
           <input
             ref={headerCheckboxRef}
             type="checkbox"
+            className={checkboxClassName}
             checked={table.getIsAllRowsSelected()}
             onChange={(e) => {
               if (e.target.checked) {
@@ -357,6 +377,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
         cell: ({ row }) => (
           <input
             type="checkbox"
+            className={checkboxClassName}
             checked={selectedIds.includes(row.original.id as Identifier)}
             onChange={() => onToggleItem(row.original.id as Identifier)}
             onClick={(e) => e.stopPropagation()}
@@ -365,7 +386,13 @@ export function Datagrid<T extends RaRecord = RaRecord>({
         ),
         enableSorting: false,
       }
-      cols = [cols[0], selectionColumn, ...cols.slice(showExpand ? 1 : 0)]
+      if (showExpand) {
+        // Insert selection after expand column
+        cols = [cols[0], selectionColumn, ...cols.slice(1)]
+      } else {
+        // Insert selection at the beginning
+        cols = [selectionColumn, ...cols]
+      }
     }
 
     return cols
@@ -448,15 +475,13 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   // Determine if rows are clickable
   const isRowClickable = rowClick && rowClick !== false
 
-  // Build table classes
-  const tableClasses = [
-    'w-full caption-bottom text-sm',
-    size === 'sm' && 'text-xs compact sm',
-    size === 'lg' && 'text-base large',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+  // Build table classes using cn utility for proper class merging
+  const tableClasses = cn(
+    'w-full caption-bottom text-sm border-collapse',
+    size === 'sm' && 'text-xs compact sm [&_th]:h-8 [&_th]:px-1.5 [&_td]:p-1.5',
+    size === 'lg' && 'text-base large lg [&_th]:h-12 [&_th]:px-4 [&_td]:p-4',
+    className
+  )
 
   // Loading state
   if (contextIsLoading && !data) {
@@ -519,12 +544,11 @@ export function Datagrid<T extends RaRecord = RaRecord>({
                     key={header.id}
                     scope="col"
                     data-testid={`column-header-${header.column.id}`}
-                    className={[
+                    className={cn(
                       'h-10 px-2 text-left align-middle font-medium text-muted-foreground',
-                      canSort && 'cursor-pointer select-none',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
+                      '[&:has([role=checkbox])]:pr-0',
+                      canSort && 'cursor-pointer select-none hover:text-foreground transition-colors'
+                    )}
                     aria-sort={sortDirection}
                     onClick={canSort ? () => handleSortChange(header.column.id) : undefined}
                   >
@@ -560,13 +584,12 @@ export function Datagrid<T extends RaRecord = RaRecord>({
               return (
                 <RecordContextProvider key={row.id} value={record}>
                   <tr
-                    className={[
+                    className={cn(
                       'border-b transition-colors',
-                      hover && 'hover:bg-muted/50 hover',
+                      hover && 'hover:bg-muted/50',
                       isRowClickable && 'cursor-pointer',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
+                      selectedIds.includes(record.id as Identifier) && 'bg-muted/50'
+                    )}
                     style={{
                       ...customStyle,
                       cursor: isRowClickable ? 'pointer' : undefined,
@@ -579,7 +602,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
                     data-selected={selectedIds.includes(record.id as Identifier) || undefined}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="p-2 align-middle">
+                      <td key={cell.id} className="p-2 align-middle [&:has([role=checkbox])]:pr-0">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -587,7 +610,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
                   {isExpanded && (
                     <tr className="bg-muted/30">
                       <td colSpan={finalColumns.length} className="p-4">
-                        {expand}
+                        {typeof expand === 'function' ? createElement(expand) : expand}
                       </td>
                     </tr>
                   )}

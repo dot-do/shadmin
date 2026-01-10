@@ -1,5 +1,13 @@
+/**
+ * SimpleShowLayout Component
+ * Provides a simple layout for displaying fields in a Show view
+ * 100% API-compatible with react-admin SimpleShowLayout
+ *
+ * Epic: shadmin-ha1 (P1)
+ */
+
 import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
-import { cn } from '@/utils'
+import { cn } from '../../lib/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
 import type { RaRecord } from '../../types'
 
@@ -25,7 +33,7 @@ export interface SimpleShowLayoutProps extends HTMLAttributes<HTMLDivElement> {
   /**
    * Number of columns for grid layout (only applies when direction is 'horizontal')
    */
-  columns?: number
+  columns?: 1 | 2 | 3 | 4
   /**
    * Whether to add dividers between fields
    * @default false
@@ -69,6 +77,17 @@ export interface SimpleShowLayoutProps extends HTMLAttributes<HTMLDivElement> {
  * </SimpleShowLayout>
  * ```
  */
+/**
+ * Map columns prop to Tailwind grid classes
+ * Using explicit classes for Tailwind JIT compilation
+ */
+const columnClasses: Record<1 | 2 | 3 | 4, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+}
+
 export function SimpleShowLayout({
   children,
   record: recordProp,
@@ -89,11 +108,12 @@ export function SimpleShowLayout({
 
   const isHorizontal = direction === 'horizontal'
 
-  // Build layout classes
+  // Build layout classes with proper Tailwind grid classes
   const layoutClasses = cn(
+    'simple-show-layout',
     isHorizontal
       ? columns
-        ? `grid grid-cols-${columns}`
+        ? `grid ${columnClasses[columns]}`
         : 'flex flex-wrap'
       : 'flex flex-col',
     gap,
@@ -105,12 +125,16 @@ export function SimpleShowLayout({
 
   if (divider && !isHorizontal) {
     return (
-      <div className={layoutClasses} {...rest}>
+      <div
+        className={layoutClasses}
+        data-testid="simple-show-layout"
+        {...rest}
+      >
         {childArray.map((child, index) => (
-          <div key={index}>
+          <div key={index} data-testid={`show-field-${index}`}>
             {cloneElement(child)}
             {index < childArray.length - 1 && (
-              <hr className="my-4 border-border" />
+              <hr className="mt-4 border-border" />
             )}
           </div>
         ))}
@@ -119,8 +143,16 @@ export function SimpleShowLayout({
   }
 
   return (
-    <div className={layoutClasses} {...rest}>
-      {childArray.map((child, index) => cloneElement(child, { key: index }))}
+    <div
+      className={layoutClasses}
+      data-testid="simple-show-layout"
+      {...rest}
+    >
+      {childArray.map((child, index) => (
+        <div key={index} data-testid={`show-field-${index}`}>
+          {cloneElement(child)}
+        </div>
+      ))}
     </div>
   )
 }

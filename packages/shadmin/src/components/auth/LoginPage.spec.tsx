@@ -105,6 +105,7 @@ describe('LoginPage', () => {
         expect(authProvider.login).toHaveBeenCalledWith({
           username: 'admin',
           password: 'secret123',
+          rememberMe: false,
         })
       })
     })

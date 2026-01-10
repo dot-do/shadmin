@@ -129,6 +129,7 @@ export interface FormTabPanelProps {
 
 /**
  * FormTabPanel - Internal component for rendering tab panel content
+ * Follows shadcn/ui TabsContent pattern for consistent styling
  */
 export function FormTabPanel({
   value,
@@ -142,10 +143,14 @@ export function FormTabPanel({
       role="tabpanel"
       id={`tabpanel-${value}`}
       aria-labelledby={`tab-${value}`}
+      data-testid={`tabpanel-${value}`}
       data-state={isActive ? 'active' : 'inactive'}
       hidden={!isActive && !forceRender}
       className={cn(
-        'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        // Tab panel styling following shadcn/ui pattern
+        'mt-2 ring-offset-background',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        // Hide inactive panels while keeping them in the DOM for form registration
         !isActive && forceRender && 'hidden',
         className
       )}

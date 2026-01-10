@@ -6,3 +6,4 @@
 export { LoginPage, type LoginPageProps } from './LoginPage'
 export { LogoutButton, type LogoutButtonProps } from './LogoutButton'
 export { CanAccess, type CanAccessProps, type CanAccessRenderProps, type CanAccessFallbackProps } from './CanAccess'
+export { ProtectedRoute, type ProtectedRouteProps } from './ProtectedRoute'

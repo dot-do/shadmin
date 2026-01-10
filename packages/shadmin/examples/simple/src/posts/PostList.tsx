@@ -85,7 +85,7 @@ const PostListMobile = () => (
             primaryText={record => record.title}
             secondaryText={record => `${record.views} views`}
             tertiaryText={record =>
-                new Date(record.published_at).toLocaleDateString()
+                new Date(record.published_at as string).toLocaleDateString()
             }
         />
     </InfiniteList>

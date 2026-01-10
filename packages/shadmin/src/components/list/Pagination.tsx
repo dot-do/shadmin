@@ -6,7 +6,7 @@
  * 100% API compatible with react-admin Pagination.
  */
 
-import { forwardRef, type ReactNode } from 'react'
+import { forwardRef, memo, useCallback, type ReactNode } from 'react'
 import { cn } from '../../utils'
 import { useListContext, type ListControllerResult } from '../../contexts/ListContext'
 import { RowsPerPageSelector } from './RowsPerPageSelector'
@@ -298,9 +298,9 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
 Pagination.displayName = 'Pagination'
 
 /**
- * ChevronLeft icon component
+ * ChevronLeft icon component (memoized for performance)
  */
-function ChevronLeftIcon({ className }: { className?: string }) {
+const ChevronLeftIcon = memo(function ChevronLeftIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -313,16 +313,17 @@ function ChevronLeftIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
     >
       <path d="m15 18-6-6 6-6" />
     </svg>
   )
-}
+})
 
 /**
- * ChevronRight icon component
+ * ChevronRight icon component (memoized for performance)
  */
-function ChevronRightIcon({ className }: { className?: string }) {
+const ChevronRightIcon = memo(function ChevronRightIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -335,8 +336,9 @@ function ChevronRightIcon({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
     >
       <path d="m9 18 6-6-6-6" />
     </svg>
   )
-}
+})

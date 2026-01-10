@@ -208,23 +208,37 @@ export function LogoutButton({
         onClick={handleClick}
         disabled={isLoading}
         aria-label={ariaLabel}
+        data-testid="logout-button"
       >
         {icon}
         {!iconOnly && displayLabel}
       </button>
 
       {showConfirmDialog && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50" data-testid="logout-dialog">
           <div
             className={dialogOverlayStyles}
             onClick={handleCancel}
             data-state="open"
+            data-testid="logout-dialog-overlay"
           />
-          <div className={dialogContentStyles} data-state="open" role="dialog">
+          <div
+            className={dialogContentStyles}
+            data-state="open"
+            role="dialog"
+            data-testid="logout-dialog-content"
+          >
             <div className="flex flex-col space-y-2 text-center sm:text-left">
-              <h2 className="text-lg font-semibold">{confirmTitle}</h2>
+              <h2 className="text-lg font-semibold" data-testid="logout-dialog-title">
+                {confirmTitle}
+              </h2>
               {confirmMessage && (
-                <p className="text-sm text-muted-foreground">{confirmMessage}</p>
+                <p
+                  className="text-sm text-muted-foreground"
+                  data-testid="logout-dialog-message"
+                >
+                  {confirmMessage}
+                </p>
               )}
             </div>
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
@@ -232,6 +246,7 @@ export function LogoutButton({
                 type="button"
                 className={cn(buttonBaseStyles, variantStyles.outline, sizeStyles.default)}
                 onClick={handleCancel}
+                data-testid="logout-dialog-cancel"
               >
                 Cancel
               </button>
@@ -239,6 +254,7 @@ export function LogoutButton({
                 type="button"
                 className={cn(buttonBaseStyles, variantStyles.destructive, sizeStyles.default)}
                 onClick={handleConfirm}
+                data-testid="logout-dialog-confirm"
               >
                 Confirm
               </button>

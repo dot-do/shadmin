@@ -33,7 +33,11 @@ type AuthState = 'loading' | 'authenticated' | 'unauthenticated' | 'unauthorized
  * Default loading component with accessible status
  */
 const DefaultLoading = () => (
-  <div role="status" aria-label="Loading authentication...">
+  <div
+    role="status"
+    aria-label="Loading authentication..."
+    data-testid="protected-route-loading"
+  >
     <span className="sr-only">Loading...</span>
   </div>
 )

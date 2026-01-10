@@ -20,6 +20,7 @@ import {
   type FieldArrayPath,
 } from 'react-hook-form'
 import { cn } from '../../utils'
+import { type ValidateProp, adaptValidators } from '../../validation/adapter'
 
 /**
  * Context value for ArrayInput
@@ -111,6 +112,14 @@ export interface ArrayInputProps<T extends FieldValues = FieldValues>
    */
   disabled?: boolean
   /**
+   * ReactAdmin-compatible validators for the validate prop.
+   * Can be a single validator or array of validators.
+   * @example
+   * validate={required()}
+   * validate={[required(), minLength(3)]}
+   */
+  validate?: ValidateProp
+  /**
    * Children components (should include SimpleFormIterator)
    */
   children?: ReactNode
@@ -169,6 +178,7 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
       label,
       helperText,
       rules,
+      validate,
       defaultValue,
       minItems,
       maxItems,
@@ -188,6 +198,9 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
     const errorId = `${fieldId}-error`
     const helperId = `${fieldId}-helper`
 
+    // Convert validate prop to react-hook-form validate function
+    const adaptedValidate = adaptValidators(validate)
+
     // Build validation rules combining minItems/maxItems with custom rules
     const combinedRules = {
       ...rules,
@@ -196,6 +209,8 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
         ...(typeof rules?.validate === 'function'
           ? { custom: rules.validate }
           : rules?.validate),
+        // Adapted validators from validate prop
+        ...(adaptedValidate && { validateProp: adaptedValidate as (value: unknown[], formValues: FieldValues) => string | true | Promise<string | true> }),
         // minItems validation
         ...(minItems !== undefined && {
           minItems: (value: unknown[]) => {

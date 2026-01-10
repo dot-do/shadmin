@@ -1,6 +1,6 @@
 import englishMessages from 'ra-language-english';
 
-export const messages = {
+export const messages: Record<string, unknown> = {
     simple: {
         action: {
             close: 'Close',

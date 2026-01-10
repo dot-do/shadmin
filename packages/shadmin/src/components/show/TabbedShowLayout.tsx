@@ -399,20 +399,29 @@ export function TabbedShowLayout({
 
   if (tabs.length === 0) {
     return (
-      <div data-slot="tabbed-show-layout" className={className}>
-        <div role="tablist" />
+      <div
+        data-slot="tabbed-show-layout"
+        data-testid="tabbed-show-layout"
+        className={className}
+      >
+        <div role="tablist" data-testid="tabbed-show-tablist" />
       </div>
     )
   }
 
   return (
     <TabbedShowLayoutContext.Provider value={contextValue}>
-      <div data-slot="tabbed-show-layout" className={cn('w-full', className)}>
+      <div
+        data-slot="tabbed-show-layout"
+        data-testid="tabbed-show-layout"
+        className={cn('w-full', className)}
+      >
         {/* Tab List */}
         <div
           role="tablist"
           aria-orientation="horizontal"
-          className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground"
+          data-testid="tabbed-show-tablist"
+          className="inline-flex h-10 items-center justify-start rounded-lg bg-muted p-1 text-muted-foreground"
           onKeyDown={handleKeyDown}
         >
           {tabs.map((tab) => {
@@ -427,17 +436,18 @@ export function TabbedShowLayout({
                 aria-selected={isActive}
                 aria-controls={`show-tabpanel-${tab.name}`}
                 data-state={isActive ? 'active' : 'inactive'}
+                data-testid={`show-tab-${tab.name}`}
                 disabled={tab.disabled}
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => !tab.disabled && setActiveTab(tab.name)}
                 className={cn(
                   'show-tab',
-                  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all',
+                  'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                   'disabled:pointer-events-none disabled:opacity-50',
                   isActive
                     ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:bg-background/50',
+                    : 'hover:bg-background/50 hover:text-foreground/80',
                   tab.triggerClassName
                 )}
               >
@@ -464,6 +474,7 @@ export function TabbedShowLayout({
               id={`show-tabpanel-${tab.name}`}
               aria-labelledby={`show-tab-${tab.name}`}
               data-state={isActive ? 'active' : 'inactive'}
+              data-testid={`show-tabpanel-${tab.name}`}
               hidden={!isActive}
               className={cn(
                 'mt-4 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',

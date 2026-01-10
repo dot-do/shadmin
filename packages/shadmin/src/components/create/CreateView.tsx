@@ -6,8 +6,9 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import { memo, type ReactNode, type ReactElement } from 'react'
+import type { ReactNode, ReactElement } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { cn } from '../../utils'
 
 /**
  * Props for CreateView component
@@ -52,9 +53,9 @@ export interface CreateViewProps {
  * ```
  */
 /**
- * CreateView - Memoized UI wrapper component for create display
+ * CreateView - UI wrapper component for create display
  */
-export const CreateView = memo(function CreateView({
+export function CreateView({
   children,
   title,
   actions,
@@ -62,29 +63,38 @@ export const CreateView = memo(function CreateView({
   aside,
 }: CreateViewProps) {
   return (
-    <div className="create-page flex gap-4">
-      <Card className={className} data-slot="card">
-        {(title || actions !== false) && (
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+    <div className="create-page flex gap-4" data-testid="create-view">
+      <Card className={cn('flex-1', className)} data-slot="card" data-testid="create-card">
+        {(title || actions) && (
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 pb-4"
+            data-testid="create-header"
+          >
             <div className="flex items-center gap-4">
               {title && (
                 typeof title === 'string' ? (
-                  <CardTitle>{title}</CardTitle>
+                  <CardTitle data-testid="create-title">{title}</CardTitle>
                 ) : (
                   title
                 )
               )}
             </div>
             {actions !== false && actions && (
-              <div className="flex items-center gap-2">{actions}</div>
+              <div className="flex items-center gap-2" data-testid="create-actions">
+                {actions}
+              </div>
             )}
           </CardHeader>
         )}
-        <CardContent>{children}</CardContent>
+        <CardContent data-testid="create-content">{children}</CardContent>
       </Card>
-      {aside}
+      {aside && (
+        <div className="create-aside" data-testid="create-aside">
+          {aside}
+        </div>
+      )}
     </div>
   )
-})
+}
 
 export default CreateView

@@ -351,6 +351,8 @@ export interface InfiniteListProps<RecordType extends { id: Identifier } = { id:
   children: ReactNode
   /** Title to display in the list header */
   title?: ReactNode
+  /** Exporter function for data export, or false to disable */
+  exporter?: ((data: RecordType[]) => void) | false
 }
 
 /**
@@ -400,6 +402,8 @@ export function InfiniteList<RecordType extends { id: Identifier } = { id: Ident
   empty,
   className,
   aside,
+  // Export prop (accepted for API compatibility, not yet implemented)
+  exporter: _exporter,
   // Children
   children,
 }: InfiniteListProps<RecordType>) {

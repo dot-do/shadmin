@@ -8,6 +8,7 @@
 
 import type { ReactNode, ReactElement } from 'react'
 import type { RaRecord } from '../../types'
+import { cn } from '../../lib/utils'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
 /**
@@ -46,9 +47,10 @@ export interface ShowViewProps {
 function DefaultLoading() {
   return (
     <div
-      className="flex items-center justify-center p-8"
+      className="flex items-center justify-center py-12"
       role="progressbar"
       aria-label="Loading"
+      data-testid="show-loading"
     >
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
     </div>
@@ -60,9 +62,12 @@ function DefaultLoading() {
  */
 function DefaultError({ error }: { error: Error }) {
   return (
-    <div className="p-6 text-destructive">
-      <p className="font-semibold">Error</p>
-      <p className="text-sm">{error.message}</p>
+    <div
+      className="rounded-md border border-destructive/50 bg-destructive/10 p-4"
+      data-testid="show-error"
+    >
+      <p className="font-semibold text-destructive">Error</p>
+      <p className="text-sm text-destructive/80 mt-1">{error.message}</p>
     </div>
   )
 }
@@ -107,28 +112,49 @@ export function ShowView({
   errorComponent,
   emptyWhileLoading,
 }: ShowViewProps) {
+  // Helper to render header
+  const renderHeader = (showActions = true) => {
+    if (!title && !actions) return null
+    if (!title && actions === false) return null
+
+    return (
+      <CardHeader
+        className="flex flex-row items-center justify-between space-y-0 pb-4"
+        data-testid="show-header"
+      >
+        <div className="flex items-center gap-4">
+          {title && (
+            typeof title === 'string' ? (
+              <CardTitle data-testid="show-title">{title}</CardTitle>
+            ) : (
+              <div data-testid="show-title">{title}</div>
+            )
+          )}
+        </div>
+        {showActions && actions !== false && actions && (
+          <div className="flex items-center gap-2" data-testid="show-actions">
+            {actions}
+          </div>
+        )}
+      </CardHeader>
+    )
+  }
+
   // Show loading state
   if (isLoading) {
     if (emptyWhileLoading && empty) {
       return empty
     }
     return (
-      <Card className={className} data-slot="card">
-        {(title || actions) && (
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            {title && (
-              typeof title === 'string' ? (
-                <CardTitle>{title}</CardTitle>
-              ) : (
-                title
-              )
-            )}
-          </CardHeader>
-        )}
-        <CardContent>
-          {loading ?? <DefaultLoading />}
-        </CardContent>
-      </Card>
+      <div className="show-page flex gap-4" data-testid="show-view">
+        <Card className={cn('flex-1', className)} data-slot="card">
+          {renderHeader(false)}
+          <CardContent data-testid="show-content">
+            {loading ?? <DefaultLoading />}
+          </CardContent>
+        </Card>
+        {aside && <div data-testid="show-aside">{aside}</div>}
+      </div>
     )
   }
 
@@ -137,71 +163,42 @@ export function ShowView({
     // Check if it's a "not found" error and show empty component if provided
     if (error.message.toLowerCase().includes('not found') && empty) {
       return (
-        <Card className={className} data-slot="card">
-          {(title || actions) && (
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              {title && (
-                typeof title === 'string' ? (
-                  <CardTitle>{title}</CardTitle>
-                ) : (
-                  title
-                )
-              )}
-            </CardHeader>
-          )}
-          <CardContent>
-            {empty}
-          </CardContent>
-        </Card>
+        <div className="show-page flex gap-4" data-testid="show-view">
+          <Card className={cn('flex-1', className)} data-slot="card">
+            {renderHeader(false)}
+            <CardContent data-testid="show-content">
+              {empty}
+            </CardContent>
+          </Card>
+          {aside && <div data-testid="show-aside">{aside}</div>}
+        </div>
       )
     }
 
     return (
-      <Card className={className} data-slot="card">
-        {(title || actions) && (
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            {title && (
-              typeof title === 'string' ? (
-                <CardTitle>{title}</CardTitle>
-              ) : (
-                title
-              )
-            )}
-          </CardHeader>
-        )}
-        <CardContent>
-          {errorComponent ?? <DefaultError error={error} />}
-        </CardContent>
-      </Card>
+      <div className="show-page flex gap-4" data-testid="show-view">
+        <Card className={cn('flex-1', className)} data-slot="card">
+          {renderHeader(false)}
+          <CardContent data-testid="show-content">
+            {errorComponent ?? <DefaultError error={error} />}
+          </CardContent>
+        </Card>
+        {aside && <div data-testid="show-aside">{aside}</div>}
+      </div>
     )
   }
 
   // Show content
   return (
-    <Card className={className} data-slot="card">
-      {(title || actions !== false) && (title || actions) && (
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div className="flex items-center gap-4">
-            {title && (
-              typeof title === 'string' ? (
-                <CardTitle>{title}</CardTitle>
-              ) : (
-                title
-              )
-            )}
-          </div>
-          {actions !== false && actions && (
-            <div className="flex items-center gap-2">
-              {actions}
-            </div>
-          )}
-        </CardHeader>
-      )}
-      <CardContent>
-        {children}
-      </CardContent>
-      {aside}
-    </Card>
+    <div className="show-page flex gap-4" data-testid="show-view">
+      <Card className={cn('flex-1', className)} data-slot="card">
+        {renderHeader()}
+        <CardContent data-testid="show-content">
+          {children}
+        </CardContent>
+      </Card>
+      {aside && <div data-testid="show-aside">{aside}</div>}
+    </div>
   )
 }
 
