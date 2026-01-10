@@ -5,6 +5,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuthProvider } from '../contexts/AuthProviderContext'
 import { isNetworkError } from '../errors'
 
@@ -55,6 +56,7 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
   const { onSuccess, onError } = options
   const authProvider = useAuthProvider()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [isLocalStateCleaned, setIsLocalStateCleaned] = useState(false)
@@ -73,6 +75,9 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
 
       try {
         const result = await authProvider.logout()
+
+        // Clear permissions cache on logout
+        queryClient.removeQueries({ queryKey: ['permissions'] })
 
         // Handle redirect
         // If authProvider.logout returns false, don't redirect
@@ -104,7 +109,7 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutResult {
         setIsLoading(false)
       }
     },
-    [authProvider, navigate, onSuccess, onError]
+    [authProvider, navigate, queryClient, onSuccess, onError]
   )
 
   return {

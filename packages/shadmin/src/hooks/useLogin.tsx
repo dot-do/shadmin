@@ -5,6 +5,7 @@
 
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuthProvider } from '../contexts/AuthProviderContext'
 import { isHttpError } from '../errors'
 
@@ -59,6 +60,7 @@ export function useLogin(options: UseLoginOptions = {}): UseLoginResult {
   const { onSuccess, onError } = options
   const authProvider = useAuthProvider()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -69,6 +71,9 @@ export function useLogin(options: UseLoginOptions = {}): UseLoginResult {
 
       try {
         const result = await authProvider.login(credentials)
+
+        // Invalidate permissions cache to fetch fresh permissions for the new user
+        await queryClient.invalidateQueries({ queryKey: ['permissions'] })
 
         // Handle redirect
         const redirectTo = loginOptions?.redirectTo
@@ -87,7 +92,7 @@ export function useLogin(options: UseLoginOptions = {}): UseLoginResult {
         setIsLoading(false)
       }
     },
-    [authProvider, navigate, onSuccess, onError]
+    [authProvider, navigate, queryClient, onSuccess, onError]
   )
 
   // Extract retryAfter from rate limiting errors
