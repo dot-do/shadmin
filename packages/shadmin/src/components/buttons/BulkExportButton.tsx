@@ -139,6 +139,7 @@ export const BulkExportButton = forwardRef<HTMLButtonElement, BulkExportButtonPr
       <button
         ref={ref}
         type="button"
+        data-testid="shadmin-bulk-export-button"
         disabled={disabled || !hasSelection || !exporter}
         className={cn(
           buttonBaseStyles,

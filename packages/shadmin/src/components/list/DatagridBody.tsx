@@ -60,7 +60,7 @@ export function DatagridBody<T extends RaRecord = RaRecord>({
 }: DatagridBodyProps<T>) {
   if (isEmpty) {
     return (
-      <tbody className="[&_tr:last-child]:border-0">
+      <tbody className="[&_tr:last-child]:border-0" data-testid="shadmin-datagrid-body">
         <tr>
           <td colSpan={columnCount} className="h-24 text-center">
             {empty || <span>No data available</span>}
@@ -71,7 +71,7 @@ export function DatagridBody<T extends RaRecord = RaRecord>({
   }
 
   return (
-    <tbody className="[&_tr:last-child]:border-0">
+    <tbody className="[&_tr:last-child]:border-0" data-testid="shadmin-datagrid-body">
       {rows.map((row, rowIndex) => {
         const record = row.original
         const customStyle = rowStyle ? rowStyle(record, rowIndex) : undefined

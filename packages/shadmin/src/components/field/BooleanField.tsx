@@ -102,13 +102,13 @@ export function BooleanField({
   if (rawValue == null) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-boolean-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span /></p>
         </div>
       )
     }
-    return <span className={cn('ra-field', sourceClass, className)} {...rest} />
+    return <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-boolean-field" {...rest} />
   }
 
   // Determine boolean value
@@ -127,14 +127,14 @@ export function BooleanField({
   if (valueLabelTrue && valueLabelFalse) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-boolean-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{boolValue ? valueLabelTrue : valueLabelFalse}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-boolean-field" {...rest}>
         <p><span>{boolValue ? valueLabelTrue : valueLabelFalse}</span></p>
       </span>
     )
@@ -149,7 +149,7 @@ export function BooleanField({
 
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest} aria-label={String(boolValue)}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-boolean-field" {...rest} aria-label={String(boolValue)}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span className="inline-flex items-center">{icon}</span></p>
       </div>
@@ -157,7 +157,7 @@ export function BooleanField({
   }
 
   return (
-    <span className={cn('ra-field', sourceClass, 'inline-flex items-center', className)} aria-label={String(boolValue)} {...rest}>
+    <span className={cn('ra-field', sourceClass, 'inline-flex items-center', className)} aria-label={String(boolValue)} data-testid="shadmin-boolean-field" {...rest}>
       <p><span>{icon}</span></p>
     </span>
   )

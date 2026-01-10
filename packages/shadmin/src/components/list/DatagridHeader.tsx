@@ -40,7 +40,7 @@ export function DatagridHeader<T extends RaRecord = RaRecord>({
   showSelection: _showSelection = false,
 }: DatagridHeaderProps<T>) {
   return (
-    <thead className="[&_tr]:border-b">
+    <thead className="[&_tr]:border-b" data-testid="shadmin-datagrid-header">
       {headerGroups.map((headerGroup) => (
         <tr key={headerGroup.id} className="border-b transition-colors hover:bg-muted/50">
           {headerGroup.headers.map((header) => {

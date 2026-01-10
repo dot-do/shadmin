@@ -170,14 +170,14 @@ export function LoginPage({
     <div
       className={containerStyles}
       style={backgroundStyles}
-      data-testid="login-page"
+      data-testid="shadmin-login-page"
     >
-      <div className={formContainerStyles} data-testid="login-form-container">
+      <div className={formContainerStyles} data-testid="shadmin-login-form-container">
         <div className="space-y-6">
           <div className="text-center">
             <h1
               className="text-2xl font-bold tracking-tight text-foreground"
-              data-testid="login-title"
+              data-testid="shadmin-login-title"
             >
               {title}
             </h1>
@@ -187,13 +187,13 @@ export function LoginPage({
             <div
               className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md"
               role="alert"
-              data-testid="login-error"
+              data-testid="shadmin-login-error"
             >
               {error.message || 'Authentication failed, please retry'}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="shadmin-login-form">
             <div className="space-y-2">
               <label htmlFor="username" className={labelStyles}>
                 Username
@@ -209,7 +209,7 @@ export function LoginPage({
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
                 placeholder="Enter your username"
-                data-testid="login-username"
+                data-testid="shadmin-login-username"
               />
             </div>
 
@@ -228,7 +228,7 @@ export function LoginPage({
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 placeholder="Enter your password"
-                data-testid="login-password"
+                data-testid="shadmin-login-password"
               />
             </div>
 
@@ -242,7 +242,7 @@ export function LoginPage({
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   disabled={isLoading}
-                  data-testid="login-remember-me"
+                  data-testid="shadmin-login-remember-me"
                 />
                 <label
                   htmlFor="remember-me"
@@ -257,7 +257,7 @@ export function LoginPage({
               type="submit"
               className={buttonStyles}
               disabled={isLoading}
-              data-testid="login-submit"
+              data-testid="shadmin-login-submit"
             >
               {isLoading ? loadingButtonText : submitButtonText}
             </button>

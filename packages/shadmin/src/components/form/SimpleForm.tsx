@@ -327,6 +327,7 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
     >
       <form
         role="form"
+        data-testid="shadmin-form"
         onSubmit={handleSubmit(onFormSubmit as (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>)}
         className={cn('space-y-4', className)}
         noValidate={noValidate}

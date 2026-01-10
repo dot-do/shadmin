@@ -73,7 +73,7 @@ export function FunctionField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn(className)} data-testid="shadmin-function-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <span>{displayContent}</span>
       </div>
@@ -81,7 +81,7 @@ export function FunctionField({
   }
 
   return (
-    <span className={cn(className)} {...rest}>
+    <span className={cn(className)} data-testid="shadmin-function-field" {...rest}>
       {displayContent}
     </span>
   )

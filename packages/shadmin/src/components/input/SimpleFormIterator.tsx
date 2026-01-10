@@ -219,7 +219,7 @@ export function SimpleFormIterator({
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-2', className)} data-testid="shadmin-simple-form-iterator">
       <div className={cn(inline ? 'flex flex-row flex-wrap gap-2' : 'space-y-2')}>
         {fields.map((field, index) => (
           <SimpleFormIteratorItem

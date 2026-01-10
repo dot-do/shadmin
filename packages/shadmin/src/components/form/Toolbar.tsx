@@ -101,7 +101,7 @@ export function Toolbar({
     <div
       role="toolbar"
       className={cn('flex items-center gap-2 pt-4', className)}
-      data-testid={testId}
+      data-testid={testId ?? 'shadmin-form-toolbar'}
     >
       {children ?? <SaveButton saving={saving} disabled={disabled} />}
     </div>
@@ -201,6 +201,7 @@ export const SaveButton = forwardRef<HTMLButtonElement, SaveButtonProps>(
         ref={ref}
         type="submit"
         disabled={disabled || isSubmitting}
+        data-testid="shadmin-form-submit"
         className={cn(
           buttonBaseStyles,
           buttonVariants[resolveVariant(variant)],
@@ -321,6 +322,7 @@ export const DeleteButton = forwardRef<HTMLButtonElement, DeleteButtonProps>(
         ref={ref}
         type="button"
         disabled={disabled}
+        data-testid="shadmin-form-delete"
         className={cn(
           buttonBaseStyles,
           buttonVariants[resolveVariant(variant)],
@@ -395,7 +397,7 @@ export function TopToolbar({
   return (
     <div
       className={cn('flex items-center justify-end gap-2', className)}
-      data-testid={testId}
+      data-testid={testId ?? 'shadmin-top-toolbar'}
     >
       {children}
     </div>

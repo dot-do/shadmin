@@ -86,14 +86,14 @@ export function RichTextField({
   if (isEmpty) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-rich-text-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-rich-text-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </div>
     )
@@ -106,14 +106,14 @@ export function RichTextField({
     const plainText = stripHtmlTags(htmlContent)
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-rich-text-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{plainText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-rich-text-field" {...rest}>
         <p><span>{plainText}</span></p>
       </span>
     )
@@ -122,7 +122,7 @@ export function RichTextField({
   // Render HTML content
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-rich-text-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span dangerouslySetInnerHTML={{ __html: htmlContent }} /></p>
       </div>
@@ -130,7 +130,7 @@ export function RichTextField({
   }
 
   return (
-    <div className={cn('ra-field', sourceClass, className)} {...rest}>
+    <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-rich-text-field" {...rest}>
       <p><span dangerouslySetInnerHTML={{ __html: htmlContent }} /></p>
     </div>
   )

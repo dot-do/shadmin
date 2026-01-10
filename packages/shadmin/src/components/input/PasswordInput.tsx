@@ -201,7 +201,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     }
 
     return (
-      <div className={cn('space-y-2', fullWidth && 'w-full')}>
+      <div className={cn('space-y-2', fullWidth && 'w-full')} data-testid="shadmin-password-input">
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>
             {displayLabel}

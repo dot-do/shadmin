@@ -115,6 +115,7 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
       role="form"
       className={cn('filter-form', className)}
       onSubmit={onSubmit}
+      data-testid="shadmin-filter-form"
       {...props}
     >
       {typeof children === 'function' ? children(formProps) : children}

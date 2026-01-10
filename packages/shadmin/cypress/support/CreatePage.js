@@ -1,29 +1,35 @@
 export default url => ({
     elements: {
-        addAuthor: '.button-add-authors',
+        addAuthor: '.button-add-authors, [data-testid="add-author-button"]',
         body: 'body',
         input: (name, type = 'input') => {
             if (type === 'rich-text-input') {
-                return `.ra-input-${name} .ProseMirror`;
+                // Rich text editors use ProseMirror
+                return `.create-page [data-testid="input-${name}"] .ProseMirror, .create-page .ProseMirror`;
             }
-            return `.create-page ${type}[name='${name}']`;
+            // shadmin uses standard form elements with name attributes
+            return `.create-page ${type}[name='${name}'], [data-testid="create-view"] ${type}[name='${name}']`;
         },
-        inputs: `.ra-input`,
-        richTextInputError: '.create-page .ra-rich-text-input-error',
+        inputs: `[data-testid="create-content"] input, [data-testid="create-content"] textarea, .create-page input, .create-page textarea`,
+        richTextInputError: '.create-page [data-testid="rich-text-error"], [data-testid="create-content"] .text-destructive',
         snackbar: 'div[role="alert"]',
-        submitButton: ".create-page div[role='toolbar'] button[type='submit']",
+        // shadmin uses role="toolbar" for button containers
+        submitButton: ".create-page [role='toolbar'] button[type='submit'], [data-testid='create-view'] button[type='submit']",
         submitAndShowButton:
-            ".create-page form div[role='toolbar'] button[type='button']:nth-child(2)",
+            ".create-page [role='toolbar'] button[type='button']:nth-child(2), [data-testid='create-view'] [role='toolbar'] button:nth-child(2)",
         submitAndAddButton:
-            ".create-page form div[role='toolbar'] button[type='button']:nth-child(3)",
+            ".create-page [role='toolbar'] button[type='button']:nth-child(3), [data-testid='create-view'] [role='toolbar'] button:nth-child(3)",
         submitCommentable:
-            ".create-page form div[role='toolbar'] button[type='button']:last-child",
+            ".create-page [role='toolbar'] button[type='button']:last-child, [data-testid='create-view'] [role='toolbar'] button:last-child",
         descInput: '.ProseMirror',
-        tab: index => `.form-tab:nth-of-type(${index})`,
-        title: '#react-admin-title',
-        userMenu: 'button[aria-label="Profile"]',
-        logout: '.logout',
-        nameError: '.MuiFormHelperText-root',
+        // Tabs use role="tab" with aria-controls
+        tab: index => `[role="tab"]:nth-of-type(${index}), button[role="tab"]:nth-child(${index})`,
+        // shadmin keeps #react-admin-title via TitlePortal component
+        title: '#react-admin-title, [data-testid="create-title"], h1',
+        userMenu: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        logout: '.logout, [data-testid="logout-button"]',
+        // Error messages use text-destructive class in shadmin
+        nameError: '.text-destructive, [data-testid="error-message"], p.text-sm.text-destructive',
     },
 
     navigate() {

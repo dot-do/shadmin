@@ -201,7 +201,7 @@ export const RadioButtonGroupInput = forwardRef<HTMLInputElement, RadioButtonGro
     }
 
     return (
-      <div className={cn('space-y-2', className)}>
+      <div className={cn('space-y-2', className)} data-testid="shadmin-radio-button-group-input">
         {showLabel && (
           <div className={groupLabelStyles}>
             {displayLabel}

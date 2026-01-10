@@ -727,20 +727,20 @@ export function TabbedForm({
   // Handle empty state gracefully
   if (tabs.length === 0) {
     return (
-      <div data-slot="tabbed-form" data-testid="tabbed-form" className={className}>
-        <div role="tablist" data-testid="tabbed-form-tablist" />
+      <div data-slot="tabbed-form" data-testid="shadmin-tabbed-form" className={className}>
+        <div role="tablist" data-testid="shadmin-tabbed-form-tablist" />
       </div>
     )
   }
 
   return (
     <TabbedFormContext.Provider value={contextValue}>
-      <div data-slot="tabbed-form" data-testid="tabbed-form" className={cn('w-full', className)}>
+      <div data-slot="tabbed-form" data-testid="shadmin-tabbed-form" className={cn('w-full', className)}>
         {/* Tab List - follows shadcn/ui Tabs pattern */}
         <div
           role="tablist"
           aria-orientation="horizontal"
-          data-testid="tabbed-form-tablist"
+          data-testid="shadmin-tabbed-form-tablist"
           className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground"
           onKeyDown={handleKeyDown}
         >

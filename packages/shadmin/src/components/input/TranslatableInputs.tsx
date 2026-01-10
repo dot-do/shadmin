@@ -303,7 +303,7 @@ export function TranslatableInputs({
   if (fullWidth) {
     return (
       <TranslatableInputsContext.Provider value={contextValue}>
-        <div data-slot="translatable-inputs" className={cn('space-y-4', className)}>
+        <div data-slot="translatable-inputs" className={cn('space-y-4', className)} data-testid="shadmin-translatable-inputs">
           <div className={cn('grid', `grid-cols-${locales.length}`, 'gap-4')}>
             {locales.map((locale) => (
               <div key={locale} className={cn('flex flex-col', gap)}>
@@ -321,7 +321,7 @@ export function TranslatableInputs({
 
   return (
     <TranslatableInputsContext.Provider value={contextValue}>
-      <div data-slot="translatable-inputs" className={cn('space-y-4', className)}>
+      <div data-slot="translatable-inputs" className={cn('space-y-4', className)} data-testid="shadmin-translatable-inputs">
         {/* Locale Selector */}
         <div className="flex justify-end">
           {renderSelector()}

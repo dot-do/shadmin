@@ -105,7 +105,7 @@ export function ChipField({
 
   if (isEmpty && !resolvedEmptyText) {
     return label ? (
-      <div className={cn('ra-field', sourceClass)}>
+      <div className={cn('ra-field', sourceClass)} data-testid="shadmin-chip-field">
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span /></p>
       </div>
@@ -114,7 +114,7 @@ export function ChipField({
 
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass)}>
+      <div className={cn('ra-field', sourceClass)} data-testid="shadmin-chip-field">
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span className={chipClasses} {...rest}>
           {displayValue}
@@ -124,7 +124,7 @@ export function ChipField({
   }
 
   return (
-    <span className={cn('ra-field', sourceClass)}>
+    <span className={cn('ra-field', sourceClass)} data-testid="shadmin-chip-field">
       <p><span className={chipClasses} {...rest}>
         {displayValue}
       </span></p>

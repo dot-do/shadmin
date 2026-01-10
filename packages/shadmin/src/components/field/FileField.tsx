@@ -125,7 +125,7 @@ export function FileField({
   if (isEmpty) {
     if (label) {
       return (
-        <div>
+        <div data-testid="shadmin-file-field">
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span className={cn(className)} {...rest}>
             {resolvedEmptyText}
@@ -134,7 +134,7 @@ export function FileField({
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
+      <span className={cn(className)} data-testid="shadmin-file-field" {...rest}>
         {resolvedEmptyText}
       </span>
     )
@@ -194,28 +194,28 @@ export function FileField({
 
     if (label) {
       return (
-        <div>
+        <div data-testid="shadmin-file-field">
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <div className="flex flex-wrap gap-2">{content}</div>
         </div>
       )
     }
 
-    return <div className="flex flex-wrap gap-2">{content}</div>
+    return <div className="flex flex-wrap gap-2" data-testid="shadmin-file-field">{content}</div>
   }
 
   // Handle single file (value is string or FileValue object at this point)
   const singleValue = value as string | FileValue
   if (label) {
     return (
-      <div>
+      <div data-testid="shadmin-file-field">
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         {renderFileLink(singleValue)}
       </div>
     )
   }
 
-  return renderFileLink(singleValue)
+  return <span data-testid="shadmin-file-field">{renderFileLink(singleValue)}</span>
 }
 
 /**

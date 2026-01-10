@@ -170,7 +170,7 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
 
   if (isLoading) {
     return (
-      <div className={cn('space-y-2', className)}>
+      <div className={cn('space-y-2', className)} data-testid="shadmin-simple-list">
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
@@ -191,14 +191,14 @@ export function SimpleList<RecordType extends RaRecord = RaRecord>({
     return empty ? (
       <>{empty}</>
     ) : (
-      <div className={cn('text-center py-8 text-muted-foreground', className)}>
+      <div className={cn('text-center py-8 text-muted-foreground', className)} data-testid="shadmin-simple-list">
         No records found
       </div>
     )
   }
 
   return (
-    <ul role="list" className={cn('divide-y divide-border', className)}>
+    <ul role="list" className={cn('divide-y divide-border', className)} data-testid="shadmin-simple-list">
       {data.map((record, index) => {
         const link = getLink(record)
         const leftAvatarContent = getAvatar(leftAvatar, record)

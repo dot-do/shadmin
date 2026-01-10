@@ -300,7 +300,7 @@ export function TranslatableFields({
 
   return (
     <TranslatableFieldsContext.Provider value={contextValue}>
-      <div data-slot="translatable-fields" className={cn('space-y-4', className)}>
+      <div data-slot="translatable-fields" className={cn('space-y-4', className)} data-testid="shadmin-translatable-fields">
         {/* Locale Selector */}
         <div className="flex justify-end">
           {renderSelector()}

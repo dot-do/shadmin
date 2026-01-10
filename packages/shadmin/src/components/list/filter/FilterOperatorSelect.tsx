@@ -113,6 +113,7 @@ export function FilterOperatorSelect({
       onChange={handleChange}
       className={cn(selectStyles, className)}
       disabled={disabled}
+      data-testid="shadmin-filter-operator-select"
       {...props}
     >
       {availableOperators.map((op) => (

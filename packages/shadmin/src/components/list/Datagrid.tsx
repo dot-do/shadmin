@@ -377,6 +377,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
               }
             }}
             aria-label="Select all rows"
+            data-testid="shadmin-datagrid-select-all"
           />
         ),
         cell: ({ row }) => (
@@ -387,6 +388,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
             onChange={() => onToggleItem(row.original.id as Identifier)}
             onClick={(e) => e.stopPropagation()}
             aria-label={`Select row ${row.original.id}`}
+            data-testid={`shadmin-datagrid-row-select-${row.index}`}
           />
         ),
         enableSorting: false,
@@ -539,7 +541,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
   }
 
   return (
-    <div className="relative w-full overflow-auto">
+    <div className="relative w-full overflow-auto" data-testid="shadmin-datagrid">
       <table className={tableClasses}>
         <thead className="[&_tr]:border-b">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -610,6 +612,7 @@ export function Datagrid<T extends RaRecord = RaRecord>({
                         ? (e) => handleRowClick(record, rowIndex, e)
                         : undefined
                     }
+                    data-testid={`shadmin-datagrid-row-${rowIndex}`}
                     data-selected={selectedIds.includes(record.id as Identifier) || undefined}
                   >
                     {row.getVisibleCells().map((cell) => (

@@ -122,6 +122,7 @@ export const EditButton = forwardRef<HTMLAnchorElement, EditButtonProps>(
       <Link
         ref={ref}
         to={to}
+        data-testid="shadmin-edit-button"
         className={cn(
           buttonBaseStyles,
           buttonVariants[variant],

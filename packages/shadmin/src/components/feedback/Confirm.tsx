@@ -183,6 +183,7 @@ export function Confirm({
       aria-modal="true"
       aria-labelledby="confirm-title"
       aria-describedby="confirm-message"
+      data-testid="shadmin-confirm-dialog"
       className="fixed inset-0 z-50 flex items-center justify-center"
       onClick={handleBackdropClick}
     >
@@ -233,6 +234,7 @@ export function Confirm({
             variant="outline"
             onClick={onClose}
             disabled={loading}
+            data-testid="shadmin-confirm-cancel"
           >
             {cancelLabel}
           </Button>
@@ -240,6 +242,7 @@ export function Confirm({
             variant={confirmVariant}
             onClick={handleConfirm}
             loading={loading}
+            data-testid="shadmin-confirm-submit"
           >
             {confirmLabel}
           </Button>

@@ -222,7 +222,7 @@ export const CheckboxGroupInput = forwardRef<HTMLInputElement, CheckboxGroupInpu
     }
 
     return (
-      <div className={cn('space-y-2', className)}>
+      <div className={cn('space-y-2', className)} data-testid="shadmin-checkbox-group-input">
         {showLabel && (
           <div className={groupLabelStyles}>
             {displayLabel}

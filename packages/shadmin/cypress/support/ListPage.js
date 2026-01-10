@@ -1,40 +1,47 @@
 export default url => ({
     elements: {
-        addFilterButton: '.add-filter',
-        appLoader: '.app-loader',
-        displayedRecords: '.displayed-records',
-        filter: name => `.filter-field[data-source='${name}'] input`,
-        filterButton: name => `.filter-field[data-source='${name}']`,
-        filterMenuItems: `.new-filter-item`,
-        menuItems: `a[role=menuitem]`,
-        filterMenuItem: source => `.new-filter-item[data-key="${source}"]`,
+        // Filter elements - shadmin uses .filter-button and .filter-form
+        addFilterButton: '.filter-button',
+        appLoader: '[role="status"][aria-label="Loading"]',
+        displayedRecords: '.flex-1.text-sm.text-muted-foreground',
+        filter: name => `.filter-form input[name='${name}'], .filter-form input`,
+        filterButton: name => `.filter-form [data-source='${name}'], .filter-form`,
+        filterMenuItems: `.filter-form`,
+        menuItems: `[role=menuitem]`,
+        filterMenuItem: source => `[data-key="${source}"], .filter-form`,
         hideFilterButton: source =>
-            `.filter-field[data-source="${source}"] .hide-filter`,
+            `[data-source="${source}"] button, .filter-form button[type="reset"]`,
+        // Pagination - shadmin uses aria-labels
         nextPage: "button[aria-label='Go to next page']",
         previousPage: "button[aria-label='Go to previous page']",
         pageNumber: n => `button[aria-label='Go to page ${n}']`,
-        recordRows: '.datatable-body tr.RaDataTable-row',
-        viewsColumn: '.datatable-body tr td:nth-child(8)',
+        // Datagrid - shadmin uses standard table elements
+        recordRows: 'tbody tr[data-selected], tbody tr:not(:has(td[colspan]))',
+        viewsColumn: 'tbody tr td:nth-child(8)',
         datagridHeaders: 'th',
-        sortBy: name => `th span[data-field="${name}"]`,
+        sortBy: name => `th[data-testid="column-header-${name}"], th[aria-sort]`,
         svg: (name, criteria = '') =>
-            `th span[data-field="${name}"] svg${criteria}`,
-        profile: '[aria-label="Profile"]',
-        logout: '.logout',
-        bulkActionsToolbar: '[data-test=bulk-actions-toolbar]',
+            `th[data-testid="column-header-${name}"] svg${criteria}`,
+        // User menu - shadmin uses data-testid and aria-label
+        profile: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        logout: '.logout, [data-testid="logout-button"]',
+        // Bulk actions - shadmin uses role="toolbar"
+        bulkActionsToolbar: '[role="toolbar"], [data-testid="bulk-actions-toolbar"]',
         customBulkActionsButton:
-            '[data-test=bulk-actions-toolbar] button[aria-label="Reset views"]',
+            '[role="toolbar"] button[aria-label="Reset views"], [data-testid="bulk-actions-toolbar"] button',
         deleteBulkActionsButton:
-            '[data-test=bulk-actions-toolbar] button[aria-label="Delete"]',
-        selectAll: '.select-all',
-        selectedItem: '.select-item input:checked',
-        selectItem: '.select-item input',
-        userMenu: 'button[aria-label="Profile"]',
-        title: '#react-admin-title',
-        headroomUnfixed: '.headroom--unfixed',
-        headroomUnpinned: '.headroom--unpinned',
-        skipNavButton: '.skip-nav-button',
-        mainContent: '#main-content',
+            '[role="toolbar"] button[aria-label="Delete"], [data-testid="bulk-actions-toolbar"] button',
+        // Selection - shadmin uses standard checkboxes
+        selectAll: 'thead input[type="checkbox"][aria-label="Select all rows"]',
+        selectedItem: 'tbody input[type="checkbox"]:checked',
+        selectItem: 'tbody input[type="checkbox"]',
+        userMenu: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        // Title - shadmin keeps #react-admin-title for compatibility
+        title: '#react-admin-title, [data-testid="list-title"], h1',
+        headroomUnfixed: '.headroom--unfixed, [data-testid="appbar"]',
+        headroomUnpinned: '.headroom--unpinned, [data-testid="appbar"]',
+        skipNavButton: '.skip-nav-button, [data-testid="skip-nav"]',
+        mainContent: '#main-content, [data-testid="main-content"], main',
     },
 
     navigate() {

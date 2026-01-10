@@ -161,6 +161,7 @@ export const BulkDeleteButton = forwardRef<HTMLButtonElement, BulkDeleteButtonPr
         ref={ref}
         type="button"
         disabled={disabled || isPending || !hasSelection}
+        data-testid="shadmin-bulk-delete-button"
         className={cn(
           buttonBaseStyles,
           buttonVariants[variant],

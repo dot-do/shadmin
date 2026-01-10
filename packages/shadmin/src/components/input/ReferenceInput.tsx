@@ -221,7 +221,7 @@ export function ReferenceInput({
     <AutocompleteInput {...childProps} />
   )
 
-  return <div className={className}>{childElement}</div>
+  return <div className={className} data-testid="shadmin-reference-input">{childElement}</div>
 }
 
 ReferenceInput.displayName = 'ReferenceInput'

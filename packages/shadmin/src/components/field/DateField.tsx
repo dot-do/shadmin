@@ -82,14 +82,14 @@ export function DateField({
   if (rawValue == null) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
@@ -107,14 +107,14 @@ export function DateField({
     // Invalid type
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
@@ -124,14 +124,14 @@ export function DateField({
   if (isNaN(dateValue.getTime())) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
@@ -155,7 +155,7 @@ export function DateField({
 
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span>{displayValue}</span></p>
       </div>
@@ -163,7 +163,7 @@ export function DateField({
   }
 
   return (
-    <span className={cn('ra-field', sourceClass, className)} {...rest}>
+    <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-date-field" {...rest}>
       <p><span>{displayValue}</span></p>
     </span>
   )

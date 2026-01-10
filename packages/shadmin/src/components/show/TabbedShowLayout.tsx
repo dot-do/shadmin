@@ -575,10 +575,10 @@ export function TabbedShowLayout({
     return (
       <div
         data-slot="tabbed-show-layout"
-        data-testid="tabbed-show-layout"
+        data-testid="shadmin-tabbed-show-layout"
         className={className}
       >
-        <div role="tablist" data-testid="tabbed-show-tablist" />
+        <div role="tablist" data-testid="shadmin-tabbed-show-tablist" />
       </div>
     )
   }
@@ -587,14 +587,14 @@ export function TabbedShowLayout({
     <TabbedShowLayoutContext.Provider value={contextValue}>
       <div
         data-slot="tabbed-show-layout"
-        data-testid="tabbed-show-layout"
+        data-testid="shadmin-tabbed-show-layout"
         className={cn('w-full', className)}
       >
         {/* Tab List */}
         <div
           role="tablist"
           aria-orientation="horizontal"
-          data-testid="tabbed-show-tablist"
+          data-testid="shadmin-tabbed-show-tablist"
           className="inline-flex h-10 items-center justify-start rounded-lg bg-muted p-1 text-muted-foreground"
           onKeyDown={handleKeyDown}
         >

@@ -396,6 +396,7 @@ export const AutocompleteInput = forwardRef<
       <div
         className={cn('space-y-2', fullWidth && 'w-full')}
         ref={containerRef}
+        data-testid="shadmin-autocomplete-input"
       >
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>

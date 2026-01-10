@@ -1,30 +1,38 @@
 export default url => ({
     elements: {
         body: 'body',
-        deleteButton: '.ra-delete-button',
-        addBacklinkButton: '.button-add-backlinks',
-        removeBacklinkButton: '[aria-label="Remove"]',
+        // shadmin uses button with specific class or data-testid
+        deleteButton: '[data-testid="delete-button"], button.text-destructive, .edit-page button[aria-label="Delete"]',
+        addBacklinkButton: '.button-add-backlinks, [data-testid="add-backlink-button"]',
+        removeBacklinkButton: '[aria-label="Remove"], button[aria-label="Remove"]',
         input: (name, type = 'input') => {
             if (type === 'rich-text-input') {
-                return `.ra-input-${name} .ProseMirror`;
+                // Rich text editors use ProseMirror
+                return `.edit-page [data-testid="input-${name}"] .ProseMirror, .edit-page .ProseMirror`;
             }
             if (type === 'checkbox-group-input') {
-                return `.ra-input-${name} label`;
+                // Checkbox groups use labels wrapping checkboxes
+                return `.edit-page [data-testid="input-${name}"] label, [data-testid="edit-view"] [name="${name}"]`;
             }
             if (type === 'reference-array-input') {
-                return `.ra-input-${name}`;
+                return `.edit-page [data-testid="input-${name}"], [data-testid="edit-view"] [name="${name}"]`;
             }
-            return `.edit-page [name='${name}']`;
+            // shadmin uses standard form elements with name attributes
+            return `.edit-page [name='${name}'], [data-testid="edit-view"] [name='${name}']`;
         },
-        inputs: `.ra-input`,
-        tabs: `.form-tab`,
+        inputs: `[data-testid="edit-content"] input, [data-testid="edit-content"] textarea, .edit-page input, .edit-page textarea`,
+        // Tabs use role="tab"
+        tabs: `[role="tab"]`,
         snackbar: 'div[role="alert"]',
-        submitButton: ".edit-page div[role='toolbar'] button[type='submit']",
-        cloneButton: '.button-clone',
-        tab: index => `.form-tab:nth-of-type(${index})`,
-        title: '#react-admin-title',
-        userMenu: 'button[aria-label="Profile"]',
-        logout: '.logout',
+        // shadmin uses role="toolbar" for button containers
+        submitButton: ".edit-page [role='toolbar'] button[type='submit'], [data-testid='edit-view'] button[type='submit']",
+        cloneButton: '.button-clone, [data-testid="clone-button"]',
+        // Tabs use role="tab" with aria-controls
+        tab: index => `[role="tab"]:nth-of-type(${index}), button[role="tab"]:nth-child(${index})`,
+        // shadmin keeps #react-admin-title via TitlePortal component
+        title: '#react-admin-title, [data-testid="edit-title"], h1',
+        userMenu: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        logout: '.logout, [data-testid="logout-button"]',
     },
 
     navigate() {

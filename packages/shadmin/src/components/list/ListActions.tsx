@@ -85,7 +85,7 @@ export function ListActions({
   return (
     <div
       className={cn('flex items-center justify-end gap-2', className)}
-      data-testid={testId}
+      data-testid={testId ?? 'shadmin-list-actions'}
     >
       {hasCreate && <CreateButton />}
       {hasExport && <ExportButton />}

@@ -164,7 +164,7 @@ function SidebarTrigger({ className }: SidebarTriggerProps) {
     <button
       type="button"
       data-slot="sidebar-trigger"
-      data-testid="sidebar-trigger"
+      data-testid="shadmin-sidebar-trigger"
       onClick={toggleSidebar}
       className={cn(
         'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
@@ -368,7 +368,7 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
           role="complementary"
           data-slot="sidebar"
           data-sidebar="sidebar"
-          data-testid="sidebar"
+          data-testid="shadmin-sidebar"
           data-mobile="true"
           data-mobile-open={openMobile ? 'true' : 'false'}
           className={cn(
@@ -390,7 +390,7 @@ function DefaultSidebar({ title, menu: Menu, menuItems }: DefaultSidebarProps) {
       role="complementary"
       data-slot="sidebar"
       data-sidebar="sidebar"
-      data-testid="sidebar"
+      data-testid="shadmin-sidebar"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
         'hidden md:flex flex-col border-r bg-sidebar text-sidebar-foreground',
@@ -422,7 +422,7 @@ function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarP
     <header
       role="banner"
       data-slot="appbar"
-      data-testid="appbar"
+      data-testid="shadmin-appbar"
       className={cn(
         'sticky top-0 z-30 flex h-14 shrink-0 items-center gap-4 border-b',
         'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
@@ -445,7 +445,7 @@ function DefaultAppBar({ title, showThemeToggle, onThemeChange }: DefaultAppBarP
         <button
           type="button"
           data-slot="theme-toggle"
-          data-testid="theme-toggle"
+          data-testid="shadmin-theme-toggle"
           onClick={onThemeChange}
           className={cn(
             'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
@@ -669,7 +669,7 @@ function LayoutInner({
           id="main-content"
           role="main"
           data-slot="main-content"
-          data-testid="main-content"
+          data-testid="shadmin-main-content"
           className="flex-1 overflow-auto p-4 md:p-6"
           tabIndex={-1}
         >

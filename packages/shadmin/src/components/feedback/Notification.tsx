@@ -238,6 +238,7 @@ export function NotificationToast({
     <div
       role="alert"
       aria-live="polite"
+      data-testid="shadmin-notification-toast"
       className={cn(
         'flex items-start gap-3 rounded-lg border p-4 shadow-lg',
         'animate-in slide-in-from-right-full',
@@ -333,6 +334,7 @@ export function NotificationContainer({
   return (
     <div
       aria-label="Notifications"
+      data-testid="shadmin-notification-container"
       className={cn(
         'fixed z-50 flex flex-col gap-2 w-full max-w-sm',
         positionStyles[position],

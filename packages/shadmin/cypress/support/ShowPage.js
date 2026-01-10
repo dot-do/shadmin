@@ -1,13 +1,15 @@
 export default (url, initialField = 'title') => ({
     elements: {
         body: 'body',
-        field: name => `.ra-field-${name} > p > span`,
-        fields: `.ra-field`,
-        snackbar: 'div[role="alertdialog"]',
-        tabs: `.show-tab`,
-        tab: index => `.show-tab:nth-of-type(${index})`,
-        userMenu: 'button[aria-label="Profile"]',
-        logout: '.logout',
+        // shadmin uses data-testid for fields and spans for field values
+        field: name => `[data-testid="field-${name}"], [data-source="${name}"] span, .show-page [data-source="${name}"]`,
+        fields: `[data-testid="show-content"] > *, .show-page [data-source]`,
+        snackbar: 'div[role="alert"], div[role="alertdialog"]',
+        // Tabs use role="tab"
+        tabs: `[role="tab"]`,
+        tab: index => `[role="tab"]:nth-of-type(${index}), button[role="tab"]:nth-child(${index})`,
+        userMenu: '[data-testid="user-menu-trigger"], button[aria-label="Profile"]',
+        logout: '.logout, [data-testid="logout-button"]',
     },
 
     navigate() {

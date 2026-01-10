@@ -138,7 +138,7 @@ export const DateTimeInput = forwardRef<HTMLInputElement, DateTimeInputProps>(
     const displayLabel = label || source
 
     return (
-      <div className={cn('space-y-2', fullWidth && 'w-full')}>
+      <div className={cn('space-y-2', fullWidth && 'w-full')} data-testid="shadmin-datetime-input">
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>
             {displayLabel}

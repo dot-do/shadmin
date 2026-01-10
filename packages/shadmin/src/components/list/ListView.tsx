@@ -79,9 +79,9 @@ export function ListView({
   )
 
   return (
-    <Card className={className} data-slot="card">
+    <Card className={className} data-slot="card" data-testid="shadmin-list-view">
       {(title || actions || filters) && (
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4" data-testid="shadmin-list-header">
           <div className="flex items-center gap-4">
             {title && (
               typeof title === 'string' ? (
@@ -93,13 +93,13 @@ export function ListView({
             {filters}
           </div>
           {actions !== false && actions && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" data-testid="shadmin-list-actions">
               {actions}
             </div>
           )}
         </CardHeader>
       )}
-      <CardContent>
+      <CardContent data-testid="shadmin-list-content">
         {showEmpty ? empty : children}
         {pagination !== false && pagination}
       </CardContent>

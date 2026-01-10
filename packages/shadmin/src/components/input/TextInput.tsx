@@ -241,7 +241,7 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
     }
 
     return (
-      <div className={cn('space-y-2', fullWidth && 'w-full')}>
+      <div className={cn('space-y-2', fullWidth && 'w-full')} data-testid="shadmin-text-input">
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>
             {displayLabel}

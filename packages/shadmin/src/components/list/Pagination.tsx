@@ -205,7 +205,7 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
       <div
         ref={ref}
         className={cn('flex items-center justify-between px-2 py-4', className)}
-        data-testid={dataTestId}
+        data-testid={dataTestId ?? 'shadmin-pagination'}
       >
         {/* Record count display */}
         <div className="flex-1 text-sm text-muted-foreground">
@@ -217,6 +217,7 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
           {/* Previous button */}
           <button
             type="button"
+            data-testid="shadmin-pagination-prev"
             className={cn(
               baseButtonStyles,
               buttonVariants.ghost,
@@ -266,6 +267,7 @@ export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTM
           {/* Next button */}
           <button
             type="button"
+            data-testid="shadmin-pagination-next"
             className={cn(
               baseButtonStyles,
               buttonVariants.ghost,

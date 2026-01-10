@@ -308,7 +308,7 @@ export function FilterInput({
   const displayLabel = label || source
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-testid="shadmin-filter-input">
       {showLabel && <label className={labelStyles}>{displayLabel}</label>}
       <div className="flex gap-2">
         {showOperator && (

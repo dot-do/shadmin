@@ -115,6 +115,7 @@ export const CreateButton = forwardRef<HTMLAnchorElement, CreateButtonProps>(
       <Link
         ref={ref}
         to={to}
+        data-testid="shadmin-create-button"
         className={cn(
           buttonBaseStyles,
           buttonVariants[variant],

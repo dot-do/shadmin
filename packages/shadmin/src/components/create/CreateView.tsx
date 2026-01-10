@@ -63,33 +63,33 @@ export function CreateView({
   aside,
 }: CreateViewProps) {
   return (
-    <div className="create-page flex gap-4" data-testid="create-view">
-      <Card className={cn('flex-1', className)} data-slot="card" data-testid="create-card">
+    <div className="create-page flex gap-4" data-testid="shadmin-create-view">
+      <Card className={cn('flex-1', className)} data-slot="card" data-testid="shadmin-create-card">
         {(title || actions) && (
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 pb-4"
-            data-testid="create-header"
+            data-testid="shadmin-create-header"
           >
             <div className="flex items-center gap-4">
               {title && (
                 typeof title === 'string' ? (
-                  <CardTitle data-testid="create-title">{title}</CardTitle>
+                  <CardTitle data-testid="shadmin-create-title">{title}</CardTitle>
                 ) : (
                   title
                 )
               )}
             </div>
             {actions !== false && actions && (
-              <div className="flex items-center gap-2" data-testid="create-actions">
+              <div className="flex items-center gap-2" data-testid="shadmin-create-actions">
                 {actions}
               </div>
             )}
           </CardHeader>
         )}
-        <CardContent data-testid="create-content">{children}</CardContent>
+        <CardContent data-testid="shadmin-create-content">{children}</CardContent>
       </Card>
       {aside && (
-        <div className="create-aside" data-testid="create-aside">
+        <div className="create-aside" data-testid="shadmin-create-aside">
           {aside}
         </div>
       )}

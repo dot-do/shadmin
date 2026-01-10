@@ -122,6 +122,7 @@ export const ShowButton = forwardRef<HTMLAnchorElement, ShowButtonProps>(
       <Link
         ref={ref}
         to={to}
+        data-testid="shadmin-show-button"
         className={cn(
           buttonBaseStyles,
           buttonVariants[variant],

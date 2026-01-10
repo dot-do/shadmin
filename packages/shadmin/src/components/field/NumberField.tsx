@@ -77,14 +77,14 @@ export function NumberField({
   if (rawValue == null) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-number-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-number-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
@@ -97,14 +97,14 @@ export function NumberField({
   if (isNaN(numValue)) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-number-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-number-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
@@ -116,7 +116,7 @@ export function NumberField({
 
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-number-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span>{displayValue}</span></p>
       </div>
@@ -124,7 +124,7 @@ export function NumberField({
   }
 
   return (
-    <span className={cn('ra-field', sourceClass, className)} {...rest}>
+    <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-number-field" {...rest}>
       <p><span>{displayValue}</span></p>
     </span>
   )

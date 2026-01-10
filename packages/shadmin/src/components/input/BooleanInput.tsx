@@ -178,7 +178,7 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
     }
 
     return (
-      <div className={cn('space-y-2', fullWidth && 'w-full')}>
+      <div className={cn('space-y-2', fullWidth && 'w-full')} data-testid="shadmin-boolean-input">
         <label className="flex items-center gap-3">
           <button
             {...rest}

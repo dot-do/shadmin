@@ -65,11 +65,11 @@ function UserMenu({ user }: UserMenuProps) {
   }, [])
 
   return (
-    <div data-slot="user-menu" data-testid="user-menu" className="relative">
+    <div data-slot="user-menu" data-testid="shadmin-user-menu" className="relative">
       <button
         type="button"
         data-slot="user-menu-trigger"
-        data-testid="user-menu-trigger"
+        data-testid="shadmin-user-menu-trigger"
         onClick={toggleMenu}
         className={cn(
           'flex items-center gap-2 rounded-md px-2 py-1.5',
@@ -125,7 +125,7 @@ function UserMenu({ user }: UserMenuProps) {
           <div
             role="menu"
             data-slot="user-menu-content"
-            data-testid="user-menu-content"
+            data-testid="shadmin-user-menu-content"
             className={cn(
               'absolute right-0 top-full z-50 mt-1',
               'min-w-[160px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
@@ -200,7 +200,7 @@ function ThemeToggle({ onToggle }: ThemeToggleProps) {
     <button
       type="button"
       data-slot="theme-toggle"
-      data-testid="theme-toggle"
+      data-testid="shadmin-theme-toggle"
       onClick={onToggle}
       className={cn(
         'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
@@ -289,7 +289,7 @@ export function AppBar({
     <header
       role="banner"
       data-slot="appbar"
-      data-testid="appbar"
+      data-testid="shadmin-appbar"
       className={cn(
         'sticky top-0 z-30 flex h-14 shrink-0 items-center gap-4 border-b',
         'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
@@ -307,7 +307,7 @@ export function AppBar({
             <button
               type="button"
               data-slot="sidebar-trigger"
-              data-testid="sidebar-trigger"
+              data-testid="shadmin-sidebar-trigger"
               className={cn(
                 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md p-2',
                 'text-sm font-medium ring-offset-background transition-colors',

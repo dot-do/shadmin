@@ -174,6 +174,7 @@ export function SimpleDatagridRow<T extends RaRecord = RaRecord>({
         className={rowClasses}
         style={rowStyle}
         onClick={handleClick}
+        data-testid={`shadmin-datagrid-row-${rowIndex}`}
         data-selected={isSelected || undefined}
         data-row-index={rowIndex}
       >

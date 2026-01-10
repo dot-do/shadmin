@@ -70,6 +70,7 @@ export function Loading({
     <div
       role="status"
       aria-label={text || 'Loading'}
+      data-testid="shadmin-loading"
       className={cn(
         'flex flex-col items-center justify-center gap-3',
         containerClassName

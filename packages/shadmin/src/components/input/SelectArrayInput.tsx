@@ -246,7 +246,7 @@ export const SelectArrayInput = forwardRef<HTMLDivElement, SelectArrayInputProps
     }
 
     return (
-      <div className={cn('space-y-2', fullWidth && 'w-full')}>
+      <div className={cn('space-y-2', fullWidth && 'w-full')} data-testid="shadmin-select-array-input">
         {showLabel && (
           <label id={`${listboxId}-label`} className={labelStyles}>
             {displayLabel}

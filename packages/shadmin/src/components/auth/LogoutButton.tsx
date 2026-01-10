@@ -208,34 +208,34 @@ export function LogoutButton({
         onClick={handleClick}
         disabled={isLoading}
         aria-label={ariaLabel}
-        data-testid="logout-button"
+        data-testid="shadmin-logout-button"
       >
         {icon}
         {!iconOnly && displayLabel}
       </button>
 
       {showConfirmDialog && (
-        <div className="fixed inset-0 z-50" data-testid="logout-dialog">
+        <div className="fixed inset-0 z-50" data-testid="shadmin-logout-dialog">
           <div
             className={dialogOverlayStyles}
             onClick={handleCancel}
             data-state="open"
-            data-testid="logout-dialog-overlay"
+            data-testid="shadmin-logout-dialog-overlay"
           />
           <div
             className={dialogContentStyles}
             data-state="open"
             role="dialog"
-            data-testid="logout-dialog-content"
+            data-testid="shadmin-logout-dialog-content"
           >
             <div className="flex flex-col space-y-2 text-center sm:text-left">
-              <h2 className="text-lg font-semibold" data-testid="logout-dialog-title">
+              <h2 className="text-lg font-semibold" data-testid="shadmin-logout-dialog-title">
                 {confirmTitle}
               </h2>
               {confirmMessage && (
                 <p
                   className="text-sm text-muted-foreground"
-                  data-testid="logout-dialog-message"
+                  data-testid="shadmin-logout-dialog-message"
                 >
                   {confirmMessage}
                 </p>
@@ -246,7 +246,7 @@ export function LogoutButton({
                 type="button"
                 className={cn(buttonBaseStyles, variantStyles.outline, sizeStyles.default)}
                 onClick={handleCancel}
-                data-testid="logout-dialog-cancel"
+                data-testid="shadmin-logout-dialog-cancel"
               >
                 Cancel
               </button>
@@ -254,7 +254,7 @@ export function LogoutButton({
                 type="button"
                 className={cn(buttonBaseStyles, variantStyles.destructive, sizeStyles.default)}
                 onClick={handleConfirm}
-                data-testid="logout-dialog-confirm"
+                data-testid="shadmin-logout-dialog-confirm"
               >
                 Confirm
               </button>

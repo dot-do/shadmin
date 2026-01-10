@@ -75,35 +75,35 @@ export function EditView({
   className,
 }: EditViewProps) {
   return (
-    <div className="edit-page flex gap-4" data-testid="edit-view">
-      <Card className={cn('flex-1', className)} data-slot="card" data-testid="edit-card">
+    <div className="edit-page flex gap-4" data-testid="shadmin-edit-view">
+      <Card className={cn('flex-1', className)} data-slot="card" data-testid="shadmin-edit-card">
         {(title || actions) && (
           <CardHeader
             className="flex flex-row items-center justify-between space-y-0 pb-4"
-            data-testid="edit-header"
+            data-testid="shadmin-edit-header"
           >
             <div className="flex items-center gap-4">
               {title && (
                 typeof title === 'string' ? (
-                  <CardTitle data-testid="edit-title">{title}</CardTitle>
+                  <CardTitle data-testid="shadmin-edit-title">{title}</CardTitle>
                 ) : (
                   title
                 )
               )}
             </div>
             {actions !== false && actions && (
-              <div className="flex items-center gap-2" data-testid="edit-actions">
+              <div className="flex items-center gap-2" data-testid="shadmin-edit-actions">
                 {actions}
               </div>
             )}
           </CardHeader>
         )}
-        <CardContent data-testid="edit-content">
+        <CardContent data-testid="shadmin-edit-content">
           {children}
         </CardContent>
       </Card>
       {aside && (
-        <div className="edit-aside" data-testid="edit-aside">
+        <div className="edit-aside" data-testid="shadmin-edit-aside">
           {aside}
         </div>
       )}

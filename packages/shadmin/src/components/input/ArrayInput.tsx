@@ -266,6 +266,7 @@ export const ArrayInput = forwardRef<HTMLDivElement, ArrayInputProps>(
             error ? errorId : helperText ? helperId : undefined
           }
           className={cn('space-y-2', fullWidth && 'w-full', className)}
+          data-testid="shadmin-array-input"
         >
           {showLabel && (
             <label id={`${fieldId}-label`} className={labelStyles}>

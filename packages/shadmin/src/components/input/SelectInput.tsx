@@ -302,7 +302,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
     }
 
     return (
-      <div className={cn('space-y-2', fullWidth && 'w-full')}>
+      <div className={cn('space-y-2', fullWidth && 'w-full')} data-testid="shadmin-select-input">
         {showLabel && (
           <label htmlFor={selectId} className={labelStyles}>
             {displayLabel}

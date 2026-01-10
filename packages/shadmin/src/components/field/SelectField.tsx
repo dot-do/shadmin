@@ -121,14 +121,14 @@ export function SelectField({
   if (rawValue == null || rawValue === '') {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn(className)} data-testid="shadmin-select-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
+      <span className={cn(className)} data-testid="shadmin-select-field" {...rest}>
         {resolvedEmptyText}
       </span>
     )
@@ -139,14 +139,14 @@ export function SelectField({
     const displayValue = String(rawValue)
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn(className)} data-testid="shadmin-select-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span>{displayValue}</span>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
+      <span className={cn(className)} data-testid="shadmin-select-field" {...rest}>
         {displayValue}
       </span>
     )
@@ -174,7 +174,7 @@ export function SelectField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn(className)} data-testid="shadmin-select-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <span>{displayValue}</span>
       </div>
@@ -182,7 +182,7 @@ export function SelectField({
   }
 
   return (
-    <span className={cn(className)} {...rest}>
+    <span className={cn(className)} data-testid="shadmin-select-field" {...rest}>
       {displayValue}
     </span>
   )

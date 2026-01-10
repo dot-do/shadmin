@@ -125,7 +125,7 @@ export const RowsPerPageSelector = forwardRef<HTMLButtonElement, RowsPerPageSele
     }
 
     return (
-      <div ref={containerRef} className={cn('relative inline-block', className)}>
+      <div ref={containerRef} className={cn('relative inline-block', className)} data-testid="shadmin-rows-per-page-selector">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">{label}</span>
           <button

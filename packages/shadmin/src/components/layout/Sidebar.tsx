@@ -165,7 +165,7 @@ export function Sidebar({
           role="complementary"
           data-slot="sidebar"
           data-sidebar="sidebar"
-          data-testid="sidebar"
+          data-testid="shadmin-sidebar"
           data-mobile="true"
           data-mobile-open={openMobile ? 'true' : 'false'}
           className={cn(
@@ -188,7 +188,7 @@ export function Sidebar({
       role="complementary"
       data-slot="sidebar"
       data-sidebar="sidebar"
-      data-testid="sidebar"
+      data-testid="shadmin-sidebar"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
         'hidden md:flex flex-col border-r bg-sidebar text-sidebar-foreground',

@@ -99,7 +99,7 @@ export function SingleFieldList({
   if (!data || data.length === 0) {
     if (empty) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn(className)} data-testid="shadmin-single-field-list" {...rest}>
           {empty}
         </div>
       )
@@ -117,7 +117,7 @@ export function SingleFieldList({
   // If data is provided, iterate and wrap each in RecordContext
   if (dataProp) {
     return (
-      <div className={containerClasses} {...rest}>
+      <div className={containerClasses} data-testid="shadmin-single-field-list" {...rest}>
         {data.map((item, index) => {
           const key = item.id != null ? item.id : index
 
@@ -138,7 +138,7 @@ export function SingleFieldList({
 
   // If no data prop, just render children (assumes parent handles context)
   return (
-    <div className={containerClasses} {...rest}>
+    <div className={containerClasses} data-testid="shadmin-single-field-list" {...rest}>
       {Children.map(children, (child) => {
         if (isValidElement(child)) {
           return cloneElement(child)

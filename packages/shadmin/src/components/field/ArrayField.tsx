@@ -84,7 +84,7 @@ export function ArrayField({
   if (!hasItems) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn(className)} data-testid="shadmin-array-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span>{resolvedEmptyText}</span>
         </div>
@@ -92,7 +92,7 @@ export function ArrayField({
     }
 
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn(className)} data-testid="shadmin-array-field" {...rest}>
         {resolvedEmptyText}
       </div>
     )
@@ -117,7 +117,7 @@ export function ArrayField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn(className)} data-testid="shadmin-array-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <div className="flex flex-wrap gap-1">
           {content}
@@ -127,7 +127,7 @@ export function ArrayField({
   }
 
   return (
-    <div className={cn('flex flex-wrap gap-1', className)} {...rest}>
+    <div className={cn('flex flex-wrap gap-1', className)} data-testid="shadmin-array-field" {...rest}>
       {content}
     </div>
   )

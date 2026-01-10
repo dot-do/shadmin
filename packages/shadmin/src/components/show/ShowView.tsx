@@ -50,7 +50,7 @@ function DefaultLoading() {
       className="flex items-center justify-center py-12"
       role="progressbar"
       aria-label="Loading"
-      data-testid="show-loading"
+      data-testid="shadmin-show-loading"
     >
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
     </div>
@@ -64,7 +64,7 @@ function DefaultError({ error }: { error: Error }) {
   return (
     <div
       className="rounded-md border border-destructive/50 bg-destructive/10 p-4"
-      data-testid="show-error"
+      data-testid="shadmin-show-error"
     >
       <p className="font-semibold text-destructive">Error</p>
       <p className="text-sm text-destructive/80 mt-1">{error.message}</p>
@@ -120,19 +120,19 @@ export function ShowView({
     return (
       <CardHeader
         className="flex flex-row items-center justify-between space-y-0 pb-4"
-        data-testid="show-header"
+        data-testid="shadmin-show-header"
       >
         <div className="flex items-center gap-4">
           {title && (
             typeof title === 'string' ? (
-              <CardTitle data-testid="show-title">{title}</CardTitle>
+              <CardTitle data-testid="shadmin-show-title">{title}</CardTitle>
             ) : (
-              <div data-testid="show-title">{title}</div>
+              <div data-testid="shadmin-show-title">{title}</div>
             )
           )}
         </div>
         {showActions && actions !== false && actions && (
-          <div className="flex items-center gap-2" data-testid="show-actions">
+          <div className="flex items-center gap-2" data-testid="shadmin-show-actions">
             {actions}
           </div>
         )}
@@ -146,14 +146,14 @@ export function ShowView({
       return empty
     }
     return (
-      <div className="show-page flex gap-4" data-testid="show-view">
+      <div className="show-page flex gap-4" data-testid="shadmin-show-view">
         <Card className={cn('flex-1', className)} data-slot="card">
           {renderHeader(false)}
-          <CardContent data-testid="show-content">
+          <CardContent data-testid="shadmin-show-content">
             {loading ?? <DefaultLoading />}
           </CardContent>
         </Card>
-        {aside && <div data-testid="show-aside">{aside}</div>}
+        {aside && <div data-testid="shadmin-show-aside">{aside}</div>}
       </div>
     )
   }
@@ -163,41 +163,41 @@ export function ShowView({
     // Check if it's a "not found" error and show empty component if provided
     if (error.message.toLowerCase().includes('not found') && empty) {
       return (
-        <div className="show-page flex gap-4" data-testid="show-view">
+        <div className="show-page flex gap-4" data-testid="shadmin-show-view">
           <Card className={cn('flex-1', className)} data-slot="card">
             {renderHeader(false)}
-            <CardContent data-testid="show-content">
+            <CardContent data-testid="shadmin-show-content">
               {empty}
             </CardContent>
           </Card>
-          {aside && <div data-testid="show-aside">{aside}</div>}
+          {aside && <div data-testid="shadmin-show-aside">{aside}</div>}
         </div>
       )
     }
 
     return (
-      <div className="show-page flex gap-4" data-testid="show-view">
+      <div className="show-page flex gap-4" data-testid="shadmin-show-view">
         <Card className={cn('flex-1', className)} data-slot="card">
           {renderHeader(false)}
-          <CardContent data-testid="show-content">
+          <CardContent data-testid="shadmin-show-content">
             {errorComponent ?? <DefaultError error={error} />}
           </CardContent>
         </Card>
-        {aside && <div data-testid="show-aside">{aside}</div>}
+        {aside && <div data-testid="shadmin-show-aside">{aside}</div>}
       </div>
     )
   }
 
   // Show content
   return (
-    <div className="show-page flex gap-4" data-testid="show-view">
+    <div className="show-page flex gap-4" data-testid="shadmin-show-view">
       <Card className={cn('flex-1', className)} data-slot="card">
         {renderHeader()}
-        <CardContent data-testid="show-content">
+        <CardContent data-testid="shadmin-show-content">
           {children}
         </CardContent>
       </Card>
-      {aside && <div data-testid="show-aside">{aside}</div>}
+      {aside && <div data-testid="shadmin-show-aside">{aside}</div>}
     </div>
   )
 }

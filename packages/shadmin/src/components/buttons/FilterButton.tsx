@@ -335,6 +335,7 @@ export function FilterButton({
         disabled={disabled || !hasAvailableFilters}
         aria-haspopup="menu"
         aria-expanded={isOpen}
+        data-testid="shadmin-filter-button"
         className={cn(
           'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium',
           'ring-offset-background transition-colors',
@@ -361,6 +362,7 @@ export function FilterButton({
           role="menu"
           aria-orientation="vertical"
           onKeyDown={handleKeyDown}
+          data-testid="shadmin-filter-menu"
           className={cn(
             'absolute left-0 top-full z-50 mt-1 min-w-[180px]',
             'rounded-md border bg-popover p-1 text-popover-foreground shadow-md',

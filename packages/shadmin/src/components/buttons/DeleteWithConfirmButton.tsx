@@ -189,6 +189,7 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
           ref={ref}
           type="button"
           disabled={disabled || isPending}
+          data-testid="shadmin-delete-button"
           className={cn(
             'ra-delete-button',
             buttonBaseStyles,

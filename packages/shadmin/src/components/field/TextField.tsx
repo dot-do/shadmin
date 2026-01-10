@@ -74,7 +74,7 @@ export function TextField({
 
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-text-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span>{displayValue}</span></p>
       </div>
@@ -82,7 +82,7 @@ export function TextField({
   }
 
   return (
-    <span className={cn('ra-field', sourceClass, className)} {...rest}>
+    <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-text-field" {...rest}>
       <p><span>{displayValue}</span></p>
     </span>
   )

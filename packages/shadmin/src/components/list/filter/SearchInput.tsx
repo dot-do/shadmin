@@ -161,7 +161,7 @@ export function SearchInput({
   const hasValue = value.length > 0
 
   return (
-    <div className="relative inline-flex items-center">
+    <div className="relative inline-flex items-center" data-testid="shadmin-search-input">
       {/* Search icon */}
       <SearchIcon className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
       <input

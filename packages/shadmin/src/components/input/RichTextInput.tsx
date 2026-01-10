@@ -414,6 +414,7 @@ export const RichTextInput = forwardRef<HTMLDivElement, RichTextInputProps>(
       <div
         className={cn('space-y-2', fullWidth && 'w-full')}
         ref={ref}
+        data-testid="shadmin-rich-text-input"
       >
         {showLabel && (
           <label htmlFor={editorId} className={labelStyles}>

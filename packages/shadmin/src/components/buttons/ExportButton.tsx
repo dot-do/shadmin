@@ -132,6 +132,7 @@ export const ExportButton = forwardRef<HTMLButtonElement, ExportButtonProps>(
       <button
         ref={ref}
         type="button"
+        data-testid="shadmin-export-button"
         disabled={disabled || isLoading || !hasData || !exporter}
         className={cn(
           buttonBaseStyles,

@@ -121,6 +121,7 @@ export const CloneButton = forwardRef<HTMLAnchorElement, CloneButtonProps>(
       <Link
         ref={ref}
         to={to}
+        data-testid="shadmin-clone-button"
         className={cn(
           'button-clone',
           buttonBaseStyles,

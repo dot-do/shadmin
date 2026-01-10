@@ -127,7 +127,7 @@ export function SimpleShowLayout({
     return (
       <div
         className={layoutClasses}
-        data-testid="simple-show-layout"
+        data-testid="shadmin-simple-show-layout"
         {...rest}
       >
         {childArray.map((child, index) => (
@@ -145,7 +145,7 @@ export function SimpleShowLayout({
   return (
     <div
       className={layoutClasses}
-      data-testid="simple-show-layout"
+      data-testid="shadmin-simple-show-layout"
       {...rest}
     >
       {childArray.map((child, index) => (

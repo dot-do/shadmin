@@ -94,14 +94,14 @@ export function ImageField({
   if (isEmpty) {
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-image-field" {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="shadmin-image-field" {...rest}>
         <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
@@ -140,7 +140,7 @@ export function ImageField({
 
     if (label) {
       return (
-        <div className={cn('ra-field', sourceClass, 'flex flex-wrap gap-2', className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, 'flex flex-wrap gap-2', className)} data-testid="shadmin-image-field" {...rest}>
           <span className="block w-full text-sm font-medium text-muted-foreground">{label}</span>
           <p><span>{images}</span></p>
         </div>
@@ -148,7 +148,7 @@ export function ImageField({
     }
 
     return (
-      <div className={cn('ra-field', sourceClass, 'flex flex-wrap gap-2', className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, 'flex flex-wrap gap-2', className)} data-testid="shadmin-image-field" {...rest}>
         <p><span>{images}</span></p>
       </div>
     )
@@ -160,7 +160,7 @@ export function ImageField({
 
   if (label) {
     return (
-      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-image-field" {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
         <p><span><img src={imageUrl} alt={altText} style={sx} className="object-cover" /></span></p>
       </div>
@@ -168,7 +168,7 @@ export function ImageField({
   }
 
   return (
-    <div className={cn('ra-field', sourceClass, className)} {...rest}>
+    <div className={cn('ra-field', sourceClass, className)} data-testid="shadmin-image-field" {...rest}>
       <p><span><img src={imageUrl} alt={altText} style={sx} className="object-cover" /></span></p>
     </div>
   )

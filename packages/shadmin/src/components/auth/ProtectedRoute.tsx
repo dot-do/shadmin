@@ -55,7 +55,7 @@ const DefaultLoading = () => (
   <div
     role="status"
     aria-label="Loading authentication..."
-    data-testid="protected-route-loading"
+    data-testid="shadmin-protected-route-loading"
   >
     <span className="sr-only">Loading...</span>
   </div>
