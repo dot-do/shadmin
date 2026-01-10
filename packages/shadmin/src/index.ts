@@ -10,7 +10,10 @@ export * from 'ra-core'
 export { Link } from 'react-router-dom'
 
 // Shadmin components (override ra-ui-materialui with shadcn/ui)
+// Note: FormDataConsumer is explicitly exported to override ra-core's version
+// with our optimized shadmin implementation that includes useFormData hook
 export * from './components'
+export { FormDataConsumer, useFormData } from './components/form/FormDataConsumer'
 
 // Shadmin contexts (will be removed as we migrate to ra-core)
 export * from './contexts'

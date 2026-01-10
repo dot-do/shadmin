@@ -9,10 +9,12 @@
  * - Badge support
  * - Tooltip in collapsed mode
  * - Keyboard navigation
+ *
+ * @module MenuItem
  */
 
 import * as React from 'react'
-import { useEffect, useRef, useState, useCallback, isValidElement, createElement } from 'react'
+import { useEffect, useRef, useState, useCallback, isValidElement, createElement, forwardRef } from 'react'
 import { cn } from '../../lib/utils'
 import { useMenuContextSafe } from './Menu'
 import { useTestLocation, useTestNavigate, type Location } from '../../test-utils/TestMemoryRouter'
@@ -96,24 +98,29 @@ function isActivePath(currentPath: string, targetPath: string, exact: boolean): 
  * />
  * ```
  */
-export function MenuItem({
-  to,
-  label,
-  icon,
-  className,
-  activeClassName,
-  badge,
-  badgeVariant = 'default',
-  exact = false,
-  disabled = false,
-  renderItem,
-  keyboardShortcut,
-  onClick,
-  ...props
-}: MenuItemProps) {
+export const MenuItem = forwardRef<HTMLAnchorElement, MenuItemProps>(function MenuItem(
+  {
+    to,
+    label,
+    icon,
+    className,
+    activeClassName,
+    badge,
+    badgeVariant = 'default',
+    exact = false,
+    disabled = false,
+    renderItem,
+    keyboardShortcut,
+    onClick,
+    ...props
+  },
+  forwardedRef
+) {
   const menuContext = useMenuContextSafe()
   const collapsed = menuContext?.collapsed ?? false
-  const linkRef = useRef<HTMLAnchorElement>(null)
+  const dense = menuContext?.dense ?? false
+  const internalRef = useRef<HTMLAnchorElement>(null)
+  const linkRef = forwardedRef || internalRef
   const [showTooltip, setShowTooltip] = useState(false)
 
   // Get current location using test router
@@ -133,20 +140,22 @@ export function MenuItem({
 
   // Register with menu context for keyboard navigation
   useEffect(() => {
-    const element = linkRef.current
+    const element = typeof linkRef === 'function' ? null : linkRef?.current
     if (element && menuContext) {
       menuContext.registerItem(element)
       return () => menuContext.unregisterItem(element)
     }
-  }, [menuContext])
+    return undefined
+  }, [menuContext, linkRef])
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLAnchorElement>) => {
-      if (menuContext && linkRef.current) {
-        menuContext.onKeyNavigation(event, linkRef.current)
+      const element = typeof linkRef === 'function' ? null : linkRef?.current
+      if (menuContext && element) {
+        menuContext.onKeyNavigation(event, element)
       }
     },
-    [menuContext]
+    [menuContext, linkRef]
   )
 
   const handleClick = useCallback(
@@ -167,17 +176,24 @@ export function MenuItem({
   // Render icon (supports both ReactNode and component)
   const renderIcon = () => {
     if (!icon) return null
-    if (isValidElement(icon)) return icon
-    if (typeof icon === 'function') {
-      return createElement(icon as React.ComponentType)
-    }
-    return icon
+    const iconElement = isValidElement(icon)
+      ? icon
+      : typeof icon === 'function'
+        ? createElement(icon as React.ComponentType<{ className?: string }>, {
+            className: cn('h-4 w-4 shrink-0', dense && 'h-3.5 w-3.5'),
+          })
+        : icon
+    return <span data-slot="menu-item-icon" className="shrink-0">{iconElement}</span>
   }
 
   // Custom render
   if (renderItem) {
     return (
-      <li role="listitem" data-collapsed={collapsed ? 'true' : undefined}>
+      <li
+        role="listitem"
+        data-slot="menu-item"
+        data-collapsed={collapsed ? 'true' : undefined}
+      >
         {renderItem({ label, icon: renderIcon(), active: isActive })}
       </li>
     )
@@ -186,37 +202,54 @@ export function MenuItem({
   return (
     <li
       role="listitem"
+      data-slot="menu-item"
+      data-testid="menu-item"
       data-collapsed={collapsed ? 'true' : undefined}
       className="relative"
       onMouseEnter={() => collapsed && setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
       <a
-        ref={linkRef}
+        ref={linkRef as React.RefObject<HTMLAnchorElement>}
         href={to}
         role="menuitem"
+        data-slot="menu-item-link"
+        data-testid="menu-item-link"
         data-active={isActive ? 'true' : undefined}
         aria-current={isActive ? 'page' : undefined}
         aria-disabled={disabled ? 'true' : undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={cn(
-          'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+          // Base styles
+          'group flex w-full items-center gap-3 rounded-lg text-sm font-medium transition-colors',
+          // Size variants
+          dense ? 'px-2 py-1.5' : 'px-3 py-2',
+          // Hover and focus states
           'hover:bg-accent hover:text-accent-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          isActive && 'bg-accent text-accent-foreground font-medium',
-          disabled && 'pointer-events-none opacity-50',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          // Active state
+          isActive && 'bg-accent text-accent-foreground',
+          // Disabled state
+          disabled && 'pointer-events-none opacity-50 cursor-not-allowed',
+          // Custom active class
           isActive && activeClassName,
           className
         )}
         {...props}
       >
         {renderIcon()}
-        <span className={cn(collapsed && 'sr-only')}>{label}</span>
+        <span
+          data-slot="menu-item-label"
+          className={cn('flex-1 truncate', collapsed && 'sr-only')}
+        >
+          {label}
+        </span>
         {keyboardShortcut && (
           <kbd
+            data-slot="menu-item-shortcut"
             className={cn(
-              'ml-auto inline-flex items-center rounded border border-input bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground',
+              'ml-auto hidden items-center rounded border border-input bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground md:inline-flex',
               collapsed && 'sr-only'
             )}
           >
@@ -225,14 +258,16 @@ export function MenuItem({
         )}
         {badge !== undefined && badge !== null && (
           <span
+            data-slot="menu-item-badge"
+            data-testid="menu-item-badge"
             data-variant={badgeVariant}
             aria-label={typeof badge === 'number' ? `${badge} items` : undefined}
             className={cn(
-              'ml-auto inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+              'ml-auto inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium tabular-nums',
               badgeVariant === 'default' && 'bg-primary text-primary-foreground',
               badgeVariant === 'secondary' && 'bg-secondary text-secondary-foreground',
               badgeVariant === 'destructive' && 'bg-destructive text-destructive-foreground',
-              badgeVariant === 'outline' && 'border border-input bg-background',
+              badgeVariant === 'outline' && 'border border-input bg-background text-foreground',
               collapsed && 'sr-only'
             )}
           >
@@ -245,16 +280,22 @@ export function MenuItem({
       {collapsed && showTooltip && (
         <div
           role="tooltip"
-          className="absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 rounded-md bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md"
+          data-slot="menu-item-tooltip"
+          data-testid="menu-item-tooltip"
+          className={cn(
+            'absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2',
+            'rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md',
+            'animate-in fade-in-0 zoom-in-95 slide-in-from-left-2'
+          )}
         >
           {label}
           {badge !== undefined && badge !== null && (
-            <span className="ml-2 font-medium">({badge})</span>
+            <span className="ml-2 font-medium text-muted-foreground">({badge})</span>
           )}
         </div>
       )}
     </li>
   )
-}
+})
 
 MenuItem.displayName = 'MenuItem'

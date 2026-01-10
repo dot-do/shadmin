@@ -6,11 +6,11 @@
  * - Pre-configured dashboard menu item
  * - Default icon
  * - Customizable path and label
+ *
+ * @module DashboardMenuItem
  */
 
-import * as React from 'react'
-// Note: isValidElement and createElement available for future use
-// import { isValidElement, createElement } from 'react'
+import { forwardRef } from 'react'
 import { MenuItem, type MenuItemProps } from './MenuItem'
 
 /**
@@ -28,9 +28,9 @@ export interface DashboardMenuItemProps extends Omit<MenuItemProps, 'to' | 'labe
 }
 
 /**
- * Default dashboard icon
+ * Default dashboard icon - Grid layout representing a dashboard
  */
-function DefaultDashboardIcon() {
+function DefaultDashboardIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,8 @@ function DefaultDashboardIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4"
+      className={className || 'h-4 w-4'}
+      aria-hidden="true"
     >
       <rect x="3" y="3" width="7" height="7" />
       <rect x="14" y="3" width="7" height="7" />
@@ -65,24 +66,23 @@ function DefaultDashboardIcon() {
  * <DashboardMenuItem icon={<HomeIcon />} />
  * ```
  */
-export function DashboardMenuItem({
-  to = '/',
-  label = 'Dashboard',
-  icon,
-  ...props
-}: DashboardMenuItemProps) {
-  // Use default icon if none provided
-  const menuIcon = icon ?? <DefaultDashboardIcon />
+export const DashboardMenuItem = forwardRef<HTMLAnchorElement, DashboardMenuItemProps>(
+  function DashboardMenuItem({ to = '/', label = 'Dashboard', icon, ...props }, ref) {
+    // Use default icon if none provided
+    const menuIcon = icon ?? <DefaultDashboardIcon />
 
-  return (
-    <MenuItem
-      to={to}
-      label={label}
-      icon={menuIcon}
-      exact // Dashboard should use exact match
-      {...props}
-    />
-  )
-}
+    return (
+      <MenuItem
+        ref={ref}
+        to={to}
+        label={label}
+        icon={menuIcon}
+        exact // Dashboard should use exact match
+        data-testid="dashboard-menu-item"
+        {...props}
+      />
+    )
+  }
+)
 
 DashboardMenuItem.displayName = 'DashboardMenuItem'

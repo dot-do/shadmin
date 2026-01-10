@@ -6,9 +6,11 @@
  * - Auto-generated link based on resource name
  * - Automatic label from resource definition or inflected name
  * - Resource icon support
+ *
+ * @module ResourceItem
  */
 
-import * as React from 'react'
+import { forwardRef } from 'react'
 import { MenuItem, type MenuItemProps } from './MenuItem'
 import { useResourceDefinitions } from '../../contexts/ResourceContext'
 
@@ -68,35 +70,32 @@ export interface ResourceItemProps extends Omit<MenuItemProps, 'to' | 'label'> {
  * <Menu.ResourceItem name="posts" icon={<PostIcon />} />
  * ```
  */
-export function ResourceItem({
-  name,
-  label,
-  to,
-  icon,
-  keyboardShortcut,
-  ...props
-}: ResourceItemProps) {
-  const definitions = useResourceDefinitions()
-  const definition = definitions[name]
+export const ResourceItem = forwardRef<HTMLAnchorElement, ResourceItemProps>(
+  function ResourceItem({ name, label, to, icon, keyboardShortcut, ...props }, ref) {
+    const definitions = useResourceDefinitions()
+    const definition = definitions[name]
 
-  // Determine the link path
-  const path = to ?? `/${name}`
+    // Determine the link path
+    const path = to ?? `/${name}`
 
-  // Determine the label (priority: prop > definition > inflected name)
-  const displayLabel = label ?? definition?.options?.label ?? inflectLabel(name)
+    // Determine the label (priority: prop > definition > inflected name)
+    const displayLabel = label ?? definition?.options?.label ?? inflectLabel(name)
 
-  // Determine the icon (priority: prop > definition icon)
-  const displayIcon = icon ?? definition?.icon
+    // Determine the icon (priority: prop > definition icon)
+    const displayIcon = icon ?? definition?.icon
 
-  return (
-    <MenuItem
-      to={path}
-      label={displayLabel}
-      icon={displayIcon}
-      {...(keyboardShortcut !== undefined && { keyboardShortcut })}
-      {...props}
-    />
-  )
-}
+    return (
+      <MenuItem
+        ref={ref}
+        to={path}
+        label={displayLabel}
+        icon={displayIcon}
+        data-testid={`resource-menu-item-${name}`}
+        {...(keyboardShortcut !== undefined && { keyboardShortcut })}
+        {...props}
+      />
+    )
+  }
+)
 
 ResourceItem.displayName = 'ResourceItem'

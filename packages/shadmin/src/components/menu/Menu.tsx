@@ -7,10 +7,12 @@
  * - Dense mode for compact display
  * - Collapsed mode for icon-only display
  * - Keyboard navigation support
+ *
+ * @module Menu
  */
 
 import * as React from 'react'
-import { createContext, useContext, useCallback, useRef, useMemo } from 'react'
+import { createContext, useContext, useCallback, useRef, useMemo, forwardRef } from 'react'
 import { cn } from '../../lib/utils'
 
 /**
@@ -89,15 +91,18 @@ export interface MenuProps extends Omit<React.HTMLAttributes<HTMLElement>, 'comp
  * </Menu>
  * ```
  */
-export function Menu({
-  children,
-  className,
-  dense = false,
-  collapsed = false,
-  component: Component,
-  'aria-label': ariaLabel,
-  ...props
-}: MenuProps) {
+const MenuImpl = forwardRef<HTMLElement, MenuProps>(function Menu(
+  {
+    children,
+    className,
+    dense = false,
+    collapsed = false,
+    component: Component,
+    'aria-label': ariaLabel,
+    ...props
+  },
+  ref
+) {
   const itemsRef = useRef<HTMLElement[]>([])
 
   const registerItem = useCallback((element: HTMLElement) => {
@@ -142,8 +147,11 @@ export function Menu({
         break
     }
 
-    if (nextIndex !== null && items[nextIndex]) {
-      items[nextIndex].focus()
+    if (nextIndex !== null) {
+      const nextItem = items[nextIndex]
+      if (nextItem) {
+        nextItem.focus()
+      }
     }
   }, [])
 
@@ -159,7 +167,7 @@ export function Menu({
   )
 
   const content = (
-    <ul role="list" className="flex flex-col gap-1">
+    <ul role="list" data-slot="menu-list" className="flex flex-col gap-1">
       {children}
     </ul>
   )
@@ -175,25 +183,35 @@ export function Menu({
   return (
     <MenuContext.Provider value={contextValue}>
       <nav
+        ref={ref as React.Ref<HTMLElement>}
         role="navigation"
         aria-label={ariaLabel}
+        data-slot="menu"
+        data-testid="menu"
         data-dense={dense ? 'true' : undefined}
         data-collapsed={collapsed ? 'true' : undefined}
-        className={cn('flex flex-col', className)}
+        className={cn('flex flex-col px-2', className)}
         {...props}
       >
         {content}
       </nav>
     </MenuContext.Provider>
   )
+})
+
+// Create a typed Menu with static properties
+interface MenuComponent
+  extends React.ForwardRefExoticComponent<MenuProps & React.RefAttributes<HTMLElement>> {
+  ResourceItem: typeof ResourceItem
 }
 
-Menu.displayName = 'Menu'
+const Menu = MenuImpl as MenuComponent
 
 // Import ResourceItem for static property assignment
 import { ResourceItem } from './ResourceItem'
 
 // Attach ResourceItem as static property for <Menu.ResourceItem> pattern
 Menu.ResourceItem = ResourceItem
+Menu.displayName = 'Menu'
 
-export { MenuContext }
+export { Menu, MenuContext }

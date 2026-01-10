@@ -8,7 +8,7 @@ import { render, screen, waitFor, act, type RenderResult } from '@testing-librar
 import userEvent from '@testing-library/user-event'
 import { useForm, useFormContext } from 'react-hook-form'
 import { SimpleForm, type SimpleFormProps } from './SimpleForm'
-import { FormDataConsumer } from './FormDataConsumer'
+import { FormDataConsumer, useFormData } from './FormDataConsumer'
 import { Toolbar, SaveButton, DeleteButton } from './Toolbar'
 import { TextInput } from '../input/TextInput'
 import { useShadminFormContext } from '../../contexts/FormContext'
@@ -1075,6 +1075,244 @@ describe('<FormDataConsumer />', () => {
     )
 
     expect(screen.getByTestId('scoped-output')).toHaveTextContent('Scoped: John | Full: John')
+  })
+
+  it('supports deeply nested source paths', async () => {
+    await renderSimpleForm(
+      <SimpleForm
+        onSubmit={vi.fn()}
+        defaultValues={{ user: { address: { city: 'New York', zip: '10001' } } }}
+      >
+        <FormDataConsumer source="user.address">
+          {({ scopedFormData }) => (
+            <div data-testid="nested-output">
+              City: {scopedFormData?.city}, Zip: {scopedFormData?.zip}
+            </div>
+          )}
+        </FormDataConsumer>
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('nested-output')).toHaveTextContent('City: New York, Zip: 10001')
+  })
+
+  it('handles missing nested paths gracefully', async () => {
+    await renderSimpleForm(
+      <SimpleForm
+        onSubmit={vi.fn()}
+        defaultValues={{ user: { name: 'John' } }}
+      >
+        <FormDataConsumer source="user.address.city">
+          {({ scopedFormData }) => (
+            <div data-testid="missing-output">
+              Value: {scopedFormData ?? 'undefined'}
+            </div>
+          )}
+        </FormDataConsumer>
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('missing-output')).toHaveTextContent('Value: undefined')
+  })
+
+  it('provides trigger function for manual validation', async () => {
+    const user = userEvent.setup()
+
+    await renderSimpleForm(
+      <SimpleForm
+        onSubmit={vi.fn()}
+        defaultValues={{ email: '' }}
+        mode="onSubmit"
+      >
+        <TextInput
+          source="email"
+          label="Email"
+          rules={{ required: 'Email is required' }}
+        />
+        <FormDataConsumer>
+          {({ trigger }) => (
+            <button type="button" onClick={() => trigger('email')}>
+              Validate Email
+            </button>
+          )}
+        </FormDataConsumer>
+      </SimpleForm>
+    )
+
+    // Trigger validation manually
+    await user.click(screen.getByRole('button', { name: 'Validate Email' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Email is required')).toBeInTheDocument()
+    })
+  })
+
+  it('provides reset function to reset form', async () => {
+    const user = userEvent.setup()
+
+    await renderSimpleForm(
+      <SimpleForm
+        onSubmit={vi.fn()}
+        defaultValues={{ name: 'Original' }}
+      >
+        <TextInput source="name" label="Name" />
+        <FormDataConsumer>
+          {({ reset }) => (
+            <button type="button" onClick={() => reset()}>
+              Reset Form
+            </button>
+          )}
+        </FormDataConsumer>
+      </SimpleForm>
+    )
+
+    // Change the value
+    await user.clear(screen.getByLabelText('Name'))
+    await user.type(screen.getByLabelText('Name'), 'Changed')
+
+    expect(screen.getByLabelText('Name')).toHaveValue('Changed')
+
+    // Reset the form
+    await user.click(screen.getByRole('button', { name: 'Reset Form' }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).toHaveValue('Original')
+    })
+  })
+})
+
+describe('useFormData hook', () => {
+  it('provides form data to component', async () => {
+    function FormDataDisplay() {
+      const { formData } = useFormData<{ firstName: string; lastName: string }>()
+      return (
+        <div data-testid="hook-output">
+          {formData.firstName} {formData.lastName}
+        </div>
+      )
+    }
+
+    await renderSimpleForm(
+      <SimpleForm onSubmit={vi.fn()} defaultValues={{ firstName: 'John', lastName: 'Doe' }}>
+        <FormDataDisplay />
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('hook-output')).toHaveTextContent('John Doe')
+  })
+
+  it('updates when form data changes', async () => {
+    const user = userEvent.setup()
+
+    function Greeting() {
+      const { formData } = useFormData<{ name: string }>()
+      return (
+        <div data-testid="hook-greeting">
+          {formData.name ? `Hello, ${formData.name}!` : 'Enter your name'}
+        </div>
+      )
+    }
+
+    await renderSimpleForm(
+      <SimpleForm onSubmit={vi.fn()} defaultValues={{ name: '' }}>
+        <TextInput source="name" label="Name" />
+        <Greeting />
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('hook-greeting')).toHaveTextContent('Enter your name')
+
+    await user.type(screen.getByLabelText('Name'), 'Jane')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('hook-greeting')).toHaveTextContent('Hello, Jane!')
+    })
+  })
+
+  it('provides setValue for programmatic updates', async () => {
+    const user = userEvent.setup()
+
+    function Counter() {
+      const { formData, setValue } = useFormData<{ count: number }>()
+      return (
+        <>
+          <span data-testid="hook-count">{formData.count}</span>
+          <button
+            type="button"
+            onClick={() => setValue('count', (formData.count || 0) + 1)}
+          >
+            Increment
+          </button>
+        </>
+      )
+    }
+
+    await renderSimpleForm(
+      <SimpleForm onSubmit={vi.fn()} defaultValues={{ count: 0 }}>
+        <Counter />
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('hook-count')).toHaveTextContent('0')
+
+    await user.click(screen.getByRole('button', { name: 'Increment' }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('hook-count')).toHaveTextContent('1')
+    })
+  })
+
+  it('supports source option for scoped data', async () => {
+    function UserDisplay() {
+      const { scopedFormData, formData } = useFormData<{ user: { firstName: string; lastName: string } }>({
+        source: 'user',
+      })
+      return (
+        <div data-testid="hook-scoped-output">
+          Scoped: {(scopedFormData as { firstName: string })?.firstName} | Full: {formData.user?.firstName}
+        </div>
+      )
+    }
+
+    await renderSimpleForm(
+      <SimpleForm
+        onSubmit={vi.fn()}
+        defaultValues={{ user: { firstName: 'John', lastName: 'Doe' } }}
+      >
+        <UserDisplay />
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('hook-scoped-output')).toHaveTextContent('Scoped: John | Full: John')
+  })
+
+  it('provides access to formState', async () => {
+    const user = userEvent.setup()
+
+    function DirtyIndicator() {
+      const { formState } = useFormData()
+      return (
+        <div data-testid="dirty-state">
+          {formState.isDirty ? 'Form is dirty' : 'Form is clean'}
+        </div>
+      )
+    }
+
+    await renderSimpleForm(
+      <SimpleForm onSubmit={vi.fn()} defaultValues={{ name: 'Original' }}>
+        <TextInput source="name" label="Name" />
+        <DirtyIndicator />
+      </SimpleForm>
+    )
+
+    expect(screen.getByTestId('dirty-state')).toHaveTextContent('Form is clean')
+
+    await user.clear(screen.getByLabelText('Name'))
+    await user.type(screen.getByLabelText('Name'), 'Changed')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('dirty-state')).toHaveTextContent('Form is dirty')
+    })
   })
 })
 

@@ -24,11 +24,13 @@ export {
   type FormTabPanelProps,
 } from './FormTab'
 
-// FormDataConsumer - access form data in children
+// FormDataConsumer - access form data in children (render props and hook patterns)
 export {
   FormDataConsumer,
+  useFormData,
   type FormDataConsumerProps,
   type FormDataConsumerRenderProps,
+  type UseFormDataOptions,
 } from './FormDataConsumer'
 
 // SimpleFormConfigurable - form with configurable field visibility

@@ -1,5 +1,7 @@
 /**
  * Menu component exports
+ *
+ * @module menu
  */
 
 // Menu - Main navigation container
@@ -19,8 +21,8 @@ export {
   type BadgeVariant,
 } from './MenuItem'
 
-// MenuItemLink - Menu item as link (alias for MenuItem)
-export { MenuItem as MenuItemLink } from './MenuItem'
+// MenuItemLink - Standalone menu item link component
+export { MenuItemLink, type MenuItemLinkProps } from './MenuItemLink'
 
 // DashboardMenuItem - Pre-configured dashboard link
 export { DashboardMenuItem, type DashboardMenuItemProps } from './DashboardMenuItem'

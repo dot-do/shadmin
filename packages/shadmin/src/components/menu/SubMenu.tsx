@@ -8,6 +8,8 @@
  * - Keyboard navigation (ArrowRight/ArrowLeft to expand/collapse)
  * - Icon and label support
  * - Controlled and uncontrolled modes
+ *
+ * @module SubMenu
  */
 
 import * as React from 'react'
@@ -21,6 +23,7 @@ import {
   createElement,
   useId,
   Children,
+  forwardRef,
 } from 'react'
 import { cn } from '../../lib/utils'
 import { useMenuContextSafe } from './Menu'
@@ -100,19 +103,24 @@ function hasActiveChild(children: React.ReactNode, currentPath: string): boolean
  * </SubMenu>
  * ```
  */
-export function SubMenu({
-  label,
-  icon,
-  children,
-  className,
-  defaultOpen = false,
-  open: controlledOpen,
-  onOpenChange,
-}: SubMenuProps) {
+export const SubMenu = forwardRef<HTMLButtonElement, SubMenuProps>(function SubMenu(
+  {
+    label,
+    icon,
+    children,
+    className,
+    defaultOpen = false,
+    open: controlledOpen,
+    onOpenChange,
+  },
+  forwardedRef
+) {
   const menuContext = useMenuContextSafe()
   const collapsed = menuContext?.collapsed ?? false
+  const dense = menuContext?.dense ?? false
   const contentId = useId()
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const internalButtonRef = useRef<HTMLButtonElement>(null)
+  const buttonRef = forwardedRef || internalButtonRef
   const [showPopup, setShowPopup] = useState(false)
 
   // Get current location
@@ -162,6 +170,7 @@ export function SubMenu({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLButtonElement>) => {
+      const element = typeof buttonRef === 'function' ? null : buttonRef?.current
       switch (event.key) {
         case 'ArrowRight':
           if (!isOpen) {
@@ -182,15 +191,15 @@ export function SubMenu({
             const content = document.getElementById(contentId)
             const firstLink = content?.querySelector('a, button') as HTMLElement | null
             firstLink?.focus()
-          } else if (menuContext && buttonRef.current) {
-            menuContext.onKeyNavigation(event, buttonRef.current)
+          } else if (menuContext && element) {
+            menuContext.onKeyNavigation(event, element)
           }
           break
         case 'ArrowUp':
         case 'Home':
         case 'End':
-          if (menuContext && buttonRef.current) {
-            menuContext.onKeyNavigation(event, buttonRef.current)
+          if (menuContext && element) {
+            menuContext.onKeyNavigation(event, element)
           }
           break
         case 'Enter':
@@ -200,52 +209,82 @@ export function SubMenu({
           break
       }
     },
-    [isOpen, handleToggle, contentId, menuContext]
+    [isOpen, handleToggle, contentId, menuContext, buttonRef]
   )
 
   // Register with menu context for keyboard navigation
   useEffect(() => {
-    const element = buttonRef.current
+    const element = typeof buttonRef === 'function' ? null : buttonRef?.current
     if (element && menuContext) {
       menuContext.registerItem(element)
       return () => menuContext.unregisterItem(element)
     }
-  }, [menuContext])
+    return undefined
+  }, [menuContext, buttonRef])
 
   // Render icon
   const renderIcon = () => {
     if (!icon) return null
-    if (isValidElement(icon)) return icon
-    if (typeof icon === 'function') {
-      return createElement(icon as React.ComponentType)
-    }
-    return icon
+    const iconElement = isValidElement(icon)
+      ? icon
+      : typeof icon === 'function'
+        ? createElement(icon as React.ComponentType<{ className?: string }>, {
+            className: cn('h-4 w-4 shrink-0', dense && 'h-3.5 w-3.5'),
+          })
+        : icon
+    return <span data-slot="submenu-icon" className="shrink-0">{iconElement}</span>
   }
+
+  // Chevron icon component
+  const ChevronIcon = () => (
+    <svg
+      data-slot="submenu-chevron"
+      className={cn(
+        'h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200',
+        isOpen && 'rotate-180'
+      )}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
 
   // Collapsed mode - show as popup
   if (collapsed) {
     return (
       <li
         role="listitem"
+        data-slot="submenu"
+        data-testid="submenu"
         data-collapsed="true"
         className="relative"
         onMouseEnter={() => setShowPopup(true)}
         onMouseLeave={() => setShowPopup(false)}
       >
         <button
-          ref={buttonRef}
+          ref={buttonRef as React.RefObject<HTMLButtonElement>}
           type="button"
           aria-expanded={showPopup}
           aria-controls={contentId}
+          aria-haspopup="menu"
+          data-slot="submenu-trigger"
+          data-testid="submenu-trigger"
           data-state={showPopup ? 'open' : 'closed'}
           data-child-active={hasActive ? 'true' : undefined}
           onClick={() => setShowPopup(true)}
           onKeyDown={handleKeyDown}
           className={cn(
-            'flex w-full items-center justify-center rounded-lg p-2 text-sm transition-colors',
+            'flex w-full items-center justify-center rounded-lg p-2 text-sm font-medium transition-colors',
             'hover:bg-accent hover:text-accent-foreground',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-            hasActive && 'bg-accent/50',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+            hasActive && 'bg-accent/50 text-accent-foreground',
             className
           )}
         >
@@ -257,12 +296,23 @@ export function SubMenu({
           <div
             id={contentId}
             role="menu"
-            className="absolute left-full top-0 z-50 ml-2 min-w-[180px] rounded-md border bg-popover p-1 shadow-md"
+            data-slot="submenu-popup"
+            data-testid="submenu-popup"
+            className={cn(
+              'absolute left-full top-0 z-50 ml-2 min-w-[180px]',
+              'rounded-md border bg-popover p-1 shadow-md',
+              'animate-in fade-in-0 zoom-in-95 slide-in-from-left-2'
+            )}
           >
-            <div className="mb-1 px-2 py-1 text-xs font-medium text-muted-foreground">
+            <div
+              data-slot="submenu-popup-header"
+              className="mb-1 px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+            >
               {label}
             </div>
-            <ul role="list">{children}</ul>
+            <ul role="list" data-slot="submenu-popup-list">
+              {children}
+            </ul>
           </div>
         )}
       </li>
@@ -270,53 +320,59 @@ export function SubMenu({
   }
 
   return (
-    <li role="listitem" className={className}>
+    <li
+      role="listitem"
+      data-slot="submenu"
+      data-testid="submenu"
+      className={className}
+    >
       <button
-        ref={buttonRef}
+        ref={buttonRef as React.RefObject<HTMLButtonElement>}
         type="button"
         aria-expanded={isOpen}
         aria-controls={contentId}
+        aria-haspopup="menu"
+        data-slot="submenu-trigger"
+        data-testid="submenu-trigger"
         data-state={isOpen ? 'open' : 'closed'}
         data-child-active={hasActive ? 'true' : undefined}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
         className={cn(
-          'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+          // Base styles
+          'group flex w-full items-center gap-3 rounded-lg text-sm font-medium transition-colors',
+          // Size variants
+          dense ? 'px-2 py-1.5' : 'px-3 py-2',
+          // Hover and focus states
           'hover:bg-accent hover:text-accent-foreground',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          hasActive && 'bg-accent/50'
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          // Active child indicator
+          hasActive && 'bg-accent/50 text-accent-foreground'
         )}
       >
         {renderIcon()}
-        <span className="flex-1 text-left">{label}</span>
-        <svg
-          className={cn(
-            'h-4 w-4 transition-transform duration-200',
-            isOpen && 'rotate-180'
-          )}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <span data-slot="submenu-label" className="flex-1 truncate text-left">
+          {label}
+        </span>
+        <ChevronIcon />
       </button>
 
       {isOpen && (
         <ul
           id={contentId}
           role="list"
-          className="ml-4 mt-1 flex flex-col gap-1 border-l pl-3"
+          data-slot="submenu-content"
+          data-testid="submenu-content"
+          className={cn(
+            'mt-1 flex flex-col gap-0.5',
+            'ml-4 border-l border-border pl-3'
+          )}
         >
           {children}
         </ul>
       )}
     </li>
   )
-}
+})
 
 SubMenu.displayName = 'SubMenu'

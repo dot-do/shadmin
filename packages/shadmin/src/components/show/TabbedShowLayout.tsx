@@ -1,6 +1,12 @@
 /**
  * TabbedShowLayout Component
- * Organizes show fields into tabs using accessible tab navigation
+ *
+ * A layout container that organizes show (read-only) fields into tabs with:
+ * - Accessible keyboard navigation (Arrow keys, Home, End)
+ * - Optional URL synchronization for deep-linking to specific tabs
+ * - Optional badge counts on tabs (e.g., related item counts)
+ *
+ * @module TabbedShowLayout
  */
 
 import * as React from 'react'
@@ -11,57 +17,69 @@ import {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
   Children,
   isValidElement,
   type ReactNode,
 } from 'react'
-import { useLocation, useNavigate, matchPath } from 'react-router'
+import { useLocation, useNavigate, matchPath, type NavigateOptions } from 'react-router'
 import { cn } from '../../utils'
 import { useRecordContext } from '../../contexts/RecordContext'
 import type { RaRecord } from '../../types'
 
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
+
 /**
- * Tab information extracted from Tab children
+ * Tab information extracted from Tab children.
+ * This normalized structure is used internally to render tabs consistently.
  */
 export interface ShowTabInfo {
+  /** Unique identifier for the tab */
   name: string
+  /** Display label shown on the tab trigger */
   label: string
+  /** Optional icon element to display before the label */
   icon?: ReactNode | undefined
+  /** Whether the tab is disabled and cannot be selected */
   disabled?: boolean | undefined
+  /** Additional CSS class for the tab panel content area */
   className?: string | undefined
+  /** Additional CSS class for the tab trigger button */
   triggerClassName?: string | undefined
+  /** The tab panel content (fields, etc.) */
   children: ReactNode
+  /** Optional count badge to display on the tab (e.g., related item count) */
   count?: number | ReactNode | undefined
+  /** Path segment for URL synchronization */
   path?: string | undefined
 }
 
 /**
- * Context value for TabbedShowLayout
+ * Context value provided by TabbedShowLayout to its descendants.
  */
 export interface TabbedShowLayoutContextValue {
-  /**
-   * Currently active tab name
-   */
+  /** Currently active tab name */
   activeTab: string
-  /**
-   * Set the active tab
-   */
+  /** Programmatically switch to a different tab */
   setActiveTab: (tabName: string) => void
-  /**
-   * All tabs information
-   */
+  /** Array of all tab configurations */
   tabs: ShowTabInfo[]
 }
 
-/**
- * TabbedShowLayout context
- */
-const TabbedShowLayoutContext = createContext<TabbedShowLayoutContextValue | undefined>(undefined)
+// ============================================================================
+// Context & Hooks
+// ============================================================================
 
+const TabbedShowLayoutContext = createContext<TabbedShowLayoutContextValue | undefined>(undefined)
 TabbedShowLayoutContext.displayName = 'TabbedShowLayoutContext'
 
 /**
- * Hook to access TabbedShowLayout context
+ * Hook to access TabbedShowLayout context.
+ * Must be used within a TabbedShowLayout component.
+ *
+ * @throws {Error} When used outside of a TabbedShowLayout
  */
 export function useTabbedShowLayoutContext(): TabbedShowLayoutContextValue {
   const context = useContext(TabbedShowLayoutContext)
@@ -72,57 +90,48 @@ export function useTabbedShowLayoutContext(): TabbedShowLayoutContextValue {
 }
 
 /**
- * Hook to optionally access TabbedShowLayout context (doesn't throw if not available)
+ * Hook to optionally access TabbedShowLayout context.
+ * Returns undefined when used outside of a TabbedShowLayout (doesn't throw).
  */
 export function useOptionalTabbedShowLayoutContext(): TabbedShowLayoutContextValue | undefined {
   return useContext(TabbedShowLayoutContext)
 }
 
+// ============================================================================
+// Tab Component Props
+// ============================================================================
+
 /**
  * Props for Tab component
  */
 export interface TabProps {
-  /**
-   * Label displayed on the tab trigger
-   */
+  /** Label displayed on the tab trigger */
   label: string
-  /**
-   * Unique name/identifier for the tab.
-   * If not provided, will be generated from the label.
-   */
+  /** Unique name/identifier for the tab. If not provided, generated from label */
   name?: string
-  /**
-   * Content to render inside the tab panel
-   */
+  /** Content to render inside the tab panel */
   children?: ReactNode
-  /**
-   * Optional icon to display before the label
-   */
+  /** Optional icon to display before the label */
   icon?: ReactNode
-  /**
-   * Whether the tab is disabled
-   */
+  /** Whether the tab is disabled */
   disabled?: boolean
-  /**
-   * Additional CSS class for the tab panel
-   */
+  /** Additional CSS class for the tab panel */
   className?: string
-  /**
-   * Additional CSS class for the tab trigger
-   */
+  /** Additional CSS class for the tab trigger */
   triggerClassName?: string
-  /**
-   * Optional count badge to display on the tab
-   */
+  /** Optional count badge to display on the tab (e.g., related item count) */
   count?: number | ReactNode
-  /**
-   * Optional path for tab navigation (for URL sync)
-   */
+  /** Optional path segment for URL synchronization */
   path?: string
 }
 
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
 /**
- * Generate a slug from a label string
+ * Generate a URL-safe slug from a label string.
+ * Used when Tab doesn't have an explicit name prop.
  */
 export function generateShowTabName(label: string): string {
   return label
@@ -131,12 +140,16 @@ export function generateShowTabName(label: string): string {
     .replace(/^-|-$/g, '')
 }
 
+// ============================================================================
+// Tab Configuration Component
+// ============================================================================
+
 /**
- * Tab - Individual tab panel component for TabbedShowLayout
+ * Tab - Configuration component for TabbedShowLayout tabs.
  *
- * This component is used as a child of TabbedShowLayout to define individual tabs.
- * It doesn't render anything on its own - TabbedShowLayout extracts the props and
- * renders the appropriate UI.
+ * This is a "configuration" component - it doesn't render anything on its own.
+ * TabbedShowLayout extracts the props and renders the actual tab UI.
+ * This pattern allows for a declarative API similar to react-admin.
  *
  * @example
  * ```tsx
@@ -169,56 +182,59 @@ export function Tab({
 
 Tab.displayName = 'Tab'
 
+// ============================================================================
+// Component Props
+// ============================================================================
+
 /**
  * Props for TabbedShowLayout component
  */
 export interface TabbedShowLayoutProps {
-  /**
-   * Tab children
-   */
+  /** Tab children defining each tab */
   children?: ReactNode
-  /**
-   * Additional CSS class for the layout container
-   */
+  /** Additional CSS class for the layout container */
   className?: string
-  /**
-   * Default tab to show on mount
-   */
+  /** Default tab to show on initial mount (by name) */
   defaultTab?: string
-  /**
-   * Callback when active tab changes
-   */
+  /** Callback fired when the active tab changes */
   onTabChange?: (tabName: string) => void
   /**
-   * Whether to sync active tab with URL
+   * Whether to sync active tab with the URL.
+   * When enabled, tab changes update the URL path and browser back/forward works.
+   * @default false
    */
   syncWithLocation?: boolean
   /**
-   * URL parameter key for tab sync (default: 'tab')
+   * URL parameter key for tab sync.
+   * Currently unused - tabs use path segments instead of query params.
+   * @default 'tab'
+   * @deprecated Use path prop on Tab instead
    */
   locationKey?: string
-  /**
-   * Optional record to use instead of RecordContext
-   */
+  /** Optional record to use instead of RecordContext */
   record?: RaRecord
   /**
-   * Gap between fields within each tab panel
+   * Gap between fields within each tab panel.
    * @default 'gap-4'
    */
   gap?: string
 }
 
 /**
- * Extract tab information from Tab children
+ * Extract tab information from Tab children.
+ * Filters out non-Tab elements and normalizes props into ShowTabInfo objects.
  */
 function extractTabs(children: ReactNode): ShowTabInfo[] {
   const tabs: ShowTabInfo[] = []
 
   Children.forEach(children, (child) => {
+    // Skip null, undefined, booleans, and non-element children
     if (!isValidElement(child)) return
+    // Only process Tab components (ignore other elements)
     if (child.type !== Tab) return
 
     const props = child.props as TabProps
+    // Generate name from label if not explicitly provided
     const name = props.name || generateShowTabName(props.label)
 
     tabs.push({
@@ -238,23 +254,44 @@ function extractTabs(children: ReactNode): ShowTabInfo[] {
 }
 
 /**
- * Get the tab path for URL synchronization.
- * First tab (index 0) has empty path, others use their path or index.
+ * Get the URL path segment for a tab.
+ *
+ * URL Structure Convention:
+ * - First tab (index 0): No path segment (uses base URL)
+ * - Other tabs: Use their `path` prop, or fall back to their index
  */
 function getShowTabFullPath(tab: ShowTabInfo, index: number): string {
+  // First tab uses empty path to keep base URL clean
   if (index === 0) return ''
+  // Other tabs use their explicit path or fall back to index
   return tab.path || index.toString()
 }
 
 /**
- * Hook to get the show root path (the base URL without tab segments).
- * For Show routes: /{resource}/{id}/show
+ * Find a tab by its URL path segment.
+ * Returns the tab index if found, -1 otherwise.
+ */
+function findTabByPath(tabs: ShowTabInfo[], urlPath: string): number {
+  return tabs.findIndex((tab, index) => {
+    const tabPath = getShowTabFullPath(tab, index)
+    return tabPath === urlPath
+  })
+}
+
+/**
+ * Hook to extract the show page's base path from the current URL.
+ * This is the URL without any tab path segments.
+ *
+ * Supports the show route pattern: /{resource}/{id}/show/*
+ *
+ * @returns The base path, or empty string if not in a recognized route
  */
 function useShowRootPath(): string {
   let location: { pathname: string }
   try {
     location = useLocation()
   } catch {
+    // Not in a router context - URL sync won't work
     return ''
   }
 
@@ -264,13 +301,23 @@ function useShowRootPath(): string {
     return showMatch.pathnameBase
   }
 
+  // Unknown route pattern
   return ''
 }
 
+// ============================================================================
+// Main Component
+// ============================================================================
+
 /**
- * TabbedShowLayout - Organizes show fields into accessible tabs
+ * TabbedShowLayout - Organizes show (read-only) fields into accessible tabs
  *
- * @example
+ * Features:
+ * - Keyboard navigation (Arrow keys, Home, End)
+ * - URL synchronization for deep-linking
+ * - Optional badge counts on tabs
+ *
+ * @example Basic usage
  * ```tsx
  * <Show resource="posts" id={1}>
  *   <TabbedShowLayout>
@@ -281,26 +328,23 @@ function useShowRootPath(): string {
  *     <Tab label="Content">
  *       <RichTextField source="body" label="Body" />
  *     </Tab>
- *     <Tab label="Metadata">
- *       <TextField source="author" label="Author" />
- *       <ArrayField source="tags">
- *         <SingleFieldList>
- *           <ChipField source="name" />
- *         </SingleFieldList>
- *       </ArrayField>
- *     </Tab>
  *   </TabbedShowLayout>
  * </Show>
  * ```
  *
- * @example
+ * @example With URL synchronization
  * ```tsx
- * // With URL sync
  * <TabbedShowLayout syncWithLocation>
  *   <Tab label="Details" name="details">
  *     <TextField source="name" />
  *   </Tab>
+ *   <Tab label="Related" name="related" path="related">
+ *     <ReferenceManyField reference="comments" target="post_id">
+ *       <Datagrid>...</Datagrid>
+ *     </ReferenceManyField>
+ *   </Tab>
  * </TabbedShowLayout>
+ * // URL changes: /posts/1/show -> /posts/1/show/related
  * ```
  */
 export function TabbedShowLayout({
@@ -313,92 +357,144 @@ export function TabbedShowLayout({
   record: recordProp,
   gap = 'gap-4',
 }: TabbedShowLayoutProps) {
+  // ---------------------------------------------------------------------------
+  // Record & Tab Configuration
+  // ---------------------------------------------------------------------------
+
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
-  // Extract tab configuration from children
+  // Extract tab configuration from Tab children
   const tabs = useMemo(() => extractTabs(children), [children])
 
-  // Router hooks for URL sync
+  // ---------------------------------------------------------------------------
+  // Router Integration for URL Sync
+  // ---------------------------------------------------------------------------
+
+  // Router hooks for URL synchronization (optional feature)
   let location: { pathname: string } | undefined
-  let navigate: ((to: string) => void) | undefined
+  let navigate: ((to: string, options?: NavigateOptions) => void) | undefined
   try {
     location = useLocation()
     navigate = useNavigate()
   } catch {
-    // Not in a router context - URL sync won't work
+    // Not in a router context - URL sync will be disabled
   }
 
   const showRootPath = useShowRootPath()
 
-  // Get the current tab path from the URL
+  // Track if this is the initial mount to avoid unnecessary URL updates
+  const isInitialMount = useRef(true)
+
+  /**
+   * Extract the tab path segment from the current URL.
+   * Returns the portion of the pathname after the show page's base path.
+   */
   const getTabPathFromUrl = useCallback((): string => {
     if (!location || !showRootPath) return ''
-    // Extract the part after the show root path
+    // Extract the portion after the base path (e.g., "/posts/1/show/related" -> "related")
     const remaining = location.pathname.slice(showRootPath.length)
-    // Remove leading slash
+    // Remove leading slash if present
     return remaining.replace(/^\//, '')
   }, [location, showRootPath])
 
-  // Determine initial tab
+  /**
+   * Determine the initial active tab based on:
+   * 1. URL path (if syncWithLocation is enabled)
+   * 2. defaultTab prop
+   * 3. First available tab
+   */
   const getInitialTab = useCallback(() => {
+    // Priority 1: URL-based tab selection (when sync enabled)
     if (syncWithLocation && location) {
       const urlTabPath = getTabPathFromUrl()
-      // Find tab by its full path
-      const matchingTabIndex = tabs.findIndex((tab, index) => {
-        const tabPath = getShowTabFullPath(tab, index)
-        return tabPath === urlTabPath
-      })
+      const matchingTabIndex = findTabByPath(tabs, urlTabPath)
       if (matchingTabIndex >= 0) {
         return tabs[matchingTabIndex]!.name
       }
+      // If URL has an invalid tab path, fall through to defaults
     }
+
+    // Priority 2: Explicit default tab (if it exists)
     if (defaultTab && tabs.some((t) => t.name === defaultTab)) {
       return defaultTab
     }
+
+    // Priority 3: First tab
     return tabs[0]?.name || ''
   }, [syncWithLocation, location, getTabPathFromUrl, defaultTab, tabs])
 
   const [activeTab, setActiveTabState] = useState(getInitialTab)
 
-  // Sync with URL changes (for browser back/forward)
+  // ---------------------------------------------------------------------------
+  // URL Synchronization Effects
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Sync tab state with URL changes (browser back/forward navigation).
+   * This effect runs when the URL changes externally.
+   */
   useEffect(() => {
-    if (syncWithLocation && location) {
-      const urlTabPath = getTabPathFromUrl()
-      // Find tab by its full path
-      const matchingTabIndex = tabs.findIndex((tab, index) => {
-        const tabPath = getShowTabFullPath(tab, index)
-        return tabPath === urlTabPath
-      })
-      if (matchingTabIndex >= 0) {
-        const matchingTab = tabs[matchingTabIndex]!
-        if (matchingTab.name !== activeTab) {
-          setActiveTabState(matchingTab.name)
-        }
+    if (!syncWithLocation || !location) return
+
+    const urlTabPath = getTabPathFromUrl()
+    const matchingTabIndex = findTabByPath(tabs, urlTabPath)
+
+    if (matchingTabIndex >= 0) {
+      const matchingTab = tabs[matchingTabIndex]!
+      // Only update if the tab actually changed (avoid loops)
+      if (matchingTab.name !== activeTab) {
+        setActiveTabState(matchingTab.name)
       }
     }
   }, [syncWithLocation, location?.pathname, getTabPathFromUrl, tabs, activeTab])
 
-  // Handle tab change
+  // Mark initial mount as complete after first render
+  useEffect(() => {
+    isInitialMount.current = false
+  }, [])
+
+  // ---------------------------------------------------------------------------
+  // Tab Change Handler
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Handle tab changes from user interaction or programmatic updates.
+   * Updates both local state and URL (if syncWithLocation is enabled).
+   */
   const setActiveTab = useCallback(
     (tabName: string) => {
+      // Validate that the requested tab exists
+      const tabIndex = tabs.findIndex((t) => t.name === tabName)
+      if (tabIndex < 0) {
+        // Silently ignore attempts to switch to non-existent tabs
+        return
+      }
+
+      // Update local state
       setActiveTabState(tabName)
+
+      // Fire callback for external state management
       onTabChange?.(tabName)
 
+      // Update URL if sync is enabled
       if (syncWithLocation && navigate && showRootPath) {
-        // Find the tab to get its path for URL synchronization
-        const tabIndex = tabs.findIndex((t) => t.name === tabName)
-        if (tabIndex >= 0) {
-          const tabPath = getShowTabFullPath(tabs[tabIndex]!, tabIndex)
-          const newPath = tabPath ? `${showRootPath}/${tabPath}` : showRootPath
-          navigate(newPath)
-        }
+        const tabPath = getShowTabFullPath(tabs[tabIndex]!, tabIndex)
+        const newPath = tabPath ? `${showRootPath}/${tabPath}` : showRootPath
+        navigate(newPath)
       }
     },
     [onTabChange, syncWithLocation, navigate, showRootPath, tabs]
   )
 
-  // Handle keyboard navigation
+  // ---------------------------------------------------------------------------
+  // Keyboard Navigation Handler
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Handle keyboard navigation within the tab list.
+   * Implements WAI-ARIA tabs pattern.
+   */
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       const currentIndex = tabs.findIndex((t) => t.name === activeTab)
@@ -406,10 +502,12 @@ export function TabbedShowLayout({
 
       switch (event.key) {
         case 'ArrowRight':
+          // Move to next tab, wrap to start if at end
           newIndex = currentIndex + 1
           if (newIndex >= tabs.length) newIndex = 0
           break
         case 'ArrowLeft':
+          // Move to previous tab, wrap to end if at start
           newIndex = currentIndex - 1
           if (newIndex < 0) newIndex = tabs.length - 1
           break
@@ -417,26 +515,32 @@ export function TabbedShowLayout({
           newIndex = 0
           break
         case 'End':
+          // Jump to last tab
           newIndex = tabs.length - 1
           break
         default:
+          // Ignore other keys
           return
       }
 
-      // Skip disabled tabs
-      while (tabs[newIndex]?.disabled && newIndex !== currentIndex) {
+      // Skip disabled tabs by continuing in the same direction
+      const maxIterations = tabs.length // Prevent infinite loops if all tabs are disabled
+      let iterations = 0
+      while (tabs[newIndex]?.disabled && iterations < maxIterations) {
         if (event.key === 'ArrowRight' || event.key === 'End') {
           newIndex = newIndex + 1 >= tabs.length ? 0 : newIndex + 1
         } else {
           newIndex = newIndex - 1 < 0 ? tabs.length - 1 : newIndex - 1
         }
+        iterations++
       }
 
+      // Activate the new tab if it changed
       const targetTab = tabs[newIndex]
-      if (newIndex !== currentIndex && targetTab) {
+      if (newIndex !== currentIndex && targetTab && !targetTab.disabled) {
         event.preventDefault()
         setActiveTab(targetTab.name)
-        // Focus the new tab
+        // Focus the newly activated tab button
         const tabElement = document.getElementById(`show-tab-${targetTab.name}`)
         tabElement?.focus()
       }
@@ -444,7 +548,10 @@ export function TabbedShowLayout({
     [activeTab, tabs, setActiveTab]
   )
 
-  // Context value
+  // ---------------------------------------------------------------------------
+  // Context Value
+  // ---------------------------------------------------------------------------
+
   const contextValue = useMemo<TabbedShowLayoutContextValue>(
     () => ({
       activeTab,
@@ -454,11 +561,16 @@ export function TabbedShowLayout({
     [activeTab, setActiveTab, tabs]
   )
 
-  // Don't render if no record
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
+  // Don't render if no record is available
   if (!record) {
     return null
   }
 
+  // Handle empty state gracefully
   if (tabs.length === 0) {
     return (
       <div
