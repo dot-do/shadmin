@@ -8,16 +8,15 @@ import { useController, type RegisterOptions, type FieldValues, type Path } from
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
+import { type SelectChoice } from './types'
 
-/**
- * Choice type for select options
- */
-export interface SelectChoice {
-  [key: string]: unknown
-}
+// Re-export SelectChoice for backwards compatibility
+export type { SelectChoice } from './types'
 
 /**
  * Props for SelectInput component
+ *
+ * @template T - The form field values type (from react-hook-form)
  */
 export interface SelectInputProps<T extends FieldValues = FieldValues>
   extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'name' | 'defaultValue'> {
@@ -61,7 +60,8 @@ export interface SelectInputProps<T extends FieldValues = FieldValues>
    * or a React element for custom rendering.
    * @default 'name'
    */
-  optionText?: string | ((choice: SelectChoice) => string) | ReactElement
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  optionText?: string | ((choice: any) => string) | ReactElement
   /**
    * Text to display for the empty/placeholder option.
    * If not provided, no empty option is rendered.

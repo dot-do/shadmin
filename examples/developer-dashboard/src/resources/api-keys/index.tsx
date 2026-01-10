@@ -17,14 +17,13 @@ import {
 import type { ApiKey } from '../../dataProvider'
 import { CodeSnippet } from '../../components/CodeSnippet'
 
-// Status badge component
-const StatusBadge = ({ status }: { status: string }) => {
+// Render helpers
+const renderStatusBadge = (status: string) => {
   const colors: Record<string, string> = {
     active: 'bg-green-100 text-green-800',
     revoked: 'bg-red-100 text-red-800',
     expired: 'bg-gray-100 text-gray-800',
   }
-
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || colors.active}`}>
       {status}
@@ -32,14 +31,12 @@ const StatusBadge = ({ status }: { status: string }) => {
   )
 }
 
-// Scope badges component
-const ScopeBadges = ({ scopes }: { scopes: string[] }) => {
+const renderScopeBadges = (scopes: string[]) => {
   const scopeColors: Record<string, string> = {
     read: 'bg-blue-100 text-blue-800',
     write: 'bg-yellow-100 text-yellow-800',
     delete: 'bg-red-100 text-red-800',
   }
-
   return (
     <div className="flex gap-1 flex-wrap">
       {scopes.map(scope => (
@@ -59,17 +56,23 @@ export const ApiKeyList = () => (
     <Datagrid rowClick="show">
       <TextField source="name" />
       <TextField source="prefix" />
-      <FunctionField<ApiKey>
-        source="status"
-        render={(record) => <StatusBadge status={record.status} />}
+      <FunctionField
+        render={(record) => {
+          const r = record as ApiKey | undefined
+          return r ? renderStatusBadge(r.status) : null
+        }}
       />
-      <FunctionField<ApiKey>
-        source="scopes"
-        render={(record) => <ScopeBadges scopes={record.scopes} />}
+      <FunctionField
+        render={(record) => {
+          const r = record as ApiKey | undefined
+          return r ? renderScopeBadges(r.scopes) : null
+        }}
       />
-      <FunctionField<ApiKey>
-        source="requestCount"
-        render={(record) => record.requestCount.toLocaleString()}
+      <FunctionField
+        render={(record) => {
+          const r = record as ApiKey | undefined
+          return r ? r.requestCount.toLocaleString() : null
+        }}
       />
       <DateField source="lastUsed" showTime />
       <DateField source="createdAt" />
@@ -122,9 +125,11 @@ export const ApiKeyShow = () => (
         </div>
         <div>
           <label className="text-sm font-medium text-gray-500">Status</label>
-          <FunctionField<ApiKey>
-            source="status"
-            render={(record) => <StatusBadge status={record.status} />}
+          <FunctionField
+            render={(record) => {
+              const r = record as ApiKey | undefined
+              return r ? renderStatusBadge(r.status) : null
+            }}
           />
         </div>
         <div>
@@ -133,23 +138,29 @@ export const ApiKeyShow = () => (
         </div>
         <div>
           <label className="text-sm font-medium text-gray-500">Scopes</label>
-          <FunctionField<ApiKey>
-            source="scopes"
-            render={(record) => <ScopeBadges scopes={record.scopes} />}
+          <FunctionField
+            render={(record) => {
+              const r = record as ApiKey | undefined
+              return r ? renderScopeBadges(r.scopes) : null
+            }}
           />
         </div>
         <div>
           <label className="text-sm font-medium text-gray-500">Rate Limit</label>
-          <FunctionField<ApiKey>
-            source="rateLimit"
-            render={(record) => `${record.rateLimit.toLocaleString()} req/hour`}
+          <FunctionField
+            render={(record) => {
+              const r = record as ApiKey | undefined
+              return r ? `${r.rateLimit.toLocaleString()} req/hour` : null
+            }}
           />
         </div>
         <div>
           <label className="text-sm font-medium text-gray-500">Total Requests</label>
-          <FunctionField<ApiKey>
-            source="requestCount"
-            render={(record) => record.requestCount.toLocaleString()}
+          <FunctionField
+            render={(record) => {
+              const r = record as ApiKey | undefined
+              return r ? r.requestCount.toLocaleString() : null
+            }}
           />
         </div>
         <div>
@@ -162,44 +173,54 @@ export const ApiKeyShow = () => (
         </div>
         <div>
           <label className="text-sm font-medium text-gray-500">Expires</label>
-          <FunctionField<ApiKey>
-            source="expiresAt"
-            render={(record) => record.expiresAt ? new Date(record.expiresAt).toLocaleString() : 'Never'}
+          <FunctionField
+            render={(record) => {
+              const r = record as ApiKey | undefined
+              return r?.expiresAt ? new Date(r.expiresAt).toLocaleString() : 'Never'
+            }}
           />
         </div>
       </div>
 
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold mb-4">Usage Example</h3>
-        <FunctionField<ApiKey>
-          render={(record) => (
-            <CodeSnippet
-              language="bash"
-              code={`curl -X GET "https://api.example.com/v1/data" \\
-  -H "Authorization: Bearer ${record.prefix}..." \\
+        <FunctionField
+          render={(record) => {
+            const r = record as ApiKey | undefined
+            if (!r) return null
+            return (
+              <CodeSnippet
+                language="bash"
+                code={`curl -X GET "https://api.example.com/v1/data" \\
+  -H "Authorization: Bearer ${r.prefix}..." \\
   -H "Content-Type: application/json"`}
-            />
-          )}
+              />
+            )
+          }}
         />
       </div>
 
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold mb-4">SDK Example</h3>
-        <FunctionField<ApiKey>
-          render={(record) => (
-            <CodeSnippet
-              language="javascript"
-              code={`import { Client } from '@example/sdk';
+        <FunctionField
+          render={(record) => {
+            const r = record as ApiKey | undefined
+            if (!r) return null
+            return (
+              <CodeSnippet
+                language="javascript"
+                code={`import { Client } from '@example/sdk';
 
 const client = new Client({
-  apiKey: '${record.prefix}...',
+  apiKey: '${r.prefix}...',
 });
 
 // Make authenticated requests
 const data = await client.getData();
 console.log(data);`}
-            />
-          )}
+              />
+            )
+          }}
         />
       </div>
     </div>

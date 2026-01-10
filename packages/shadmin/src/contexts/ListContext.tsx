@@ -5,6 +5,26 @@ import type {
   SortPayload,
   FilterPayload,
 } from '../types'
+import {
+  ListPaginationContext,
+  usePickPaginationContext,
+  type ListPaginationContextValue,
+} from './ListPaginationContext'
+import {
+  ListSortContext,
+  usePickSortContext,
+  type ListSortContextValue,
+} from './ListSortContext'
+import {
+  ListFilterContext,
+  usePickFilterContext,
+  type ListFilterContextValue,
+} from './ListFilterContext'
+import {
+  ListSelectionContext,
+  usePickSelectionContext,
+  type ListSelectionContextValue,
+} from './ListSelectionContext'
 
 // Re-export types for backward compatibility
 export type { Identifier, SortPayload, SortOrder, FilterPayload } from '../types'
@@ -77,7 +97,9 @@ export interface ListContextProviderProps<T extends RaRecord = RaRecord> {
 
 /**
  * Provider component for ListContext.
- * Wraps children with the list controller state.
+ * Wraps children with the list controller state and also provides
+ * split sub-contexts (pagination, sort, filter, selection) to enable
+ * optimized re-renders for components that only need a subset of the state.
  *
  * @example
  * ```tsx
@@ -90,8 +112,7 @@ export function ListContextProvider<T extends RaRecord = RaRecord>({
   value,
   children,
 }: ListContextProviderProps<T>) {
-  // Memoize the value to prevent unnecessary re-renders when parent re-renders
-  // but the list state hasn't actually changed
+  // Memoize the full list context value
   const memoizedValue = useMemo(
     () => value,
     [
@@ -117,9 +138,23 @@ export function ListContextProvider<T extends RaRecord = RaRecord>({
     ]
   )
 
+  // Pick and memoize the sub-context values
+  const paginationContext = usePickPaginationContext(value as ListControllerResult<RaRecord>)
+  const sortContext = usePickSortContext(value as ListControllerResult<RaRecord>)
+  const filterContext = usePickFilterContext(value as ListControllerResult<RaRecord>)
+  const selectionContext = usePickSelectionContext(value as ListControllerResult<RaRecord>)
+
   return (
     <ListContext.Provider value={memoizedValue as ListControllerResult<RaRecord>}>
-      {children}
+      <ListPaginationContext.Provider value={paginationContext}>
+        <ListSortContext.Provider value={sortContext}>
+          <ListFilterContext.Provider value={filterContext}>
+            <ListSelectionContext.Provider value={selectionContext}>
+              {children}
+            </ListSelectionContext.Provider>
+          </ListFilterContext.Provider>
+        </ListSortContext.Provider>
+      </ListPaginationContext.Provider>
     </ListContext.Provider>
   )
 }

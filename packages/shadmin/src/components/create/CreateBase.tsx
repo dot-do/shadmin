@@ -15,7 +15,7 @@ import { RecordContextProvider } from '../../contexts/RecordContext'
 import { useCreate, type UseCreateOptions } from '../../hooks/useCreate'
 import { useRedirect, type RedirectTo } from '../../hooks/useRedirect'
 import { useNotify } from '../../hooks/useNotify'
-import type { RaRecord } from 'ra-core'
+import type { RaRecord } from '../../facade'
 
 /**
  * Transform function type

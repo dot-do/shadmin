@@ -47,7 +47,7 @@ export function DealShow() {
                 <label className="text-sm font-medium text-muted-foreground">Stage</label>
                 <FunctionField
                   source="stage"
-                  render={(record: Deal) => (
+                  render={(record) => (
                     <span
                       className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${stageColors[record.stage]}`}
                     >
@@ -66,7 +66,7 @@ export function DealShow() {
                 <label className="text-sm font-medium text-muted-foreground">Deal Value</label>
                 <FunctionField
                   source="value"
-                  render={(record: Deal) => (
+                  render={(record) => (
                     <p className="text-2xl font-bold text-primary">
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
@@ -80,7 +80,7 @@ export function DealShow() {
                 <label className="text-sm font-medium text-muted-foreground">Probability</label>
                 <FunctionField
                   source="probability"
-                  render={(record: Deal) => (
+                  render={(record) => (
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div
@@ -98,7 +98,7 @@ export function DealShow() {
                   Weighted Value
                 </label>
                 <FunctionField
-                  render={(record: Deal) => (
+                  render={(record) => (
                     <p className="text-lg">
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
@@ -126,7 +126,7 @@ export function DealShow() {
                 <label className="text-sm font-medium text-muted-foreground">Primary Contact</label>
                 <ReferenceField source="contactId" reference="contacts">
                   <FunctionField
-                    render={(record: { firstName: string; lastName: string; email: string }) => (
+                    render={(record) => (
                       <div>
                         <p className="font-medium">{`${record.firstName} ${record.lastName}`}</p>
                         <p className="text-sm text-muted-foreground">{record.email}</p>
@@ -169,7 +169,7 @@ export function DealShow() {
               <FunctionField
                 source="priority"
                 label="Priority"
-                render={(record: Activity) => {
+                render={(record) => {
                   const colors = {
                     low: 'bg-gray-100 text-gray-800',
                     medium: 'bg-yellow-100 text-yellow-800',
@@ -187,7 +187,7 @@ export function DealShow() {
               <FunctionField
                 source="completed"
                 label="Status"
-                render={(record: Activity) => (
+                render={(record) => (
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                       record.completed

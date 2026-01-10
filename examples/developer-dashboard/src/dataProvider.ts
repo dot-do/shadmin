@@ -1,6 +1,6 @@
 import type { DataProvider } from 'shadmin'
 
-// Types for our resources
+// Types for our resources - with index signatures for RaRecord compatibility
 export interface ApiKey {
   id: string
   name: string
@@ -13,6 +13,7 @@ export interface ApiKey {
   status: 'active' | 'revoked' | 'expired'
   rateLimit: number
   requestCount: number
+  [key: string]: unknown
 }
 
 export interface Webhook {
@@ -26,6 +27,7 @@ export interface Webhook {
   lastTriggered: string | null
   successRate: number
   failureCount: number
+  [key: string]: unknown
 }
 
 export interface Log {
@@ -42,6 +44,7 @@ export interface Log {
   ip: string
   userAgent: string
   error: string | null
+  [key: string]: unknown
 }
 
 export interface UsageRecord {
@@ -55,6 +58,7 @@ export interface UsageRecord {
   errorCount: number
   avgResponseTime: number
   bandwidthMB: number
+  [key: string]: unknown
 }
 
 // Mock data
@@ -297,8 +301,8 @@ function applyFilter<T>(data: T[], filter: Record<string, unknown>): T[] {
 // DataProvider implementation
 export const dataProvider: DataProvider = {
   getList: async (resource, params) => {
-    const { page, perPage } = params.pagination
-    const { field, order } = params.sort
+    const { page = 1, perPage = 10 } = params.pagination ?? {}
+    const { field = 'id', order = 'ASC' } = params.sort ?? {}
     const filter = params.filter
 
     let data: unknown[]

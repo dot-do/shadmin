@@ -1,7 +1,17 @@
 /**
  * AuthProvider type definitions for Shadmin
- * Re-exports from ra-core for full compatibility
+ * Re-exports from facade for decoupling from ra-core
  */
 
-// Re-export AuthProvider and related types from ra-core
-export type { AuthProvider, UserIdentity, AuthRedirectResult } from 'ra-core'
+// Re-export AuthProvider and related types from facade
+export type {
+  AuthProvider,
+  UserIdentity,
+  AuthRedirectResult,
+  LoginParams,
+  LogoutParams,
+  CheckAuthParams,
+  GetPermissionsParams,
+  CanAccessParams,
+  QueryFunctionContext,
+} from '../facade/auth-provider'

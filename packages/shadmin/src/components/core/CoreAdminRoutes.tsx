@@ -8,7 +8,7 @@
 import { type ComponentType, type ReactElement, useMemo, type ReactNode, isValidElement, cloneElement } from 'react'
 import { useLocation } from 'react-router'
 import { ResourceContextProvider } from '../../contexts'
-import type { ResourceProps } from 'ra-core'
+import type { ResourceProps } from '../../facade'
 
 /**
  * Menu item interface for plugin-added menu items

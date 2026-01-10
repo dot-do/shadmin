@@ -138,18 +138,18 @@ export function DocumentList() {
       actions={<UploadButton />}
     >
       <Datagrid rowClick="show" bulkActionButtons={false}>
-        <FunctionField<Document>
+        <FunctionField
           source="fileType"
           label=""
           render={(record) => record && <FileTypeIcon type={record.fileType} />}
         />
         <TextField source="name" label="Name" />
-        <FunctionField<Document>
+        <FunctionField
           source="type"
           label="Type"
           render={(record) => record && <DocumentTypeBadge type={record.type} />}
         />
-        <FunctionField<Document>
+        <FunctionField
           source="size"
           label="Size"
           render={(record) => (
@@ -158,7 +158,7 @@ export function DocumentList() {
         />
         <TextField source="uploadedBy" label="Uploaded By" />
         <DateField source="uploadedAt" label="Date" showTime />
-        <FunctionField<Document>
+        <FunctionField
           source="url"
           label=""
           render={(record) => record && <DownloadButton url={record.url} />}

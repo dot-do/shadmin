@@ -24,13 +24,10 @@ import {
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
+import { type AutocompleteArrayChoice } from './types'
 
-/**
- * Choice type for autocomplete options
- */
-export interface AutocompleteArrayChoice {
-  [key: string]: unknown
-}
+// Re-export AutocompleteArrayChoice for backwards compatibility
+export type { AutocompleteArrayChoice } from './types'
 
 /**
  * Props for AutocompleteArrayInput component

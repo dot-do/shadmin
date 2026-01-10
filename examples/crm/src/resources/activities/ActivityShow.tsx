@@ -33,7 +33,7 @@ export function ActivityShow() {
                 <label className="text-sm font-medium text-muted-foreground">Type</label>
                 <FunctionField
                   source="type"
-                  render={(record: Activity) => (
+                  render={(record) => (
                     <p className="flex items-center gap-2 text-lg">
                       <span>{typeIcons[record.type]}</span>
                       <span className="capitalize">{record.type}</span>
@@ -63,7 +63,7 @@ export function ActivityShow() {
                 <label className="text-sm font-medium text-muted-foreground">Priority</label>
                 <FunctionField
                   source="priority"
-                  render={(record: Activity) => (
+                  render={(record) => (
                     <span
                       className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${priorityColors[record.priority]}`}
                     >
@@ -76,7 +76,7 @@ export function ActivityShow() {
                 <label className="text-sm font-medium text-muted-foreground">Completion Status</label>
                 <FunctionField
                   source="completed"
-                  render={(record: Activity) => (
+                  render={(record) => (
                     <span
                       className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
                         record.completed
@@ -100,7 +100,7 @@ export function ActivityShow() {
               <label className="text-sm font-medium text-muted-foreground">Contact</label>
               <ReferenceField source="contactId" reference="contacts">
                 <FunctionField
-                  render={(record: { firstName: string; lastName: string; email: string }) => (
+                  render={(record) => (
                     <div>
                       <p className="font-medium text-primary">{`${record.firstName} ${record.lastName}`}</p>
                       <p className="text-sm text-muted-foreground">{record.email}</p>

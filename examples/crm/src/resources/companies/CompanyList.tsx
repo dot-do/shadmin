@@ -29,12 +29,12 @@ export function CompanyList() {
         <FunctionField
           source="size"
           label="Size"
-          render={(record: Company) => sizeLabels[record.size]}
+          render={(record) => sizeLabels[record.size]}
         />
         <FunctionField
           source="revenue"
           label="Revenue"
-          render={(record: Company) =>
+          render={(record) =>
             new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: 'USD',
@@ -47,7 +47,7 @@ export function CompanyList() {
         <FunctionField
           source="status"
           label="Status"
-          render={(record: Company) => (
+          render={(record) => (
             <span
               className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusColors[record.status]}`}
             >

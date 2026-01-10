@@ -2,7 +2,7 @@ import { type AnchorHTMLAttributes } from 'react'
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
-import type { RaRecord } from 'ra-core'
+import type { RaRecord } from '../../facade'
 
 /**
  * File object type for FileField

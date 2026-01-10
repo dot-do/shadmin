@@ -94,24 +94,24 @@ export function ProjectList() {
         bulkActionButtons={false}
       >
         <TextField source="name" label="Project Name" />
-        <FunctionField<Project>
+        <FunctionField
           source="status"
           label="Status"
           render={(record) => record && <StatusBadge status={record.status} />}
         />
-        <FunctionField<Project>
+        <FunctionField
           source="progress"
           label="Progress"
           render={(record) => record && <ProgressBar value={record.progress} />}
         />
-        <FunctionField<Project>
+        <FunctionField
           source="tasks"
           label="Tasks"
           render={(record) => record && <TaskProgress tasks={record.tasks} />}
         />
         <TextField source="manager" label="Manager" />
         <DateField source="dueDate" label="Due Date" />
-        <FunctionField<Project>
+        <FunctionField
           source="budget"
           label="Budget"
           render={(record) =>

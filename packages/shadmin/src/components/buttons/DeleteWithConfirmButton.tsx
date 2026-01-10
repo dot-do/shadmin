@@ -4,7 +4,8 @@
  */
 
 import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useDelete, useRecordContext, useResourceContext, useRedirect, useRefresh, type RaRecord } from 'ra-core'
+import { useDelete, useRecordContext, useResourceContext, useRedirect, useRefresh } from 'ra-core'
+import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'
 

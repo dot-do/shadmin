@@ -22,7 +22,7 @@ import { PromptList, PromptShow, PromptEdit, PromptCreate } from './resources/pr
 export function App() {
   return (
     <Admin
-      dataProvider={dataProvider}
+      dataProvider={dataProvider as any}
       dashboard={Dashboard}
       layout={Layout}
       title="AI Agents Management"

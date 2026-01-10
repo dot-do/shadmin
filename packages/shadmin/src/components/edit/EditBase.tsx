@@ -15,7 +15,7 @@ import { useGetOne, type UseGetOneOptions } from '../../hooks/useGetOne'
 import { useUpdate } from '../../hooks/useUpdate'
 import { useTestNavigate } from '../../test-utils/TestMemoryRouter'
 import { useNotify } from '../../contexts/NotificationContext'
-import type { Identifier, RaRecord, UpdateResult } from 'ra-core'
+import type { Identifier, RaRecord, UpdateResult } from '../../facade'
 
 /**
  * Redirect option type

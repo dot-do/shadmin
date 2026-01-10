@@ -12,7 +12,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { cn } from '../../lib/utils'
-import type { NotificationType } from 'ra-core'
+import type { NotificationType } from '../../facade'
 
 /**
  * Single notification toast props

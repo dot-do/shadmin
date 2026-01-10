@@ -9,7 +9,7 @@
  * Epic: shadmin-zwnj
  */
 
-import type { DataProvider } from 'ra-core'
+import type { DataProvider } from '../../facade'
 
 /**
  * Lifecycle callback context passed to before/after hooks

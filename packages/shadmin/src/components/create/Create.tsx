@@ -9,7 +9,7 @@
 import type { ReactNode } from 'react'
 import { CreateBase, type CreateBaseProps, type TransformData } from './CreateBase'
 import { CreateView, type CreateViewProps } from './CreateView'
-import type { RaRecord } from 'ra-core'
+import type { RaRecord } from '../../facade'
 import type { RedirectTo } from '../../hooks/useRedirect'
 
 /**

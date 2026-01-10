@@ -15,7 +15,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { CanAccess } from './CanAccess'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
-import type { AuthProvider } from 'ra-core'
+import type { AuthProvider } from '../../facade'
 
 // Test wrapper with required providers
 const createWrapper = (authProvider: AuthProvider) => {
@@ -733,6 +733,469 @@ describe('CanAccess', () => {
       const button = screen.getByTestId('protected-button')
       button.focus()
       expect(document.activeElement).toBe(button)
+    })
+  })
+
+  describe('edge cases - undefined/null permissions', () => {
+    it('should render null when permissions is undefined', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(undefined),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      const { container } = render(
+        <CanAccess permission="admin">
+          <div data-testid="protected-content">Protected Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+      })
+
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('should render null when permissions is null', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(null),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      const { container } = render(
+        <CanAccess permission="admin">
+          <div data-testid="protected-content">Protected Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+      })
+
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('should render fallback when permissions is undefined', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(undefined),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess
+          permission="admin"
+          fallback={<div data-testid="fallback">No permissions</div>}
+        >
+          <div data-testid="protected-content">Protected Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('fallback')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - empty permissions', () => {
+    it('should not render children when user has empty permission array', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue([]),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission="admin">
+          <div data-testid="protected-content">Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should render fallback when empty permission array and fallback provided', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue([]),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess
+          permission="admin"
+          fallback={<div data-testid="fallback">Access Denied</div>}
+        >
+          <div data-testid="protected-content">Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('fallback')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - global wildcard permission', () => {
+    it('should render children when user has global wildcard (*)', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['*']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission="admin.delete.users">
+          <div data-testid="protected-content">Super Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('protected-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - multiple CanAccess with different permissions', () => {
+    it('should render only components user has access to', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['posts.read', 'posts.create']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <div>
+          <CanAccess permission="posts.read">
+            <div data-testid="read-section">Read Posts</div>
+          </CanAccess>
+          <CanAccess permission="posts.create">
+            <div data-testid="create-section">Create Posts</div>
+          </CanAccess>
+          <CanAccess permission="posts.delete">
+            <div data-testid="delete-section">Delete Posts</div>
+          </CanAccess>
+        </div>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('read-section')).toBeInTheDocument()
+        expect(screen.getByTestId('create-section')).toBeInTheDocument()
+        expect(screen.queryByTestId('delete-section')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - render prop with denied access', () => {
+    it('should pass canAccess false to render prop when unauthorized', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['viewer']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission="admin">
+          {({ canAccess }) => (
+            <div data-testid="render-prop-result">
+              {canAccess ? 'Authorized' : 'Unauthorized'}
+            </div>
+          )}
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('render-prop-result')).toHaveTextContent('Unauthorized')
+      })
+    })
+
+    it('should pass permissions to render prop even when canAccess is false', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['viewer', 'guest']),
+      })
+
+      const renderFn = vi.fn().mockReturnValue(<div>Content</div>)
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission="admin">{renderFn}</CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(renderFn).toHaveBeenCalledWith({
+          canAccess: false,
+          permissions: ['viewer', 'guest'],
+        })
+      })
+    })
+  })
+
+  describe('edge cases - fallback function receives correct props', () => {
+    it('should pass resource and action to fallback function', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['viewer']),
+      })
+
+      const fallbackFn = vi.fn().mockReturnValue(<div data-testid="fallback">Fallback</div>)
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess resource="posts" action="delete" fallback={fallbackFn}>
+          <div>Delete Posts</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(fallbackFn).toHaveBeenCalledWith({
+          permission: undefined,
+          resource: 'posts',
+          action: 'delete',
+        })
+      })
+    })
+
+    it('should pass permission array to fallback function', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['viewer']),
+      })
+
+      const fallbackFn = vi.fn().mockReturnValue(<div data-testid="fallback">Fallback</div>)
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission={['admin', 'superuser']} fallback={fallbackFn}>
+          <div>Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(fallbackFn).toHaveBeenCalledWith({
+          permission: ['admin', 'superuser'],
+          resource: undefined,
+          action: undefined,
+        })
+      })
+    })
+  })
+
+  describe('edge cases - onError callback behavior', () => {
+    it('should not call onError when permissions load successfully', async () => {
+      const onError = vi.fn()
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['admin']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission="admin" onError={onError}>
+          <div data-testid="protected-content">Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('protected-content')).toBeInTheDocument()
+      })
+
+      expect(onError).not.toHaveBeenCalled()
+    })
+
+    it('should not call onError when access is denied but no error occurred', async () => {
+      const onError = vi.fn()
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['viewer']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission="admin" onError={onError}>
+          <div data-testid="protected-content">Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+      })
+
+      expect(onError).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('edge cases - complex permission structures', () => {
+    it('should support deeply nested object permissions', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue({
+          org: {
+            teams: {
+              engineering: {
+                projects: {
+                  read: true,
+                  write: true,
+                },
+              },
+            },
+          },
+        }),
+      })
+
+      const customCheck = (perms: unknown) => {
+        const p = perms as {
+          org?: { teams?: { engineering?: { projects?: { write?: boolean } } } }
+        }
+        return p?.org?.teams?.engineering?.projects?.write === true
+      }
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess canAccessCheck={customCheck}>
+          <div data-testid="protected-content">Engineering Project Access</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('protected-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - requireAll with permission arrays', () => {
+    it('should not render when requireAll is true and user missing some permissions', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['admin']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission={['admin', 'superuser', 'owner']} requireAll>
+          <div data-testid="protected-content">Full Access Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should render when requireAll is true and user has all permissions', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['admin', 'superuser', 'owner', 'viewer']),
+      })
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess permission={['admin', 'superuser', 'owner']} requireAll>
+          <div data-testid="protected-content">Full Access Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('protected-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - component displayName', () => {
+    it('should have displayName set to CanAccess', () => {
+      expect(CanAccess.displayName).toBe('CanAccess')
+    })
+  })
+
+  describe('edge cases - rapid permission changes', () => {
+    it('should handle rapid permission updates correctly', async () => {
+      let permissionValue = ['admin']
+      const getPermissionsMock = vi.fn().mockImplementation(() => {
+        return Promise.resolve(permissionValue)
+      })
+
+      authProvider = createMockAuthProvider({
+        getPermissions: getPermissionsMock,
+      })
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            staleTime: 0, // No stale time for this test
+          },
+        },
+      })
+
+      const Wrapper = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          <AuthProviderContextProvider authProvider={authProvider}>
+            {children}
+          </AuthProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      render(
+        <CanAccess permission="admin">
+          <div data-testid="protected-content">Admin Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('protected-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('edge cases - custom canAccessCheck returning truthy/falsy values', () => {
+    it('should treat truthy non-boolean return as true', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['admin']),
+      })
+
+      // Returns truthy string instead of boolean
+      const customCheck = () => 'truthy-value' as unknown as boolean
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess canAccessCheck={customCheck}>
+          <div data-testid="protected-content">Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('protected-content')).toBeInTheDocument()
+      })
+    })
+
+    it('should treat falsy non-boolean return as false', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['admin']),
+      })
+
+      // Returns 0 (falsy) instead of boolean
+      const customCheck = () => 0 as unknown as boolean
+
+      const Wrapper = createWrapper(authProvider)
+      render(
+        <CanAccess
+          canAccessCheck={customCheck}
+          fallback={<div data-testid="fallback">No Access</div>}
+        >
+          <div data-testid="protected-content">Content</div>
+        </CanAccess>,
+        { wrapper: Wrapper }
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('fallback')).toBeInTheDocument()
+      })
     })
   })
 })

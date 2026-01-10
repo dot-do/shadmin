@@ -14,7 +14,7 @@ import { EditView, type EditViewProps } from './EditView'
 // import { useRecordContext } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
 import { useResourceContext } from '../../contexts/ResourceContext'
-import type { Identifier, RaRecord } from 'ra-core'
+import type { Identifier, RaRecord } from '../../facade'
 import type { MutationMode } from '../../contexts/FormContext'
 
 /**

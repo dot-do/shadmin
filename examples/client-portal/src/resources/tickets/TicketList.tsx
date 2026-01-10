@@ -109,22 +109,22 @@ export function TicketList() {
         bulkActionButtons={false}
       >
         <TextField source="subject" label="Subject" />
-        <FunctionField<Ticket>
+        <FunctionField
           source="status"
           label="Status"
           render={(record) => record && <StatusBadge status={record.status} />}
         />
-        <FunctionField<Ticket>
+        <FunctionField
           source="priority"
           label="Priority"
           render={(record) => record && <PriorityBadge priority={record.priority} />}
         />
-        <FunctionField<Ticket>
+        <FunctionField
           source="category"
           label="Category"
           render={(record) => record && <CategoryBadge category={record.category} />}
         />
-        <FunctionField<Ticket>
+        <FunctionField
           source="messages"
           label="Messages"
           render={(record) => (

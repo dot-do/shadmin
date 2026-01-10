@@ -112,8 +112,14 @@ export const icon = () => <span>👤</span>
 `,
   'data-provider.ts': `import { DataProvider } from 'shadmin'
 
+/** Generic record type for demo data */
+interface DataRecord {
+  id: number
+  [key: string]: unknown
+}
+
 // Simple in-memory data provider for demo
-const data: Record<string, any[]> = {
+const data: Record<string, DataRecord[]> = {
   users: [
     { id: 1, name: 'John Doe', email: 'john@example.com' },
     { id: 2, name: 'Jane Smith', email: 'jane@example.com' },

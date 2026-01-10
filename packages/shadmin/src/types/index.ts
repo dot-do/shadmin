@@ -1,7 +1,15 @@
-// Type exports
-// Re-exports ra-core types for internal use by shadmin components
-// The main index.ts exports ra-core directly, so we need to be careful about
-// which types we re-export from here to avoid duplicate export errors
+/**
+ * Type Exports
+ *
+ * This module re-exports types through the facade layer for internal use.
+ * This enables independent evolution from ra-core while maintaining compatibility.
+ *
+ * ARCHITECTURE:
+ * - Internal code imports from '../types' (this file)
+ * - This file re-exports from the facade layer
+ * - The facade layer uses shadmin's native type definitions
+ * - External consumers can still use ra-core types via main index.ts
+ */
 
 // Common shadmin-specific types
 export type {
@@ -15,7 +23,7 @@ export type {
   ComponentProps,
 } from './common'
 
-// Re-export types from ra-core for internal use
+// Re-export types through the facade layer for internal use
 // These are used by components, hooks, and contexts that import from '../types'
 export type {
   // Record types
@@ -44,6 +52,7 @@ export type {
   // Payload types
   PaginationPayload,
   SortPayload,
+  SortOrder,
   FilterPayload,
   // Resource types
   ResourceDefinition,
@@ -54,10 +63,15 @@ export type {
   NotificationPayload,
   // Auth types
   AuthProvider,
-} from 'ra-core'
-
-// Data provider types - only export types NOT in ra-core
-export type { SortOrder } from './data-provider'
+  UserIdentity,
+  AuthRedirectResult,
+  // I18n types
+  I18nProvider,
+  TranslateFunction,
+  Locale,
+  // Form types
+  MutationMode,
+} from '../facade'
 
 // Admin types - shadmin-specific
 export type {

@@ -292,8 +292,8 @@ export function mergeConfigWithArgs(
   }
 
   // ResourcesDir - CLI args override config
-  if ((args as any).resourcesDir) {
-    resolved.resourcesDir = (args as any).resourcesDir
+  if (args.resourcesDir) {
+    resolved.resourcesDir = args.resourcesDir
   } else if (config.resourcesDir) {
     resolved.resourcesDir = config.resourcesDir
   }

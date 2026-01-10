@@ -23,13 +23,10 @@ import {
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
+import { type AutocompleteChoice } from './types'
 
-/**
- * Choice type for autocomplete options
- */
-export interface AutocompleteChoice {
-  [key: string]: unknown
-}
+// Re-export AutocompleteChoice for backwards compatibility
+export type { AutocompleteChoice } from './types'
 
 /**
  * Props for AutocompleteInput component
@@ -75,7 +72,8 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
    * or a React element for custom rendering.
    * @default 'name'
    */
-  optionText?: string | ((choice: AutocompleteChoice) => string) | ReactElement
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  optionText?: string | ((choice: any) => string) | ReactElement
   /**
    * Whether the input should take full width of its container.
    */

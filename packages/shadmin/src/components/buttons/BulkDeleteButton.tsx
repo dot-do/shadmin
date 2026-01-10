@@ -4,7 +4,8 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll, type MutationMode } from 'ra-core'
+import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from 'ra-core'
+import type { MutationMode } from '../../facade'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(

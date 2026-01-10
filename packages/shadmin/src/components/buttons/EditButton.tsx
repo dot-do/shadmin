@@ -5,7 +5,8 @@
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { Link, type To } from 'react-router-dom'
-import { useCreatePath, useResourceContext, useRecordContext, type RaRecord } from 'ra-core'
+import { useCreatePath, useResourceContext, useRecordContext } from 'ra-core'
+import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(

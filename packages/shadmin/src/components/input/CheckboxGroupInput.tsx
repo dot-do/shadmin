@@ -8,13 +8,10 @@ import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
+import { type CheckboxChoice } from './types'
 
-/**
- * Choice type for checkbox options
- */
-export interface CheckboxChoice {
-  [key: string]: unknown
-}
+// Re-export CheckboxChoice for backwards compatibility
+export type { CheckboxChoice } from './types'
 
 /**
  * Props for CheckboxGroupInput component
@@ -52,7 +49,8 @@ export interface CheckboxGroupInputProps<T extends FieldValues = FieldValues>
    * The property name to use as the option text, or a function to render custom text.
    * @default 'name'
    */
-  optionText?: string | ((choice: CheckboxChoice) => string)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  optionText?: string | ((choice: any) => string)
   /**
    * The property name to check for disabling individual options.
    */

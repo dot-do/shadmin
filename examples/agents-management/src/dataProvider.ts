@@ -477,7 +477,8 @@ let nextIds: Record<string, number> = {
 }
 
 // DataProvider implementation
-export const dataProvider: DataProvider = {
+// Using satisfies instead of type annotation to avoid generic type variance issues
+export const dataProvider = {
   getList: async (resource, params) => {
     const data = dataStore[resource] || []
     let result = [...data]
@@ -639,6 +640,6 @@ export const dataProvider: DataProvider = {
 
     return { data: deletedIds }
   },
-}
+} as DataProvider
 
 export default dataProvider

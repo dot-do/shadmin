@@ -20,6 +20,156 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./components/list": {
+      "import": {
+        "types": "./dist/components/list/index.d.ts",
+        "default": "./dist/components/list.js"
+      },
+      "require": {
+        "types": "./dist/components/list/index.d.ts",
+        "default": "./dist/components/list.cjs"
+      }
+    },
+    "./components/form": {
+      "import": {
+        "types": "./dist/components/form/index.d.ts",
+        "default": "./dist/components/form.js"
+      },
+      "require": {
+        "types": "./dist/components/form/index.d.ts",
+        "default": "./dist/components/form.cjs"
+      }
+    },
+    "./components/field": {
+      "import": {
+        "types": "./dist/components/field/index.d.ts",
+        "default": "./dist/components/field.js"
+      },
+      "require": {
+        "types": "./dist/components/field/index.d.ts",
+        "default": "./dist/components/field.cjs"
+      }
+    },
+    "./components/input": {
+      "import": {
+        "types": "./dist/components/input/index.d.ts",
+        "default": "./dist/components/input.js"
+      },
+      "require": {
+        "types": "./dist/components/input/index.d.ts",
+        "default": "./dist/components/input.cjs"
+      }
+    },
+    "./components/layout": {
+      "import": {
+        "types": "./dist/components/layout/index.d.ts",
+        "default": "./dist/components/layout.js"
+      },
+      "require": {
+        "types": "./dist/components/layout/index.d.ts",
+        "default": "./dist/components/layout.cjs"
+      }
+    },
+    "./components/edit": {
+      "import": {
+        "types": "./dist/components/edit/index.d.ts",
+        "default": "./dist/components/edit.js"
+      },
+      "require": {
+        "types": "./dist/components/edit/index.d.ts",
+        "default": "./dist/components/edit.cjs"
+      }
+    },
+    "./components/create": {
+      "import": {
+        "types": "./dist/components/create/index.d.ts",
+        "default": "./dist/components/create.js"
+      },
+      "require": {
+        "types": "./dist/components/create/index.d.ts",
+        "default": "./dist/components/create.cjs"
+      }
+    },
+    "./components/show": {
+      "import": {
+        "types": "./dist/components/show/index.d.ts",
+        "default": "./dist/components/show.js"
+      },
+      "require": {
+        "types": "./dist/components/show/index.d.ts",
+        "default": "./dist/components/show.cjs"
+      }
+    },
+    "./components/auth": {
+      "import": {
+        "types": "./dist/components/auth/index.d.ts",
+        "default": "./dist/components/auth.js"
+      },
+      "require": {
+        "types": "./dist/components/auth/index.d.ts",
+        "default": "./dist/components/auth.cjs"
+      }
+    },
+    "./components/buttons": {
+      "import": {
+        "types": "./dist/components/buttons/index.d.ts",
+        "default": "./dist/components/buttons.js"
+      },
+      "require": {
+        "types": "./dist/components/buttons/index.d.ts",
+        "default": "./dist/components/buttons.cjs"
+      }
+    },
+    "./components/menu": {
+      "import": {
+        "types": "./dist/components/menu/index.d.ts",
+        "default": "./dist/components/menu.js"
+      },
+      "require": {
+        "types": "./dist/components/menu/index.d.ts",
+        "default": "./dist/components/menu.cjs"
+      }
+    },
+    "./components/core": {
+      "import": {
+        "types": "./dist/components/core/index.d.ts",
+        "default": "./dist/components/core.js"
+      },
+      "require": {
+        "types": "./dist/components/core/index.d.ts",
+        "default": "./dist/components/core.cjs"
+      }
+    },
+    "./components/feedback": {
+      "import": {
+        "types": "./dist/components/feedback/index.d.ts",
+        "default": "./dist/components/feedback.js"
+      },
+      "require": {
+        "types": "./dist/components/feedback/index.d.ts",
+        "default": "./dist/components/feedback.cjs"
+      }
+    },
+    "./hooks": {
+      "import": {
+        "types": "./dist/hooks/index.d.ts",
+        "default": "./dist/hooks.js"
+      },
+      "require": {
+        "types": "./dist/hooks/index.d.ts",
+        "default": "./dist/hooks.cjs"
+      }
+    },
+    "./contexts": {
+      "import": {
+        "types": "./dist/contexts/index.d.ts",
+        "default": "./dist/contexts.js"
+      },
+      "require": {
+        "types": "./dist/contexts/index.d.ts",
+        "default": "./dist/contexts.cjs"
+      }
+    },
     "./cli": {
       "import": {
         "types": "./dist/cli/index.d.ts",

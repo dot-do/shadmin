@@ -36,7 +36,7 @@ export function DealList() {
         </ReferenceField>
         <ReferenceField source="contactId" reference="contacts" label="Contact">
           <FunctionField
-            render={(record: { firstName: string; lastName: string }) =>
+            render={(record) =>
               `${record.firstName} ${record.lastName}`
             }
           />
@@ -44,7 +44,7 @@ export function DealList() {
         <FunctionField
           source="value"
           label="Value"
-          render={(record: Deal) =>
+          render={(record) =>
             new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: record.currency,
@@ -54,7 +54,7 @@ export function DealList() {
         <FunctionField
           source="stage"
           label="Stage"
-          render={(record: Deal) => (
+          render={(record) => (
             <span
               className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${stageColors[record.stage]}`}
             >
@@ -65,7 +65,7 @@ export function DealList() {
         <FunctionField
           source="probability"
           label="Probability"
-          render={(record: Deal) => (
+          render={(record) => (
             <div className="flex items-center gap-2">
               <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div

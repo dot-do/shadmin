@@ -7,13 +7,10 @@ import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
+import { type RadioChoice } from './types'
 
-/**
- * Choice type for radio options
- */
-export interface RadioChoice {
-  [key: string]: unknown
-}
+// Re-export RadioChoice for backwards compatibility
+export type { RadioChoice } from './types'
 
 /**
  * Props for RadioButtonGroupInput component
@@ -51,7 +48,8 @@ export interface RadioButtonGroupInputProps<T extends FieldValues = FieldValues>
    * The property name to use as the option text, or a function to render custom text.
    * @default 'name'
    */
-  optionText?: string | ((choice: RadioChoice) => string)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  optionText?: string | ((choice: any) => string)
   /**
    * The property name to check for disabling individual options.
    */

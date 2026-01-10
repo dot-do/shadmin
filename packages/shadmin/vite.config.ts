@@ -3,6 +3,53 @@ import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
+// Entry points for tree-shakable subpath exports
+const entries = {
+  index: resolve(__dirname, 'src/index.ts'),
+  // Component subpaths
+  'components/list': resolve(__dirname, 'src/components/list/index.ts'),
+  'components/form': resolve(__dirname, 'src/components/form/index.ts'),
+  'components/field': resolve(__dirname, 'src/components/field/index.ts'),
+  'components/input': resolve(__dirname, 'src/components/input/index.ts'),
+  'components/layout': resolve(__dirname, 'src/components/layout/index.ts'),
+  'components/edit': resolve(__dirname, 'src/components/edit/index.ts'),
+  'components/create': resolve(__dirname, 'src/components/create/index.ts'),
+  'components/show': resolve(__dirname, 'src/components/show/index.ts'),
+  'components/auth': resolve(__dirname, 'src/components/auth/index.ts'),
+  'components/buttons': resolve(__dirname, 'src/components/buttons/index.ts'),
+  'components/menu': resolve(__dirname, 'src/components/menu/index.ts'),
+  'components/core': resolve(__dirname, 'src/components/core/index.ts'),
+  'components/feedback': resolve(__dirname, 'src/components/feedback/index.ts'),
+  // Hooks and contexts subpaths
+  hooks: resolve(__dirname, 'src/hooks/index.ts'),
+  contexts: resolve(__dirname, 'src/contexts/index.ts'),
+}
+
+// Common external dependencies
+const external = [
+  'react',
+  'react-dom',
+  'react/jsx-runtime',
+  'react-hook-form',
+  'react-router',
+  'react-router-dom',
+  '@tanstack/react-query',
+  '@tanstack/react-table',
+  'lodash-es',
+  'zod',
+  'vitest',
+  // ra-core and its dependencies
+  'ra-core',
+  'date-fns',
+  'eventemitter3',
+  'inflection',
+  'jsonexport',
+  'lodash',
+  'query-string',
+  'react-error-boundary',
+  'react-is',
+]
+
 export default defineConfig({
   test: {
     environment: 'jsdom',
@@ -22,35 +69,16 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: entries,
       name: 'Shadmin',
       formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+      fileName: (format, entryName) => {
+        const ext = format === 'es' ? 'js' : 'cjs'
+        return `${entryName}.${ext}`
+      },
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'react-hook-form',
-        'react-router',
-        'react-router-dom',
-        '@tanstack/react-query',
-        '@tanstack/react-table',
-        'lodash-es',
-        'zod',
-        'vitest',
-        // ra-core and its dependencies
-        'ra-core',
-        'date-fns',
-        'eventemitter3',
-        'inflection',
-        'jsonexport',
-        'lodash',
-        'query-string',
-        'react-error-boundary',
-        'react-is',
-      ],
+      external,
       output: {
         globals: {
           react: 'React',

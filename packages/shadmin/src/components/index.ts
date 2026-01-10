@@ -51,7 +51,6 @@ export {
 } from './list'
 
 // Input components
-// Note: ArrayInputContext, ArrayInputContextValue are NOT re-exported here as they come from ra-core
 export {
   TextInput,
   NumberInput,
@@ -68,6 +67,7 @@ export {
   AutocompleteInput,
   AutocompleteArrayInput,
   ArrayInput,
+  ArrayInputContext,
   useArrayInputContext,
   SimpleFormIterator,
   TimeInput,
@@ -100,6 +100,7 @@ export {
   type AutocompleteArrayInputProps,
   type AutocompleteArrayChoice,
   type ArrayInputProps,
+  type ArrayInputContextValue,
   type SimpleFormIteratorProps,
   type TimeInputProps,
   type FileInputProps,
@@ -109,6 +110,12 @@ export {
   type TranslatableInputsContextValue,
   SearchInput,
   type SearchInputProps,
+  // New helper types for type-safe choices
+  type ChoiceValue,
+  type ExtractChoiceValue,
+  type ExtractChoiceText,
+  type OptionTextProp,
+  type OptionValueProp,
 } from './input'
 
 // Field components (display)

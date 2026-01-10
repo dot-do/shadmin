@@ -8,7 +8,7 @@ import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
 import { useGetManyReference } from '../../hooks/useGetManyReference'
-import type { Identifier, RaRecord } from 'ra-core'
+import type { Identifier, RaRecord } from '../../facade'
 
 export interface ReferenceManyCountProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   /** The field name in the record that contains the ID to look up */

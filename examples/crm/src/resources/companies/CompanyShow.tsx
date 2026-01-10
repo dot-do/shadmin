@@ -56,7 +56,7 @@ export function CompanyShow() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Size</label>
                 <FunctionField
-                  render={(record: Company) => (
+                  render={(record) => (
                     <p className="block">{sizeLabels[record.size]}</p>
                   )}
                 />
@@ -65,7 +65,7 @@ export function CompanyShow() {
                 <label className="text-sm font-medium text-muted-foreground">Annual Revenue</label>
                 <FunctionField
                   source="revenue"
-                  render={(record: Company) => (
+                  render={(record) => (
                     <p className="block text-lg font-semibold">
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
@@ -79,7 +79,7 @@ export function CompanyShow() {
                 <label className="text-sm font-medium text-muted-foreground">Status</label>
                 <FunctionField
                   source="status"
-                  render={(record: Company) => (
+                  render={(record) => (
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusColors[record.status]}`}
                     >
@@ -132,7 +132,7 @@ export function CompanyShow() {
               <FunctionField
                 source="firstName"
                 label="Name"
-                render={(record: Contact) => `${record.firstName} ${record.lastName}`}
+                render={(record) => `${record.firstName} ${record.lastName}`}
               />
               <EmailField source="email" />
               <TextField source="title" />
@@ -149,7 +149,7 @@ export function CompanyShow() {
               <FunctionField
                 source="value"
                 label="Value"
-                render={(record: Deal) =>
+                render={(record) =>
                   new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: record.currency,
@@ -160,7 +160,7 @@ export function CompanyShow() {
               <FunctionField
                 source="probability"
                 label="Probability"
-                render={(record: Deal) => `${record.probability}%`}
+                render={(record) => `${record.probability}%`}
               />
               <DateField source="expectedCloseDate" label="Expected Close" />
             </Datagrid>

@@ -7,13 +7,10 @@ import { forwardRef, useId, type HTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
+import { type SelectArrayChoice } from './types'
 
-/**
- * Choice type for select options
- */
-export interface SelectArrayChoice {
-  [key: string]: unknown
-}
+// Re-export SelectArrayChoice for backwards compatibility
+export type { SelectArrayChoice } from './types'
 
 /**
  * Props for SelectArrayInput component
@@ -51,7 +48,8 @@ export interface SelectArrayInputProps<T extends FieldValues = FieldValues>
    * The property name to use as the option text, or a function to render custom text.
    * @default 'name'
    */
-  optionText?: string | ((choice: SelectArrayChoice) => string)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  optionText?: string | ((choice: any) => string)
   /**
    * Whether the select should take full width of its container.
    */

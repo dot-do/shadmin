@@ -43,7 +43,7 @@ function PromptCreateForm() {
       }
     }
 
-    return save({ ...data, variables })
+    return save?.({ ...data, variables })
   }
 
   return (

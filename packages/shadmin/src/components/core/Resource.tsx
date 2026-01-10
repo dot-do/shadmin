@@ -5,7 +5,7 @@
  */
 
 import { type ReactNode, useEffect, useMemo, memo } from 'react'
-import type { ResourceProps, ResourceDefinition } from 'ra-core'
+import type { ResourceProps, ResourceDefinition } from '../../facade'
 
 // Context for registering resources (used internally by Admin)
 import { createContext, useContext } from 'react'

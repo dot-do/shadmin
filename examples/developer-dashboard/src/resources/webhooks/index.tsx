@@ -14,14 +14,13 @@ import {
 import type { Webhook } from '../../dataProvider'
 import { CodeSnippet } from '../../components/CodeSnippet'
 
-// Status badge component
-const StatusBadge = ({ status }: { status: string }) => {
+// Render helpers
+const renderStatusBadge = (status: string) => {
   const colors: Record<string, string> = {
     active: 'bg-green-100 text-green-800',
     paused: 'bg-yellow-100 text-yellow-800',
     failed: 'bg-red-100 text-red-800',
   }
-
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || colors.active}`}>
       {status}
@@ -29,68 +28,63 @@ const StatusBadge = ({ status }: { status: string }) => {
   )
 }
 
-// Event badges component
-const EventBadges = ({ events }: { events: string[] }) => {
-  return (
-    <div className="flex gap-1 flex-wrap">
-      {events.slice(0, 3).map(event => (
-        <span
-          key={event}
-          className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800"
-        >
-          {event}
-        </span>
-      ))}
-      {events.length > 3 && (
-        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-          +{events.length - 3} more
-        </span>
-      )}
-    </div>
-  )
-}
+const renderEventBadges = (events: string[]) => (
+  <div className="flex gap-1 flex-wrap">
+    {events.slice(0, 3).map(event => (
+      <span key={event} className="px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+        {event}
+      </span>
+    ))}
+    {events.length > 3 && (
+      <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+        +{events.length - 3} more
+      </span>
+    )}
+  </div>
+)
 
-// Success rate indicator
-const SuccessRate = ({ rate }: { rate: number }) => {
+const renderSuccessRate = (rate: number) => {
   const color = rate >= 99 ? 'text-green-600' : rate >= 95 ? 'text-yellow-600' : 'text-red-600'
-  return (
-    <span className={`font-medium ${color}`}>
-      {rate.toFixed(1)}%
-    </span>
-  )
+  return <span className={`font-medium ${color}`}>{rate.toFixed(1)}%</span>
 }
 
 export const WebhookList = () => (
   <List>
     <Datagrid rowClick="edit">
       <TextField source="name" />
-      <FunctionField<Webhook>
-        source="url"
-        render={(record) => (
-          <span className="font-mono text-sm text-gray-600 truncate max-w-xs block">
-            {record.url}
-          </span>
-        )}
+      <FunctionField
+        render={(record) => {
+          const r = record as Webhook | undefined
+          return r ? (
+            <span className="font-mono text-sm text-gray-600 truncate max-w-xs block">{r.url}</span>
+          ) : null
+        }}
       />
-      <FunctionField<Webhook>
-        source="status"
-        render={(record) => <StatusBadge status={record.status} />}
+      <FunctionField
+        render={(record) => {
+          const r = record as Webhook | undefined
+          return r ? renderStatusBadge(r.status) : null
+        }}
       />
-      <FunctionField<Webhook>
-        source="events"
-        render={(record) => <EventBadges events={record.events} />}
+      <FunctionField
+        render={(record) => {
+          const r = record as Webhook | undefined
+          return r ? renderEventBadges(r.events) : null
+        }}
       />
-      <FunctionField<Webhook>
-        source="successRate"
-        render={(record) => <SuccessRate rate={record.successRate} />}
+      <FunctionField
+        render={(record) => {
+          const r = record as Webhook | undefined
+          return r ? renderSuccessRate(r.successRate) : null
+        }}
       />
-      <FunctionField<Webhook>
-        source="failureCount"
-        render={(record) => (
-          <span className={record.failureCount > 0 ? 'text-red-600' : 'text-gray-500'}>
-            {record.failureCount}
-          </span>
-        )}
+      <FunctionField
+        render={(record) => {
+          const r = record as Webhook | undefined
+          return r ? (
+            <span className={r.failureCount > 0 ? 'text-red-600' : 'text-gray-500'}>{r.failureCount}</span>
+          ) : null
+        }}
       />
       <DateField source="lastTriggered" showTime />
     </Datagrid>
@@ -179,27 +173,28 @@ export const WebhookEdit = () => (
           <p className="text-sm text-gray-600 mb-2">
             Use this secret to verify webhook signatures
           </p>
-          <FunctionField<Webhook>
-            render={(record) => (
-              <CodeSnippet
-                language="text"
-                code={record.secret}
-              />
-            )}
+          <FunctionField
+            render={(record) => {
+              const r = record as Webhook | undefined
+              return r ? <CodeSnippet language="text" code={r.secret} /> : null
+            }}
           />
         </div>
 
         <div className="p-4 bg-gray-50 rounded-lg">
           <h4 className="text-sm font-semibold mb-2">Signature Verification (Node.js)</h4>
-          <FunctionField<Webhook>
-            render={(record) => (
-              <CodeSnippet
-                language="javascript"
-                code={`import crypto from 'crypto';
+          <FunctionField
+            render={(record) => {
+              const r = record as Webhook | undefined
+              if (!r) return null
+              return (
+                <CodeSnippet
+                  language="javascript"
+                  code={`import crypto from 'crypto';
 
 function verifyWebhook(payload, signature, secret) {
   const expectedSignature = crypto
-    .createHmac('sha256', '${record.secret}')
+    .createHmac('sha256', '${r.secret}')
     .update(payload)
     .digest('hex');
 
@@ -228,8 +223,9 @@ app.post('/webhooks', (req, res) => {
 
   res.json({ received: true });
 });`}
-              />
-            )}
+                />
+              )
+            }}
           />
         </div>
       </div>

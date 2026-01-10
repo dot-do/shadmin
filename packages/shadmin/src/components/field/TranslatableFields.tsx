@@ -17,7 +17,7 @@ import {
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
-import type { RaRecord } from 'ra-core'
+import type { RaRecord } from '../../facade'
 
 /**
  * Context value for TranslatableFields

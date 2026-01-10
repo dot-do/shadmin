@@ -28,7 +28,7 @@ export function ContactShow() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Name</label>
                 <FunctionField
-                  render={(record: Contact) => (
+                  render={(record) => (
                     <p className="text-lg">{`${record.firstName} ${record.lastName}`}</p>
                   )}
                 />
@@ -61,7 +61,7 @@ export function ContactShow() {
                 <label className="text-sm font-medium text-muted-foreground">Status</label>
                 <FunctionField
                   source="status"
-                  render={(record: Contact) => (
+                  render={(record) => (
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusColors[record.status]}`}
                     >
@@ -74,7 +74,7 @@ export function ContactShow() {
                 <label className="text-sm font-medium text-muted-foreground">Tags</label>
                 <ArrayField source="tags">
                   <FunctionField
-                    render={(record: { tags: string[] }) => (
+                    render={(record) => (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {(record.tags || []).map((tag: string) => (
                           <span
@@ -117,7 +117,7 @@ export function ContactShow() {
               <FunctionField
                 source="value"
                 label="Value"
-                render={(record: { value: number; currency: string }) =>
+                render={(record) =>
                   new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: record.currency,
@@ -140,7 +140,7 @@ export function ContactShow() {
               <FunctionField
                 source="completed"
                 label="Status"
-                render={(record: { completed: boolean }) => (
+                render={(record) => (
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                       record.completed

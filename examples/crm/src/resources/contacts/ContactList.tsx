@@ -21,7 +21,7 @@ export function ContactList() {
         <FunctionField
           source="firstName"
           label="Name"
-          render={(record: Contact) => `${record.firstName} ${record.lastName}`}
+          render={(record) => `${record.firstName} ${record.lastName}`}
         />
         <EmailField source="email" />
         <TextField source="title" />
@@ -31,7 +31,7 @@ export function ContactList() {
         <FunctionField
           source="status"
           label="Status"
-          render={(record: Contact) => (
+          render={(record) => (
             <span
               className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusColors[record.status]}`}
             >

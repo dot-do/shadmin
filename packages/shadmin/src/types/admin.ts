@@ -5,8 +5,7 @@
 
 import type { ComponentType, ReactNode, ReactElement } from 'react'
 import type { QueryClient } from '@tanstack/react-query'
-import type { DataProvider, AuthProvider } from 'ra-core'
-import type { I18nProvider } from '../contexts'
+import type { DataProvider, AuthProvider, I18nProvider } from '../facade'
 
 /**
  * Plugin interface for extending Admin functionality

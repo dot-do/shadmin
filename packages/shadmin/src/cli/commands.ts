@@ -50,6 +50,8 @@ export interface CLIArgs {
   outDir?: string
   /** Path to shadmin config file */
   configFile?: string
+  /** Custom resources directory name */
+  resourcesDir?: string
 }
 
 /** Valid commands */
@@ -141,6 +143,16 @@ export function parseArgs(args: string[]): CLIArgs {
       const outDirValue = args[++i]
       if (outDirValue !== undefined) {
         result.outDir = outDirValue
+      }
+      i++
+      continue
+    }
+
+    // Resources directory option
+    if (arg === '--resources-dir') {
+      const resourcesDirValue = args[++i]
+      if (resourcesDirValue !== undefined) {
+        result.resourcesDir = resourcesDirValue
       }
       i++
       continue

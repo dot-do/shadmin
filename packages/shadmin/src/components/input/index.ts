@@ -3,6 +3,21 @@
  * Form input components that integrate with react-hook-form through FormContext
  */
 
+// Shared choice types
+export {
+  type SelectChoice,
+  type AutocompleteChoice,
+  type RadioChoice,
+  type SelectArrayChoice,
+  type CheckboxChoice,
+  type AutocompleteArrayChoice,
+  type ChoiceValue,
+  type ExtractChoiceValue,
+  type ExtractChoiceText,
+  type OptionTextProp,
+  type OptionValueProp,
+} from './types'
+
 // TextInput - Basic text entry
 export { TextInput, type TextInputProps } from './TextInput'
 
@@ -19,19 +34,19 @@ export { DateInput, type DateInputProps } from './DateInput'
 export { DateTimeInput, type DateTimeInputProps } from './DateTimeInput'
 
 // SelectInput - Dropdown selection with choices
-export { SelectInput, type SelectInputProps, type SelectChoice } from './SelectInput'
+export { SelectInput, type SelectInputProps } from './SelectInput'
 
 // BooleanInput - Switch/toggle for boolean values
 export { BooleanInput, type BooleanInputProps } from './BooleanInput'
 
 // SelectArrayInput - Multi-select for array values
-export { SelectArrayInput, type SelectArrayInputProps, type SelectArrayChoice } from './SelectArrayInput'
+export { SelectArrayInput, type SelectArrayInputProps } from './SelectArrayInput'
 
 // RadioButtonGroupInput - Radio button group for single selection
-export { RadioButtonGroupInput, type RadioButtonGroupInputProps, type RadioChoice } from './RadioButtonGroupInput'
+export { RadioButtonGroupInput, type RadioButtonGroupInputProps } from './RadioButtonGroupInput'
 
 // CheckboxGroupInput - Checkbox group for multi-selection (array values)
-export { CheckboxGroupInput, type CheckboxGroupInputProps, type CheckboxChoice } from './CheckboxGroupInput'
+export { CheckboxGroupInput, type CheckboxGroupInputProps } from './CheckboxGroupInput'
 
 // ReferenceArrayInput - Array input with choices fetched from referenced resource
 export { ReferenceArrayInput, type ReferenceArrayInputProps } from './ReferenceArrayInput'
@@ -40,10 +55,10 @@ export { ReferenceArrayInput, type ReferenceArrayInputProps } from './ReferenceA
 export { ReferenceInput, type ReferenceInputProps, type ReferenceChoice, type ReferenceSort } from './ReferenceInput'
 
 // AutocompleteInput - Typeahead autocomplete input
-export { AutocompleteInput, type AutocompleteInputProps, type AutocompleteChoice } from './AutocompleteInput'
+export { AutocompleteInput, type AutocompleteInputProps } from './AutocompleteInput'
 
 // AutocompleteArrayInput - Typeahead autocomplete for multiple selections
-export { AutocompleteArrayInput, type AutocompleteArrayInputProps, type AutocompleteArrayChoice } from './AutocompleteArrayInput'
+export { AutocompleteArrayInput, type AutocompleteArrayInputProps } from './AutocompleteArrayInput'
 
 // ArrayInput - Container for array form fields
 export { ArrayInput, ArrayInputContext, useArrayInputContext, type ArrayInputProps, type ArrayInputContextValue } from './ArrayInput'

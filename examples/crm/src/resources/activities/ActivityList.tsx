@@ -29,7 +29,7 @@ export function ActivityList() {
         <FunctionField
           source="type"
           label="Type"
-          render={(record: Activity) => (
+          render={(record) => (
             <span className="flex items-center gap-2">
               <span>{typeIcons[record.type]}</span>
               <span className="capitalize">{record.type}</span>
@@ -39,7 +39,7 @@ export function ActivityList() {
         <TextField source="subject" />
         <ReferenceField source="contactId" reference="contacts" label="Contact">
           <FunctionField
-            render={(record: { firstName: string; lastName: string }) =>
+            render={(record) =>
               `${record.firstName} ${record.lastName}`
             }
           />
@@ -51,7 +51,7 @@ export function ActivityList() {
         <FunctionField
           source="priority"
           label="Priority"
-          render={(record: Activity) => (
+          render={(record) => (
             <span
               className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${priorityColors[record.priority]}`}
             >
@@ -62,7 +62,7 @@ export function ActivityList() {
         <FunctionField
           source="completed"
           label="Status"
-          render={(record: Activity) => (
+          render={(record) => (
             <span
               className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                 record.completed

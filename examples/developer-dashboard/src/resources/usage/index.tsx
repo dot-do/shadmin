@@ -18,48 +18,21 @@ const formatNumber = (num: number): string => {
   return num.toString()
 }
 
-// Success rate indicator
-const SuccessRate = ({ success, total }: { success: number; total: number }) => {
+// Render helpers that work with FunctionField's render prop
+const renderSuccessRate = (success: number, total: number) => {
   const rate = total > 0 ? (success / total) * 100 : 0
-  let colorClass = 'text-green-600'
-
-  if (rate < 95) {
-    colorClass = 'text-red-600'
-  } else if (rate < 99) {
-    colorClass = 'text-yellow-600'
-  }
-
-  return (
-    <span className={`font-medium ${colorClass}`}>
-      {rate.toFixed(1)}%
-    </span>
-  )
+  const colorClass = rate < 95 ? 'text-red-600' : rate < 99 ? 'text-yellow-600' : 'text-green-600'
+  return <span className={`font-medium ${colorClass}`}>{rate.toFixed(1)}%</span>
 }
 
-// Error count indicator
-const ErrorCount = ({ count }: { count: number }) => {
+const renderErrorCount = (count: number) => {
   const colorClass = count === 0 ? 'text-gray-400' : count < 10 ? 'text-yellow-600' : 'text-red-600'
-
-  return (
-    <span className={`font-medium ${colorClass}`}>
-      {count}
-    </span>
-  )
+  return <span className={`font-medium ${colorClass}`}>{count}</span>
 }
 
-// Response time indicator
-const AvgResponseTime = ({ ms }: { ms: number }) => {
-  let colorClass = 'text-green-600'
-  let indicator = 'Fast'
-
-  if (ms > 300) {
-    colorClass = 'text-red-600'
-    indicator = 'Slow'
-  } else if (ms > 150) {
-    colorClass = 'text-yellow-600'
-    indicator = 'Moderate'
-  }
-
+const renderResponseTime = (ms: number) => {
+  const colorClass = ms > 300 ? 'text-red-600' : ms > 150 ? 'text-yellow-600' : 'text-green-600'
+  const indicator = ms > 300 ? 'Slow' : ms > 150 ? 'Moderate' : 'Fast'
   return (
     <div className="flex items-center gap-2">
       <span className={`font-mono text-sm ${colorClass}`}>{ms}ms</span>
@@ -68,10 +41,8 @@ const AvgResponseTime = ({ ms }: { ms: number }) => {
   )
 }
 
-// Mini bar chart for visual comparison
-const UsageBar = ({ value, max }: { value: number; max: number }) => {
+const renderUsageBar = (value: number, max: number) => {
   const percentage = max > 0 ? (value / max) * 100 : 0
-
   return (
     <div className="flex items-center gap-2">
       <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -86,46 +57,44 @@ const UsageBar = ({ value, max }: { value: number; max: number }) => {
 }
 
 export const UsageList = () => (
-  <List
-    sort={{ field: 'date', order: 'DESC' }}
-    filters={[
-      { source: 'date', alwaysOn: true },
-      { source: 'apiKeyName', alwaysOn: true },
-    ]}
-  >
+  <List sort={{ field: 'date', order: 'DESC' }}>
     <Datagrid rowClick="show">
       <TextField source="date" />
       <TextField source="apiKeyName" />
-      <FunctionField<UsageRecord>
-        source="requestCount"
+      <FunctionField
         label="Requests"
-        render={(record) => (
-          <UsageBar value={record.requestCount} max={15000} />
-        )}
+        render={(record) => {
+          const r = record as UsageRecord | undefined
+          return r ? renderUsageBar(r.requestCount, 15000) : null
+        }}
       />
-      <FunctionField<UsageRecord>
-        source="successCount"
+      <FunctionField
         label="Success Rate"
-        render={(record) => (
-          <SuccessRate success={record.successCount} total={record.requestCount} />
-        )}
+        render={(record) => {
+          const r = record as UsageRecord | undefined
+          return r ? renderSuccessRate(r.successCount, r.requestCount) : null
+        }}
       />
-      <FunctionField<UsageRecord>
-        source="errorCount"
+      <FunctionField
         label="Errors"
-        render={(record) => <ErrorCount count={record.errorCount} />}
+        render={(record) => {
+          const r = record as UsageRecord | undefined
+          return r ? renderErrorCount(r.errorCount) : null
+        }}
       />
-      <FunctionField<UsageRecord>
-        source="avgResponseTime"
+      <FunctionField
         label="Avg Response"
-        render={(record) => <AvgResponseTime ms={record.avgResponseTime} />}
+        render={(record) => {
+          const r = record as UsageRecord | undefined
+          return r ? renderResponseTime(r.avgResponseTime) : null
+        }}
       />
-      <FunctionField<UsageRecord>
-        source="bandwidthMB"
+      <FunctionField
         label="Bandwidth"
-        render={(record) => (
-          <span className="font-mono text-sm">{record.bandwidthMB} MB</span>
-        )}
+        render={(record) => {
+          const r = record as UsageRecord | undefined
+          return r ? <span className="font-mono text-sm">{r.bandwidthMB} MB</span> : null
+        }}
       />
     </Datagrid>
   </List>
@@ -145,20 +114,20 @@ export const UsageShow = () => (
         </div>
         <div className="p-4 bg-gray-50 rounded-lg">
           <label className="text-sm font-medium text-gray-500 block mb-1">Endpoint</label>
-          <FunctionField<UsageRecord>
-            source="endpoint"
-            render={(record) => (
-              <span className="font-mono text-sm">{record.endpoint}</span>
-            )}
+          <FunctionField
+            render={(record) => {
+              const r = record as UsageRecord | undefined
+              return r ? <span className="font-mono text-sm">{r.endpoint}</span> : null
+            }}
           />
         </div>
         <div className="p-4 bg-gray-50 rounded-lg">
           <label className="text-sm font-medium text-gray-500 block mb-1">Bandwidth</label>
-          <FunctionField<UsageRecord>
-            source="bandwidthMB"
-            render={(record) => (
-              <span className="font-mono">{record.bandwidthMB} MB</span>
-            )}
+          <FunctionField
+            render={(record) => {
+              const r = record as UsageRecord | undefined
+              return r ? <span className="font-mono">{r.bandwidthMB} MB</span> : null
+            }}
           />
         </div>
       </div>
@@ -173,17 +142,21 @@ export const UsageShow = () => (
               </svg>
             </span>
           </div>
-          <FunctionField<UsageRecord>
-            render={(record) => (
-              <div>
-                <span className="text-3xl font-bold">{formatNumber(record.requestCount)}</span>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-sm text-gray-500">
-                    {record.successCount.toLocaleString()} successful
-                  </span>
+          <FunctionField
+            render={(record) => {
+              const r = record as UsageRecord | undefined
+              if (!r) return null
+              return (
+                <div>
+                  <span className="text-3xl font-bold">{formatNumber(r.requestCount)}</span>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {r.successCount.toLocaleString()} successful
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            }}
           />
         </div>
 
@@ -196,22 +169,17 @@ export const UsageShow = () => (
               </svg>
             </span>
           </div>
-          <FunctionField<UsageRecord>
+          <FunctionField
             render={(record) => {
-              const rate = record.requestCount > 0
-                ? (record.successCount / record.requestCount) * 100
-                : 0
+              const r = record as UsageRecord | undefined
+              if (!r) return null
+              const rate = r.requestCount > 0 ? (r.successCount / r.requestCount) * 100 : 0
               const colorClass = rate >= 99 ? 'text-green-600' : rate >= 95 ? 'text-yellow-600' : 'text-red-600'
-
               return (
                 <div>
-                  <span className={`text-3xl font-bold ${colorClass}`}>
-                    {rate.toFixed(2)}%
-                  </span>
+                  <span className={`text-3xl font-bold ${colorClass}`}>{rate.toFixed(2)}%</span>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
-                      {record.errorCount} errors
-                    </span>
+                    <span className="text-sm text-gray-500">{r.errorCount} errors</span>
                   </div>
                 </div>
               )
@@ -228,16 +196,15 @@ export const UsageShow = () => (
               </svg>
             </span>
           </div>
-          <FunctionField<UsageRecord>
+          <FunctionField
             render={(record) => {
-              const ms = record.avgResponseTime
+              const r = record as UsageRecord | undefined
+              if (!r) return null
+              const ms = r.avgResponseTime
               const colorClass = ms <= 100 ? 'text-green-600' : ms <= 200 ? 'text-yellow-600' : 'text-red-600'
-
               return (
                 <div>
-                  <span className={`text-3xl font-bold ${colorClass}`}>
-                    {ms}ms
-                  </span>
+                  <span className={`text-3xl font-bold ${colorClass}`}>{ms}ms</span>
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-sm text-gray-500">
                       {ms <= 100 ? 'Excellent' : ms <= 200 ? 'Good' : 'Needs improvement'}
@@ -252,35 +219,39 @@ export const UsageShow = () => (
 
       <div className="p-6 bg-white border rounded-xl shadow-sm">
         <h4 className="text-lg font-semibold mb-4">Request Distribution</h4>
-        <FunctionField<UsageRecord>
-          render={(record) => (
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">Successful Requests</span>
-                  <span className="text-sm text-gray-500">{record.successCount.toLocaleString()}</span>
+        <FunctionField
+          render={(record) => {
+            const r = record as UsageRecord | undefined
+            if (!r) return null
+            return (
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-700">Successful Requests</span>
+                    <span className="text-sm text-gray-500">{r.successCount.toLocaleString()}</span>
+                  </div>
+                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full"
+                      style={{ width: `${(r.successCount / r.requestCount) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-green-500 rounded-full"
-                    style={{ width: `${(record.successCount / record.requestCount) * 100}%` }}
-                  />
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-700">Failed Requests</span>
+                    <span className="text-sm text-gray-500">{r.errorCount.toLocaleString()}</span>
+                  </div>
+                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-red-500 rounded-full"
+                      style={{ width: `${(r.errorCount / r.requestCount) * 100}%` }}
+                    />
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">Failed Requests</span>
-                  <span className="text-sm text-gray-500">{record.errorCount.toLocaleString()}</span>
-                </div>
-                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-red-500 rounded-full"
-                    style={{ width: `${(record.errorCount / record.requestCount) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+            )
+          }}
         />
       </div>
     </div>

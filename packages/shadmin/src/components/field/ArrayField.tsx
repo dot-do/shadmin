@@ -2,7 +2,7 @@ import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidEle
 import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
-import type { RaRecord } from 'ra-core'
+import type { RaRecord } from '../../facade'
 
 export interface ArrayFieldProps extends HTMLAttributes<HTMLDivElement> {
   /** The field name in the record that contains the array */

@@ -7,7 +7,7 @@
  */
 
 import { createContext, useContext, memo, type ReactNode } from 'react'
-import type { RaRecord } from 'ra-core'
+import type { RaRecord } from '../../facade'
 
 /**
  * Save function type for creating records

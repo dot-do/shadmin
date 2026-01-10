@@ -9,7 +9,7 @@ import { UsageList, UsageShow } from './resources/usage'
 export function App() {
   return (
     <Admin
-      dataProvider={dataProvider}
+      dataProvider={dataProvider as any}
       dashboard={Dashboard}
       title="Developer Dashboard"
     >

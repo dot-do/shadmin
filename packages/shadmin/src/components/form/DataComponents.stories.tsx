@@ -41,7 +41,7 @@ import { BooleanField } from '../field/BooleanField'
 import { ChipField } from '../field/ChipField'
 
 // Types
-import type { DataProvider, RaRecord } from 'ra-core'
+import type { DataProvider, RaRecord } from '../../facade'
 
 // =============================================================================
 // Mock Data
