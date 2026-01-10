@@ -39,6 +39,19 @@ export const App = () => (
 - **Modern Aesthetics** - ShadCN components with Tailwind CSS
 - **Lightweight Runtime** - No MUI overhead
 - **React 19 Ready** - Built on the latest React with TanStack Query
+- **Zero-Config CLI** - Run `npx shadmin` to start a dev server instantly
+
+## CLI
+
+Start a development server with zero configuration:
+
+```bash
+npx shadmin              # Start dev server
+npx shadmin build        # Build for production
+npx shadmin preview      # Preview production build
+```
+
+The CLI auto-discovers resources in your project and provides an interactive setup if no resources are found.
 
 ## Documentation
 

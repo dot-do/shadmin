@@ -16,14 +16,14 @@
         "default": "./dist/index.js"
       },
       "require": {
-        "types": "./dist/index.d.cts",
+        "types": "./dist/index.d.ts",
         "default": "./dist/index.cjs"
       }
     },
     "./cli": {
       "import": {
         "types": "./dist/cli/index.d.ts",
-        "default": "./dist/cli/index.js"
+        "default": "./src/cli/index.ts"
       }
     }
   },
