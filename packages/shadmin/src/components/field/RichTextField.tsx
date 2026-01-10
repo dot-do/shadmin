@@ -9,10 +9,15 @@ export interface RichTextFieldProps extends HTMLAttributes<HTMLDivElement> {
   source: string
   /** Optional record to use instead of RecordContext */
   record?: RaRecord
-  /** Optional label to display above the content */
-  label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /** Optional label to display above the content. Set to `false` to hide the label. */
+  label?: string | false
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Strip HTML tags and render as plain text */
   stripTags?: boolean
 }
@@ -48,11 +53,14 @@ function stripHtmlTags(html: string): string {
  * <RichTextField source="content" emptyText="No content available" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function RichTextField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   stripTags = false,
   className,
   ...rest
@@ -60,22 +68,33 @@ export function RichTextField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const value = get(record, source)
   const isEmpty = value == null || value === ''
+
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
 
   // Handle empty state
   if (isEmpty) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <div className={cn(className)} {...rest}>
-        {emptyText}
+      <div className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </div>
     )
   }
@@ -87,15 +106,15 @@ export function RichTextField({
     const plainText = stripHtmlTags(htmlContent)
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{plainText}</span>
+          <p><span>{plainText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {plainText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{plainText}</span></p>
       </span>
     )
   }
@@ -103,19 +122,17 @@ export function RichTextField({
   // Render HTML content
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <p><span dangerouslySetInnerHTML={{ __html: htmlContent }} /></p>
       </div>
     )
   }
 
   return (
-    <div
-      className={cn(className)}
-      dangerouslySetInnerHTML={{ __html: htmlContent }}
-      {...rest}
-    />
+    <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <p><span dangerouslySetInnerHTML={{ __html: htmlContent }} /></p>
+    </div>
   )
 }
 

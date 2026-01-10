@@ -93,64 +93,21 @@ function DefaultError({ message }: { message: string }) {
 }
 
 /**
- * Internal wrapper that handles loading/error states
+ * Internal wrapper that renders EditView with children
  */
-function EditContent<RecordType extends RaRecord = RaRecord>({
+function EditViewWrapper({
   children,
   title,
   actions,
   aside,
   className,
-  loading: LoadingComponent,
-  error: ErrorComponent,
-  empty: EmptyComponent,
-  resource: resourceProp,
-  id: idProp,
-  queryOptions,
-}: EditProps<RecordType>) {
-  // Get resource from context if not provided
-  const resourceFromContext = useResourceContext()
-  const resource = resourceProp ?? resourceFromContext ?? ''
-
-  // Get id from URL if not provided as prop
-  const idFromLocation = useIdFromLocation()
-  const id = idProp ?? idFromLocation
-
-  // Separate meta from queryOptions
-  const { meta, ...restQueryOptions } = queryOptions ?? {}
-
-  // Use useGetOne to check loading/error states
-  const { data, isLoading, error } = useGetOne<RecordType>(
-    resource,
-    { id: id!, meta },
-    restQueryOptions
-  )
-
-  // Show loading state
-  if (isLoading) {
-    return LoadingComponent ?? <DefaultLoading />
-  }
-
-  // Show error state
-  if (error) {
-    const isNotFound = error.message?.toLowerCase().includes('not found')
-
-    if (isNotFound && EmptyComponent) {
-      return EmptyComponent
-    }
-
-    if (ErrorComponent) {
-      return ErrorComponent
-    }
-
-    return <DefaultError message={error.message} />
-  }
-
-  // Record not found
-  if (!data && EmptyComponent) {
-    return EmptyComponent
-  }
-
+}: {
+  children: ReactNode
+  title?: ReactNode
+  actions?: ReactElement | false
+  aside?: ReactElement
+  className?: string
+}) {
   return (
     <EditView
       title={title}
@@ -209,7 +166,7 @@ function EditContent<RecordType extends RaRecord = RaRecord>({
  */
 export function Edit<RecordType extends RaRecord = RaRecord>({
   // EditBase props
-  resource,
+  resource: resourceProp,
   id: idProp,
   mutationMode,
   redirect,
@@ -223,12 +180,16 @@ export function Edit<RecordType extends RaRecord = RaRecord>({
   aside,
   className,
   // Edit-specific props
-  loading,
-  error,
-  empty,
+  loading: LoadingComponent,
+  error: ErrorComponent,
+  empty: EmptyComponent,
   // Children
   children,
 }: EditProps<RecordType>) {
+  // Get resource from context if not provided
+  const resourceFromContext = useResourceContext()
+  const resource = resourceProp ?? resourceFromContext ?? ''
+
   // Get id from URL if not provided as prop
   const idFromLocation = useIdFromLocation()
   const id = idProp ?? idFromLocation
@@ -237,9 +198,44 @@ export function Edit<RecordType extends RaRecord = RaRecord>({
     throw new Error('Edit requires an id prop or must be used in a route with an :id parameter')
   }
 
+  // Separate meta from queryOptions
+  const { meta, ...restQueryOptions } = queryOptions ?? {}
+
+  // Use useGetOne to check loading/error states
+  const { data, isLoading, error } = useGetOne<RecordType>(
+    resource,
+    { id, meta },
+    restQueryOptions
+  )
+
+  // Show loading state
+  if (isLoading) {
+    return LoadingComponent ?? <DefaultLoading />
+  }
+
+  // Show error state
+  if (error) {
+    const isNotFound = error.message?.toLowerCase().includes('not found')
+
+    if (isNotFound && EmptyComponent) {
+      return EmptyComponent
+    }
+
+    if (ErrorComponent) {
+      return ErrorComponent
+    }
+
+    return <DefaultError message={error.message} />
+  }
+
+  // Record not found (data is null/undefined)
+  if (!data && EmptyComponent) {
+    return EmptyComponent
+  }
+
   return (
     <EditBase<RecordType>
-      resource={resource}
+      resource={resourceProp}
       id={id}
       mutationMode={mutationMode}
       redirect={redirect}
@@ -248,20 +244,14 @@ export function Edit<RecordType extends RaRecord = RaRecord>({
       mutationOptions={mutationOptions}
       disableAuthentication={disableAuthentication}
     >
-      <EditContent<RecordType>
-        resource={resource}
-        id={id}
+      <EditViewWrapper
         title={title}
         actions={actions}
         aside={aside}
         className={className}
-        loading={loading}
-        error={error}
-        empty={empty}
-        queryOptions={queryOptions}
       >
         {children}
-      </EditContent>
+      </EditViewWrapper>
     </EditBase>
   )
 }

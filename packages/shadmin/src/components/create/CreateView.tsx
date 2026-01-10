@@ -62,7 +62,7 @@ export const CreateView = memo(function CreateView({
   aside,
 }: CreateViewProps) {
   return (
-    <div className="flex gap-4">
+    <div className="create-page flex gap-4">
       <Card className={className} data-slot="card">
         {(title || actions !== false) && (
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">

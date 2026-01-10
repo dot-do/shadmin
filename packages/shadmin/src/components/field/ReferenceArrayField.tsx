@@ -19,8 +19,13 @@ export interface ReferenceArrayFieldProps extends HTMLAttributes<HTMLDivElement>
   record?: RaRecord
   /** Optional label to display above the values */
   label?: string
-  /** Text to display when the reference array is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when the reference array is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Children to render for each referenced record */
   children?: ReactNode
   /** Optional sort order for the referenced records */
@@ -47,6 +52,9 @@ export interface ReferenceArrayFieldProps extends HTMLAttributes<HTMLDivElement>
  * </ReferenceArrayField>
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function ReferenceArrayField({
   source,
   reference,
@@ -60,6 +68,14 @@ export function ReferenceArrayField({
 }: ReferenceArrayFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
 
   // Get the reference IDs array from the source field
   const referenceIds = get(record, source) as Identifier[] | null | undefined
@@ -76,10 +92,10 @@ export function ReferenceArrayField({
 
   // Handle empty reference IDs
   if (!hasReferenceIds) {
-    if (emptyText) {
+    if (resolvedEmptyText) {
       return (
         <div className={cn(className)} {...rest}>
-          {emptyText}
+          {resolvedEmptyText}
         </div>
       )
     }

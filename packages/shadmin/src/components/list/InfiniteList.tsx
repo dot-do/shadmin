@@ -244,15 +244,15 @@ export interface InfiniteListViewProps {
   /** Title to display in the list header */
   title?: ReactNode
   /** Custom actions component (e.g., Create button) */
-  actions?: ReactElement | false
+  actions?: ReactElement | ReactElement[] | false | undefined
   /** Filters component for the list */
-  filters?: ReactElement
+  filters?: ReactElement | ReactElement[] | undefined
   /** Component to display when the list is empty */
-  empty?: ReactElement
+  empty?: ReactElement | undefined
   /** Additional CSS class name */
-  className?: string
+  className?: string | undefined
   /** Aside content (e.g., bulk action buttons) */
-  aside?: ReactElement
+  aside?: ReactElement | undefined
 }
 
 /**

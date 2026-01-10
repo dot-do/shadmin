@@ -14,8 +14,13 @@ export interface ReferenceFieldProps extends HTMLAttributes<HTMLSpanElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when the reference value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when the reference value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /**
    * How to render the link to the referenced record
    * - 'show': Link to the show page
@@ -31,6 +36,7 @@ export interface ReferenceFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * ReferenceField component displays a related record's field.
  * It fetches the referenced record using useGetOne and renders children
  * with the fetched record in a RecordContext.
+ * Wraps content in .ra-field and .ra-field-{source} for react-admin compatibility.
  *
  * @example
  * ```tsx
@@ -52,12 +58,15 @@ export interface ReferenceFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * </ReferenceField>
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function ReferenceField({
   source,
   reference,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   link = false,
   className,
   children,
@@ -65,6 +74,14 @@ export function ReferenceField({
 }: ReferenceFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
 
   // Get the reference ID from the source field
   const referenceId = get(record, source) as Identifier | null | undefined
@@ -79,22 +96,25 @@ export function ReferenceField({
     { enabled: hasReferenceId }
   )
 
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
+
   // Handle empty reference ID
   if (!hasReferenceId) {
-    if (emptyText) {
+    if (resolvedEmptyText) {
       return (
-        <span className={cn(className)} {...rest}>
-          {emptyText}
+        <span className={cn('ra-field', sourceClass, className)} {...rest}>
+          <p><span>{resolvedEmptyText}</span></p>
         </span>
       )
     }
-    return <span className={cn(className)} {...rest} />
+    return <span className={cn('ra-field', sourceClass, className)} {...rest} />
   }
 
   // Handle loading state
   if (isLoading) {
     return (
-      <span className={cn(className)} data-testid="reference-field-loading" {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="reference-field-loading" {...rest}>
         <span className="inline-block h-4 w-16 animate-pulse rounded bg-muted" />
       </span>
     )
@@ -103,7 +123,7 @@ export function ReferenceField({
   // Handle error state
   if (error) {
     return (
-      <span className={cn(className)} data-testid="reference-field-error" {...rest}>
+      <span className={cn('ra-field', sourceClass, className)} data-testid="reference-field-error" {...rest}>
         <span className="text-destructive text-sm">Error loading reference</span>
       </span>
     )
@@ -127,16 +147,16 @@ export function ReferenceField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        {linkedContent}
+        <p><span>{linkedContent}</span></p>
       </div>
     )
   }
 
   return (
-    <span className={cn(className)} {...rest}>
-      {linkedContent}
+    <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <p><span>{linkedContent}</span></p>
     </span>
   )
 }

@@ -95,17 +95,20 @@ export function BooleanField({
 
   const rawValue = get(record, source)
 
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
+
   // Handle null/undefined
   if (rawValue == null) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span />
+          <p><span /></p>
         </div>
       )
     }
-    return <span className={cn(className)} {...rest} />
+    return <span className={cn('ra-field', sourceClass, className)} {...rest} />
   }
 
   // Determine boolean value
@@ -124,15 +127,15 @@ export function BooleanField({
   if (valueLabelTrue && valueLabelFalse) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{boolValue ? valueLabelTrue : valueLabelFalse}</span>
+          <p><span>{boolValue ? valueLabelTrue : valueLabelFalse}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {boolValue ? valueLabelTrue : valueLabelFalse}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{boolValue ? valueLabelTrue : valueLabelFalse}</span></p>
       </span>
     )
   }
@@ -146,16 +149,16 @@ export function BooleanField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest} aria-label={String(boolValue)}>
+      <div className={cn('ra-field', sourceClass, className)} {...rest} aria-label={String(boolValue)}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <span className="inline-flex items-center">{icon}</span>
+        <p><span className="inline-flex items-center">{icon}</span></p>
       </div>
     )
   }
 
   return (
-    <span className={cn('inline-flex items-center', className)} aria-label={String(boolValue)} {...rest}>
-      {icon}
+    <span className={cn('ra-field', sourceClass, 'inline-flex items-center', className)} aria-label={String(boolValue)} {...rest}>
+      <p><span>{icon}</span></p>
     </span>
   )
 }

@@ -5,10 +5,10 @@
  * Uses React Router 7 for route management
  */
 
-import { type ComponentType, useMemo, type ReactNode } from 'react'
+import { type ComponentType, type ReactElement, useMemo, type ReactNode, isValidElement, cloneElement } from 'react'
 import { useLocation } from 'react-router'
 import { ResourceContextProvider } from '../../contexts'
-import type { ResourceProps, AdminLayoutProps } from '../../types'
+import type { ResourceProps } from '../../types'
 
 /**
  * Menu item interface for plugin-added menu items
@@ -16,13 +16,13 @@ import type { ResourceProps, AdminLayoutProps } from '../../types'
 export interface MenuItem {
   name: string
   path: string
-  icon?: ReactNode
+  icon?: ReactNode | undefined
 }
 
 export interface CoreAdminRoutesProps {
   resources: ResourceProps[]
   dashboard?: ComponentType | undefined
-  layout?: ComponentType<AdminLayoutProps> | undefined
+  layout?: ComponentType<{ children: ReactNode }> | ReactElement | undefined
   catchAll?: ComponentType | undefined
   menuItems?: MenuItem[] | undefined
 }
@@ -167,11 +167,25 @@ export const CoreAdminRoutes = ({
 
   // Wrap with Layout if provided
   if (Layout) {
-    return (
-      <Layout dashboard={Dashboard}>
+    const children = (
+      <>
         {renderMenuItems()}
         {content}
-      </Layout>
+      </>
+    )
+
+    // Handle both ReactElement and ComponentType layouts
+    if (isValidElement(Layout)) {
+      // It's a ReactElement, clone it with children
+      return cloneElement(Layout, {}, children)
+    }
+
+    // It's a ComponentType
+    const LayoutComponent = Layout as ComponentType<{ children: ReactNode }>
+    return (
+      <LayoutComponent>
+        {children}
+      </LayoutComponent>
     )
   }
 

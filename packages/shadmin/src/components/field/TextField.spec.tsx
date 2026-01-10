@@ -75,12 +75,13 @@ describe('TextField', () => {
 
       render(
         <RecordContextProvider value={record}>
-          <TextField source="name" className="custom-class text-red-500" />
+          <TextField source="name" className="custom-class text-red-500" data-testid="text-field" />
         </RecordContextProvider>
       )
 
-      const element = screen.getByText('Test')
-      expect(element).toHaveClass('custom-class', 'text-red-500')
+      // className is applied to the wrapper element
+      const wrapper = screen.getByTestId('text-field')
+      expect(wrapper).toHaveClass('custom-class', 'text-red-500')
     })
 
     it('should render as a span element', () => {
@@ -107,8 +108,9 @@ describe('TextField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('text-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render empty string when field is undefined', () => {
@@ -120,8 +122,9 @@ describe('TextField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('text-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render empty string when source path does not exist', () => {
@@ -133,8 +136,9 @@ describe('TextField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('text-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render empty string when record is undefined', () => {
@@ -144,8 +148,9 @@ describe('TextField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('text-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render custom emptyText when value is missing', () => {

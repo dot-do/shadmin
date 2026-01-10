@@ -18,8 +18,13 @@ export interface SelectFieldProps extends HTMLAttributes<HTMLSpanElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined or not found in choices */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined or not found in choices.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /**
    * Array of choices to look up the display value.
    * If not provided, displays the raw value.
@@ -84,11 +89,14 @@ export interface SelectFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * <SelectField source="status" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function SelectField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   choices,
   optionValue = 'id',
   optionText = 'name',
@@ -99,6 +107,14 @@ export function SelectField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const rawValue = get(record, source)
 
   // Handle empty value
@@ -107,13 +123,13 @@ export function SelectField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }
@@ -153,7 +169,7 @@ export function SelectField({
     }
   } else {
     // No matching choice found, use emptyText or raw value
-    displayValue = emptyText || String(rawValue)
+    displayValue = resolvedEmptyText || String(rawValue)
   }
 
   if (label) {

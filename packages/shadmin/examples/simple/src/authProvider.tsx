@@ -67,7 +67,7 @@ const authProvider: AuthProvider = {
             return Promise.resolve();
         }
         localStorage.setItem('not_authenticated', 'true');
-        return new Promise((resolve, reject) => setTimeout(reject, 1000));
+        return new Promise((resolve, reject) => setTimeout(() => reject(new Error('Authentication failed, please retry')), 1000));
     },
     logout: () => {
         localStorage.setItem('not_authenticated', 'true');

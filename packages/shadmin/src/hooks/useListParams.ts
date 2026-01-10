@@ -24,17 +24,17 @@ export interface UseListParamsProps {
   /** The name of the resource (used as prefix for storeKey) */
   resource: string
   /** Custom store key for namespacing URL params (e.g., "myList" results in "myList.page") */
-  storeKey?: string
+  storeKey?: string | undefined
   /** Default number of items per page */
-  perPage?: number
+  perPage?: number | undefined
   /** Default sort configuration */
-  sort?: SortPayload
+  sort?: SortPayload | undefined
   /** Default filter values */
-  filterDefaultValues?: FilterPayload
+  filterDefaultValues?: FilterPayload | undefined
   /** If true, don't sync with URL */
-  disableSyncWithLocation?: boolean
+  disableSyncWithLocation?: boolean | undefined
   /** Debounce delay in ms for URL updates (default: 200ms, set to 0 to disable) */
-  debounceDelay?: number
+  debounceDelay?: number | undefined
 }
 
 /**

@@ -61,21 +61,24 @@ export function EmailField({
 
   const rawValue = get(record, source)
 
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
+
   // Handle null, undefined, or empty string
   if (rawValue == null || rawValue === '') {
     if (label) {
       return (
-        <div>
+        <div className={cn('ra-field', sourceClass)}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span className={cn(className)} data-testid={rest['data-testid']}>
+          <p><span className={cn(className)} data-testid={rest['data-testid']}>
             {resolvedEmptyText}
-          </span>
+          </span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} data-testid={rest['data-testid']}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} data-testid={rest['data-testid']}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -84,19 +87,21 @@ export function EmailField({
 
   if (label) {
     return (
-      <div>
+      <div className={cn('ra-field', sourceClass)}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <a href={`mailto:${email}`} className={cn('text-primary hover:underline', className)} {...rest}>
-          {email}
-        </a>
+        <p><a href={`mailto:${email}`} className={cn('text-primary hover:underline', className)} {...rest}>
+          <span>{email}</span>
+        </a></p>
       </div>
     )
   }
 
   return (
-    <a href={`mailto:${email}`} className={cn('text-primary hover:underline', className)} {...rest}>
-      {email}
-    </a>
+    <span className={cn('ra-field', sourceClass)}>
+      <p><a href={`mailto:${email}`} className={cn('text-primary hover:underline', className)} {...rest}>
+        <span>{email}</span>
+      </a></p>
+    </span>
   )
 }
 

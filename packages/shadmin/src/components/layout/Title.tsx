@@ -200,7 +200,7 @@ export function TitlePortal({ className, children }: TitlePortalProps) {
   }
 
   return (
-    <h1 className={cn('text-2xl font-bold tracking-tight', className)}>
+    <h1 id="react-admin-title" className={cn('text-2xl font-bold tracking-tight', className)}>
       {title ?? children}
     </h1>
   )

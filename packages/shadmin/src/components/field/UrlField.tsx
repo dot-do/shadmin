@@ -84,21 +84,24 @@ export function UrlField({
 
   const rawValue = get(record, source)
 
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
+
   // Handle null, undefined, or empty string
   if (rawValue == null || rawValue === '') {
     if (label) {
       return (
-        <div>
+        <div className={cn('ra-field', sourceClass)}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span className={cn(className)} data-testid={rest['data-testid']}>
+          <p><span className={cn(className)} data-testid={rest['data-testid']}>
             {resolvedEmptyText}
-          </span>
+          </span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} data-testid={rest['data-testid']}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} data-testid={rest['data-testid']}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -115,31 +118,33 @@ export function UrlField({
 
   if (label) {
     return (
-      <div>
+      <div className={cn('ra-field', sourceClass)}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <a
+        <p><a
           href={url}
           target={target}
           rel={rel}
           className={cn('text-primary hover:underline', className)}
           {...rest}
         >
-          {displayText}
-        </a>
+          <span>{displayText}</span>
+        </a></p>
       </div>
     )
   }
 
   return (
-    <a
-      href={url}
-      target={target}
-      rel={rel}
-      className={cn('text-primary hover:underline', className)}
-      {...rest}
-    >
-      {displayText}
-    </a>
+    <span className={cn('ra-field', sourceClass)}>
+      <p><a
+        href={url}
+        target={target}
+        rel={rel}
+        className={cn('text-primary hover:underline', className)}
+        {...rest}
+      >
+        <span>{displayText}</span>
+      </a></p>
+    </span>
   )
 }
 

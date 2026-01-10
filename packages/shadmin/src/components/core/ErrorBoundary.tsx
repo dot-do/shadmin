@@ -10,7 +10,7 @@ import { Component, createContext, useContext, type ReactNode, type ErrorInfo, t
  */
 export interface ErrorBoundaryErrorInfo {
   componentStack: string
-  boundaryId?: string
+  boundaryId?: string | undefined
 }
 
 /**
@@ -21,7 +21,7 @@ export interface FallbackRenderProps {
   resetErrorBoundary: () => void
   retryCount: number
   canRetry: boolean
-  lastGoodState?: { renderCount?: number }
+  lastGoodState?: { renderCount?: number | undefined } | undefined
 }
 
 /**
@@ -37,33 +37,33 @@ export interface ErrorComponentProps {
 export interface ErrorBoundaryProps {
   children: ReactNode
   /** Static fallback element to render on error */
-  fallback?: ReactNode
+  fallback?: ReactNode | undefined
   /** Function that renders the fallback UI with error details */
-  fallbackRender?: (props: FallbackRenderProps) => ReactNode
+  fallbackRender?: ((props: FallbackRenderProps) => ReactNode) | undefined
   /** Custom error component to render */
-  ErrorComponent?: ComponentType<ErrorComponentProps>
+  ErrorComponent?: ComponentType<ErrorComponentProps> | undefined
   /** Called when an error is caught */
-  onError?: (error: Error, errorInfo: ErrorBoundaryErrorInfo) => void | Promise<void>
+  onError?: ((error: Error, errorInfo: ErrorBoundaryErrorInfo) => void | Promise<void>) | undefined
   /** Called when the boundary is reset */
-  onReset?: () => void
+  onReset?: (() => void) | undefined
   /** Called when retry is attempted */
-  onRetry?: (error: Error, retryCount: number) => void
+  onRetry?: ((error: Error, retryCount: number) => void) | undefined
   /** Array of values that trigger a reset when changed */
-  resetKeys?: unknown[]
+  resetKeys?: unknown[] | undefined
   /** Maximum number of retries allowed */
-  maxRetries?: number
+  maxRetries?: number | undefined
   /** Unique identifier for this boundary (included in error reports) */
-  id?: string
+  id?: string | undefined
   /** Custom message to show in production */
-  productionMessage?: string
+  productionMessage?: string | undefined
   /** Function to determine if error should be caught */
-  shouldCatch?: (error: Error) => boolean
+  shouldCatch?: ((error: Error) => boolean) | undefined
   /** Show a button to go to home/dashboard */
-  showHomeButton?: boolean
+  showHomeButton?: boolean | undefined
   /** Show a button to log out */
-  showLogoutButton?: boolean
+  showLogoutButton?: boolean | undefined
   /** Show a button to refresh/retry */
-  showRefreshButton?: boolean
+  showRefreshButton?: boolean | undefined
 }
 
 /**

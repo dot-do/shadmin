@@ -213,12 +213,13 @@ describe('DateField', () => {
 
       render(
         <RecordContextProvider value={record}>
-          <DateField source="date" locales="en-US" className="custom-class text-green-500" />
+          <DateField source="date" locales="en-US" className="custom-class text-green-500" data-testid="date-field" />
         </RecordContextProvider>
       )
 
-      const element = screen.getByText('3/15/2024')
-      expect(element).toHaveClass('custom-class', 'text-green-500')
+      // className is applied to the wrapper element, not the text element
+      const wrapper = screen.getByTestId('date-field')
+      expect(wrapper).toHaveClass('custom-class', 'text-green-500')
     })
 
     it('should render as a span element', () => {
@@ -245,8 +246,9 @@ describe('DateField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('date-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render empty string when field is undefined', () => {
@@ -258,8 +260,9 @@ describe('DateField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('date-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render custom emptyText when value is missing', () => {
@@ -283,8 +286,9 @@ describe('DateField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('date-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
   })
 

@@ -19,8 +19,13 @@ export interface RecordFieldProps {
   label?: ReactNode
   /** Additional CSS class name */
   className?: string
-  /** Whether to render even if the value is empty */
-  emptyText?: string
+  /**
+   * Text to display when the value is empty.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Children to render (optional) */
   children?: ReactNode
 }

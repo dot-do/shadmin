@@ -11,12 +11,19 @@ export interface ChipFieldProps extends HTMLAttributes<HTMLSpanElement> {
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Visual variant of the chip */
   variant?: 'default' | 'secondary' | 'destructive' | 'outline'
   /** Size of the chip */
   size?: 'sm' | 'small' | 'default' | 'lg'
+  /** Whether the chip should appear clickable/interactive */
+  clickable?: boolean
 }
 
 /**
@@ -39,23 +46,38 @@ export interface ChipFieldProps extends HTMLAttributes<HTMLSpanElement> {
  * <ChipField source="tag" size="sm" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function ChipField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   variant = 'default',
   size = 'default',
+  clickable,
   className,
   ...rest
 }: ChipFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const value = get(record, source)
-  const displayValue = value == null ? emptyText : String(value)
+  const displayValue = value == null ? resolvedEmptyText : String(value)
 
   const isEmpty = value == null || value === ''
+
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
 
   // Variant styles
   const variantStyles = {
@@ -77,32 +99,35 @@ export function ChipField({
     'inline-flex items-center rounded-full font-medium',
     variantStyles[variant],
     sizeStyles[size],
+    clickable && 'cursor-pointer hover:opacity-80 transition-opacity',
     className
   )
 
-  if (isEmpty && !emptyText) {
+  if (isEmpty && !resolvedEmptyText) {
     return label ? (
-      <div>
+      <div className={cn('ra-field', sourceClass)}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <span />
+        <p><span /></p>
       </div>
     ) : null
   }
 
   if (label) {
     return (
-      <div>
+      <div className={cn('ra-field', sourceClass)}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <span className={chipClasses} {...rest}>
+        <p><span className={chipClasses} {...rest}>
           {displayValue}
-        </span>
+        </span></p>
       </div>
     )
   }
 
   return (
-    <span className={chipClasses} {...rest}>
-      {displayValue}
+    <span className={cn('ra-field', sourceClass)}>
+      <p><span className={chipClasses} {...rest}>
+        {displayValue}
+      </span></p>
     </span>
   )
 }

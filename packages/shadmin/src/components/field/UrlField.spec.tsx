@@ -140,8 +140,9 @@ describe('UrlField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('url-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
       expect(element.querySelector('a')).toBeNull()
     })
 
@@ -154,8 +155,9 @@ describe('UrlField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('url-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render custom emptyText when value is missing', () => {
@@ -179,8 +181,9 @@ describe('UrlField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('url-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
   })
 

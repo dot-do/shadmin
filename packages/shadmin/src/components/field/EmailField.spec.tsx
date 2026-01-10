@@ -98,8 +98,9 @@ describe('EmailField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('email-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
       expect(element.querySelector('a')).toBeNull()
     })
 
@@ -112,8 +113,9 @@ describe('EmailField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('email-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render custom emptyText when value is missing', () => {
@@ -137,8 +139,9 @@ describe('EmailField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('email-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
   })
 

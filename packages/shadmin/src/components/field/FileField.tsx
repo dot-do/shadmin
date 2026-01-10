@@ -21,8 +21,13 @@ export interface FileFieldProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElem
   record?: RaRecord
   /** Optional label to display above the value */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /**
    * Title for the link text.
    * If it matches a field name in the record/file object, uses that field's value.
@@ -86,11 +91,14 @@ function getFilename(url: string): string {
  * </RecordContextProvider>
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function FileField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   title,
   src: srcField = 'src',
   download,
@@ -102,6 +110,14 @@ export function FileField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const value = get(record, source)
   const isEmpty = value == null || value === '' || (Array.isArray(value) && value.length === 0)
 
@@ -112,14 +128,14 @@ export function FileField({
         <div>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
           <span className={cn(className)} {...rest}>
-            {emptyText}
+            {resolvedEmptyText}
           </span>
         </div>
       )
     }
     return (
       <span className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </span>
     )
   }

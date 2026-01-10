@@ -328,12 +328,8 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
     [form, displayRecord, resource, save, isUpdating, mutationMode]
   )
 
-  // Don't render children until record is loaded
-  if (isLoading || !displayRecord) {
-    return null
-  }
-
-  // Wrap with ResourceContext if resource prop was provided
+  // Always render children - let consumer components handle loading/error states
+  // This allows Edit component to show loading indicators and error messages
   const content = (
     <RecordContextProvider value={displayRecord}>
       <FormContextProvider {...formContextValue}>

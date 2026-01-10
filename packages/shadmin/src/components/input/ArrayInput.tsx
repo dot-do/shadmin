@@ -32,7 +32,7 @@ export interface ArrayInputContextValue {
   /** Whether the array is disabled */
   disabled?: boolean
   /** Default value for new items */
-  defaultValue?: Record<string, unknown>
+  defaultValue?: Record<string, unknown> | unknown[] | Record<string, unknown>[] | undefined
   /** Minimum number of items */
   minItems?: number
   /** Maximum number of items */
@@ -83,7 +83,7 @@ export interface ArrayInputProps<T extends FieldValues = FieldValues>
   /**
    * Default value for new items when added.
    */
-  defaultValue?: Record<string, unknown>
+  defaultValue?: Record<string, unknown> | unknown[] | Record<string, unknown>[] | undefined
   /**
    * Minimum number of items in the array.
    */

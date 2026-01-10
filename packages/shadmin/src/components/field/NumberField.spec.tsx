@@ -162,12 +162,13 @@ describe('NumberField', () => {
 
       render(
         <RecordContextProvider value={record}>
-          <NumberField source="count" className="custom-class text-blue-500" />
+          <NumberField source="count" className="custom-class text-blue-500" data-testid="number-field" />
         </RecordContextProvider>
       )
 
-      const element = screen.getByText('42')
-      expect(element).toHaveClass('custom-class', 'text-blue-500')
+      // className is applied to the wrapper element
+      const wrapper = screen.getByTestId('number-field')
+      expect(wrapper).toHaveClass('custom-class', 'text-blue-500')
     })
 
     it('should render as a span element', () => {
@@ -194,8 +195,9 @@ describe('NumberField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('number-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render empty string when field is undefined', () => {
@@ -207,8 +209,9 @@ describe('NumberField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('number-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should render custom emptyText when value is missing', () => {
@@ -261,8 +264,9 @@ describe('NumberField', () => {
         </RecordContextProvider>
       )
 
+      // The wrapper element contains the ra-field structure but the inner span is empty
       const element = screen.getByTestId('number-field')
-      expect(element).toBeEmptyDOMElement()
+      expect(element.textContent).toBe('')
     })
 
     it('should handle numeric strings', () => {

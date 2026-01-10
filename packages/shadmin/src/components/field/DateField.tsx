@@ -29,6 +29,7 @@ export interface DateFieldProps extends HTMLAttributes<HTMLSpanElement> {
 /**
  * DateField component displays a formatted date value from a record field.
  * Uses Intl.DateTimeFormat for internationalized date formatting.
+ * Wraps content in .ra-field and .ra-field-{source} for react-admin compatibility.
  *
  * @example
  * ```tsx
@@ -74,19 +75,22 @@ export function DateField({
 
   const rawValue = get(record, source)
 
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
+
   // Handle null, undefined, or empty values
   if (rawValue == null) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{resolvedEmptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -103,15 +107,15 @@ export function DateField({
     // Invalid type
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{resolvedEmptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -120,15 +124,15 @@ export function DateField({
   if (isNaN(dateValue.getTime())) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{resolvedEmptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -151,16 +155,16 @@ export function DateField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <span>{displayValue}</span>
+        <p><span>{displayValue}</span></p>
       </div>
     )
   }
 
   return (
-    <span className={cn(className)} {...rest}>
-      {displayValue}
+    <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <p><span>{displayValue}</span></p>
     </span>
   )
 }

@@ -11,8 +11,13 @@ export interface ArrayFieldProps extends HTMLAttributes<HTMLDivElement> {
   record?: RaRecord
   /** Optional label to display above the array items */
   label?: string
-  /** Text to display when array is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when array is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Children to render for each item in the array */
   children?: ReactNode
 }
@@ -46,17 +51,28 @@ export interface ArrayFieldProps extends HTMLAttributes<HTMLDivElement> {
  * </ArrayField>
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function ArrayField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   className,
   children,
   ...rest
 }: ArrayFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
 
   // Get the array from the source field
   const items = get(record, source) as RaRecord[] | null | undefined
@@ -70,14 +86,14 @@ export function ArrayField({
       return (
         <div className={cn(className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <span>{resolvedEmptyText}</span>
         </div>
       )
     }
 
     return (
       <div className={cn(className)} {...rest}>
-        {emptyText}
+        {resolvedEmptyText}
       </div>
     )
   }

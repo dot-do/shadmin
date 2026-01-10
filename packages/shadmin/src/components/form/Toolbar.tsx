@@ -99,6 +99,7 @@ export function Toolbar({
 }: ToolbarProps): ReactElement {
   return (
     <div
+      role="toolbar"
       className={cn('flex items-center gap-2 pt-4', className)}
       data-testid={testId}
     >

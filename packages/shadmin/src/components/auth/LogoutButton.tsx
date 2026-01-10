@@ -190,6 +190,7 @@ export function LogoutButton({
   }, [])
 
   const buttonStyles = cn(
+    'logout',
     buttonBaseStyles,
     variantStyles[variant],
     sizeStyles[size],

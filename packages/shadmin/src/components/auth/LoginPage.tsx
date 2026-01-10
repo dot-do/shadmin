@@ -169,7 +169,7 @@ export function LoginPage({
               className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md"
               role="alert"
             >
-              {error.message}
+              {error.message || 'Authentication failed, please retry'}
             </div>
           )}
 

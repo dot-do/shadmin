@@ -74,7 +74,7 @@ export function EditView({
   className,
 }: EditViewProps) {
   return (
-    <div className="flex gap-4">
+    <div className="edit-page flex gap-4">
       <Card className={className} data-slot="card">
         {(title || actions) && (
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">

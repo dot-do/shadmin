@@ -8,7 +8,7 @@ import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetManyReference } from '../../hooks/useGetManyReference'
-import type { Identifier, RaRecord } from '../../types'
+import type { Identifier } from '../../types'
 
 export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> {
   /** The field name in the record that contains the ID to look up (defaults to 'id' if not provided) */
@@ -17,12 +17,17 @@ export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> 
   reference: string
   /** The foreign key field name in the referenced resource */
   target: string
-  /** Optional record to use instead of RecordContext */
-  record?: RaRecord
+  /** Optional record to use instead of RecordContext (doesn't require id, just needs the source field) */
+  record?: Record<string, unknown>
   /** Optional label to display above the values */
   label?: string
-  /** Text to display when there are no related records */
-  emptyText?: string
+  /**
+   * Text to display when there are no related records.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /** Number of records per page (default: 10) */
   perPage?: number
   /** Page number (default: 1) */
@@ -74,6 +79,9 @@ export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> 
  * </ReferenceManyField>
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function ReferenceManyField({
   source = 'id',
   reference,
@@ -91,6 +99,14 @@ export function ReferenceManyField({
 }: ReferenceManyFieldProps) {
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
+
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
 
   // Get the ID from the source field (defaults to 'id')
   const sourceId = get(record, source) as Identifier | null | undefined
@@ -113,10 +129,10 @@ export function ReferenceManyField({
 
   // Handle empty source ID
   if (!hasSourceId) {
-    if (emptyText) {
+    if (resolvedEmptyText) {
       return (
         <div className={cn(className)} {...rest}>
-          {emptyText}
+          {resolvedEmptyText}
         </div>
       )
     }
@@ -143,10 +159,10 @@ export function ReferenceManyField({
 
   // Handle empty data
   if (!data || data.length === 0) {
-    if (emptyText) {
+    if (resolvedEmptyText) {
       return (
         <div className={cn(className)} {...rest}>
-          {emptyText}
+          {resolvedEmptyText}
         </div>
       )
     }

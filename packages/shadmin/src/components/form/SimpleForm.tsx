@@ -30,6 +30,15 @@ import { cn } from '../../utils'
 import { Toolbar as DefaultToolbar } from './Toolbar'
 
 /**
+ * Type for save handler that accepts both ra-core SaveHandler and standard form handlers.
+ * ra-core's SaveHandler returns Promise<void | RecordType> | Record<string, string>
+ * Standard form handlers return void | Promise<void>
+ * The second parameter can be either SaveHandlerCallbacks or BaseSyntheticEvent.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormSubmitHandler<T> = (data: T, callbacksOrEvent?: any) => unknown
+
+/**
  * Props passed to the fieldWrapper component
  */
 export interface FieldWrapperProps {
@@ -52,8 +61,9 @@ export interface SimpleFormProps<T extends FieldValues = FieldValues>
   /**
    * Handler called on form submission with validated data.
    * If not provided, uses the save function from form context.
+   * Accepts SaveHandler from ra-core or a standard form submit handler.
    */
-  onSubmit?: (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>
+  onSubmit?: FormSubmitHandler<T>
   /**
    * Default values for the form fields
    */

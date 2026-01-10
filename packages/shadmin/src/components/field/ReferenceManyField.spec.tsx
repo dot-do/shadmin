@@ -661,17 +661,16 @@ describe('ReferenceManyField', () => {
 
       render(
         <Wrapper>
-          <RecordContextProvider value={record}>
-            <ReferenceManyField
-              source="id"
-              reference="comments"
-              target="post_id"
-              emptyText="No ID"
-              data-testid="ref-many"
-            >
-              <TextField source="body" />
-            </ReferenceManyField>
-          </RecordContextProvider>
+          <ReferenceManyField
+            source="id"
+            reference="comments"
+            target="post_id"
+            record={record}
+            emptyText="No ID"
+            data-testid="ref-many"
+          >
+            <TextField source="body" />
+          </ReferenceManyField>
         </Wrapper>
       )
 
@@ -688,16 +687,15 @@ describe('ReferenceManyField', () => {
 
       render(
         <Wrapper>
-          <RecordContextProvider value={record}>
-            <ReferenceManyField
-              source="id"
-              reference="comments"
-              target="post_id"
-              data-testid="ref-many"
-            >
-              <TextField source="body" />
-            </ReferenceManyField>
-          </RecordContextProvider>
+          <ReferenceManyField
+            source="id"
+            reference="comments"
+            target="post_id"
+            record={record}
+            data-testid="ref-many"
+          >
+            <TextField source="body" />
+          </ReferenceManyField>
         </Wrapper>
       )
 

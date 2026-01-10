@@ -77,6 +77,7 @@ function UserMenu({ user }: UserMenuProps) {
           'hover:bg-accent hover:text-accent-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
         )}
+        aria-label="Profile"
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >

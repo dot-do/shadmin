@@ -53,8 +53,9 @@ export interface AutocompleteInputProps<T extends FieldValues = FieldValues>
   label?: string | false
   /**
    * Helper text displayed below the input.
+   * Set to `false` to hide the helper text completely.
    */
-  helperText?: string
+  helperText?: string | false
   /**
    * Validation rules passed to react-hook-form.
    */

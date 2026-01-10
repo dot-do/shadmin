@@ -78,6 +78,7 @@ export function Loading({
     >
       <div
         className={cn(
+          'app-loader',
           'animate-spin rounded-full border-current border-t-transparent',
           sizeClasses[size],
           className

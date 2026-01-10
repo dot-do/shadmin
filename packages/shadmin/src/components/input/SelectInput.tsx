@@ -39,8 +39,9 @@ export interface SelectInputProps<T extends FieldValues = FieldValues>
   label?: string | false
   /**
    * Helper text displayed below the select.
+   * Set to `false` to hide the helper text completely.
    */
-  helperText?: string
+  helperText?: string | false
   /**
    * Validation rules passed to react-hook-form.
    */

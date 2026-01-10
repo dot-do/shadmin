@@ -19,7 +19,7 @@ import {
   useRef,
 } from 'react'
 import { ResourceDefinitionContextProvider, NotificationContextProvider, type ResourceDefinitions } from '../../contexts'
-import type { AdminProps, ResourceProps, ResourceDefinition, ErrorProps, DataProvider, AdminPluginContext } from '../../types'
+import type { AdminProps, ResourceProps, ResourceDefinition, DataProvider, AdminPluginContext } from '../../types'
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { Resource, ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'

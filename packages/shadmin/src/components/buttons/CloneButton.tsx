@@ -120,6 +120,7 @@ export const CloneButton = forwardRef<HTMLAnchorElement, CloneButtonProps>(
         ref={ref}
         to={to}
         className={cn(
+          'button-clone',
           buttonBaseStyles,
           buttonVariants[variant],
           buttonSizes[size],

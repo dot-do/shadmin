@@ -11,8 +11,13 @@ export interface ImageFieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
   record?: RaRecord
   /** Optional label to display above the image */
   label?: string
-  /** Text to display when value is empty/null/undefined */
-  emptyText?: string
+  /**
+   * Text to display when value is empty/null/undefined.
+   * - string: Display that string
+   * - true: Display default empty text
+   * - false | undefined: Display nothing
+   */
+  emptyText?: string | boolean
   /**
    * Title for the image alt text.
    * If it matches a field name in the record, uses that field's value.
@@ -54,11 +59,14 @@ export interface ImageFieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
  * <ImageField source="photos" src="url" title="caption" />
  * ```
  */
+/** Default text shown when emptyText is true */
+const DEFAULT_EMPTY_TEXT = ''
+
 export function ImageField({
   source,
   record: recordProp,
   label,
-  emptyText = '',
+  emptyText,
   title,
   src: srcField = 'src',
   sx,
@@ -68,22 +76,33 @@ export function ImageField({
   const recordContext = useRecordContext()
   const record = recordProp ?? recordContext
 
+  // Resolve emptyText: false/undefined = '', true = default, string = as-is
+  const resolvedEmptyText =
+    emptyText === false || emptyText === undefined
+      ? ''
+      : emptyText === true
+        ? DEFAULT_EMPTY_TEXT
+        : emptyText
+
   const value = get(record, source)
   const isEmpty = value == null || value === '' || (Array.isArray(value) && value.length === 0)
+
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
 
   // Handle empty state
   if (isEmpty) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{emptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {emptyText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -121,16 +140,16 @@ export function ImageField({
 
     if (label) {
       return (
-        <div className={cn('flex flex-wrap gap-2', className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, 'flex flex-wrap gap-2', className)} {...rest}>
           <span className="block w-full text-sm font-medium text-muted-foreground">{label}</span>
-          {images}
+          <p><span>{images}</span></p>
         </div>
       )
     }
 
     return (
-      <div className={cn('flex flex-wrap gap-2', className)} {...rest}>
-        {images}
+      <div className={cn('ra-field', sourceClass, 'flex flex-wrap gap-2', className)} {...rest}>
+        <p><span>{images}</span></p>
       </div>
     )
   }
@@ -141,16 +160,16 @@ export function ImageField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <img src={imageUrl} alt={altText} style={sx} className="object-cover" />
+        <p><span><img src={imageUrl} alt={altText} style={sx} className="object-cover" /></span></p>
       </div>
     )
   }
 
   return (
-    <div className={cn(className)} {...rest}>
-      <img src={imageUrl} alt={altText} style={sx} className="object-cover" />
+    <div className={cn('ra-field', sourceClass, className)} {...rest}>
+      <p><span><img src={imageUrl} alt={altText} style={sx} className="object-cover" /></span></p>
     </div>
   )
 }

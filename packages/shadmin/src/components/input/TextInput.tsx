@@ -248,7 +248,7 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
             {isRequired && <span className="text-destructive ml-1">*</span>}
           </label>
         )}
-        <div className="relative">
+        <div className={cn('relative', fullWidth && 'w-full')}>
           {multiline ? (
             <textarea
               {...(rest as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}

@@ -70,19 +70,22 @@ export function NumberField({
 
   const rawValue = get(record, source)
 
+  // Convert source to valid CSS class name (replace dots with dashes)
+  const sourceClass = `ra-field-${source.replace(/\./g, '-')}`
+
   // Handle null, undefined, or empty values
   if (rawValue == null) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{resolvedEmptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -94,15 +97,15 @@ export function NumberField({
   if (isNaN(numValue)) {
     if (label) {
       return (
-        <div className={cn(className)} {...rest}>
+        <div className={cn('ra-field', sourceClass, className)} {...rest}>
           <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-          <span>{resolvedEmptyText}</span>
+          <p><span>{resolvedEmptyText}</span></p>
         </div>
       )
     }
     return (
-      <span className={cn(className)} {...rest}>
-        {resolvedEmptyText}
+      <span className={cn('ra-field', sourceClass, className)} {...rest}>
+        <p><span>{resolvedEmptyText}</span></p>
       </span>
     )
   }
@@ -113,16 +116,16 @@ export function NumberField({
 
   if (label) {
     return (
-      <div className={cn(className)} {...rest}>
+      <div className={cn('ra-field', sourceClass, className)} {...rest}>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        <span>{displayValue}</span>
+        <p><span>{displayValue}</span></p>
       </div>
     )
   }
 
   return (
-    <span className={cn(className)} {...rest}>
-      {displayValue}
+    <span className={cn('ra-field', sourceClass, className)} {...rest}>
+      <p><span>{displayValue}</span></p>
     </span>
   )
 }

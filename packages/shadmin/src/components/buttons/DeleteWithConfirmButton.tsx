@@ -189,6 +189,7 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
           type="button"
           disabled={disabled || isPending}
           className={cn(
+            'ra-delete-button',
             buttonBaseStyles,
             buttonVariants[variant],
             buttonSizes[size],
