@@ -40,9 +40,13 @@ export type ShadminFormContext<T extends FieldValues = FieldValues> =
   UseFormReturn<T> & ShadminFormContextValue<T>
 
 /**
- * Context for shadmin-specific form properties
+ * Context for shadmin-specific form properties.
+ *
+ * Note: The context uses FieldValues as the base type. Type narrowing is done
+ * in the consuming hooks through type assertions, which is safe because
+ * the provider ensures the correct type is passed.
  */
-export const FormContext = createContext<ShadminFormContextValue | undefined>(undefined)
+export const FormContext = createContext<ShadminFormContextValue<FieldValues> | undefined>(undefined)
 
 FormContext.displayName = 'FormContext'
 
@@ -92,7 +96,7 @@ export function FormContextProvider<T extends FieldValues = FieldValues>({
 
   return (
     <FormProvider {...formMethods}>
-      <FormContext.Provider value={shadminContext as ShadminFormContextValue}>
+      <FormContext.Provider value={shadminContext as ShadminFormContextValue<FieldValues>}>
         {children}
       </FormContext.Provider>
     </FormProvider>
@@ -125,7 +129,9 @@ export function useFormContext<T extends FieldValues = FieldValues>(): UseFormRe
 export function useShadminFormContext<T extends FieldValues = FieldValues>():
   UseFormReturn<T> & ShadminFormContextValue<T> {
   const rhfContext = useRHFFormContext<T>()
-  const shadminContext = useContext(FormContext) as ShadminFormContextValue<T> | undefined
+  const rawContext = useContext(FormContext)
+  // Type assertion is safe because provider ensures correct type structure
+  const shadminContext = rawContext as ShadminFormContextValue<T> | undefined
 
   // Memoize the combined context to prevent unnecessary re-renders in consumers
   return useMemo(

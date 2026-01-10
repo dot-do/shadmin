@@ -4,12 +4,11 @@
  * 100% API-compatible with react-admin
  */
 
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
-import { useDataProvider } from '../contexts/DataProviderContext'
+import type { UseQueryOptions } from '@tanstack/react-query'
+import { createSimpleQueryHook } from './createDataHook'
 import type {
   RaRecord,
   Identifier,
-  GetManyParams,
   GetManyResult,
 } from '../types'
 
@@ -41,6 +40,30 @@ export interface UseGetManyResult<RecordType extends RaRecord = RaRecord> {
 }
 
 /**
+ * Internal hook created by factory
+ */
+const useGetManyInternal = createSimpleQueryHook<
+  'getMany',
+  UseGetManyParams,
+  { data: RaRecord[] | undefined },
+  RaRecord
+>({
+  method: 'getMany',
+  getQueryKey: (resource, params) => [
+    resource,
+    'getMany',
+    { ids: params.ids, meta: params.meta },
+  ],
+  transformParams: (params) => ({
+    ids: params.ids,
+    ...(params.meta && { meta: params.meta }),
+  }),
+  transformResult: (result) => ({
+    data: result?.data,
+  }),
+})
+
+/**
  * Hook to fetch multiple records by their IDs from the data provider
  *
  * @param resource - The resource name to fetch from
@@ -58,30 +81,13 @@ export function useGetMany<RecordType extends RaRecord = RaRecord>(
   params: UseGetManyParams,
   options: UseGetManyOptions<RecordType> = {}
 ): UseGetManyResult<RecordType> {
-  const dataProvider = useDataProvider()
-
-  const getManyParams: GetManyParams = {
-    ids: params.ids,
-    ...(params.meta && { meta: params.meta }),
-  }
-
-  const queryKey = [
-    resource,
-    'getMany',
-    { ids: params.ids, meta: params.meta },
-  ]
-
-  const query = useQuery<GetManyResult<RecordType>, Error>({
-    queryKey,
-    queryFn: () => dataProvider.getMany<RecordType>(resource, getManyParams),
-    ...options,
-  })
-
+  // Cast options to satisfy exactOptionalPropertyTypes
+  const result = useGetManyInternal(resource, params, options as Omit<UseQueryOptions<unknown, Error>, 'queryKey' | 'queryFn'>)
   return {
-    data: query.data?.data,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    error: query.error ?? null,
-    refetch: query.refetch,
+    data: result.data as RecordType[] | undefined,
+    isLoading: result.isLoading,
+    isFetching: result.isFetching,
+    error: result.error,
+    refetch: result.refetch,
   }
 }

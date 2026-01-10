@@ -5,210 +5,31 @@
 
 import { vi } from 'vitest'
 import { applyFiltersWithOperators } from '../utils/filterOperators'
+import type {
+  DataProvider,
+  GetListParams,
+  GetListResult,
+  GetOneParams,
+  GetOneResult,
+  GetManyParams,
+  GetManyResult,
+  GetManyReferenceParams,
+  GetManyReferenceResult,
+  CreateParams,
+  CreateResult,
+  UpdateParams,
+  UpdateResult,
+  UpdateManyParams,
+  UpdateManyResult,
+  DeleteParams,
+  DeleteResult,
+  DeleteManyParams,
+  DeleteManyResult,
+  RaRecord,
+} from '../types'
 
-/**
- * Pagination parameters for list operations
- */
-export interface PaginationParams {
-  page: number
-  perPage: number
-}
-
-/**
- * Sort parameters for list operations
- */
-export interface SortParams {
-  field: string
-  order: 'ASC' | 'DESC'
-}
-
-/**
- * Filter parameters for list operations
- */
-export interface FilterParams {
-  [key: string]: unknown
-}
-
-/**
- * Parameters for getList operation
- */
-export interface GetListParams {
-  pagination: PaginationParams
-  sort: SortParams
-  filter: FilterParams
-}
-
-/**
- * Result of getList operation
- */
-export interface GetListResult<T = Record<string, unknown>> {
-  data: T[]
-  total: number
-  pageInfo?: {
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-  }
-}
-
-/**
- * Parameters for getOne operation
- */
-export interface GetOneParams {
-  id: string | number
-}
-
-/**
- * Result of getOne operation
- */
-export interface GetOneResult<T = Record<string, unknown>> {
-  data: T
-}
-
-/**
- * Parameters for getMany operation
- */
-export interface GetManyParams {
-  ids: (string | number)[]
-}
-
-/**
- * Result of getMany operation
- */
-export interface GetManyResult<T = Record<string, unknown>> {
-  data: T[]
-}
-
-/**
- * Parameters for getManyReference operation
- */
-export interface GetManyReferenceParams {
-  target: string
-  id: string | number
-  pagination: PaginationParams
-  sort: SortParams
-  filter: FilterParams
-}
-
-/**
- * Result of getManyReference operation
- */
-export interface GetManyReferenceResult<T = Record<string, unknown>> {
-  data: T[]
-  total: number
-}
-
-/**
- * Parameters for create operation
- */
-export interface CreateParams<T = Record<string, unknown>> {
-  data: T
-}
-
-/**
- * Result of create operation
- */
-export interface CreateResult<T = Record<string, unknown>> {
-  data: T
-}
-
-/**
- * Parameters for update operation
- */
-export interface UpdateParams<T = Record<string, unknown>> {
-  id: string | number
-  data: T
-  previousData: T
-}
-
-/**
- * Result of update operation
- */
-export interface UpdateResult<T = Record<string, unknown>> {
-  data: T
-}
-
-/**
- * Parameters for updateMany operation
- */
-export interface UpdateManyParams<T = Record<string, unknown>> {
-  ids: (string | number)[]
-  data: T
-}
-
-/**
- * Result of updateMany operation
- */
-export interface UpdateManyResult {
-  data: (string | number)[]
-}
-
-/**
- * Parameters for delete operation
- */
-export interface DeleteParams<T = Record<string, unknown>> {
-  id: string | number
-  previousData?: T
-}
-
-/**
- * Result of delete operation
- */
-export interface DeleteResult<T = Record<string, unknown>> {
-  data: T
-}
-
-/**
- * Parameters for deleteMany operation
- */
-export interface DeleteManyParams {
-  ids: (string | number)[]
-}
-
-/**
- * Result of deleteMany operation
- */
-export interface DeleteManyResult {
-  data: (string | number)[]
-}
-
-/**
- * DataProvider interface - main data fetching abstraction
- */
-export interface DataProvider {
-  getList: <T = Record<string, unknown>>(
-    resource: string,
-    params: GetListParams
-  ) => Promise<GetListResult<T>>
-  getOne: <T = Record<string, unknown>>(
-    resource: string,
-    params: GetOneParams
-  ) => Promise<GetOneResult<T>>
-  getMany: <T = Record<string, unknown>>(
-    resource: string,
-    params: GetManyParams
-  ) => Promise<GetManyResult<T>>
-  getManyReference: <T = Record<string, unknown>>(
-    resource: string,
-    params: GetManyReferenceParams
-  ) => Promise<GetManyReferenceResult<T>>
-  create: <T = Record<string, unknown>>(
-    resource: string,
-    params: CreateParams<T>
-  ) => Promise<CreateResult<T>>
-  update: <T = Record<string, unknown>>(
-    resource: string,
-    params: UpdateParams<T>
-  ) => Promise<UpdateResult<T>>
-  updateMany: <T = Record<string, unknown>>(
-    resource: string,
-    params: UpdateManyParams<T>
-  ) => Promise<UpdateManyResult>
-  delete: <T = Record<string, unknown>>(
-    resource: string,
-    params: DeleteParams<T>
-  ) => Promise<DeleteResult<T>>
-  deleteMany: (resource: string, params: DeleteManyParams) => Promise<DeleteManyResult>
-}
+// Re-export DataProvider for convenience
+export type { DataProvider } from '../types'
 
 /**
  * Options for creating a mock data provider
@@ -296,20 +117,25 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
     return maxId + 1
   }
 
-  const provider: DataProvider = {
-    getList: vi.fn(async <T = Record<string, unknown>>(resource: string, params: GetListParams) => {
+  // Cast to DataProvider - the vi.fn wrapper breaks the generic inference,
+  // but the implementation is type-safe at runtime
+  const provider = {
+    getList: vi.fn(async <RecordType extends RaRecord = RaRecord>(
+      resource: string,
+      params: GetListParams
+    ): Promise<GetListResult<RecordType>> => {
       if (delay) await wait(delay)
 
-      const items = (store[resource] ?? []) as T[]
+      const items = (store[resource] ?? []) as RecordType[]
       const { page, perPage } = params.pagination
       const { field, order } = params.sort
-      const { filter } = params
+      const filter = params.filter as Record<string, unknown>
 
       // Apply filters with operator support
       let filtered = applyFiltersWithOperators(
         items as Record<string, unknown>[],
         filter
-      ) as T[]
+      ) as RecordType[]
 
       // Apply sorting
       filtered = [...filtered].sort((a, b) => {
@@ -333,10 +159,13 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
           hasPreviousPage: page > 1,
         },
         ...responses.getList,
-      } as GetListResult<T>
+      } as GetListResult<RecordType>
     }),
 
-    getOne: vi.fn(async <T = Record<string, unknown>>(resource: string, params: GetOneParams) => {
+    getOne: vi.fn(async <RecordType extends RaRecord = RaRecord>(
+      resource: string,
+      params: GetOneParams
+    ): Promise<GetOneResult<RecordType>> => {
       if (delay) await wait(delay)
 
       const items = store[resource] ?? []
@@ -347,12 +176,15 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
       }
 
       return {
-        data: item as T,
+        data: item as RecordType,
         ...responses.getOne,
-      } as GetOneResult<T>
+      } as GetOneResult<RecordType>
     }),
 
-    getMany: vi.fn(async <T = Record<string, unknown>>(resource: string, params: GetManyParams) => {
+    getMany: vi.fn(async <RecordType extends RaRecord = RaRecord>(
+      resource: string,
+      params: GetManyParams
+    ): Promise<GetManyResult<RecordType>> => {
       if (delay) await wait(delay)
 
       const items = store[resource] ?? []
@@ -360,135 +192,144 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
       const found = items.filter((i) => ids.includes(String(i['id'])))
 
       return {
-        data: found as T[],
+        data: found as RecordType[],
         ...responses.getMany,
-      } as GetManyResult<T>
+      } as GetManyResult<RecordType>
     }),
 
-    getManyReference: vi.fn(
-      async <T = Record<string, unknown>>(resource: string, params: GetManyReferenceParams) => {
-        if (delay) await wait(delay)
+    getManyReference: vi.fn(async <RecordType extends RaRecord = RaRecord>(
+      resource: string,
+      params: GetManyReferenceParams
+    ): Promise<GetManyReferenceResult<RecordType>> => {
+      if (delay) await wait(delay)
 
-        const items = (store[resource] ?? []) as T[]
-        const { target, id, pagination, sort, filter } = params
+      const items = (store[resource] ?? []) as RecordType[]
+      const { target, id, pagination, sort } = params
+      const filter = params.filter as Record<string, unknown>
 
-        // Filter by reference
-        let filtered = items.filter((item) => {
-          return String((item as Record<string, unknown>)[target]) === String(id)
-        })
+      // Filter by reference
+      let filtered = items.filter((item) => {
+        return String((item as Record<string, unknown>)[target]) === String(id)
+      })
 
-        // Apply additional filters with operator support
-        filtered = applyFiltersWithOperators(
-          filtered as Record<string, unknown>[],
-          filter
-        ) as T[]
+      // Apply additional filters with operator support
+      filtered = applyFiltersWithOperators(
+        filtered as Record<string, unknown>[],
+        filter
+      ) as RecordType[]
 
-        // Apply sorting
-        const { field, order } = sort
-        filtered = [...filtered].sort((a, b) => {
-          const aVal = (a as Record<string, unknown>)[field]
-          const bVal = (b as Record<string, unknown>)[field]
-          if (aVal === bVal) return 0
-          const comparison = aVal! < bVal! ? -1 : 1
-          return order === 'ASC' ? comparison : -comparison
-        })
+      // Apply sorting
+      const { field, order } = sort
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = (a as Record<string, unknown>)[field]
+        const bVal = (b as Record<string, unknown>)[field]
+        if (aVal === bVal) return 0
+        const comparison = aVal! < bVal! ? -1 : 1
+        return order === 'ASC' ? comparison : -comparison
+      })
 
-        // Apply pagination
-        const { page, perPage } = pagination
-        const start = (page - 1) * perPage
-        const end = start + perPage
-        const paginated = filtered.slice(start, end)
+      // Apply pagination
+      const { page, perPage } = pagination
+      const start = (page - 1) * perPage
+      const end = start + perPage
+      const paginated = filtered.slice(start, end)
 
-        return {
-          data: paginated,
-          total: filtered.length,
-          ...responses.getManyReference,
-        } as GetManyReferenceResult<T>
+      return {
+        data: paginated,
+        total: filtered.length,
+        ...responses.getManyReference,
+      } as GetManyReferenceResult<RecordType>
+    }),
+
+    create: vi.fn(async <RecordType extends RaRecord = RaRecord, TVariables = Record<string, unknown>>(
+      resource: string,
+      params: CreateParams<TVariables>
+    ): Promise<CreateResult<RecordType>> => {
+      if (delay) await wait(delay)
+
+      const newId = getNextId(resource)
+      const newItem = { ...params.data, id: newId } as RecordType
+
+      if (!store[resource]) {
+        store[resource] = []
       }
-    ),
+      store[resource].push(newItem as Record<string, unknown>)
 
-    create: vi.fn(
-      async <T = Record<string, unknown>>(resource: string, params: CreateParams<T>) => {
-        if (delay) await wait(delay)
+      return {
+        data: newItem,
+        ...responses.create,
+      } as CreateResult<RecordType>
+    }),
 
-        const newId = getNextId(resource)
-        const newItem = { ...params.data, id: newId } as T
+    update: vi.fn(async <RecordType extends RaRecord = RaRecord, TVariables = Record<string, unknown>>(
+      resource: string,
+      params: UpdateParams<TVariables>
+    ): Promise<UpdateResult<RecordType>> => {
+      if (delay) await wait(delay)
 
-        if (!store[resource]) {
-          store[resource] = []
+      const items = store[resource] ?? []
+      const index = items.findIndex((i) => String(i['id']) === String(params.id))
+
+      if (index === -1) {
+        throw new Error(`Resource ${resource} with id ${params.id} not found`)
+      }
+
+      const updated = { ...items[index], ...params.data, id: params.id } as RecordType
+      store[resource]![index] = updated as Record<string, unknown>
+
+      return {
+        data: updated,
+        ...responses.update,
+      } as UpdateResult<RecordType>
+    }),
+
+    updateMany: vi.fn(async <RecordType extends RaRecord = RaRecord, TVariables = Record<string, unknown>>(
+      resource: string,
+      params: UpdateManyParams<TVariables>
+    ): Promise<UpdateManyResult<RecordType>> => {
+      if (delay) await wait(delay)
+
+      const items = store[resource] ?? []
+      const ids = params.ids.map(String)
+
+      items.forEach((item, index) => {
+        if (ids.includes(String(item['id']))) {
+          store[resource]![index] = { ...item, ...params.data }
         }
-        store[resource].push(newItem as Record<string, unknown>)
+      })
 
-        return {
-          data: newItem,
-          ...responses.create,
-        } as CreateResult<T>
+      return {
+        data: params.ids,
+        ...responses.updateMany,
+      } as UpdateManyResult<RecordType>
+    }),
+
+    delete: vi.fn(async <RecordType extends RaRecord = RaRecord>(
+      resource: string,
+      params: DeleteParams<RecordType>
+    ): Promise<DeleteResult<RecordType>> => {
+      if (delay) await wait(delay)
+
+      const items = store[resource] ?? []
+      const index = items.findIndex((i) => String(i['id']) === String(params.id))
+
+      if (index === -1) {
+        throw new Error(`Resource ${resource} with id ${params.id} not found`)
       }
-    ),
 
-    update: vi.fn(
-      async <T = Record<string, unknown>>(resource: string, params: UpdateParams<T>) => {
-        if (delay) await wait(delay)
+      const deleted = items[index] as RecordType
+      store[resource]!.splice(index, 1)
 
-        const items = store[resource] ?? []
-        const index = items.findIndex((i) => String(i['id']) === String(params.id))
+      return {
+        data: deleted,
+        ...responses.delete,
+      } as DeleteResult<RecordType>
+    }),
 
-        if (index === -1) {
-          throw new Error(`Resource ${resource} with id ${params.id} not found`)
-        }
-
-        const updated = { ...items[index], ...params.data, id: params.id } as T
-        store[resource]![index] = updated as Record<string, unknown>
-
-        return {
-          data: updated,
-          ...responses.update,
-        } as UpdateResult<T>
-      }
-    ),
-
-    updateMany: vi.fn(
-      async <T = Record<string, unknown>>(resource: string, params: UpdateManyParams<T>) => {
-        if (delay) await wait(delay)
-
-        const items = store[resource] ?? []
-        const ids = params.ids.map(String)
-
-        items.forEach((item, index) => {
-          if (ids.includes(String(item['id']))) {
-            store[resource]![index] = { ...item, ...params.data }
-          }
-        })
-
-        return {
-          data: params.ids,
-          ...responses.updateMany,
-        } as UpdateManyResult
-      }
-    ),
-
-    delete: vi.fn(
-      async <T = Record<string, unknown>>(resource: string, params: DeleteParams<T>) => {
-        if (delay) await wait(delay)
-
-        const items = store[resource] ?? []
-        const index = items.findIndex((i) => String(i['id']) === String(params.id))
-
-        if (index === -1) {
-          throw new Error(`Resource ${resource} with id ${params.id} not found`)
-        }
-
-        const deleted = items[index] as T
-        store[resource]!.splice(index, 1)
-
-        return {
-          data: deleted,
-          ...responses.delete,
-        } as DeleteResult<T>
-      }
-    ),
-
-    deleteMany: vi.fn(async (resource: string, params: DeleteManyParams) => {
+    deleteMany: vi.fn(async <RecordType extends RaRecord = RaRecord>(
+      resource: string,
+      params: DeleteManyParams
+    ): Promise<DeleteManyResult<RecordType>> => {
       if (delay) await wait(delay)
 
       const ids = params.ids.map(String)
@@ -497,9 +338,9 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
       return {
         data: params.ids,
         ...responses.deleteMany,
-      } as DeleteManyResult
+      } as DeleteManyResult<RecordType>
     }),
-  }
+  } as DataProvider
 
   return provider
 }

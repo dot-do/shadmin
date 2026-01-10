@@ -50,3 +50,25 @@ export type { RaRecord, Identifier } from '../types'
 // i18n hooks
 export { useTranslate, type TranslateFunction, type TranslateOptions } from './useTranslate'
 export { useLocale, type UseLocaleResult } from './useLocale'
+
+// Data hook factories - for creating custom data hooks
+export {
+  createQueryHook,
+  createSimpleQueryHook,
+  createMutationHook,
+  createSimpleMutationHook,
+  type QueryHookConfig,
+  type MutationHookConfig,
+  type CacheUpdateHandlers,
+  type BaseQueryResult,
+  type BaseMutationState,
+  type BaseErrorHandling,
+  type MutationErrorHandling,
+} from './createDataHook'
+
+// Create suggestion context hook (for AutocompleteInput)
+export {
+  useCreateSuggestionContext,
+  CreateSuggestionContext,
+  type CreateSuggestionContextValue,
+} from './useCreateSuggestionContext'

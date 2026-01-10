@@ -31,6 +31,13 @@ export {
   type FormDataConsumerRenderProps,
 } from './FormDataConsumer'
 
+// SimpleFormConfigurable - form with configurable field visibility
+export {
+  SimpleFormConfigurable,
+  type SimpleFormConfigurableProps,
+  type FieldConfig,
+} from './SimpleFormConfigurable'
+
 // Toolbar and buttons
 export {
   Toolbar,

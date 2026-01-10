@@ -3,7 +3,6 @@
  * Wrapper for displaying translatable field values with locale switching
  */
 
-import * as React from 'react'
 import {
   createContext,
   useContext,

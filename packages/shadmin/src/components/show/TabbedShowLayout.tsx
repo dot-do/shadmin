@@ -25,13 +25,13 @@ import type { RaRecord } from '../../types'
 export interface ShowTabInfo {
   name: string
   label: string
-  icon?: ReactNode
-  disabled?: boolean
-  className?: string
-  triggerClassName?: string
+  icon?: ReactNode | undefined
+  disabled?: boolean | undefined
+  className?: string | undefined
+  triggerClassName?: string | undefined
   children: ReactNode
-  count?: number
-  path?: string
+  count?: number | undefined
+  path?: string | undefined
 }
 
 /**
@@ -370,11 +370,12 @@ export function TabbedShowLayout({
         }
       }
 
-      if (newIndex !== currentIndex && tabs[newIndex]) {
+      const targetTab = tabs[newIndex]
+      if (newIndex !== currentIndex && targetTab) {
         event.preventDefault()
-        setActiveTab(tabs[newIndex].name)
+        setActiveTab(targetTab.name)
         // Focus the new tab
-        const tabElement = document.getElementById(`show-tab-${tabs[newIndex].name}`)
+        const tabElement = document.getElementById(`show-tab-${targetTab.name}`)
         tabElement?.focus()
       }
     },
@@ -482,3 +483,6 @@ export function TabbedShowLayout({
 }
 
 TabbedShowLayout.displayName = 'TabbedShowLayout'
+
+// Attach Tab as static property for <TabbedShowLayout.Tab> pattern
+TabbedShowLayout.Tab = Tab

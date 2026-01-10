@@ -50,9 +50,10 @@ export interface SimpleFormProps<T extends FieldValues = FieldValues>
    */
   children?: ReactNode
   /**
-   * Handler called on form submission with validated data
+   * Handler called on form submission with validated data.
+   * If not provided, uses the save function from form context.
    */
-  onSubmit: (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>
+  onSubmit?: (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>
   /**
    * Default values for the form fields
    */
@@ -220,7 +221,9 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
           processedData = transform(processedData)
         }
 
-        await onSubmit(processedData, event)
+        if (onSubmit) {
+          await onSubmit(processedData, event)
+        }
 
         // Reset form on successful submit if enabled
         if (resetOnSubmit) {
@@ -299,9 +302,14 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
     })
   }
 
+  // Type assertion required: TypeScript cannot infer that UseFormReturn<T> is compatible
+  // with FormContextProvider's generic parameter when spreading. This is safe because
+  // T extends FieldValues, ensuring structural compatibility.
+  const formMethods = form as UseFormReturn<FieldValues>
+
   return (
     <FormContextProvider
-      {...(form as unknown as UseFormReturn<FieldValues>)}
+      {...formMethods}
       resource={resource}
       record={record}
       saving={saving}

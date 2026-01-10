@@ -5,7 +5,7 @@
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { Link, type To } from 'react-router-dom'
-import { useCreatePath, useResourceContext, type RaRecord } from 'ra-core'
+import { useCreatePath, useResourceContext } from 'ra-core'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(
@@ -100,7 +100,8 @@ export const CreateButton = forwardRef<HTMLAnchorElement, CreateButtonProps>(
     },
     ref
   ) => {
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const createPath = useCreatePath()
 
     if (!resource) {

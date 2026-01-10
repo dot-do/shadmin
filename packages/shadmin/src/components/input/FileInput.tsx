@@ -190,6 +190,12 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
     const acceptString = normalizeAccept(accept)
     const acceptDisplayText = getAcceptDisplayText(accept)
 
+    // Build rules object, omitting undefined values for exactOptionalPropertyTypes
+    const controllerRules = {
+      ...rules,
+      ...(required && { required: rules?.required || true }),
+    }
+
     const {
       field,
       fieldState: { error },
@@ -197,10 +203,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
       name: source,
       control,
       defaultValue: defaultValue as never,
-      rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-      },
+      rules: controllerRules,
     })
 
     const showLabel = label !== false

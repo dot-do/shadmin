@@ -42,6 +42,9 @@ export { ReferenceInput, type ReferenceInputProps, type ReferenceChoice, type Re
 // AutocompleteInput - Typeahead autocomplete input
 export { AutocompleteInput, type AutocompleteInputProps, type AutocompleteChoice } from './AutocompleteInput'
 
+// AutocompleteArrayInput - Typeahead autocomplete for multiple selections
+export { AutocompleteArrayInput, type AutocompleteArrayInputProps, type AutocompleteArrayChoice } from './AutocompleteArrayInput'
+
 // ArrayInput - Container for array form fields
 export { ArrayInput, ArrayInputContext, useArrayInputContext, type ArrayInputProps, type ArrayInputContextValue } from './ArrayInput'
 
@@ -59,3 +62,15 @@ export { ImageInput, type ImageInputProps } from './ImageInput'
 
 // RichTextInput - Rich text editor with formatting toolbar
 export { RichTextInput, type RichTextInputProps } from './RichTextInput'
+
+// TranslatableInputs - Wrapper for translatable input fields
+export {
+  TranslatableInputs,
+  useTranslatableInputsContext,
+  useOptionalTranslatableInputsContext,
+  type TranslatableInputsProps,
+  type TranslatableInputsContextValue,
+} from './TranslatableInputs'
+
+// SearchInput - Text input styled for searching in list filters
+export { SearchInput, type SearchInputProps } from './SearchInput'

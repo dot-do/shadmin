@@ -187,6 +187,12 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
       previewsRef.current = previews
     }, [previews])
 
+    // Build rules object, omitting undefined values for exactOptionalPropertyTypes
+    const controllerRules = {
+      ...rules,
+      ...(required && { required: rules?.required || true }),
+    }
+
     const {
       field,
       fieldState: { error },
@@ -194,10 +200,7 @@ export const ImageInput = forwardRef<HTMLInputElement, ImageInputProps>(
       name: source,
       control,
       defaultValue: defaultValue as never,
-      rules: {
-        ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-      },
+      rules: controllerRules,
     })
 
     const showLabel = label !== false

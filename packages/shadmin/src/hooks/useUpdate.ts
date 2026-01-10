@@ -81,17 +81,15 @@ export type UpdateFunction<
 }
 
 /**
- * Return type for useUpdate hook - object with mutation function and state
+ * Return type for useUpdate hook - tuple of [update function, mutation state]
  */
-export interface UseUpdateResult<
+export type UseUpdateResult<
   RecordType extends RaRecord = RaRecord,
   TVariables = Record<string, unknown>
-> extends UseUpdateMutationState<RecordType> {
-  /** Async mutation function */
-  mutateAsync: (params: UseUpdateMutateParams<TVariables>) => Promise<UpdateResult<RecordType>>
-  /** Sync mutation function */
-  mutate: (params: UseUpdateMutateParams<TVariables>) => void
-}
+> = [
+  UpdateFunction<RecordType, TVariables>,
+  UseUpdateMutationState<RecordType>
+]
 
 /**
  * Hook to update an existing record using the data provider
@@ -394,7 +392,7 @@ export function useUpdate<
     [mutateAsync]
   )
 
-  const result: UseUpdateResult<RecordType, TVariables> = useMemo(
+  const state: UseUpdateMutationState<RecordType> = useMemo(
     () => ({
       data: mutation.data,
       error,
@@ -404,9 +402,6 @@ export function useUpdate<
       isError: mutation.isError,
       isIdle: mutation.isIdle,
       reset: mutation.reset,
-      // Mutation functions
-      mutateAsync,
-      mutate,
       // Error handling enhancements
       fieldErrors,
       isServerValidationError,
@@ -422,11 +417,10 @@ export function useUpdate<
     }),
     [
       mutation.data, error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset,
-      mutateAsync, mutate,
       fieldErrors, isServerValidationError, isConflictError, retryAfter, getFieldErrors, hasFieldError,
       clearError, clearFieldError, lastSubmittedData, submissionCount, retry,
     ]
   )
 
-  return result
+  return [update, state] as UseUpdateResult<RecordType, TVariables>
 }

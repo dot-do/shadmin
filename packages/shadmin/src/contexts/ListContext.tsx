@@ -1,29 +1,18 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import type { RaRecord, Identifier } from '../types'
+import type {
+  RaRecord,
+  Identifier,
+  SortPayload,
+  FilterPayload,
+} from '../types'
 
-// Re-export Identifier from types for backward compatibility
-export type { Identifier } from '../types'
-
-/**
- * Sort order type
- */
-export type SortOrder = 'ASC' | 'DESC'
-
-/**
- * Sort configuration for list queries
- */
-export interface SortPayload {
-  field: string
-  order: SortOrder
-}
+// Re-export types for backward compatibility
+export type { Identifier, SortPayload, SortOrder, FilterPayload } from '../types'
 
 /**
- * Filter values type - key-value pairs for filtering
- */
-export type FilterPayload = Record<string, unknown>
-
-/**
- * Result type for the list controller containing all list state and callbacks
+ * Result type for the list controller containing all list state and callbacks.
+ *
+ * @template T - The record type for this list, defaults to RaRecord
  */
 export interface ListControllerResult<T extends RaRecord = RaRecord> {
   /** The list of records */
@@ -69,8 +58,12 @@ export interface ListControllerResult<T extends RaRecord = RaRecord> {
 /**
  * Context to store list controller state and callbacks.
  * Used by List components to share list state with children.
+ *
+ * Note: The context uses the base RaRecord type. Type narrowing is done
+ * in useListContext through a type assertion, which is safe because
+ * the provider ensures the correct type is passed.
  */
-export const ListContext = createContext<ListControllerResult | undefined>(undefined)
+export const ListContext = createContext<ListControllerResult<RaRecord> | undefined>(undefined)
 
 ListContext.displayName = 'ListContext'
 
@@ -125,7 +118,7 @@ export function ListContextProvider<T extends RaRecord = RaRecord>({
   )
 
   return (
-    <ListContext.Provider value={memoizedValue as ListControllerResult}>
+    <ListContext.Provider value={memoizedValue as ListControllerResult<RaRecord>}>
       {children}
     </ListContext.Provider>
   )

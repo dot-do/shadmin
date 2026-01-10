@@ -78,17 +78,15 @@ export type CreateFunction<
 }
 
 /**
- * Return type for useCreate hook - object with mutation function and state
+ * Return type for useCreate hook - tuple of [create function, mutation state]
  */
-export interface UseCreateResult<
+export type UseCreateResult<
   RecordType extends RaRecord = RaRecord,
   TVariables = Record<string, unknown>
-> extends UseCreateMutationState<RecordType> {
-  /** Async mutation function - same as calling create() */
-  mutateAsync: (params: UseCreateMutateParams<TVariables>) => Promise<CreateResult<RecordType>>
-  /** Sync mutation function - same as calling create() */
-  mutate: (params: UseCreateMutateParams<TVariables>) => void
-}
+> = [
+  CreateFunction<RecordType, TVariables>,
+  UseCreateMutationState<RecordType>
+]
 
 /**
  * Hook to create a new record using the data provider
@@ -341,7 +339,7 @@ export function useCreate<
     [mutateAsync]
   )
 
-  const result: UseCreateResult<RecordType, TVariables> = useMemo(
+  const state: UseCreateMutationState<RecordType> = useMemo(
     () => ({
       data: mutation.data,
       error,
@@ -351,9 +349,6 @@ export function useCreate<
       isError: mutation.isError,
       isIdle: mutation.isIdle,
       reset: mutation.reset,
-      // Mutation functions
-      mutateAsync,
-      mutate,
       // Error handling enhancements
       fieldErrors,
       isServerValidationError,
@@ -369,11 +364,10 @@ export function useCreate<
     }),
     [
       mutation.data, error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset,
-      mutateAsync, mutate,
       fieldErrors, isServerValidationError, isConflictError, retryAfter, getFieldErrors, hasFieldError,
       clearError, clearFieldError, lastSubmittedData, submissionCount, retry,
     ]
   )
 
-  return result
+  return [create, state] as UseCreateResult<RecordType, TVariables>
 }

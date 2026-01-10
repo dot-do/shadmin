@@ -3,7 +3,7 @@
  * Deletes the current record with a confirmation dialog.
  */
 
-import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes, type ReactEventHandler } from 'react'
+import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { useDelete, useRecordContext, useResourceContext, useRedirect, useRefresh, type RaRecord } from 'ra-core'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'
@@ -131,7 +131,8 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
     ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const [isOpen, setIsOpen] = useState(false)
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const recordContext = useRecordContext<RecordType>()
     const record = recordProp ?? recordContext
     const redirect = useRedirect()
@@ -206,13 +207,13 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
           {label}
         </button>
         <Confirm
-          isOpen={isOpen}
+          open={isOpen}
           onClose={handleClose}
           onConfirm={handleConfirm}
-          title={confirmTitle}
-          content={confirmContent}
+          title={typeof confirmTitle === 'string' ? confirmTitle : 'Delete this item?'}
+          message={confirmContent}
           loading={isPending}
-          confirmColor={confirmColor === 'warning' ? 'destructive' : 'default'}
+          confirmVariant={confirmColor === 'warning' ? 'destructive' : 'default'}
         />
       </>
     )

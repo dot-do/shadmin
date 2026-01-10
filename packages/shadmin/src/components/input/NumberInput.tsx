@@ -141,6 +141,12 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     // Determine if field is required (from validate prop or required attribute)
     const isRequired = required || hasRequiredValidator(validate)
 
+    // Build rules object, omitting undefined values for exactOptionalPropertyTypes
+    const controllerRules = {
+      ...mergedRules,
+      ...(required && { required: mergedRules?.required || true }),
+    }
+
     const {
       field,
       fieldState: { error },
@@ -148,10 +154,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       name: source,
       control,
       defaultValue: defaultValue as never,
-      rules: {
-        ...mergedRules,
-        required: required ? (mergedRules?.required || true) : mergedRules?.required,
-      },
+      rules: controllerRules,
     })
 
     const showLabel = label !== false

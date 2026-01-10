@@ -284,13 +284,15 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { email: 'invalid' } })
+            const [create] = result.current
+            await create({ data: { email: 'invalid' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect((result.current.error as HttpError).body).toEqual(errorBody)
+        const [, { error }] = result.current
+        expect((error as HttpError).body).toEqual(errorBody)
       })
     })
 
@@ -310,15 +312,17 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { email: '', name: 'a' } })
+            const [create] = result.current
+            await create({ data: { email: '', name: 'a' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect(result.current.error).toBeInstanceOf(ValidationError)
-        expect((result.current.error as ValidationError).errors).toHaveProperty('email')
-        expect((result.current.error as ValidationError).errors).toHaveProperty('name')
+        const [, { error }] = result.current
+        expect(error).toBeInstanceOf(ValidationError)
+        expect((error as ValidationError).errors).toHaveProperty('email')
+        expect((error as ValidationError).errors).toHaveProperty('name')
       })
 
       it('should provide getFieldErrors helper for validation errors', async () => {
@@ -335,14 +339,15 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1, data: { email: 'bad' } })
+            const [update] = result.current
+            await update({ id: 1, data: { email: 'bad' } })
           } catch {
             // Expected to throw
           }
         })
 
         // Expected hook enhancement: getFieldErrors helper
-        const getFieldErrors = (result.current as unknown as { getFieldErrors?: (field: string) => string[] }).getFieldErrors
+        const [, { getFieldErrors }] = result.current
         expect(getFieldErrors).toBeDefined()
         expect(getFieldErrors?.('email')).toEqual(['Invalid email'])
       })
@@ -667,14 +672,15 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1, data: originalData })
+            const [update] = result.current
+            await update({ id: 1, data: originalData })
           } catch {
             // First call fails
           }
         })
 
         // Expected enhancement: original request should be retryable with same data
-        const retry = (result.current as unknown as { retry?: () => Promise<unknown> }).retry
+        const [, { retry }] = result.current
         expect(retry).toBeDefined()
       })
     })
@@ -726,14 +732,16 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { title: 'New Post' } })
+            const [create] = result.current
+            await create({ data: { title: 'New Post' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect((result.current.error as HttpError).status).toBe(403)
-        expect((result.current.error as HttpError).body).toMatchObject({
+        const [, { error }] = result.current
+        expect((error as HttpError).status).toBe(403)
+        expect((error as HttpError).body).toMatchObject({
           action: 'create',
           resource: 'posts',
         })
@@ -756,14 +764,16 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1 })
+            const [deleteRecord] = result.current
+            await deleteRecord({ id: 1 })
           } catch {
             // Expected to throw
           }
         })
 
-        expect((result.current.error as HttpError).status).toBe(403)
-        expect((result.current.error as HttpError).body).toMatchObject({
+        const [, { error }] = result.current
+        expect((error as HttpError).status).toBe(403)
+        expect((error as HttpError).body).toMatchObject({
           reason: 'Record is protected',
         })
       })
@@ -836,7 +846,8 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({
+            const [create] = result.current
+            await create({
               data: { email: 'taken@example.com', username: 'taken' },
             })
           } catch {
@@ -844,9 +855,9 @@ describe('Error Handling Standardization', () => {
           }
         })
 
-        const error = result.current.error as ValidationError
-        expect(error.errors.email).toContain('Email is already taken')
-        expect(error.errors.username).toContain('Username must be unique')
+        const [, { error }] = result.current
+        expect((error as ValidationError).errors.email).toContain('Email is already taken')
+        expect((error as ValidationError).errors.username).toContain('Username must be unique')
       })
 
       it('should handle nested field validation errors', async () => {
@@ -865,7 +876,8 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({
+            const [create] = result.current
+            await create({
               data: { address: {}, contacts: [{ email: 'invalid' }] },
             })
           } catch {
@@ -873,9 +885,9 @@ describe('Error Handling Standardization', () => {
           }
         })
 
-        const error = result.current.error as ValidationError
-        expect(error.errors['address.street']).toBeDefined()
-        expect(error.errors['contacts.0.email']).toBeDefined()
+        const [, { error }] = result.current
+        expect((error as ValidationError).errors['address.street']).toBeDefined()
+        expect((error as ValidationError).errors['contacts.0.email']).toBeDefined()
       })
 
       it('should provide hasFieldError helper', async () => {
@@ -892,14 +904,15 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1, data: { email: 'bad' } })
+            const [update] = result.current
+            await update({ id: 1, data: { email: 'bad' } })
           } catch {
             // Expected to throw
           }
         })
 
         // Expected enhancement: hasFieldError helper
-        const hasFieldError = (result.current as unknown as { hasFieldError?: (field: string) => boolean }).hasFieldError
+        const [, { hasFieldError }] = result.current
         expect(hasFieldError).toBeDefined()
         expect(hasFieldError?.('email')).toBe(true)
         expect(hasFieldError?.('name')).toBe(false)
@@ -923,15 +936,17 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { email: 'taken@example.com' } })
+            const [create] = result.current
+            await create({ data: { email: 'taken@example.com' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect((result.current.error as HttpError).status).toBe(422)
+        const [, { error, fieldErrors }] = result.current
+        expect((error as HttpError).status).toBe(422)
         // Expected enhancement: should extract field errors from body
-        expect((result.current as unknown as { fieldErrors?: Record<string, string[]> }).fieldErrors).toEqual({
+        expect(fieldErrors).toEqual({
           email: ['has already been taken'],
         })
       })
@@ -951,13 +966,15 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1 })
+            const [deleteRecord] = result.current
+            await deleteRecord({ id: 1 })
           } catch {
             // Expected to throw
           }
         })
 
-        expect((result.current.error as HttpError).body).toMatchObject({
+        const [, { error }] = result.current
+        expect((error as HttpError).body).toMatchObject({
           code: 'BUSINESS_RULE_VIOLATION',
         })
       })
@@ -977,14 +994,16 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: {} })
+            const [create] = result.current
+            await create({ data: {} })
           } catch {
             // Expected to throw
           }
         })
 
         // Expected enhancement: isServerValidationError flag
-        expect((result.current as unknown as { isServerValidationError?: boolean }).isServerValidationError).toBe(true)
+        const [, { isServerValidationError }] = result.current
+        expect(isServerValidationError).toBe(true)
       })
     })
 
@@ -1000,14 +1019,16 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { title: 'New Post' } })
+            const [create] = result.current
+            await create({ data: { title: 'New Post' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect(result.current.error).toBeDefined()
-        expect(result.current.isError).toBe(true)
+        const [, { error, isError }] = result.current
+        expect(error).toBeDefined()
+        expect(isError).toBe(true)
       })
 
       it('should handle update submission failure', async () => {
@@ -1021,14 +1042,16 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1, data: { title: 'Updated' } })
+            const [update] = result.current
+            await update({ id: 1, data: { title: 'Updated' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect(result.current.error).toBeDefined()
-        expect(result.current.isError).toBe(true)
+        const [, { error, isError }] = result.current
+        expect(error).toBeDefined()
+        expect(isError).toBe(true)
       })
 
       it('should handle concurrent modification error', async () => {
@@ -1047,15 +1070,17 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ id: 1, data: { title: 'Updated' } })
+            const [update] = result.current
+            await update({ id: 1, data: { title: 'Updated' } })
           } catch {
             // Expected to throw
           }
         })
 
-        expect((result.current.error as HttpError).status).toBe(409)
+        const [, { error, isConflictError }] = result.current
+        expect((error as HttpError).status).toBe(409)
         // Expected enhancement: isConflictError helper
-        expect((result.current as unknown as { isConflictError?: boolean }).isConflictError).toBe(true)
+        expect(isConflictError).toBe(true)
       })
 
       it('should preserve form data on submission failure for retry', async () => {
@@ -1078,16 +1103,18 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: formData })
+            const [create] = result.current
+            await create({ data: formData })
           } catch {
             // Expected to throw
           }
         })
 
-        expect(result.current.error).toBeDefined()
+        const [, { error, lastSubmittedData }] = result.current
+        expect(error).toBeDefined()
 
         // Expected enhancement: lastSubmittedData should be preserved
-        expect((result.current as unknown as { lastSubmittedData?: typeof formData }).lastSubmittedData).toEqual(formData)
+        expect(lastSubmittedData).toEqual(formData)
       })
 
       it('should track submission attempt count', async () => {
@@ -1101,24 +1128,28 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { title: 'Post' } })
+            const [create] = result.current
+            await create({ data: { title: 'Post' } })
           } catch {
             // Expected
           }
         })
 
         // Expected enhancement: submission attempt tracking
-        expect((result.current as unknown as { submissionCount?: number }).submissionCount).toBe(1)
+        const [, state1] = result.current
+        expect(state1.submissionCount).toBe(1)
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { title: 'Post' } })
+            const [create] = result.current
+            await create({ data: { title: 'Post' } })
           } catch {
             // Expected
           }
         })
 
-        expect((result.current as unknown as { submissionCount?: number }).submissionCount).toBe(2)
+        const [, state2] = result.current
+        expect(state2.submissionCount).toBe(2)
       })
     })
 
@@ -1134,23 +1165,25 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { field: '' } })
+            const [create] = result.current
+            await create({ data: { field: '' } })
           } catch {
             // Expected
           }
         })
 
-        expect(result.current.error).toBeDefined()
+        const [, { error: errorBefore, clearError }] = result.current
+        expect(errorBefore).toBeDefined()
 
         // Expected enhancement: clearError function
-        const clearError = (result.current as unknown as { clearError?: () => void }).clearError
         expect(clearError).toBeDefined()
 
         act(() => {
           clearError?.()
         })
 
-        expect(result.current.error).toBeNull()
+        const [, { error: errorAfter }] = result.current
+        expect(errorAfter).toBeNull()
       })
 
       it('should support partial error clearing for specific fields', async () => {
@@ -1168,14 +1201,15 @@ describe('Error Handling Standardization', () => {
 
         await act(async () => {
           try {
-            await result.current.mutateAsync({ data: { email: 'bad', name: '' } })
+            const [create] = result.current
+            await create({ data: { email: 'bad', name: '' } })
           } catch {
             // Expected
           }
         })
 
         // Expected enhancement: clearFieldError function
-        const clearFieldError = (result.current as unknown as { clearFieldError?: (field: string) => void }).clearFieldError
+        const [, { clearFieldError }] = result.current
         expect(clearFieldError).toBeDefined()
 
         act(() => {
@@ -1183,7 +1217,7 @@ describe('Error Handling Standardization', () => {
         })
 
         // Email error should be cleared, name error should remain
-        const getFieldErrors = (result.current as unknown as { getFieldErrors?: (field: string) => string[] }).getFieldErrors
+        const [, { getFieldErrors }] = result.current
         expect(getFieldErrors?.('email')).toEqual([])
         expect(getFieldErrors?.('name')).toEqual(['Name required'])
       })

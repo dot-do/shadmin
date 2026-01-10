@@ -1,7 +1,15 @@
 // Type exports
 // Common types used across the library
 
-export type { BaseProps, WithChildren, WithClassName, AsChildProps } from './common'
+export type {
+  BaseProps,
+  WithChildren,
+  WithClassName,
+  AsChildProps,
+  Path,
+  PathValue,
+  LoosePath,
+} from './common'
 
 // Core record types - single source of truth
 export * from './record'

@@ -8,6 +8,10 @@ import type { RaRecord } from '../types'
 /**
  * Context to store the current record.
  * Used by components like Show, Edit to share the current record with children.
+ *
+ * Note: The context uses the base RaRecord type. Type narrowing is done
+ * in useRecordContext through a type assertion, which is safe because
+ * the provider ensures the correct type is passed.
  */
 export const RecordContext = createContext<RaRecord | undefined>(undefined)
 

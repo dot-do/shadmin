@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll, type RaRecord } from 'ra-core'
+import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from 'ra-core'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'
 
@@ -34,7 +34,7 @@ const buttonSizes = {
 /**
  * Props for BulkDeleteWithConfirmButton component
  */
-export interface BulkDeleteWithConfirmButtonProps<RecordType extends RaRecord = any>
+export interface BulkDeleteWithConfirmButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * The resource to delete from
@@ -108,7 +108,7 @@ export interface BulkDeleteWithConfirmButtonProps<RecordType extends RaRecord = 
  * );
  */
 export const BulkDeleteWithConfirmButton = forwardRef<HTMLButtonElement, BulkDeleteWithConfirmButtonProps>(
-  <RecordType extends RaRecord = any>(
+  (
     {
       resource: resourceProp,
       label = 'Delete',
@@ -125,11 +125,12 @@ export const BulkDeleteWithConfirmButton = forwardRef<HTMLButtonElement, BulkDel
       disabled,
       onClick,
       ...props
-    }: BulkDeleteWithConfirmButtonProps<RecordType>,
-    ref: React.ForwardedRef<HTMLButtonElement>
+    },
+    ref
   ) => {
     const [isOpen, setIsOpen] = useState(false)
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const { selectedIds } = useListContext()
     const refresh = useRefresh()
     const unselectAll = useUnselectAll(resource)
@@ -198,19 +199,17 @@ export const BulkDeleteWithConfirmButton = forwardRef<HTMLButtonElement, BulkDel
           {label}
         </button>
         <Confirm
-          isOpen={isOpen}
+          open={isOpen}
           onClose={handleClose}
           onConfirm={handleConfirm}
-          title={confirmTitle}
-          content={confirmContent}
+          title={typeof confirmTitle === 'string' ? confirmTitle : 'Delete selected items?'}
+          message={confirmContent}
           loading={isPending}
-          confirmColor={confirmColor === 'warning' ? 'destructive' : 'default'}
+          confirmVariant={confirmColor === 'warning' ? 'destructive' : 'default'}
         />
       </>
     )
   }
-) as <RecordType extends RaRecord = any>(
-  props: BulkDeleteWithConfirmButtonProps<RecordType> & { ref?: React.Ref<HTMLButtonElement> }
-) => React.ReactElement
+)
 
-;(BulkDeleteWithConfirmButton as any).displayName = 'BulkDeleteWithConfirmButton'
+BulkDeleteWithConfirmButton.displayName = 'BulkDeleteWithConfirmButton'

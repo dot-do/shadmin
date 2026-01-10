@@ -104,7 +104,8 @@ export const ShowButton = forwardRef<HTMLAnchorElement, ShowButtonProps>(
     }: ShowButtonProps<RecordType>,
     ref: React.ForwardedRef<HTMLAnchorElement>
   ) => {
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const recordContext = useRecordContext<RecordType>()
     const record = recordProp ?? recordContext
     const createPath = useCreatePath()

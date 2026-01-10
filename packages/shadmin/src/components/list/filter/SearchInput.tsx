@@ -3,9 +3,10 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useContext,
   type InputHTMLAttributes,
 } from 'react'
-import { useListContext } from '@/contexts/ListContext'
+import { ListContext } from '@/contexts/ListContext'
 import { cn } from '@/utils'
 
 /**
@@ -17,11 +18,39 @@ export interface SearchInputProps
   source?: string
   /** Debounce delay in milliseconds */
   debounce?: number
+  /**
+   * If true, the input is always displayed (not hideable in filter forms).
+   * This is commonly used for permanent search fields in list toolbars.
+   */
+  alwaysOn?: boolean
+}
+
+/**
+ * Search icon SVG component
+ */
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  )
 }
 
 /**
  * SearchInput component provides a debounced text search filter
- * that integrates with ListContext.
+ * that integrates with ListContext when available.
  *
  * @example
  * ```tsx
@@ -32,6 +61,13 @@ export interface SearchInputProps
  * ```tsx
  * <SearchInput source="search" debounce={300} />
  * ```
+ *
+ * @example With alwaysOn prop (for permanent filter display)
+ * ```tsx
+ * <List filters={[<SearchInput source="q" alwaysOn />]}>
+ *   ...
+ * </List>
+ * ```
  */
 export function SearchInput({
   source = 'q',
@@ -39,9 +75,16 @@ export function SearchInput({
   placeholder = 'Search...',
   className,
   disabled,
+  alwaysOn: _alwaysOn,
   ...props
 }: SearchInputProps) {
-  const { filterValues, setFilters, setPage } = useListContext()
+  // Try to get ListContext, but don't throw if not available
+  const listContext = useContext(ListContext)
+
+  // Extract values from context if available, otherwise use defaults
+  const filterValues = listContext?.filterValues ?? {}
+  const setFilters = listContext?.setFilters ?? (() => {})
+  const setPage = listContext?.setPage ?? (() => {})
 
   // Initialize value from filterValues
   const initialValue = (filterValues[source] as string) ?? ''
@@ -117,6 +160,8 @@ export function SearchInput({
 
   return (
     <div className="relative inline-flex items-center">
+      {/* Search icon */}
+      <SearchIcon className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
       <input
         type="search"
         role="searchbox"
@@ -125,7 +170,7 @@ export function SearchInput({
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
-          'h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+          'h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
           hasValue && 'pr-8',
           className
         )}

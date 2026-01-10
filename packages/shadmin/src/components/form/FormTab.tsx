@@ -20,6 +20,11 @@ export interface FormTabProps {
    */
   name?: string
   /**
+   * Path used for URL synchronization when syncWithLocation is enabled.
+   * If not provided, the name (or generated name from label) will be used.
+   */
+  path?: string
+  /**
    * Content to render inside the tab panel
    */
   children?: React.ReactNode
@@ -74,6 +79,7 @@ export function generateTabName(label: string): string {
 export function FormTab({
   label: _label,
   name: _name,
+  path: _path,
   children: _children,
   icon: _icon,
   disabled: _disabled,

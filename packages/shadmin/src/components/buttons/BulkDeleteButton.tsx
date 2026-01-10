@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll, type MutationMode, type RaRecord } from 'ra-core'
+import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll, type MutationMode } from 'ra-core'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(
@@ -33,7 +33,7 @@ const buttonSizes = {
 /**
  * Props for BulkDeleteButton component
  */
-export interface BulkDeleteButtonProps<RecordType extends RaRecord = any>
+export interface BulkDeleteButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * The resource to delete from
@@ -102,7 +102,7 @@ export interface BulkDeleteButtonProps<RecordType extends RaRecord = any>
  * );
  */
 export const BulkDeleteButton = forwardRef<HTMLButtonElement, BulkDeleteButtonProps>(
-  <RecordType extends RaRecord = any>(
+  (
     {
       resource: resourceProp,
       label = 'Delete',
@@ -117,10 +117,11 @@ export const BulkDeleteButton = forwardRef<HTMLButtonElement, BulkDeleteButtonPr
       disabled,
       onClick,
       ...props
-    }: BulkDeleteButtonProps<RecordType>,
-    ref: React.ForwardedRef<HTMLButtonElement>
+    },
+    ref
   ) => {
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const { selectedIds } = useListContext()
     const refresh = useRefresh()
     const unselectAll = useUnselectAll(resource)
@@ -179,8 +180,6 @@ export const BulkDeleteButton = forwardRef<HTMLButtonElement, BulkDeleteButtonPr
       </button>
     )
   }
-) as <RecordType extends RaRecord = any>(
-  props: BulkDeleteButtonProps<RecordType> & { ref?: React.Ref<HTMLButtonElement> }
-) => React.ReactElement
+)
 
-;(BulkDeleteButton as any).displayName = 'BulkDeleteButton'
+BulkDeleteButton.displayName = 'BulkDeleteButton'

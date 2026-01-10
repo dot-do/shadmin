@@ -26,10 +26,14 @@ import { FormTab, FormTabPanel, generateTabName, type FormTabProps } from './For
 export interface TabInfo {
   name: string
   label: string
-  icon?: ReactNode
-  disabled?: boolean
-  className?: string
-  triggerClassName?: string
+  /**
+   * Path used for URL synchronization. Defaults to name if not provided.
+   */
+  path: string
+  icon?: ReactNode | undefined
+  disabled?: boolean | undefined
+  className?: string | undefined
+  triggerClassName?: string | undefined
   children: ReactNode
 }
 
@@ -124,6 +128,15 @@ export interface TabbedFormProps {
    * URL parameter key for tab sync (default: 'tab')
    */
   locationKey?: string
+  /**
+   * Validation mode for react-hook-form
+   * @default 'onSubmit'
+   */
+  mode?: 'onBlur' | 'onChange' | 'onSubmit' | 'onTouched' | 'all'
+  /**
+   * Default values for the form fields
+   */
+  defaultValues?: Record<string, unknown>
 }
 
 /**
@@ -143,10 +156,13 @@ function extractTabs(children: ReactNode): TabInfo[] {
 
     const props = child.props as FormTabProps
     const name = props.name || generateTabName(props.label)
+    // Use path if provided, otherwise fall back to name for URL synchronization
+    const path = props.path || name
 
     tabs.push({
       name,
       label: props.label,
+      path,
       icon: props.icon,
       disabled: props.disabled,
       className: props.className,
@@ -222,6 +238,8 @@ export function TabbedForm({
   onTabChange,
   syncWithLocation = false,
   locationKey = 'tab',
+  mode: _mode,
+  defaultValues: _defaultValues,
 }: TabbedFormProps) {
   // Extract tab configuration from children
   const tabs = useMemo(() => extractTabs(children), [children])
@@ -239,9 +257,11 @@ export function TabbedForm({
   // Determine initial tab
   const getInitialTab = useCallback(() => {
     if (syncWithLocation) {
-      const urlTab = searchParams.get(locationKey)
-      if (urlTab && tabs.some((t) => t.name === urlTab)) {
-        return urlTab
+      const urlPath = searchParams.get(locationKey)
+      // Find tab by path for URL synchronization
+      const matchingTab = tabs.find((t) => t.path === urlPath)
+      if (matchingTab) {
+        return matchingTab.name
       }
     }
     if (defaultTab && tabs.some((t) => t.name === defaultTab)) {
@@ -255,9 +275,11 @@ export function TabbedForm({
   // Sync with URL on mount
   useEffect(() => {
     if (syncWithLocation) {
-      const urlTab = searchParams.get(locationKey)
-      if (urlTab && tabs.some((t) => t.name === urlTab)) {
-        setActiveTabState(urlTab)
+      const urlPath = searchParams.get(locationKey)
+      // Find tab by path for URL synchronization
+      const matchingTab = tabs.find((t) => t.path === urlPath)
+      if (matchingTab) {
+        setActiveTabState(matchingTab.name)
       }
     }
   }, [])
@@ -269,12 +291,16 @@ export function TabbedForm({
       onTabChange?.(tabName)
 
       if (syncWithLocation) {
-        const newParams = new URLSearchParams(searchParams)
-        newParams.set(locationKey, tabName)
-        setSearchParams(newParams)
+        // Find the tab to get its path for URL synchronization
+        const tab = tabs.find((t) => t.name === tabName)
+        if (tab) {
+          const newParams = new URLSearchParams(searchParams)
+          newParams.set(locationKey, tab.path)
+          setSearchParams(newParams)
+        }
       }
     },
-    [onTabChange, syncWithLocation, locationKey, searchParams, setSearchParams]
+    [onTabChange, syncWithLocation, locationKey, searchParams, setSearchParams, tabs]
   )
 
   // Get tabs with errors

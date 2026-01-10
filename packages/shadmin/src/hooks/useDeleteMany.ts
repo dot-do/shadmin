@@ -4,13 +4,11 @@
  * 100% API-compatible with react-admin
  */
 
-import { useMutation, type UseMutationOptions, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
-import { useDataProvider } from '../contexts/DataProviderContext'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import { createSimpleMutationHook } from './createDataHook'
 import type {
   RaRecord,
   Identifier,
-  DeleteManyParams,
   DeleteManyResult,
 } from '../types'
 
@@ -62,6 +60,32 @@ export type UseDeleteManyResult<RecordType extends RaRecord = RaRecord> = [
 ]
 
 /**
+ * Internal hook created by factory
+ */
+const useDeleteManyInternal = createSimpleMutationHook<
+  'deleteMany',
+  UseDeleteManyMutateParams,
+  DeleteManyResult<RaRecord>,
+  RaRecord
+>({
+  method: 'deleteMany',
+  transformParams: (params) => ({
+    ids: params.ids,
+    ...(params.meta && { meta: params.meta }),
+  }),
+  cacheHandlers: {
+    onSuccess: (queryClient, _, variables) => {
+      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getList'] })
+      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getMany'] })
+      // Remove individual getOne queries for deleted records
+      variables.params.ids.forEach((id) => {
+        queryClient.removeQueries({ queryKey: [variables.resource, 'getOne', { id }] })
+      })
+    },
+  },
+})
+
+/**
  * Hook to delete multiple records at once
  *
  * @example
@@ -74,69 +98,7 @@ export function useDeleteMany<RecordType extends RaRecord = RaRecord>(
   resource?: string,
   options: UseDeleteManyOptions<RecordType> = {}
 ): UseDeleteManyResult<RecordType> {
-  const dataProvider = useDataProvider()
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation<
-    DeleteManyResult<RecordType>,
-    Error,
-    { resource: string; params: UseDeleteManyMutateParams }
-  >({
-    mutationFn: ({ resource: res, params }) => {
-      const deleteManyParams: DeleteManyParams = {
-        ids: params.ids,
-        ...(params.meta && { meta: params.meta }),
-      }
-      return dataProvider.deleteMany<RecordType>(res, deleteManyParams)
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getList'] })
-      queryClient.invalidateQueries({ queryKey: [variables.resource, 'getMany'] })
-      // Remove individual getOne queries for deleted records
-      variables.params.ids.forEach((id) => {
-        queryClient.removeQueries({ queryKey: [variables.resource, 'getOne', { id }] })
-      })
-    },
-    ...options,
-  })
-
-  const deleteMany = useCallback(
-    async (
-      resourceOrParams: string | UseDeleteManyMutateParams,
-      maybeParams?: UseDeleteManyMutateParams
-    ): Promise<DeleteManyResult<RecordType>> => {
-      let actualResource: string
-      let actualParams: UseDeleteManyMutateParams
-
-      if (typeof resourceOrParams === 'string') {
-        actualResource = resourceOrParams
-        actualParams = maybeParams!
-      } else {
-        if (!resource) {
-          throw new Error('Resource must be provided either in useDeleteMany() or in deleteMany()')
-        }
-        actualResource = resource
-        actualParams = resourceOrParams
-      }
-
-      return mutation.mutateAsync({ resource: actualResource, params: actualParams })
-    },
-    [mutation, resource]
-  ) as DeleteManyFunction<RecordType>
-
-  const state: UseDeleteManyMutationState<RecordType> = useMemo(
-    () => ({
-      data: mutation.data,
-      error: mutation.error ?? null,
-      isLoading: mutation.isPending,
-      isPending: mutation.isPending,
-      isSuccess: mutation.isSuccess,
-      isError: mutation.isError,
-      isIdle: mutation.isIdle,
-      reset: mutation.reset,
-    }),
-    [mutation.data, mutation.error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset]
-  )
-
-  return [deleteMany, state]
+  // Cast options to satisfy exactOptionalPropertyTypes
+  type InternalOptions = Omit<UseMutationOptions<DeleteManyResult<RaRecord>, Error, { resource: string; params: UseDeleteManyMutateParams }>, 'mutationFn'>
+  return useDeleteManyInternal(resource, options as InternalOptions) as UseDeleteManyResult<RecordType>
 }

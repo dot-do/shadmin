@@ -192,6 +192,12 @@ export const AutocompleteInput = forwardRef<
     // Determine if field is required (from validate prop or required attribute)
     const isRequired = required || hasRequiredValidator(validate)
 
+    // Build rules object, omitting undefined values for exactOptionalPropertyTypes
+    const controllerRules = {
+      ...mergedRules,
+      ...(required && { required: mergedRules?.required || true }),
+    }
+
     const {
       field,
       fieldState: { error },
@@ -199,10 +205,7 @@ export const AutocompleteInput = forwardRef<
       name: source,
       control,
       defaultValue: defaultValue as never,
-      rules: {
-        ...mergedRules,
-        required: required ? mergedRules?.required || true : mergedRules?.required,
-      },
+      rules: controllerRules,
     })
 
     const showLabel = label !== false
@@ -266,6 +269,7 @@ export const AutocompleteInput = forwardRef<
         }
       } else {
         setDebouncedInputValue(inputValue)
+        return undefined
       }
     }, [inputValue, debounceDelay])
 
@@ -332,11 +336,11 @@ export const AutocompleteInput = forwardRef<
     }
 
     const handleCreate = async () => {
-      if (!onCreate || !inputValue || isCreating) return
+      if (!createHandler || !inputValue || isCreating) return
 
       setIsCreating(true)
       try {
-        const newChoice = await onCreate(inputValue)
+        const newChoice = await createHandler(inputValue)
         const value = getOptionValue(newChoice)
         field.onChange(value)
         setInputValue(getOptionText(newChoice))
@@ -383,7 +387,7 @@ export const AutocompleteInput = forwardRef<
         {showLabel && (
           <label htmlFor={inputId} className={labelStyles}>
             {displayLabel}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {isRequired && <span className="text-destructive ml-1">*</span>}
           </label>
         )}
         <div className="relative">

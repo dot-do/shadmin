@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useListContext, useResourceContext, type Exporter } from 'ra-core'
+import { useListContext, useResourceContext, useDataProvider, fetchRelatedRecords, type Exporter } from 'ra-core'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(
@@ -109,9 +109,11 @@ export const BulkExportButton = forwardRef<HTMLButtonElement, BulkExportButtonPr
     },
     ref
   ) => {
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const { exporter: contextExporter, selectedIds, data } = useListContext()
     const exporter = exporterProp ?? contextExporter
+    const dataProvider = useDataProvider()
 
     const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
       onClick?.(event)
@@ -120,7 +122,12 @@ export const BulkExportButton = forwardRef<HTMLButtonElement, BulkExportButtonPr
         // Filter data to only include selected records
         const selectedData = data.filter((record: any) => selectedIds.includes(record.id))
         // The exporter handles the export logic
-        await exporter(selectedData, undefined, undefined, resource)
+        await exporter(
+          selectedData,
+          fetchRelatedRecords(dataProvider),
+          dataProvider,
+          resource
+        )
       }
     }
 

@@ -9,11 +9,50 @@ import type { Identifier, RaRecord } from './record'
 // Re-export for backwards compatibility
 export type { Identifier, RaRecord } from './record'
 
+/**
+ * Sort order type - ascending or descending
+ */
+export type SortOrder = 'ASC' | 'DESC'
+
+/**
+ * Sort payload for list queries.
+ * The field is a string that can be a dot-notation path to a nested property.
+ *
+ * @example
+ * ```tsx
+ * const sort: SortPayload = { field: 'name', order: 'ASC' }
+ * const nestedSort: SortPayload = { field: 'author.name', order: 'DESC' }
+ * ```
+ */
+export interface SortPayload<_T extends RaRecord = RaRecord> {
+  field: string
+  order: SortOrder
+}
+
+/**
+ * Pagination parameters for list queries
+ */
+export interface PaginationPayload {
+  page: number
+  perPage: number
+}
+
+/**
+ * Filter payload for list queries.
+ * Keys can be field names or field names with operator suffixes (e.g., 'age_gt', 'name_contains').
+ *
+ * @example
+ * ```tsx
+ * const filter: FilterPayload = { status: 'active', age_gt: 18 }
+ * ```
+ */
+export type FilterPayload<_T extends RaRecord = RaRecord> = Record<string, unknown>
+
 // GetList
-export interface GetListParams {
-  pagination: { page: number; perPage: number }
-  sort: { field: string; order: 'ASC' | 'DESC' }
-  filter: Record<string, unknown>
+export interface GetListParams<T extends RaRecord = RaRecord> {
+  pagination: PaginationPayload
+  sort: SortPayload<T>
+  filter: FilterPayload<T>
   meta?: Record<string, unknown>
 }
 
@@ -47,12 +86,12 @@ export interface GetManyResult<RecordType extends RaRecord = RaRecord> {
 }
 
 // GetManyReference
-export interface GetManyReferenceParams {
+export interface GetManyReferenceParams<T extends RaRecord = RaRecord> {
   target: string
   id: Identifier
-  pagination: { page: number; perPage: number }
-  sort: { field: string; order: 'ASC' | 'DESC' }
-  filter: Record<string, unknown>
+  pagination: PaginationPayload
+  sort: SortPayload<T>
+  filter: FilterPayload<T>
   meta?: Record<string, unknown>
 }
 

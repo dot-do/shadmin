@@ -12,5 +12,6 @@ export { BulkDeleteButton, type BulkDeleteButtonProps } from './BulkDeleteButton
 export { BulkDeleteWithConfirmButton, type BulkDeleteWithConfirmButtonProps } from './BulkDeleteWithConfirmButton'
 export { BulkExportButton, type BulkExportButtonProps } from './BulkExportButton'
 export { DeleteWithConfirmButton, type DeleteWithConfirmButtonProps } from './DeleteWithConfirmButton'
+export { FilterButton, type FilterButtonProps, type FilterDefinition } from './FilterButton'
 
 // Note: TopToolbar is exported from '../form/Toolbar' as it's part of the form components

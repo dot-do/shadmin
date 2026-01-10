@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { Link, type To } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useCreatePath, useResourceContext, useRecordContext, type RaRecord } from 'ra-core'
 import { cn } from '../../utils'
 
@@ -99,7 +99,8 @@ export const CloneButton = forwardRef<HTMLAnchorElement, CloneButtonProps>(
     }: CloneButtonProps<RecordType>,
     ref: React.ForwardedRef<HTMLAnchorElement>
   ) => {
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const recordContext = useRecordContext<RecordType>()
     const record = recordProp ?? recordContext
     const createPath = useCreatePath()

@@ -66,6 +66,11 @@ export interface TextInputProps<T extends FieldValues = FieldValues>
    * Default value for the field.
    */
   defaultValue?: string
+  /**
+   * If true, displays a clear button to reset the field value.
+   * React-admin compatible prop.
+   */
+  resettable?: boolean
 }
 
 /**
@@ -81,6 +86,29 @@ const inputStyles = cn(
 )
 
 const errorInputStyles = 'border-destructive focus-visible:ring-destructive'
+
+/**
+ * X icon for clear/reset button
+ */
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  )
+}
 
 /**
  * Label styling based on ShadCN Label component patterns.
@@ -141,6 +169,7 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
       multiline,
       rows,
       defaultValue,
+      resettable,
       ...rest
     },
     ref
@@ -159,6 +188,12 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
     // Determine if field is required (from validate prop or required attribute)
     const isRequired = required || hasRequiredValidator(validate)
 
+    // Build rules object, omitting undefined values for exactOptionalPropertyTypes
+    const controllerRules = {
+      ...mergedRules,
+      ...(required && { required: mergedRules?.required || true }),
+    }
+
     const {
       field,
       fieldState: { error },
@@ -166,14 +201,19 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
       name: source,
       control,
       defaultValue: defaultValue as never,
-      rules: {
-        ...mergedRules,
-        required: required ? (mergedRules?.required || true) : mergedRules?.required,
-      },
+      rules: controllerRules,
     })
 
     const showLabel = label !== false
     const displayLabel = label || source
+
+    // Determine if clear button should be shown
+    const showClearButton = resettable && field.value && !disabled && !readOnly
+
+    // Handler to clear/reset the field value
+    const handleClear = () => {
+      field.onChange('')
+    }
 
     // Common props for both input and textarea
     const commonProps = {
@@ -186,6 +226,7 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
         inputStyles,
         multiline && 'min-h-20 resize-y',
         error && errorInputStyles,
+        resettable && 'pr-10',
         className,
         mergedInputProps?.className
       ),
@@ -207,37 +248,55 @@ export const TextInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, Text
             {isRequired && <span className="text-destructive ml-1">*</span>}
           </label>
         )}
-        {multiline ? (
-          <textarea
-            {...(rest as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
-            {...(mergedInputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
-            {...commonProps}
-            rows={rows}
-            ref={(e) => {
-              field.ref(e)
-              if (typeof ref === 'function') {
-                ref(e as HTMLInputElement | HTMLTextAreaElement)
-              } else if (ref) {
-                (ref as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = e
-              }
-            }}
-          />
-        ) : (
-          <input
-            {...rest}
-            {...mergedInputProps}
-            {...commonProps}
-            type="text"
-            ref={(e) => {
-              field.ref(e)
-              if (typeof ref === 'function') {
-                ref(e as HTMLInputElement | HTMLTextAreaElement)
-              } else if (ref) {
-                (ref as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = e
-              }
-            }}
-          />
-        )}
+        <div className="relative">
+          {multiline ? (
+            <textarea
+              {...(rest as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+              {...(mergedInputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+              {...commonProps}
+              rows={rows}
+              ref={(e) => {
+                field.ref(e)
+                if (typeof ref === 'function') {
+                  ref(e as HTMLInputElement | HTMLTextAreaElement)
+                } else if (ref) {
+                  (ref as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = e
+                }
+              }}
+            />
+          ) : (
+            <input
+              {...rest}
+              {...mergedInputProps}
+              {...commonProps}
+              type="text"
+              ref={(e) => {
+                field.ref(e)
+                if (typeof ref === 'function') {
+                  ref(e as HTMLInputElement | HTMLTextAreaElement)
+                } else if (ref) {
+                  (ref as React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>).current = e
+                }
+              }}
+            />
+          )}
+          {showClearButton && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className={cn(
+                'absolute right-2 top-1/2 -translate-y-1/2',
+                'p-1 rounded-sm',
+                'text-muted-foreground hover:text-foreground',
+                'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                'transition-colors'
+              )}
+              aria-label="Clear input"
+            >
+              <XIcon className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         {helperText && !error && (
           <p id={helperId} className="text-sm text-muted-foreground">
             {helperText}

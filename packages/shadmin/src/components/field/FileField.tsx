@@ -188,17 +188,18 @@ export function FileField({
     return <div className="flex flex-wrap gap-2">{content}</div>
   }
 
-  // Handle single file
+  // Handle single file (value is string or FileValue object at this point)
+  const singleValue = value as string | FileValue
   if (label) {
     return (
       <div>
         <span className="block text-sm font-medium text-muted-foreground">{label}</span>
-        {renderFileLink(value)}
+        {renderFileLink(singleValue)}
       </div>
     )
   }
 
-  return renderFileLink(value)
+  return renderFileLink(singleValue)
 }
 
 /**

@@ -35,6 +35,10 @@ export interface BooleanInputProps<T extends FieldValues = FieldValues>
    * Whether the switch should take full width of its container.
    */
   fullWidth?: boolean
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: boolean
 }
 
 /**
@@ -104,6 +108,7 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
       fullWidth,
       className,
       disabled,
+      defaultValue = false,
       ...rest
     },
     ref
@@ -120,8 +125,8 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
     } = useController({
       name: source,
       control,
-      rules,
-      defaultValue: false as never,
+      ...(rules && { rules }),
+      defaultValue: defaultValue as never,
     })
 
     const showLabel = label !== false

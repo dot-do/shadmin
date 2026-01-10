@@ -7,17 +7,52 @@
  */
 
 import type { ReactNode, ReactElement } from 'react'
+import { useLocation } from 'react-router'
 import { ShowBase, type ShowBaseProps, type ShowControllerResult } from './ShowBase'
 import { ShowView, type ShowViewProps } from './ShowView'
 import type { Identifier, RaRecord } from '../../types'
+
+/**
+ * Extract the record ID from the current URL path.
+ * Handles routes like /{resource}/:id and /{resource}/:id/show
+ */
+function useIdFromLocation(): Identifier | undefined {
+  let pathname: string
+  try {
+    const location = useLocation()
+    pathname = location.pathname
+  } catch {
+    // Not in a router context
+    return undefined
+  }
+
+  // Split the path and find the ID segment
+  // Routes are: /{resource}/:id (edit) or /{resource}/:id/show
+  const segments = pathname.split('/').filter(Boolean)
+
+  // For edit route: /{resource}/:id -> segments[1] is the id
+  // For show route: /{resource}/:id/show -> segments[1] is the id
+  if (segments.length >= 2) {
+    const potentialId = segments[1]
+    // Return the id (could be numeric or string)
+    if (potentialId && potentialId !== 'create') {
+      // Check if it looks like an id (not a route segment like 'create', 'show', etc.)
+      return potentialId
+    }
+  }
+
+  return undefined
+}
 
 /**
  * Props for Show component
  * Combines ShowBase props (logic) with ShowView props (UI)
  */
 export interface ShowProps<RecordType extends RaRecord = RaRecord>
-  extends Omit<ShowBaseProps<RecordType>, 'children'>,
+  extends Omit<ShowBaseProps<RecordType>, 'children' | 'id'>,
     Pick<ShowViewProps, 'actions' | 'empty' | 'className' | 'aside'> {
+  /** The record ID to show. If not provided, will be inferred from route params */
+  id?: Identifier
   /** Child elements to render inside the show (typically fields) */
   children: ReactNode
   /** Title to display in the show header */
@@ -36,9 +71,20 @@ export interface ShowProps<RecordType extends RaRecord = RaRecord>
  * The Show component combines ShowBase (record fetching)
  * with ShowView (Card container, header) to provide a complete show solution.
  *
+ * The `id` prop is optional - if not provided, it will be inferred from the URL
+ * route parameters (e.g., from `/{resource}/:id/show`).
+ *
  * @example
  * ```tsx
- * // Basic usage
+ * // Basic usage - id inferred from route
+ * <Show resource="posts">
+ *   <SimpleShowLayout>
+ *     <TextField source="title" />
+ *     <DateField source="createdAt" />
+ *   </SimpleShowLayout>
+ * </Show>
+ *
+ * // With explicit id
  * <Show resource="posts" id={1}>
  *   <SimpleShowLayout>
  *     <TextField source="title" />
@@ -64,7 +110,7 @@ export interface ShowProps<RecordType extends RaRecord = RaRecord>
  */
 export function Show<RecordType extends RaRecord = RaRecord>({
   // ShowBase props
-  id,
+  id: idProp,
   resource,
   queryOptions,
   // ShowView props
@@ -80,6 +126,14 @@ export function Show<RecordType extends RaRecord = RaRecord>({
   // Children
   children,
 }: ShowProps<RecordType>) {
+  // Get id from URL if not provided as prop
+  const idFromLocation = useIdFromLocation()
+  const id = idProp ?? idFromLocation
+
+  if (id === undefined) {
+    throw new Error('Show requires an id prop or must be used in a route with an :id parameter')
+  }
+
   return (
     <ShowBase<RecordType>
       id={id}

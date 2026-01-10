@@ -14,21 +14,18 @@ import type {
   RaRecord,
   GetListParams,
   GetListResult,
+  PaginationPayload,
+  SortPayload,
+  FilterPayload,
 } from '../types'
 
 /**
- * Parameters for useGetList hook
+ * Parameters for useGetList hook.
  */
 export interface UseGetListParams {
-  pagination?: {
-    page: number
-    perPage: number
-  }
-  sort?: {
-    field: string
-    order: 'ASC' | 'DESC'
-  }
-  filter?: Record<string, unknown>
+  pagination?: PaginationPayload
+  sort?: SortPayload
+  filter?: FilterPayload
   meta?: Record<string, unknown>
 }
 

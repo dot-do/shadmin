@@ -49,6 +49,10 @@ export interface DateInputProps<T extends FieldValues = FieldValues>
    * Defaults to "Date must be on or before {max}"
    */
   maxMessage?: string
+  /**
+   * Default value for the field (ISO date string format: YYYY-MM-DD).
+   */
+  defaultValue?: string
 }
 
 /**
@@ -122,6 +126,7 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
       minMessage,
       maxMessage,
       autoFocus,
+      defaultValue,
       ...rest
     },
     ref
@@ -173,10 +178,11 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
         mergedValidate = minMaxValidate
       }
 
+      // Build rules object, omitting undefined values for exactOptionalPropertyTypes
       return {
         ...rules,
-        required: required ? (rules?.required || true) : rules?.required,
-        validate: mergedValidate,
+        ...(required && { required: rules?.required || true }),
+        ...(mergedValidate && { validate: mergedValidate }),
       }
     }, [rules, required, minStr, maxStr, minMessage, maxMessage])
 
@@ -186,6 +192,7 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
     } = useController({
       name: source,
       control,
+      defaultValue: defaultValue as never,
       rules: validationRules,
     })
 

@@ -81,14 +81,12 @@ export type DeleteFunction<RecordType extends RaRecord = RaRecord> = {
 }
 
 /**
- * Return type for useDelete hook - object with mutation function and state
+ * Return type for useDelete hook - tuple of [delete function, mutation state]
  */
-export interface UseDeleteResult<RecordType extends RaRecord = RaRecord> extends UseDeleteMutationState<RecordType> {
-  /** Async mutation function */
-  mutateAsync: (params: UseDeleteMutateParams<RecordType>) => Promise<DeleteResult<RecordType>>
-  /** Sync mutation function */
-  mutate: (params: UseDeleteMutateParams<RecordType>) => void
-}
+export type UseDeleteResult<RecordType extends RaRecord = RaRecord> = [
+  DeleteFunction<RecordType>,
+  UseDeleteMutationState<RecordType>
+]
 
 /**
  * Hook to delete a single record
@@ -352,7 +350,7 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
     [mutateAsync]
   )
 
-  const result: UseDeleteResult<RecordType> = useMemo(
+  const state: UseDeleteMutationState<RecordType> = useMemo(
     () => ({
       data: mutation.data,
       error,
@@ -362,9 +360,6 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
       isError: mutation.isError,
       isIdle: mutation.isIdle,
       reset: mutation.reset,
-      // Mutation functions
-      mutateAsync,
-      mutate,
       // Error handling enhancements
       fieldErrors,
       isServerValidationError,
@@ -380,11 +375,10 @@ export function useDelete<RecordType extends RaRecord = RaRecord>(
     }),
     [
       mutation.data, error, mutation.isPending, mutation.isSuccess, mutation.isError, mutation.isIdle, mutation.reset,
-      mutateAsync, mutate,
       fieldErrors, isServerValidationError, isConflictError, retryAfter, getFieldErrors, hasFieldError,
       clearError, clearFieldError, lastSubmittedData, submissionCount, retry,
     ]
   )
 
-  return result
+  return [deleteRecord, state] as UseDeleteResult<RecordType>
 }

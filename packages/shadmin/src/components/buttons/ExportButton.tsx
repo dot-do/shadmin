@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useListContext, useResourceContext, type Exporter } from 'ra-core'
+import { useListContext, useResourceContext, useDataProvider, fetchRelatedRecords, type Exporter } from 'ra-core'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(
@@ -104,16 +104,23 @@ export const ExportButton = forwardRef<HTMLButtonElement, ExportButtonProps>(
     },
     ref
   ) => {
-    const resource = useResourceContext({ defaultValue: resourceProp })
+    const resourceContext = useResourceContext()
+    const resource = resourceProp ?? resourceContext
     const { exporter: contextExporter, total, isLoading, data } = useListContext()
     const exporter = exporterProp ?? contextExporter
+    const dataProvider = useDataProvider()
 
     const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
       onClick?.(event)
 
       if (exporter && data && resource) {
         // The exporter handles the export logic
-        await exporter(data, undefined, undefined, resource)
+        await exporter(
+          data,
+          fetchRelatedRecords(dataProvider),
+          dataProvider,
+          resource
+        )
       }
     }
 
