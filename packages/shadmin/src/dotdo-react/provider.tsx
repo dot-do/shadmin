@@ -71,7 +71,7 @@ interface InternalClient {
   connectionState: ConnectionState
   queuedCallCount: number
   call: (method: string, ...args: unknown[]) => Promise<unknown>
-  subscribe: <T>(channel: string, callback: (data: T) => void) => SubscriptionHandle
+  subscribe: <T,>(channel: string, callback: (data: T) => void) => SubscriptionHandle
   on: (event: string, callback: (...args: unknown[]) => void) => void
   off: (event: string, callback: (...args: unknown[]) => void) => void
   disconnect: () => void
@@ -136,7 +136,7 @@ async function createRealClient(
         }
         throw new Error(`Method ${method} not found on client`)
       },
-      subscribe: <T>(channel: string, callback: (data: T) => void) => {
+      subscribe: <T,>(channel: string, callback: (data: T) => void) => {
         return client.subscribe(channel, callback as (data: unknown) => void)
       },
       on: (event: string, callback: (...args: unknown[]) => void) => {
