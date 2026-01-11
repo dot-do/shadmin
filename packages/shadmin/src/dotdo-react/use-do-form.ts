@@ -49,11 +49,26 @@ import type {
 } from './types'
 
 /**
+ * Type assertion for converting partial data to full record type.
+ * Required due to exactOptionalPropertyTypes compiler setting which
+ * prevents direct casting from Partial<T> to T because optional
+ * properties can have `undefined` values that don't match T's shape.
+ *
+ * This is safe when used for optimistic updates where:
+ * 1. previousData comes from an existing record (already conforms to RecordType)
+ * 2. data is user input that extends Partial<RecordType>
+ * 3. The merged result will be validated by the server
+ */
+function asRecord<T extends RaRecord>(value: Partial<T> | undefined): T {
+  return value as T
+}
+
+/**
  * Extended options for useDOForm hook
  */
 export interface UseDOFormExtendedOptions<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 > extends UseDOFormOptions {
   /**
    * TanStack Mutation options for create
@@ -164,7 +179,7 @@ function extractFieldErrors(error: Error): Record<string, string[]> | null {
  */
 export function useDOForm<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 >(
   resource: string,
   options: UseDOFormExtendedOptions<RecordType, TVariables> = {}
@@ -279,12 +294,14 @@ export function useDOForm<
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['do', resourceName] })
 
-      // Create optimistic record
-      const optimisticRecord = {
-        ...(variables.previousData as unknown as RecordType),
-        ...(variables.data as unknown as Partial<RecordType>),
+      // Create optimistic record using asRecord helper for type-safe conversion
+      // TVariables extends Partial<RecordType>, validated by the generic constraint
+      const baseRecord = asRecord<RecordType>(variables.previousData)
+      const optimisticRecord: RecordType = {
+        ...baseRecord,
+        ...asRecord<RecordType>(variables.data),
         id: variables.id,
-      } as RecordType
+      }
 
       const cache = queryClient.getQueryCache()
 
@@ -300,13 +317,13 @@ export function useDOForm<
         },
       })
 
-      if (showQueries.length > 0) {
-        const query = showQueries[0]
+      const showQuery = showQueries[0]
+      if (showQuery) {
         previousCacheRef.current.record = {
-          key: JSON.stringify(query.queryKey),
-          data: query.state.data,
+          key: JSON.stringify(showQuery.queryKey),
+          data: showQuery.state.data,
         }
-        queryClient.setQueryData<DORecordResult<RecordType>>(query.queryKey, { data: optimisticRecord })
+        queryClient.setQueryData<DORecordResult<RecordType>>(showQuery.queryKey, { data: optimisticRecord })
       }
 
       // Snapshot and update list caches
@@ -437,13 +454,13 @@ export function useDOForm<
         },
       })
 
-      if (showQueries.length > 0) {
-        const query = showQueries[0]
+      const showQuery = showQueries[0]
+      if (showQuery) {
         previousCacheRef.current.record = {
-          key: JSON.stringify(query.queryKey),
-          data: query.state.data,
+          key: JSON.stringify(showQuery.queryKey),
+          data: showQuery.state.data,
         }
-        queryClient.removeQueries({ queryKey: query.queryKey })
+        queryClient.removeQueries({ queryKey: showQuery.queryKey })
       }
     },
     onSuccess: () => {
@@ -599,7 +616,7 @@ export function useDOForm<
  */
 export function useDOFormOptional<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 >(
   resource: string,
   options: UseDOFormExtendedOptions<RecordType, TVariables> = {}

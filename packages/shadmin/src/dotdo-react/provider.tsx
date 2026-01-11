@@ -72,8 +72,10 @@ interface InternalClient {
   queuedCallCount: number
   call: (method: string, ...args: unknown[]) => Promise<unknown>
   subscribe: <T,>(channel: string, callback: (data: T) => void) => SubscriptionHandle
-  on: (event: string, callback: (...args: unknown[]) => void) => void
-  off: (event: string, callback: (...args: unknown[]) => void) => void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on: (event: string, callback: (...args: any[]) => void) => void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  off: (event: string, callback: (...args: any[]) => void) => void
   disconnect: () => void
 }
 
@@ -106,7 +108,8 @@ async function createRealClient(
     // Dynamic import to make @dotdo/client an optional dependency
     const { createClient } = await import('@dotdo/client')
 
-    const client = createClient(baseUrl, {
+    // Build client options, only including defined values to satisfy exactOptionalPropertyTypes
+    const clientOptions: Record<string, unknown> = {
       timeout: config?.timeout ?? 30000,
       batching: config?.batching ?? true,
       batchWindow: config?.batchWindow ?? 0,
@@ -118,8 +121,12 @@ async function createRealClient(
         maxDelay: 30000,
         jitter: 0.1,
       },
-      auth: config?.auth,
-    })
+    }
+    if (config?.auth !== undefined) {
+      clientOptions.auth = config.auth
+    }
+
+    const client = createClient(baseUrl, clientOptions)
 
     return {
       get connectionState() {

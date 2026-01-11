@@ -23,6 +23,21 @@ import type {
 } from '../types'
 
 /**
+ * Type assertion for converting partial data to full record type.
+ * Required due to exactOptionalPropertyTypes compiler setting which
+ * prevents direct casting from Partial<T> to T because optional
+ * properties can have `undefined` values that don't match T's shape.
+ *
+ * This is safe when used for optimistic updates where:
+ * 1. previousData comes from an existing record (already conforms to RecordType)
+ * 2. data is user input that extends Partial<RecordType>
+ * 3. The merged result will be validated by the server
+ */
+function asRecord<T extends RaRecord>(value: Partial<T> | undefined): T {
+  return value as T
+}
+
+/**
  * Parameters for the update mutation
  */
 export interface UseUpdateMutateParams<TData = Record<string, unknown>> {
@@ -37,7 +52,7 @@ export interface UseUpdateMutateParams<TData = Record<string, unknown>> {
  */
 export interface UseUpdateOptions<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 > extends Omit<
     UseMutationOptions<UpdateResult<RecordType>, Error, { resource: string; params: UseUpdateMutateParams<TVariables> }>,
     'mutationFn'
@@ -74,7 +89,7 @@ export interface UseUpdateMutationState<RecordType extends RaRecord = RaRecord> 
  */
 export type UpdateFunction<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 > = {
   (resource: string, params: UseUpdateMutateParams<TVariables>): Promise<UpdateResult<RecordType>>
   (params: UseUpdateMutateParams<TVariables>): Promise<UpdateResult<RecordType>>
@@ -85,7 +100,7 @@ export type UpdateFunction<
  */
 export type UseUpdateResult<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 > = [
   UpdateFunction<RecordType, TVariables>,
   UseUpdateMutationState<RecordType>
@@ -112,7 +127,7 @@ interface CacheSnapshot {
 
 export function useUpdate<
   RecordType extends RaRecord = RaRecord,
-  TVariables = Record<string, unknown>
+  TVariables extends Partial<RecordType> = Partial<RecordType>
 >(
   resource?: string,
   options: UseUpdateOptions<RecordType, TVariables> = {}
@@ -152,11 +167,12 @@ export function useUpdate<
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: [variables.resource] })
 
-      // Create the optimistic record by merging previousData with new data
-      const previousData = variables.params.previousData as unknown as RecordType | undefined
-      const optimisticRecord = {
-        ...previousData,
-        ...(variables.params.data as unknown as Partial<RecordType>),
+      // Create the optimistic record using asRecord helper for type-safe conversion
+      // TVariables extends Partial<RecordType>, validated by the generic constraint
+      const baseRecord = asRecord<RecordType>(variables.params.previousData)
+      const optimisticRecord: RecordType = {
+        ...baseRecord,
+        ...asRecord<RecordType>(variables.params.data),
         id: variables.params.id,
       } as RecordType
 

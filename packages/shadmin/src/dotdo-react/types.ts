@@ -80,25 +80,25 @@ export interface ShadminDOProviderConfig {
    * Optional namespace/tenant identifier
    * Used for multi-tenant applications
    */
-  namespace?: string
+  namespace?: string | undefined
 
   /**
    * Client configuration options
    */
-  client?: DOClientConfig
+  client?: DOClientConfig | undefined
 
   /**
    * Resource name mappings
    * Maps shadmin resource names to DO collection names
    * @example { 'users': 'user-profiles' }
    */
-  resourceMapping?: Record<string, string>
+  resourceMapping?: Record<string, string> | undefined
 
   /**
    * Enable real-time subscriptions
    * @default true
    */
-  realtime?: boolean
+  realtime?: boolean | undefined
 }
 
 /**
@@ -152,14 +152,127 @@ export interface SubscriptionHandle {
 }
 
 /**
+ * List parameters for DO client
+ */
+export interface DOListParams {
+  pagination?: {
+    page?: number | undefined
+    perPage?: number | undefined
+  } | undefined
+  sort?: {
+    field?: string | undefined
+    order?: 'ASC' | 'DESC' | undefined
+  } | undefined
+  filter?: Record<string, unknown> | undefined
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Create parameters for DO client
+ */
+export interface DOCreateParams<T = Record<string, unknown>> {
+  data: T
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Update parameters for DO client
+ */
+export interface DOUpdateParams<T = Record<string, unknown>> {
+  id: Identifier
+  data: T
+  previousData?: T | undefined
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Delete parameters for DO client
+ */
+export interface DODeleteParams {
+  id: Identifier
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Get parameters for DO client
+ */
+export interface DOGetParams {
+  id: Identifier
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Get many parameters for DO client
+ */
+export interface DOGetManyParams {
+  ids: Identifier[]
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Update many parameters for DO client
+ */
+export interface DOUpdateManyParams<T = Record<string, unknown>> {
+  ids: Identifier[]
+  data: T
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
+ * Delete many parameters for DO client
+ */
+export interface DODeleteManyParams {
+  ids: Identifier[]
+  meta?: Record<string, unknown> | undefined
+}
+
+/**
  * Proxy interface for the DO client
  * Provides type-safe method calling via Proxy
+ *
+ * Note: This interface uses method syntax (not property syntax) for all methods.
+ * The index signature is compatible because all methods return Promise<unknown> at the base level.
  */
 export interface DOClientProxy {
   /**
-   * Call a method on the Durable Object
+   * List records from a resource
    */
-  [method: string]: (...args: unknown[]) => Promise<unknown>
+  list(resource: string, params?: DOListParams): Promise<DOListResult>
+
+  /**
+   * Get a single record by ID
+   */
+  get(resource: string, params: DOGetParams): Promise<DORecordResult>
+
+  /**
+   * Get multiple records by IDs
+   */
+  getMany(resource: string, params: DOGetManyParams): Promise<DOListResult>
+
+  /**
+   * Create a new record
+   */
+  create<T = Record<string, unknown>>(resource: string, params: DOCreateParams<T>): Promise<DORecordResult>
+
+  /**
+   * Update an existing record
+   */
+  update<T = Record<string, unknown>>(resource: string, params: DOUpdateParams<T>): Promise<DORecordResult>
+
+  /**
+   * Update multiple records
+   */
+  updateMany<T = Record<string, unknown>>(resource: string, params: DOUpdateManyParams<T>): Promise<DOBatchResult>
+
+  /**
+   * Delete a record
+   */
+  delete(resource: string, params: DODeleteParams): Promise<void>
+
+  /**
+   * Delete multiple records
+   */
+  deleteMany(resource: string, params: DODeleteManyParams): Promise<void>
 }
 
 /**
@@ -169,11 +282,11 @@ export interface DOListResult<T extends RaRecord = RaRecord> {
   data: T[]
   total: number
   pageInfo?: {
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
-    startCursor?: string
-    endCursor?: string
-  }
+    hasNextPage?: boolean | undefined
+    hasPreviousPage?: boolean | undefined
+    startCursor?: string | undefined
+    endCursor?: string | undefined
+  } | undefined
 }
 
 /**
@@ -253,9 +366,9 @@ export interface UseDOListResult<T extends RaRecord = RaRecord> {
    * Pagination info for cursor-based pagination
    */
   pageInfo?: {
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
-  }
+    hasNextPage?: boolean | undefined
+    hasPreviousPage?: boolean | undefined
+  } | undefined
 
   /**
    * Whether the initial load is in progress
@@ -473,7 +586,7 @@ export interface UseDOFormMutationState<T extends RaRecord = RaRecord> {
 /**
  * Return type for useDOForm hook
  */
-export interface UseDOFormResult<T extends RaRecord = RaRecord, TVariables = Record<string, unknown>> {
+export interface UseDOFormResult<T extends RaRecord = RaRecord, TVariables extends Partial<T> = Partial<T>> {
   /**
    * Create a new record
    */

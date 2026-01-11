@@ -300,6 +300,9 @@ export function SimpleForm<T extends FieldValues = FieldValues>({
       )
 
       // Build props, only including label if defined
+      // TypeScript requires double type assertion here because Control<T> and Control<FieldValues>
+      // don't sufficiently overlap due to react-hook-form's invariant generic constraints.
+      // This is safe: T extends FieldValues guarantees structural compatibility at runtime.
       const wrapperProps: Parameters<typeof FieldWrapperWithError>[0] = {
         FieldWrapper,
         source,
