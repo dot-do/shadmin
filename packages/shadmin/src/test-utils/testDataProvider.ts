@@ -64,9 +64,9 @@ export interface MockDataProviderOptions {
  */
 export const defaultMockData: Record<string, Record<string, unknown>[]> = {
   users: [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'admin' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user' },
-    { id: 3, name: 'Bob Wilson', email: 'bob@example.com', role: 'user' },
+    { id: 1, name: 'John Doe', email: 'john@example.com.ai', role: 'admin' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com.ai', role: 'user' },
+    { id: 3, name: 'Bob Wilson', email: 'bob@example.com.ai', role: 'user' },
   ],
   posts: [
     { id: 1, title: 'First Post', content: 'Hello World', authorId: 1, published: true },

@@ -201,8 +201,8 @@ function MyAppBar() {
       showSidebarTrigger
       user={{
         name: 'John Doe',
-        email: 'john@example.com',
-        avatar: 'https://example.com/avatar.jpg'
+        email: 'john@example.com.ai',
+        avatar: 'https://example.com.ai/avatar.jpg'
       }}
     />
   )
@@ -547,8 +547,8 @@ The UserMenu is built into the `AppBar` component and displays when a `user` pro
 <AppBar
   user={{
     name: 'John Doe',
-    email: 'john@example.com',
-    avatar: 'https://example.com/avatar.jpg'
+    email: 'john@example.com.ai',
+    avatar: 'https://example.com.ai/avatar.jpg'
   }}
 />
 ```
@@ -677,7 +677,7 @@ function AdminApp() {
           user={{
             name: 'Jane Smith',
             email: 'jane@company.com',
-            avatar: 'https://example.com/avatar.jpg'
+            avatar: 'https://example.com.ai/avatar.jpg'
           }}
           rightContent={<NotificationBell />}
         />

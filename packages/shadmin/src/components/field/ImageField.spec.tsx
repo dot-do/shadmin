@@ -7,19 +7,19 @@ describe('ImageField', () => {
   describe('Basic rendering', () => {
     it('should render an image with src from source field', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" />
         </RecordContextProvider>
       )
 
       const img = screen.getByRole('img')
       expect(img).toBeInTheDocument()
-      expect(img).toHaveAttribute('src', 'https://example.com/image.jpg')
+      expect(img).toHaveAttribute('src', 'https://example.com.ai/image.jpg')
     })
 
     it('should render image with default alt text from source', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" />
         </RecordContextProvider>
       )
@@ -30,7 +30,7 @@ describe('ImageField', () => {
 
     it('should support custom alt text via title prop', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" title="User Avatar" />
         </RecordContextProvider>
       )
@@ -41,7 +41,7 @@ describe('ImageField', () => {
 
     it('should support title from record field', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg', name: 'John Doe' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg', name: 'John Doe' }}>
           <ImageField source="avatar" title="name" />
         </RecordContextProvider>
       )
@@ -88,36 +88,36 @@ describe('ImageField', () => {
   describe('Record prop', () => {
     it('should use record prop instead of context when provided', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/context.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/context.jpg' }}>
           <ImageField
             source="avatar"
-            record={{ id: 2, avatar: 'https://example.com/prop.jpg' }}
+            record={{ id: 2, avatar: 'https://example.com.ai/prop.jpg' }}
           />
         </RecordContextProvider>
       )
 
       const img = screen.getByRole('img')
-      expect(img).toHaveAttribute('src', 'https://example.com/prop.jpg')
+      expect(img).toHaveAttribute('src', 'https://example.com.ai/prop.jpg')
     })
   })
 
   describe('Nested source', () => {
     it('should support nested field access', () => {
       render(
-        <RecordContextProvider value={{ id: 1, profile: { avatar: 'https://example.com/nested.jpg' } }}>
+        <RecordContextProvider value={{ id: 1, profile: { avatar: 'https://example.com.ai/nested.jpg' } }}>
           <ImageField source="profile.avatar" />
         </RecordContextProvider>
       )
 
       const img = screen.getByRole('img')
-      expect(img).toHaveAttribute('src', 'https://example.com/nested.jpg')
+      expect(img).toHaveAttribute('src', 'https://example.com.ai/nested.jpg')
     })
   })
 
   describe('Label', () => {
     it('should render label when provided', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" label="Profile Picture" />
         </RecordContextProvider>
       )
@@ -130,7 +130,7 @@ describe('ImageField', () => {
   describe('Styling', () => {
     it('should apply custom className to container', () => {
       const { container } = render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" className="custom-class" />
         </RecordContextProvider>
       )
@@ -140,7 +140,7 @@ describe('ImageField', () => {
 
     it('should apply sx prop styles to image', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" sx={{ width: 100, height: 100 }} />
         </RecordContextProvider>
       )
@@ -151,7 +151,7 @@ describe('ImageField', () => {
 
     it('should pass through additional HTML attributes', () => {
       render(
-        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+        <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
           <ImageField source="avatar" data-testid="image-field" />
         </RecordContextProvider>
       )
@@ -166,8 +166,8 @@ describe('ImageField', () => {
         <RecordContextProvider value={{
           id: 1,
           photos: [
-            { src: 'https://example.com/1.jpg', title: 'Photo 1' },
-            { src: 'https://example.com/2.jpg', title: 'Photo 2' },
+            { src: 'https://example.com.ai/1.jpg', title: 'Photo 1' },
+            { src: 'https://example.com.ai/2.jpg', title: 'Photo 2' },
           ]
         }}>
           <ImageField source="photos" src="src" title="title" />
@@ -176,9 +176,9 @@ describe('ImageField', () => {
 
       const images = screen.getAllByRole('img')
       expect(images).toHaveLength(2)
-      expect(images[0]).toHaveAttribute('src', 'https://example.com/1.jpg')
+      expect(images[0]).toHaveAttribute('src', 'https://example.com.ai/1.jpg')
       expect(images[0]).toHaveAttribute('alt', 'Photo 1')
-      expect(images[1]).toHaveAttribute('src', 'https://example.com/2.jpg')
+      expect(images[1]).toHaveAttribute('src', 'https://example.com.ai/2.jpg')
       expect(images[1]).toHaveAttribute('alt', 'Photo 2')
     })
 
@@ -187,8 +187,8 @@ describe('ImageField', () => {
         <RecordContextProvider value={{
           id: 1,
           photos: [
-            { url: 'https://example.com/1.jpg' },
-            { url: 'https://example.com/2.jpg' },
+            { url: 'https://example.com.ai/1.jpg' },
+            { url: 'https://example.com.ai/2.jpg' },
           ]
         }}>
           <ImageField source="photos" src="url" />
@@ -196,8 +196,8 @@ describe('ImageField', () => {
       )
 
       const images = screen.getAllByRole('img')
-      expect(images[0]).toHaveAttribute('src', 'https://example.com/1.jpg')
-      expect(images[1]).toHaveAttribute('src', 'https://example.com/2.jpg')
+      expect(images[0]).toHaveAttribute('src', 'https://example.com.ai/1.jpg')
+      expect(images[1]).toHaveAttribute('src', 'https://example.com.ai/2.jpg')
     })
   })
 })

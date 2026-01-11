@@ -21,7 +21,7 @@ describe('RecordContext', () => {
 
   describe('RecordContextProvider', () => {
     it('should provide a record to children', () => {
-      const testRecord: TestRecord = { id: 1, name: 'John', email: 'john@example.com' }
+      const testRecord: TestRecord = { id: 1, name: 'John', email: 'john@example.com.ai' }
 
       const Consumer = () => {
         const record = useRecordContext<TestRecord>()
@@ -38,8 +38,8 @@ describe('RecordContext', () => {
     })
 
     it('should allow nested providers with different records', () => {
-      const outerRecord: TestRecord = { id: 1, name: 'Outer', email: 'outer@example.com' }
-      const innerRecord: TestRecord = { id: 2, name: 'Inner', email: 'inner@example.com' }
+      const outerRecord: TestRecord = { id: 1, name: 'Outer', email: 'outer@example.com.ai' }
+      const innerRecord: TestRecord = { id: 2, name: 'Inner', email: 'inner@example.com.ai' }
 
       const Consumer = () => {
         const record = useRecordContext<TestRecord>()
@@ -71,7 +71,7 @@ describe('RecordContext', () => {
     })
 
     it('should return the record with proper typing', () => {
-      const testRecord: TestRecord = { id: 1, name: 'Test', email: 'test@example.com' }
+      const testRecord: TestRecord = { id: 1, name: 'Test', email: 'test@example.com.ai' }
 
       const Consumer = () => {
         const record = useRecordContext<TestRecord>()
@@ -93,7 +93,7 @@ describe('RecordContext', () => {
 
       expect(screen.getByTestId('id')).toHaveTextContent('1')
       expect(screen.getByTestId('name')).toHaveTextContent('Test')
-      expect(screen.getByTestId('email')).toHaveTextContent('test@example.com')
+      expect(screen.getByTestId('email')).toHaveTextContent('test@example.com.ai')
     })
 
     it('should work without generic type parameter', () => {

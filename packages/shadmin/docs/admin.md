@@ -424,7 +424,7 @@ The Admin component creates a TanStack Query client with these defaults:
 import { Admin, Resource } from 'shadmin'
 import jsonServerProvider from 'ra-data-json-server'
 
-const dataProvider = jsonServerProvider('https://api.example.com')
+const dataProvider = jsonServerProvider('https://api.example.com.ai')
 
 const PostList = () => <div>Post List</div>
 

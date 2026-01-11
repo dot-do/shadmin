@@ -104,7 +104,7 @@ export const WithPlaceholder: TextInputStory = {
   args: {
     source: 'email',
     label: 'Email Address',
-    placeholder: 'you@example.com',
+    placeholder: 'you@example.com.ai',
   },
 }
 
@@ -887,7 +887,7 @@ export const CompleteFormExample: StoryObj = {
         <TextInput
           source="email"
           label="Email"
-          placeholder="you@example.com"
+          placeholder="you@example.com.ai"
           required
           rules={{
             pattern: {

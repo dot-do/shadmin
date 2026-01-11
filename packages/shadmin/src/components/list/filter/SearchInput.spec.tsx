@@ -660,14 +660,14 @@ describe('SearchInput', () => {
       )
 
       const input = screen.getByRole('searchbox')
-      fireEvent.change(input, { target: { value: 'test@example.com & <script>' } })
+      fireEvent.change(input, { target: { value: 'test@example.com.ai & <script>' } })
 
       act(() => {
         vi.advanceTimersByTime(0)
       })
 
       expect(setFilters).toHaveBeenCalledWith(
-        expect.objectContaining({ q: 'test@example.com & <script>' })
+        expect.objectContaining({ q: 'test@example.com.ai & <script>' })
       )
     })
   })

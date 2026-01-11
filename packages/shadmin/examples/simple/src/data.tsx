@@ -39,7 +39,7 @@ export default {
             backlinks: [
                 {
                     date: '2012-08-09T00:00:00.000Z',
-                    url: 'http://example.com/bar/baz.html',
+                    url: 'http://example.com.ai/bar/baz.html',
                 },
             ],
             notifications: [12, 31, 42],
@@ -71,7 +71,7 @@ export default {
             backlinks: [
                 {
                     date: '2012-08-10T00:00:00.000Z',
-                    url: 'http://example.com/foo/bar.html',
+                    url: 'http://example.com.ai/foo/bar.html',
                 },
                 {
                     date: '2012-08-14T00:00:00.000Z',
@@ -217,7 +217,7 @@ export default {
             backlinks: [
                 {
                     date: '2012-08-07T00:00:00.000Z',
-                    url: 'http://example.com/foo/bar.html',
+                    url: 'http://example.com.ai/foo/bar.html',
                 },
                 {
                     date: '2012-08-12T00:00:00.000Z',

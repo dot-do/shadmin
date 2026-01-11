@@ -110,7 +110,7 @@ function LoginForm() {
           id="email"
           name="email"
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="you@example.com"
+          placeholder="you@example.com.ai"
           required
         />
       </div>
@@ -216,7 +216,7 @@ function ClientPortalLayout({ children }: { children: ReactNode }) {
       <footer className="bg-white border-t mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center text-sm text-gray-500">
-            <p>Need help? Contact support@example.com</p>
+            <p>Need help? Contact support@example.com.ai</p>
             <p>
               Powered by{' '}
               <a href="https://github.com/nathanclevenger/shadmin" className="text-blue-600 hover:text-blue-700">

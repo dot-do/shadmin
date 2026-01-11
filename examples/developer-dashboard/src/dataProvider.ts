@@ -176,7 +176,7 @@ const mockWebhooks: Webhook[] = [
   {
     id: '3',
     name: 'Payment Notifications',
-    url: 'https://payments.example.com/hooks/receive',
+    url: 'https://payments.example.com.ai/hooks/receive',
     events: ['payment.succeeded', 'payment.failed', 'refund.created'],
     secret: generateSecret(),
     status: 'failed',

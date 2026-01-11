@@ -406,7 +406,7 @@ export const WithCustomAppBar: Story = {
           title="Custom AppBar"
           showSidebarTrigger
           showThemeToggle
-          user={{ name: 'John Doe', email: 'john@example.com' }}
+          user={{ name: 'John Doe', email: 'john@example.com.ai' }}
           rightContent={
             <button
               className="relative p-2 rounded-md hover:bg-accent"

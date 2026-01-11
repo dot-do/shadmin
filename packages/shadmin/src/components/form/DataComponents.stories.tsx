@@ -88,7 +88,7 @@ const mockPost: Post = {
 const mockUser: User = {
   id: 42,
   name: 'Jane Smith',
-  email: 'jane@example.com',
+  email: 'jane@example.com.ai',
   role: 'Editor',
   active: true,
 }
@@ -672,7 +672,7 @@ export const FormWithAllInputTypes: StoryObj = {
               source="email"
               label="Email"
               required
-              placeholder="you@example.com"
+              placeholder="you@example.com.ai"
             />
           </div>
 

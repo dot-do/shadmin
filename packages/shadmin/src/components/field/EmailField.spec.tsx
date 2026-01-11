@@ -6,7 +6,7 @@ import { EmailField } from './EmailField'
 describe('EmailField', () => {
   describe('rendering value from record', () => {
     it('should render the email as a mailto link', () => {
-      const record = { id: 1, email: 'john@example.com' }
+      const record = { id: 1, email: 'john@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -15,12 +15,12 @@ describe('EmailField', () => {
       )
 
       const link = screen.getByRole('link')
-      expect(link).toHaveAttribute('href', 'mailto:john@example.com')
-      expect(link).toHaveTextContent('john@example.com')
+      expect(link).toHaveAttribute('href', 'mailto:john@example.com.ai')
+      expect(link).toHaveTextContent('john@example.com.ai')
     })
 
     it('should support nested field access using dot notation', () => {
-      const record = { id: 1, contact: { email: 'jane@example.com' } }
+      const record = { id: 1, contact: { email: 'jane@example.com.ai' } }
 
       render(
         <RecordContextProvider value={record}>
@@ -29,13 +29,13 @@ describe('EmailField', () => {
       )
 
       const link = screen.getByRole('link')
-      expect(link).toHaveAttribute('href', 'mailto:jane@example.com')
+      expect(link).toHaveAttribute('href', 'mailto:jane@example.com.ai')
     })
   })
 
   describe('using RecordContext', () => {
     it('should get record from RecordContext when not provided as prop', () => {
-      const record = { id: 1, email: 'test@example.com' }
+      const record = { id: 1, email: 'test@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -43,12 +43,12 @@ describe('EmailField', () => {
         </RecordContextProvider>
       )
 
-      expect(screen.getByRole('link')).toHaveAttribute('href', 'mailto:test@example.com')
+      expect(screen.getByRole('link')).toHaveAttribute('href', 'mailto:test@example.com.ai')
     })
 
     it('should prefer record prop over RecordContext', () => {
-      const contextRecord = { id: 1, email: 'context@example.com' }
-      const propRecord = { id: 2, email: 'prop@example.com' }
+      const contextRecord = { id: 1, email: 'context@example.com.ai' }
+      const propRecord = { id: 2, email: 'prop@example.com.ai' }
 
       render(
         <RecordContextProvider value={contextRecord}>
@@ -56,13 +56,13 @@ describe('EmailField', () => {
         </RecordContextProvider>
       )
 
-      expect(screen.getByRole('link')).toHaveAttribute('href', 'mailto:prop@example.com')
+      expect(screen.getByRole('link')).toHaveAttribute('href', 'mailto:prop@example.com.ai')
     })
   })
 
   describe('className support', () => {
     it('should apply className to the anchor element', () => {
-      const record = { id: 1, email: 'test@example.com' }
+      const record = { id: 1, email: 'test@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -75,7 +75,7 @@ describe('EmailField', () => {
     })
 
     it('should render as an anchor element', () => {
-      const record = { id: 1, email: 'test@example.com' }
+      const record = { id: 1, email: 'test@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -147,7 +147,7 @@ describe('EmailField', () => {
 
   describe('label support', () => {
     it('should render label when provided', () => {
-      const record = { id: 1, email: 'test@example.com' }
+      const record = { id: 1, email: 'test@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -156,13 +156,13 @@ describe('EmailField', () => {
       )
 
       expect(screen.getByText('Email Address')).toBeInTheDocument()
-      expect(screen.getByRole('link')).toHaveTextContent('test@example.com')
+      expect(screen.getByRole('link')).toHaveTextContent('test@example.com.ai')
     })
   })
 
   describe('link behavior', () => {
     it('should open in default tab by default', () => {
-      const record = { id: 1, email: 'test@example.com' }
+      const record = { id: 1, email: 'test@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -175,7 +175,7 @@ describe('EmailField', () => {
     })
 
     it('should pass through additional anchor attributes', () => {
-      const record = { id: 1, email: 'test@example.com' }
+      const record = { id: 1, email: 'test@example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>

@@ -32,19 +32,19 @@ describe('Facade: AuthProvider Types', () => {
     it('should allow avatar property', () => {
       const identity: UserIdentity = {
         id: 'user-123',
-        avatar: 'https://example.com/avatar.jpg',
+        avatar: 'https://example.com.ai/avatar.jpg',
       }
-      expect(identity.avatar).toBe('https://example.com/avatar.jpg')
+      expect(identity.avatar).toBe('https://example.com.ai/avatar.jpg')
     })
 
     it('should allow additional custom properties', () => {
       const identity: UserIdentity = {
         id: 'user-123',
         fullName: 'John Doe',
-        email: 'john@example.com',
+        email: 'john@example.com.ai',
         roles: ['admin'],
       }
-      expect(identity.email).toBe('john@example.com')
+      expect(identity.email).toBe('john@example.com.ai')
       expect(identity.roles).toEqual(['admin'])
     })
   })
@@ -225,7 +225,7 @@ describe('Facade: AuthProvider Interface', () => {
         getIdentity: vi.fn().mockResolvedValue({
           id: 'user-123',
           fullName: 'John Doe',
-          avatar: 'https://example.com/avatar.jpg',
+          avatar: 'https://example.com.ai/avatar.jpg',
         }),
       }
 
@@ -233,7 +233,7 @@ describe('Facade: AuthProvider Interface', () => {
       expect(identity).toEqual({
         id: 'user-123',
         fullName: 'John Doe',
-        avatar: 'https://example.com/avatar.jpg',
+        avatar: 'https://example.com.ai/avatar.jpg',
       })
     })
   })

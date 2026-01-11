@@ -213,9 +213,9 @@ const result = await dataProvider.getMany('users', { ids: [1, 2, 3] })
 // Response
 {
   data: [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 3, name: 'Bob Wilson', email: 'bob@example.com' }
+    { id: 1, name: 'John Doe', email: 'john@example.com.ai' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com.ai' },
+    { id: 3, name: 'Bob Wilson', email: 'bob@example.com.ai' }
   ]
 }
 ```
@@ -508,7 +508,7 @@ Here is a complete example of implementing a custom DataProvider for a REST API:
 ```typescript
 import type { DataProvider } from 'shadmin'
 
-const API_URL = 'https://api.example.com'
+const API_URL = 'https://api.example.com.ai'
 
 export const restDataProvider: DataProvider = {
   getList: async (resource, params) => {
@@ -703,7 +703,7 @@ const mockDataProvider = createMockDataProvider({
       { id: 2, title: 'Draft Post', published: false }
     ],
     users: [
-      { id: 1, name: 'John Doe', email: 'john@example.com' }
+      { id: 1, name: 'John Doe', email: 'john@example.com.ai' }
     ]
   },
   delay: 0  // Optional: simulate network latency

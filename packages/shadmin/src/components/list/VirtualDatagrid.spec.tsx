@@ -18,7 +18,7 @@ const generateTestData = (count: number): TestRecord[] =>
   Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
-    email: `user${i + 1}@example.com`,
+    email: `user${i + 1}@example.com.ai`,
     status: i % 2 === 0 ? 'active' : 'inactive',
   }))
 
@@ -224,7 +224,7 @@ describe('VirtualDatagrid', () => {
       renderVirtualDatagrid()
       // First row should be visible
       expect(screen.getByText('User 1')).toBeInTheDocument()
-      expect(screen.getByText('user1@example.com')).toBeInTheDocument()
+      expect(screen.getByText('user1@example.com.ai')).toBeInTheDocument()
     })
   })
 
@@ -583,7 +583,7 @@ describe('VirtualDatagrid', () => {
   describe('Edge cases', () => {
     it('should handle data with a single item', () => {
       const singleItemData: TestRecord[] = [
-        { id: 1, name: 'Only One', email: 'only@example.com', status: 'active' },
+        { id: 1, name: 'Only One', email: 'only@example.com.ai', status: 'active' },
       ]
       renderVirtualDatagrid({}, { data: singleItemData, total: 1 })
 

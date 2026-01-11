@@ -232,7 +232,7 @@ Displays an email as a clickable mailto link.
 ```tsx
 // Basic usage - creates mailto link
 <EmailField source="email" />
-// Renders: <a href="mailto:john@example.com">john@example.com</a>
+// Renders: <a href="mailto:john@example.com.ai">john@example.com.ai</a>
 
 // With label
 <EmailField source="email" label="Email Address" />
@@ -268,7 +268,7 @@ Displays a URL as a clickable link. By default, opens in a new tab with security
 
 // Truncate to domain only
 <UrlField source="website" truncateUrl />
-// Renders: <a href="https://example.com/path">example.com</a>
+// Renders: <a href="https://example.com.ai/path">example.com.ai</a>
 
 // Open in same tab
 <UrlField source="website" target="_self" />
@@ -685,7 +685,7 @@ function UserShow() {
   const user = {
     id: 1,
     name: 'John Doe',
-    email: 'john@example.com',
+    email: 'john@example.com.ai',
     age: 30,
     createdAt: '2024-01-15T10:30:00Z'
   }

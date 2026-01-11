@@ -849,7 +849,7 @@ describe('Error Handling Standardization', () => {
           try {
             const [create] = result.current
             await create({
-              data: { email: 'taken@example.com', username: 'taken' },
+              data: { email: 'taken@example.com.ai', username: 'taken' },
             })
           } catch {
             // Expected to throw
@@ -938,7 +938,7 @@ describe('Error Handling Standardization', () => {
         await act(async () => {
           try {
             const [create] = result.current
-            await create({ data: { email: 'taken@example.com' } })
+            await create({ data: { email: 'taken@example.com.ai' } })
           } catch {
             // Expected to throw
           }

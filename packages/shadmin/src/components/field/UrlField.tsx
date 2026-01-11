@@ -42,7 +42,7 @@ function getDomain(url: string): string {
  * @example
  * ```tsx
  * // Basic usage with RecordContext
- * <RecordContextProvider value={{ id: 1, website: 'https://example.com' }}>
+ * <RecordContextProvider value={{ id: 1, website: 'https://example.com.ai' }}>
  *   <UrlField source="website" />
  * </RecordContextProvider>
  *

@@ -16,9 +16,9 @@ interface TestRecord extends RaRecord {
 }
 
 const testData: TestRecord[] = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', status: 'active' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', status: 'inactive' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', status: 'active' },
+  { id: 1, name: 'John Doe', email: 'john@example.com.ai', status: 'active' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com.ai', status: 'inactive' },
+  { id: 3, name: 'Bob Johnson', email: 'bob@example.com.ai', status: 'active' },
 ]
 
 const createTestListContext = (
@@ -106,7 +106,7 @@ describe('EditableDatagrid', () => {
       renderEditableDatagrid()
       expect(screen.getByRole('table')).toBeInTheDocument()
       expect(screen.getByText('John Doe')).toBeInTheDocument()
-      expect(screen.getByText('jane@example.com')).toBeInTheDocument()
+      expect(screen.getByText('jane@example.com.ai')).toBeInTheDocument()
     })
 
     it('should render table headers', () => {
@@ -341,7 +341,7 @@ describe('EditableDatagrid', () => {
 
       await waitFor(() => {
         const input = screen.getByRole('textbox')
-        expect(input).toHaveValue('john@example.com')
+        expect(input).toHaveValue('john@example.com.ai')
       })
     })
 
@@ -350,7 +350,7 @@ describe('EditableDatagrid', () => {
       renderEditableDatagrid()
 
       // Start editing the email cell
-      const emailCell = screen.getByText('john@example.com')
+      const emailCell = screen.getByText('john@example.com.ai')
       await user.dblClick(emailCell)
 
       // Shift+Tab should move to the previous cell (name)
@@ -738,7 +738,7 @@ describe('EditableDatagrid', () => {
           'users',
           expect.objectContaining({
             previousData: expect.objectContaining({
-              email: 'john@example.com',
+              email: 'john@example.com.ai',
               status: 'active',
             }),
           })

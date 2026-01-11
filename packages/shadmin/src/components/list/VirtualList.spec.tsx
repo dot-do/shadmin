@@ -19,7 +19,7 @@ const generateTestData = (count: number): TestRecord[] =>
   Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
-    email: `user${i + 1}@example.com`,
+    email: `user${i + 1}@example.com.ai`,
     description: `Description for user ${i + 1}. This is some longer text that might vary in height.`,
     status: i % 2 === 0 ? 'active' : 'inactive',
   }))
@@ -217,7 +217,7 @@ describe('VirtualList', () => {
     it('should render primary and secondary text', () => {
       renderVirtualList()
       expect(screen.getByText('User 1')).toBeInTheDocument()
-      expect(screen.getByText('user1@example.com')).toBeInTheDocument()
+      expect(screen.getByText('user1@example.com.ai')).toBeInTheDocument()
     })
 
     it('should render tertiary text', () => {
@@ -432,7 +432,7 @@ describe('VirtualList', () => {
   describe('Edge cases', () => {
     it('should handle data with a single item', () => {
       const singleItemData: TestRecord[] = [
-        { id: 1, name: 'Only One', email: 'only@example.com', description: 'desc', status: 'active' },
+        { id: 1, name: 'Only One', email: 'only@example.com.ai', description: 'desc', status: 'active' },
       ]
       renderVirtualList({}, { data: singleItemData, total: 1 })
 
@@ -461,7 +461,7 @@ describe('VirtualList', () => {
 
     it('should handle null values in record fields', () => {
       const dataWithNulls = [
-        { id: 1, name: null, email: 'test@example.com', description: 'desc', status: 'active' },
+        { id: 1, name: null, email: 'test@example.com.ai', description: 'desc', status: 'active' },
       ] as unknown as TestRecord[]
 
       renderVirtualList(

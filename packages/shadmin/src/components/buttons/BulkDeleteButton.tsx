@@ -5,7 +5,7 @@
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from 'ra-core'
-import type { MutationMode } from '../../facade'
+import type { MutationMode, Identifier } from '../../facade'
 import { cn } from '../../utils'
 
 const buttonBaseStyles = cn(
@@ -68,16 +68,19 @@ export interface BulkDeleteButtonProps
   mutationMode?: MutationMode
   /**
    * Callback called after successful deletion
+   * @param data - Array of deleted record IDs (may be undefined depending on data provider)
    */
-  onSuccess?: (data: any) => void
+  onSuccess?: (data: Identifier[] | undefined) => void
   /**
    * Callback called on error
+   * @param error - The error that occurred during deletion
    */
-  onError?: (error: any) => void
+  onError?: (error: unknown) => void
   /**
-   * Additional mutation options
+   * Additional mutation options passed to the deleteMany mutation
+   * Note: onSuccess and onError from mutationOptions are not used - use the component props instead
    */
-  mutationOptions?: any
+  mutationOptions?: Omit<Record<string, unknown>, 'onSuccess' | 'onError'>
 }
 
 /**
@@ -141,14 +144,14 @@ export const BulkDeleteButton = forwardRef<HTMLButtonElement, BulkDeleteButtonPr
         { ids: selectedIds },
         {
           mutationMode,
-          onSuccess: (data: any) => {
+          onSuccess: (data: Identifier[] | undefined) => {
             unselectAll()
             onSuccess?.(data)
             if (mutationMode !== 'undoable') {
               refresh()
             }
           },
-          onError,
+          ...(onError && { onError }),
           ...mutationOptions,
         }
       )

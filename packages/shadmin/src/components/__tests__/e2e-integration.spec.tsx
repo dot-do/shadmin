@@ -71,9 +71,9 @@ const samplePosts = [
 ]
 
 const sampleAuthors = [
-  { id: 1, name: 'John Smith', email: 'john@example.com' },
-  { id: 2, name: 'Jane Doe', email: 'jane@example.com' },
-  { id: 3, name: 'Bob Wilson', email: 'bob@example.com' },
+  { id: 1, name: 'John Smith', email: 'john@example.com.ai' },
+  { id: 2, name: 'Jane Doe', email: 'jane@example.com.ai' },
+  { id: 3, name: 'Bob Wilson', email: 'bob@example.com.ai' },
 ]
 
 const sampleCategories = [
@@ -290,7 +290,7 @@ const createMockAuthProvider = (options: {
     getIdentity: vi.fn().mockResolvedValue({
       id: 1,
       fullName: 'Test User',
-      email: 'test@example.com',
+      email: 'test@example.com.ai',
     }),
   }
 }
@@ -1412,7 +1412,7 @@ describe('Reference Field/Input Integration', () => {
       // Update an author
       await dataProvider.update('authors', {
         id: 1,
-        data: { name: 'John Smith Updated', email: 'john.updated@example.com' },
+        data: { name: 'John Smith Updated', email: 'john.updated@example.com.ai' },
       })
 
       // Verify the update
@@ -1482,7 +1482,7 @@ describe('Auth Flow Integration', () => {
       expect(identity).toMatchObject({
         id: 1,
         fullName: 'Test User',
-        email: 'test@example.com',
+        email: 'test@example.com.ai',
       })
     })
   })

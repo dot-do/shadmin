@@ -67,12 +67,12 @@ function getFilename(url: string): string {
  * @example
  * ```tsx
  * // Basic usage with RecordContext (string URL)
- * <RecordContextProvider value={{ id: 1, document: 'https://example.com/file.pdf' }}>
+ * <RecordContextProvider value={{ id: 1, document: 'https://example.com.ai/file.pdf' }}>
  *   <FileField source="document" />
  * </RecordContextProvider>
  *
  * // With file object
- * <RecordContextProvider value={{ id: 1, file: { src: 'https://example.com/file.pdf', title: 'My Document' } }}>
+ * <RecordContextProvider value={{ id: 1, file: { src: 'https://example.com.ai/file.pdf', title: 'My Document' } }}>
  *   <FileField source="file" title="title" />
  * </RecordContextProvider>
  *

@@ -36,7 +36,7 @@ const buttonSizes = {
 /**
  * Props for DeleteWithConfirmButton component
  */
-export interface DeleteWithConfirmButtonProps<RecordType extends RaRecord = any>
+export interface DeleteWithConfirmButtonProps<RecordType extends RaRecord = RaRecord>
   extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * The record to delete
@@ -87,16 +87,19 @@ export interface DeleteWithConfirmButtonProps<RecordType extends RaRecord = any>
   redirect?: string | false
   /**
    * Callback called after successful deletion
+   * @param data - The deleted record (may be undefined depending on data provider)
    */
-  onSuccess?: (data: any) => void
+  onSuccess?: (data: RecordType | undefined) => void
   /**
    * Callback called on error
+   * @param error - The error that occurred during deletion
    */
-  onError?: (error: any) => void
+  onError?: (error: unknown) => void
   /**
-   * Additional mutation options
+   * Additional mutation options passed to the delete mutation
+   * Note: onSuccess and onError from mutationOptions are not used - use the component props instead
    */
-  mutationOptions?: any
+  mutationOptions?: Omit<Record<string, unknown>, 'onSuccess' | 'onError'>
 }
 
 /**
@@ -110,7 +113,7 @@ export interface DeleteWithConfirmButtonProps<RecordType extends RaRecord = any>
  * );
  */
 export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithConfirmButtonProps>(
-  <RecordType extends RaRecord = any>(
+  <RecordType extends RaRecord = RaRecord>(
     {
       record: recordProp,
       resource: resourceProp,
@@ -157,7 +160,7 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
         { id: record.id, previousData: record },
         {
           mutationMode: 'pessimistic',
-          onSuccess: (data: any) => {
+          onSuccess: (data: RecordType | undefined) => {
             onSuccess?.(data)
             if (redirectTo) {
               redirect(redirectTo, resource)
@@ -166,7 +169,7 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
             }
             setIsOpen(false)
           },
-          onError: (error: any) => {
+          onError: (error: unknown) => {
             onError?.(error)
             setIsOpen(false)
           },
@@ -222,7 +225,7 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
       </>
     )
   }
-) as <RecordType extends RaRecord = any>(
+) as <RecordType extends RaRecord = RaRecord>(
   props: DeleteWithConfirmButtonProps<RecordType> & { ref?: React.Ref<HTMLButtonElement> }
 ) => React.ReactElement | null
 

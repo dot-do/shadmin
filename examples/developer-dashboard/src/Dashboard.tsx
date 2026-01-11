@@ -375,7 +375,7 @@ import { Client } from '@example/api-sdk';
 
 const client = new Client({
   apiKey: process.env.API_KEY,
-  baseUrl: 'https://api.example.com/v1',
+  baseUrl: 'https://api.example.com.ai/v1',
 });
 
 // Make your first request

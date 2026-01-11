@@ -78,7 +78,7 @@ describe('FilterPayload Type Improvements', () => {
       // With a typed record, the filter should recognize field names
       const filter: FilterPayload<User> = {
         name: 'John',
-        email: 'john@example.com',
+        email: 'john@example.com.ai',
         age: 25,
         active: true,
       }

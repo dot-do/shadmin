@@ -6,7 +6,7 @@ import { UrlField } from './UrlField'
 describe('UrlField', () => {
   describe('rendering value from record', () => {
     it('should render the URL as a clickable link', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -15,8 +15,8 @@ describe('UrlField', () => {
       )
 
       const link = screen.getByRole('link')
-      expect(link).toHaveAttribute('href', 'https://example.com')
-      expect(link).toHaveTextContent('https://example.com')
+      expect(link).toHaveAttribute('href', 'https://example.com.ai')
+      expect(link).toHaveTextContent('https://example.com.ai')
     })
 
     it('should support nested field access using dot notation', () => {
@@ -35,7 +35,7 @@ describe('UrlField', () => {
 
   describe('link behavior', () => {
     it('should open in new tab by default', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -49,7 +49,7 @@ describe('UrlField', () => {
     })
 
     it('should allow disabling new tab behavior', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -62,7 +62,7 @@ describe('UrlField', () => {
     })
 
     it('should allow custom rel attribute', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -104,7 +104,7 @@ describe('UrlField', () => {
 
   describe('className support', () => {
     it('should apply className to the anchor element', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -117,7 +117,7 @@ describe('UrlField', () => {
     })
 
     it('should render as an anchor element', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -189,7 +189,7 @@ describe('UrlField', () => {
 
   describe('label support', () => {
     it('should render label when provided', () => {
-      const record = { id: 1, website: 'https://example.com' }
+      const record = { id: 1, website: 'https://example.com.ai' }
 
       render(
         <RecordContextProvider value={record}>
@@ -198,13 +198,13 @@ describe('UrlField', () => {
       )
 
       expect(screen.getByText('Website')).toBeInTheDocument()
-      expect(screen.getByRole('link')).toHaveTextContent('https://example.com')
+      expect(screen.getByRole('link')).toHaveTextContent('https://example.com.ai')
     })
   })
 
   describe('custom display text', () => {
     it('should use custom text when provided', () => {
-      const record = { id: 1, website: 'https://example.com/very/long/path/to/page' }
+      const record = { id: 1, website: 'https://example.com.ai/very/long/path/to/page' }
 
       render(
         <RecordContextProvider value={record}>
@@ -214,11 +214,11 @@ describe('UrlField', () => {
 
       const link = screen.getByRole('link')
       expect(link).toHaveTextContent('Visit Site')
-      expect(link).toHaveAttribute('href', 'https://example.com/very/long/path/to/page')
+      expect(link).toHaveAttribute('href', 'https://example.com.ai/very/long/path/to/page')
     })
 
     it('should truncate URL when truncateUrl is true', () => {
-      const record = { id: 1, website: 'https://example.com/very/long/path/to/page' }
+      const record = { id: 1, website: 'https://example.com.ai/very/long/path/to/page' }
 
       render(
         <RecordContextProvider value={record}>
@@ -227,8 +227,8 @@ describe('UrlField', () => {
       )
 
       const link = screen.getByRole('link')
-      expect(link).toHaveTextContent('example.com')
-      expect(link).toHaveAttribute('href', 'https://example.com/very/long/path/to/page')
+      expect(link).toHaveTextContent('example.com.ai')
+      expect(link).toHaveAttribute('href', 'https://example.com.ai/very/long/path/to/page')
     })
   })
 })

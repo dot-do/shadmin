@@ -32,7 +32,7 @@ describe('AuthProviderContext', () => {
         getIdentity: vi.fn().mockResolvedValue({
           id: 1,
           fullName: 'John Doe',
-          avatar: 'https://example.com/avatar.jpg',
+          avatar: 'https://example.com.ai/avatar.jpg',
         }),
       })
 

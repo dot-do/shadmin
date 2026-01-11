@@ -371,7 +371,7 @@ describe('filterOperators', () => {
     describe('startsWith operator', () => {
       it('should match strings starting with filter value', () => {
         expect(applyFilterOperator('Hello World', 'startsWith', 'Hello')).toBe(true)
-        expect(applyFilterOperator('test@example.com', 'startsWith', 'test')).toBe(true)
+        expect(applyFilterOperator('test@example.com.ai', 'startsWith', 'test')).toBe(true)
       })
 
       it('should be case insensitive', () => {
@@ -386,7 +386,7 @@ describe('filterOperators', () => {
     describe('endsWith operator', () => {
       it('should match strings ending with filter value', () => {
         expect(applyFilterOperator('Hello World', 'endsWith', 'World')).toBe(true)
-        expect(applyFilterOperator('test@example.com', 'endsWith', '.com')).toBe(true)
+        expect(applyFilterOperator('test@example.com.ai', 'endsWith', '.com')).toBe(true)
       })
 
       it('should be case insensitive', () => {
@@ -513,10 +513,10 @@ describe('filterOperators', () => {
 
   describe('applyFiltersWithOperators', () => {
     const testData = [
-      { id: 1, name: 'John Doe', age: 30, email: 'john@example.com', status: 'active', deletedAt: null },
-      { id: 2, name: 'Jane Smith', age: 25, email: 'jane@example.com', status: 'pending', deletedAt: null },
+      { id: 1, name: 'John Doe', age: 30, email: 'john@example.com.ai', status: 'active', deletedAt: null },
+      { id: 2, name: 'Jane Smith', age: 25, email: 'jane@example.com.ai', status: 'pending', deletedAt: null },
       { id: 3, name: 'Bob Wilson', age: 40, email: 'bob@test.org', status: 'active', deletedAt: '2024-01-15' },
-      { id: 4, name: 'Alice Brown', age: 35, email: 'alice@example.com', status: 'inactive', deletedAt: null },
+      { id: 4, name: 'Alice Brown', age: 35, email: 'alice@example.com.ai', status: 'inactive', deletedAt: null },
     ]
 
     it('should return all items when no filter is provided', () => {

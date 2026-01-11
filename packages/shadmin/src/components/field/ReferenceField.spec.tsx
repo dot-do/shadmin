@@ -230,7 +230,7 @@ describe('ReferenceField', () => {
   describe('children rendering', () => {
     it('should render children with referenced record in RecordContext', async () => {
       const getOneMock = vi.fn().mockResolvedValue({
-        data: { id: 42, name: 'John', email: 'john@example.com' },
+        data: { id: 42, name: 'John', email: 'john@example.com.ai' },
       })
       const dataProvider = createMockDataProvider({ getOne: getOneMock })
       const Wrapper = createWrapper(dataProvider)
@@ -250,7 +250,7 @@ describe('ReferenceField', () => {
 
       await waitFor(() => {
         expect(screen.getByText('John')).toBeInTheDocument()
-        expect(screen.getByText('john@example.com')).toBeInTheDocument()
+        expect(screen.getByText('john@example.com.ai')).toBeInTheDocument()
       })
     })
 
@@ -706,7 +706,7 @@ describe('ReferenceField', () => {
 
     it('should render multiple children components', async () => {
       const getOneMock = vi.fn().mockResolvedValue({
-        data: { id: 42, firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
+        data: { id: 42, firstName: 'John', lastName: 'Doe', email: 'john@example.com.ai' },
       })
       const dataProvider = createMockDataProvider({ getOne: getOneMock })
       const Wrapper = createWrapper(dataProvider)
@@ -730,7 +730,7 @@ describe('ReferenceField', () => {
       await waitFor(() => {
         expect(screen.getByText('John')).toBeInTheDocument()
         expect(screen.getByText('Doe')).toBeInTheDocument()
-        expect(screen.getByText('john@example.com')).toBeInTheDocument()
+        expect(screen.getByText('john@example.com.ai')).toBeInTheDocument()
       })
     })
 

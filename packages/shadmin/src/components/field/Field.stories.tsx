@@ -20,8 +20,8 @@ const sampleRecord = {
   name: 'John Doe',
   firstName: 'John',
   lastName: 'Doe',
-  email: 'john.doe@example.com',
-  website: 'https://example.com/profile/john-doe',
+  email: 'john.doe@example.com.ai',
+  website: 'https://example.com.ai/profile/john-doe',
   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
   photos: [
     { src: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop', caption: 'Profile' },
@@ -55,7 +55,7 @@ const mockDataProvider = {
     data: {
       id,
       name: 'Jane Smith',
-      email: 'jane@example.com',
+      email: 'jane@example.com.ai',
       role: 'Editor',
     },
   }),

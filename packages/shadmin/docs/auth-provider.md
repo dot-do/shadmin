@@ -587,8 +587,8 @@ import type { AuthProvider } from 'shadmin'
 
 const OAUTH_CONFIG = {
   clientId: process.env.OAUTH_CLIENT_ID!,
-  authorizationEndpoint: 'https://auth.example.com/authorize',
-  tokenEndpoint: 'https://auth.example.com/token',
+  authorizationEndpoint: 'https://auth.example.com.ai/authorize',
+  tokenEndpoint: 'https://auth.example.com.ai/token',
   redirectUri: `${window.location.origin}/auth/callback`,
   scope: 'openid profile email',
 }
@@ -681,7 +681,7 @@ export const oauthProvider: AuthProvider = {
 
     // Redirect to OAuth provider logout (optional)
     if (idToken) {
-      const logoutUrl = new URL('https://auth.example.com/logout')
+      const logoutUrl = new URL('https://auth.example.com.ai/logout')
       logoutUrl.searchParams.set('id_token_hint', idToken)
       logoutUrl.searchParams.set(
         'post_logout_redirect_uri',

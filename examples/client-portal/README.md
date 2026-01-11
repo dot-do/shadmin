@@ -26,8 +26,8 @@ Then open [http://localhost:5173](http://localhost:5173)
 
 Click any demo account on the login page to auto-fill:
 
-- `client@example.com` - Regular client access
-- `premium@example.com` - Premium client with extra features
+- `client@example.com.ai` - Regular client access
+- `premium@example.com.ai` - Premium client with extra features
 
 ## Project Structure
 

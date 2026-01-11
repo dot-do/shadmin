@@ -208,7 +208,7 @@ export const LogShow = () => (
             return (
               <CodeSnippet
                 language="bash"
-                code={`curl -X ${r.method} "https://api.example.com${r.endpoint}" \\
+                code={`curl -X ${r.method} "https://api.example.com.ai${r.endpoint}" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json"${r.requestBody ? ` \\
   -d '${r.requestBody}'` : ''}`}

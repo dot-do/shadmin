@@ -74,7 +74,7 @@ describe('FormContext', () => {
     it('should provide form context to children', () => {
       const TestComponent = () => {
         const form = useForm<TestFormData>({
-          defaultValues: { name: 'John', email: 'john@example.com' },
+          defaultValues: { name: 'John', email: 'john@example.com.ai' },
         })
 
         return (
@@ -98,7 +98,7 @@ describe('FormContext', () => {
       render(<TestComponent />)
 
       expect(screen.getByTestId('name')).toHaveTextContent('John')
-      expect(screen.getByTestId('email')).toHaveTextContent('john@example.com')
+      expect(screen.getByTestId('email')).toHaveTextContent('john@example.com.ai')
     })
 
     it('should provide shadmin-specific form state', async () => {
@@ -107,12 +107,12 @@ describe('FormContext', () => {
 
       const TestComponent = () => {
         const form = useForm<TestFormData>({
-          defaultValues: { name: 'Test', email: 'test@example.com' },
+          defaultValues: { name: 'Test', email: 'test@example.com.ai' },
         })
 
         const shadminContext: ShadminFormContext<TestFormData> = {
           ...form,
-          record: { id: 1, name: 'Test', email: 'test@example.com' },
+          record: { id: 1, name: 'Test', email: 'test@example.com.ai' },
           resource: 'users',
           save: onSave,
           saving: false,
@@ -136,7 +136,7 @@ describe('FormContext', () => {
             <span data-testid="resource">{resource}</span>
             <span data-testid="saving">{saving ? 'true' : 'false'}</span>
             <span data-testid="mutationMode">{mutationMode}</span>
-            <button onClick={() => save?.({ name: 'New', email: 'new@example.com' })}>
+            <button onClick={() => save?.({ name: 'New', email: 'new@example.com.ai' })}>
               Save
             </button>
             <button onClick={() => onDelete?.()}>Delete</button>
@@ -151,7 +151,7 @@ describe('FormContext', () => {
       expect(screen.getByTestId('mutationMode')).toHaveTextContent('pessimistic')
 
       fireEvent.click(screen.getByText('Save'))
-      expect(onSave).toHaveBeenCalledWith({ name: 'New', email: 'new@example.com' })
+      expect(onSave).toHaveBeenCalledWith({ name: 'New', email: 'new@example.com.ai' })
 
       fireEvent.click(screen.getByText('Delete'))
       expect(onDelete).toHaveBeenCalled()
@@ -210,7 +210,7 @@ describe('FormContext', () => {
     it('should provide control for controlled inputs', () => {
       const TestComponent = () => {
         const form = useForm<TestFormData>({
-          defaultValues: { name: 'Test', email: 'test@example.com' },
+          defaultValues: { name: 'Test', email: 'test@example.com.ai' },
         })
 
         return (
@@ -271,7 +271,7 @@ describe('FormContext', () => {
     it('should handle optimistic mutation mode', () => {
       const TestComponent = () => {
         const form = useForm<TestFormData>({
-          defaultValues: { name: 'Test', email: 'test@example.com' },
+          defaultValues: { name: 'Test', email: 'test@example.com.ai' },
         })
 
         const shadminContext: ShadminFormContext<TestFormData> = {
@@ -311,12 +311,12 @@ describe('FormContext', () => {
         const TestComponent = () => {
           const [, forceRender] = useState(0)
           const form = useForm<TestFormData>({
-            defaultValues: { name: 'Test', email: 'test@example.com' },
+            defaultValues: { name: 'Test', email: 'test@example.com.ai' },
           })
 
           const shadminContext: ShadminFormContext<TestFormData> = {
             ...form,
-            record: { id: 1, name: 'Test', email: 'test@example.com' },
+            record: { id: 1, name: 'Test', email: 'test@example.com.ai' },
             resource: 'users',
             saving: false,
             mutationMode: 'pessimistic',
@@ -371,12 +371,12 @@ describe('FormContext', () => {
         const TestComponent = () => {
           const [unrelatedState, setUnrelatedState] = useState(0)
           const form = useForm<TestFormData>({
-            defaultValues: { name: 'Test', email: 'test@example.com' },
+            defaultValues: { name: 'Test', email: 'test@example.com.ai' },
           })
 
           // Use stable references for all props
           const stableSave = useCallback(() => {}, [])
-          const stableRecord = useRef({ id: 1, name: 'Test', email: 'test@example.com' }).current
+          const stableRecord = useRef({ id: 1, name: 'Test', email: 'test@example.com.ai' }).current
 
           const shadminContext: ShadminFormContext<TestFormData> = {
             ...form,
@@ -447,7 +447,7 @@ describe('FormContext', () => {
         const TestComponent = () => {
           const [counter, setCounter] = useState(0)
           const form = useForm<TestFormData>({
-            defaultValues: { name: 'Test', email: 'test@example.com' },
+            defaultValues: { name: 'Test', email: 'test@example.com.ai' },
           })
 
           const shadminContext: ShadminFormContext<TestFormData> = {
@@ -507,7 +507,7 @@ describe('FormContext', () => {
         const TestComponent = () => {
           const [saving, setSaving] = useState(false)
           const form = useForm<TestFormData>({
-            defaultValues: { name: 'Test', email: 'test@example.com' },
+            defaultValues: { name: 'Test', email: 'test@example.com.ai' },
           })
 
           const shadminContext: ShadminFormContext<TestFormData> = {
@@ -559,7 +559,7 @@ describe('FormContext', () => {
         const TestComponent = () => {
           const [, forceRender] = useState(0)
           const form = useForm<TestFormData>({
-            defaultValues: { name: 'Test', email: 'test@example.com' },
+            defaultValues: { name: 'Test', email: 'test@example.com.ai' },
           })
 
           // Use stable callbacks

@@ -50,7 +50,7 @@ const generatePosts = (count: number): Post[] => {
       id: i + 1,
       title: `Post ${i + 1}: ${titlePrefix} ${category}`,
       author,
-      email: `${author.toLowerCase().replace(' ', '.')}@example.com`,
+      email: `${author.toLowerCase().replace(' ', '.')}@example.com.ai`,
       status,
       views: Math.floor(Math.random() * 10000),
       featured: i % 4 === 0,

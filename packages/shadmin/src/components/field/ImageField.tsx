@@ -39,7 +39,7 @@ export interface ImageFieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
  * @example
  * ```tsx
  * // Basic usage with RecordContext
- * <RecordContextProvider value={{ id: 1, avatar: 'https://example.com/image.jpg' }}>
+ * <RecordContextProvider value={{ id: 1, avatar: 'https://example.com.ai/image.jpg' }}>
  *   <ImageField source="avatar" />
  * </RecordContextProvider>
  *

@@ -23,24 +23,24 @@ interface StoredAuth {
 
 // Demo client users
 const DEMO_CLIENTS: Record<string, { password: string; user: UserIdentity; permissions: string[] }> = {
-  'client@example.com': {
+  'client@example.com.ai': {
     password: 'demo123',
     user: {
       id: 'client-1',
       fullName: 'John Smith',
-      email: 'client@example.com',
+      email: 'client@example.com.ai',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
       company: 'Acme Corporation',
       role: 'client',
     },
     permissions: ['projects.read', 'tickets.read', 'tickets.create', 'documents.read', 'documents.upload'],
   },
-  'premium@example.com': {
+  'premium@example.com.ai': {
     password: 'demo123',
     user: {
       id: 'client-2',
       fullName: 'Sarah Johnson',
-      email: 'premium@example.com',
+      email: 'premium@example.com.ai',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
       company: 'Premium Partners LLC',
       role: 'premium_client',
@@ -174,12 +174,12 @@ export function hasPermission(permissions: string[], requiredPermission: string)
  */
 export const DEMO_CREDENTIALS = [
   {
-    email: 'client@example.com',
+    email: 'client@example.com.ai',
     password: 'demo123',
     description: 'Standard Client - Basic access',
   },
   {
-    email: 'premium@example.com',
+    email: 'premium@example.com.ai',
     password: 'demo123',
     description: 'Premium Client - Full access with analytics',
   },

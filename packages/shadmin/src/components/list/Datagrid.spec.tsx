@@ -14,9 +14,9 @@ interface TestRecord extends RaRecord {
 }
 
 const testData: TestRecord[] = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', status: 'active' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', status: 'inactive' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', status: 'active' },
+  { id: 1, name: 'John Doe', email: 'john@example.com.ai', status: 'active' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com.ai', status: 'inactive' },
+  { id: 3, name: 'Bob Johnson', email: 'bob@example.com.ai', status: 'active' },
 ]
 
 const createTestListContext = (
@@ -94,7 +94,7 @@ describe('Datagrid', () => {
     it('should render data in each cell using children components', () => {
       renderDatagrid()
       expect(screen.getByText('John Doe')).toBeInTheDocument()
-      expect(screen.getByText('jane@example.com')).toBeInTheDocument()
+      expect(screen.getByText('jane@example.com.ai')).toBeInTheDocument()
       // There are two 'active' status values, use getAllByText
       expect(screen.getAllByText('active')).toHaveLength(2)
     })
@@ -481,7 +481,7 @@ describe('Datagrid', () => {
   describe('Edge cases', () => {
     it('should handle data with a single item', () => {
       const singleItemData: TestRecord[] = [
-        { id: 1, name: 'Only One', email: 'only@example.com', status: 'active' }
+        { id: 1, name: 'Only One', email: 'only@example.com.ai', status: 'active' }
       ]
       renderDatagrid({}, { data: singleItemData, total: 1 })
 
@@ -495,7 +495,7 @@ describe('Datagrid', () => {
       const manyItems: TestRecord[] = Array.from({ length: 100 }, (_, i) => ({
         id: i + 1,
         name: `User ${i + 1}`,
-        email: `user${i + 1}@example.com`,
+        email: `user${i + 1}@example.com.ai`,
         status: i % 2 === 0 ? 'active' : 'inactive',
       }))
       renderDatagrid({}, { data: manyItems, total: 100 })
@@ -552,8 +552,8 @@ describe('Datagrid', () => {
 
     it('should handle records with special characters in field values', () => {
       const specialData: TestRecord[] = [
-        { id: 1, name: '<script>alert("xss")</script>', email: 'test@example.com', status: 'active' },
-        { id: 2, name: '& ampersand "quotes"', email: "test'apostrophe@example.com", status: 'inactive' },
+        { id: 1, name: '<script>alert("xss")</script>', email: 'test@example.com.ai', status: 'active' },
+        { id: 2, name: '& ampersand "quotes"', email: "test'apostrophe@example.com.ai", status: 'inactive' },
       ]
       renderDatagrid({}, { data: specialData, total: 2 })
 
@@ -734,7 +734,7 @@ describe('Datagrid', () => {
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
       await user.click(expandButtons[0])
 
-      expect(screen.getByTestId('expand-panel')).toHaveTextContent('john@example.com')
+      expect(screen.getByTestId('expand-panel')).toHaveTextContent('john@example.com.ai')
     })
 
     it('should support expanding multiple rows', async () => {

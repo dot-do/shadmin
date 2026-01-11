@@ -191,7 +191,7 @@ export const ApiKeyShow = () => (
             return (
               <CodeSnippet
                 language="bash"
-                code={`curl -X GET "https://api.example.com/v1/data" \\
+                code={`curl -X GET "https://api.example.com.ai/v1/data" \\
   -H "Authorization: Bearer ${r.prefix}..." \\
   -H "Content-Type: application/json"`}
               />

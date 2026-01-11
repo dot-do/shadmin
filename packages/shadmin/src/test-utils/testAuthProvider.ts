@@ -99,8 +99,8 @@ export interface MockAuthProviderOptions {
 export const defaultUserIdentity: UserIdentity = {
   id: 1,
   fullName: 'Test User',
-  email: 'test@example.com',
-  avatar: 'https://example.com/avatar.png',
+  email: 'test@example.com.ai',
+  avatar: 'https://example.com.ai/avatar.png',
 }
 
 /**

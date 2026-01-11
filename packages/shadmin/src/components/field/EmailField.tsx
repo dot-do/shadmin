@@ -26,7 +26,7 @@ export interface EmailFieldProps extends AnchorHTMLAttributes<HTMLAnchorElement>
  * @example
  * ```tsx
  * // Basic usage with RecordContext
- * <RecordContextProvider value={{ id: 1, email: 'john@example.com' }}>
+ * <RecordContextProvider value={{ id: 1, email: 'john@example.com.ai' }}>
  *   <EmailField source="email" />
  * </RecordContextProvider>
  *

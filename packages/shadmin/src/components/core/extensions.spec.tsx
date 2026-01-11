@@ -474,8 +474,8 @@ describe('Datagrid Custom Cell Renderer', () => {
   }
 
   const testData: TestRecord[] = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', status: 'active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', status: 'inactive' },
+    { id: 1, name: 'John Doe', email: 'john@example.com.ai', status: 'active' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com.ai', status: 'inactive' },
   ]
 
   const createListContext = (

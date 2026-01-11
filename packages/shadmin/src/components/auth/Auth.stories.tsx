@@ -516,7 +516,7 @@ export const UserMenuDefault: StoryObj = {
     <div className="p-8">
       <UserMenu
         name="John Doe"
-        email="john.doe@example.com"
+        email="john.doe@example.com.ai"
         avatar="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop"
       />
     </div>
@@ -527,7 +527,7 @@ export const UserMenuNoAvatar: StoryObj = {
   name: 'UserMenu / No Avatar',
   render: () => (
     <div className="p-8">
-      <UserMenu name="Jane Smith" email="jane.smith@example.com" />
+      <UserMenu name="Jane Smith" email="jane.smith@example.com.ai" />
     </div>
   ),
 }
@@ -543,7 +543,7 @@ export const UserMenuWithLogout: StoryObj = {
         </div>
         <UserMenu
           name="Admin User"
-          email="admin@example.com"
+          email="admin@example.com.ai"
           avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
           onLogout={() => setLogoutCount((c) => c + 1)}
         />

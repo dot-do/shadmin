@@ -202,7 +202,7 @@ describe('validate prop integration', () => {
         </TestForm>
       )
 
-      await user.type(screen.getByRole('textbox'), 'test@example.com')
+      await user.type(screen.getByRole('textbox'), 'test@example.com.ai')
       await user.click(screen.getByRole('button', { name: 'Submit' }))
 
       await waitFor(() => {

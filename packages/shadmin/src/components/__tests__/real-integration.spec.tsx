@@ -253,9 +253,9 @@ const samplePosts = [
 ]
 
 const sampleAuthors = [
-  { id: 1, name: 'John Smith', email: 'john@example.com' },
-  { id: 2, name: 'Jane Doe', email: 'jane@example.com' },
-  { id: 3, name: 'Bob Wilson', email: 'bob@example.com' },
+  { id: 1, name: 'John Smith', email: 'john@example.com.ai' },
+  { id: 2, name: 'Jane Doe', email: 'jane@example.com.ai' },
+  { id: 3, name: 'Bob Wilson', email: 'bob@example.com.ai' },
 ]
 
 // =============================================================================
@@ -610,7 +610,7 @@ describe('AuthProvider Integration', () => {
     const {
       isAuthenticated = true,
       permissions = ['admin'],
-      user = { id: 1, name: 'Test User', email: 'test@example.com' },
+      user = { id: 1, name: 'Test User', email: 'test@example.com.ai' },
     } = options
 
     let authenticated = isAuthenticated
@@ -620,12 +620,12 @@ describe('AuthProvider Integration', () => {
       login: vi.fn().mockImplementation(async (params) => {
         if (params.username === 'admin' && params.password === 'admin') {
           authenticated = true
-          currentUser = { id: 1, name: 'Admin User', email: 'admin@example.com' }
+          currentUser = { id: 1, name: 'Admin User', email: 'admin@example.com.ai' }
           return { redirectTo: '/dashboard' }
         }
         if (params.username === 'user' && params.password === 'user') {
           authenticated = true
-          currentUser = { id: 2, name: 'Regular User', email: 'user@example.com' }
+          currentUser = { id: 2, name: 'Regular User', email: 'user@example.com.ai' }
           return { redirectTo: '/home' }
         }
         throw new Error('Invalid credentials')
@@ -694,7 +694,7 @@ describe('AuthProvider Integration', () => {
       const identity = await authProvider.getIdentity?.()
 
       expect(identity?.name).toBe('Admin User')
-      expect(identity?.email).toBe('admin@example.com')
+      expect(identity?.email).toBe('admin@example.com.ai')
     })
   })
 
@@ -782,11 +782,11 @@ describe('AuthProvider Integration', () => {
     it('should return user identity when authenticated', async () => {
       const authProvider = createAuthProvider({
         isAuthenticated: true,
-        user: { id: 42, name: 'John Doe', email: 'john@example.com' },
+        user: { id: 42, name: 'John Doe', email: 'john@example.com.ai' },
       })
 
       const identity = await authProvider.getIdentity?.()
-      expect(identity).toEqual({ id: 42, name: 'John Doe', email: 'john@example.com' })
+      expect(identity).toEqual({ id: 42, name: 'John Doe', email: 'john@example.com.ai' })
     })
 
     it('should throw when getting identity while not authenticated', async () => {
