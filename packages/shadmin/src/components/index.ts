@@ -109,12 +109,25 @@ export {
   type TranslatableInputsContextValue,
   SearchInput,
   type SearchInputProps,
-  // New helper types for type-safe choices
+  // Base choice interfaces for stricter typing
+  type IdNameChoice,
+  type ValueLabelChoice,
+  type BaseSelectChoice,
+  // Helper types for type-safe choices
   type ChoiceValue,
   type ExtractChoiceValue,
   type ExtractChoiceText,
   type OptionTextProp,
   type OptionValueProp,
+  // Type guards and utilities for choice validation
+  isRecord,
+  isIdNameChoice,
+  isValueLabelChoice,
+  isBaseSelectChoice,
+  isChoiceValue,
+  validateChoices,
+  getChoiceValue,
+  getChoiceText,
 } from './input'
 
 // Field components (display)

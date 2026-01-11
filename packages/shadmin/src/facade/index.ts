@@ -132,6 +132,62 @@ export type {
 } from './core-types'
 
 // ============================================================================
+// React-Admin Core Facade (Hooks, Components, Utilities)
+// ============================================================================
+// Re-export ra-core functionality through a controlled facade.
+// This provides only what consumers need, not the entire ra-core surface area.
+
+// Context Hooks
+export {
+  useResourceContext,
+  useRecordContext,
+  useListContext,
+  useEditContext,
+  useCreateContext,
+} from './ra-core'
+
+// Navigation Hooks
+export {
+  useCreatePath,
+  useRedirect,
+  useRefresh,
+} from './ra-core'
+
+// Data Provider Hooks
+export { useDataProvider } from './ra-core'
+
+// Mutation Hooks
+export {
+  useDelete,
+  useDeleteMany,
+} from './ra-core'
+
+// Selection Hooks
+export { useUnselectAll } from './ra-core'
+
+// Auth Hooks
+export {
+  useGetIdentity,
+  useLogout,
+} from './ra-core'
+
+// Base Components (Headless Controllers)
+export {
+  EditBase,
+  ShowBase,
+  CreateBase,
+} from './ra-core'
+
+// Context Providers (for ResourceContext compatibility)
+export {
+  ResourceContext,
+  ResourceContextProvider,
+} from './ra-core'
+
+// Utility Functions
+export { fetchRelatedRecords } from './ra-core'
+
+// ============================================================================
 // Facade Utilities
 // ============================================================================
 

@@ -70,9 +70,13 @@ program
       },
     ])
 
+    // Type guard for template validation
+    const isValidTemplate = (t: string | undefined): t is 'basic' | 'full' =>
+      t === 'basic' || t === 'full'
+
     const finalOptions: ProjectOptions = {
       name: projectName ?? responses.name,
-      template: (options?.template as 'basic' | 'full') ?? responses.template ?? 'basic',
+      template: isValidTemplate(options?.template) ? options.template : (responses.template ?? 'basic'),
       packageManager: options?.npm ? 'npm' : options?.yarn ? 'yarn' : options?.pnpm ? 'pnpm' : responses.packageManager ?? 'pnpm',
       includeMondo: options?.mondo ?? responses.includeMondo ?? false,
     }

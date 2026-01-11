@@ -3,13 +3,13 @@ import { get } from 'lodash-es'
 import { cn } from '@/utils'
 import { useRecordContext } from '../../contexts/RecordContext'
 import type { RaRecord } from '../../facade'
+import type { SelectChoice } from '../input/types'
 
 /**
- * Choice type for SelectField options
+ * Choice type for SelectField options.
+ * Uses the shared SelectChoice type for consistency.
  */
-export interface SelectFieldChoice {
-  [key: string]: unknown
-}
+export type SelectFieldChoice<T extends Record<string, unknown> = Record<string, unknown>> = SelectChoice<T>
 
 export interface SelectFieldProps extends HTMLAttributes<HTMLSpanElement> {
   /** The field name in the record to display */

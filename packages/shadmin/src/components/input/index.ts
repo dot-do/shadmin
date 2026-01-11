@@ -5,17 +5,32 @@
 
 // Shared choice types
 export {
+  // Base choice interfaces
+  type IdNameChoice,
+  type ValueLabelChoice,
+  type BaseSelectChoice,
+  // Generic choice type
   type SelectChoice,
   type AutocompleteChoice,
   type RadioChoice,
   type SelectArrayChoice,
   type CheckboxChoice,
   type AutocompleteArrayChoice,
+  // Utility types
   type ChoiceValue,
   type ExtractChoiceValue,
   type ExtractChoiceText,
   type OptionTextProp,
   type OptionValueProp,
+  // Type guards and utilities
+  isRecord,
+  isIdNameChoice,
+  isValueLabelChoice,
+  isBaseSelectChoice,
+  isChoiceValue,
+  validateChoices,
+  getChoiceValue,
+  getChoiceText,
 } from './types'
 
 // TextInput - Basic text entry

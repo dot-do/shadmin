@@ -3,17 +3,53 @@
 // Uses ra-core for headless admin functionality
 
 // =============================================================================
-// RA-CORE RE-EXPORTS (with explicit overrides for shadmin implementations)
+// RA-CORE FACADE RE-EXPORTS
 // =============================================================================
-// Re-export ra-core for drop-in react-admin compatibility
-// This provides all hooks, types, and utilities from react-admin's core
-//
-// IMPORTANT: Some exports conflict with shadmin's implementations.
-// We explicitly re-export shadmin versions after ra-core to ensure:
-// - ArrayInputContext: Uses shadmin's shadcn/ui implementation
-// - ArrayInputContextValue: Uses shadmin's type definition
-// - FormDataConsumer: Uses shadmin's optimized implementation
-export * from 'ra-core'
+/**
+ * React-Admin Core Facade
+ *
+ * Instead of `export * from 'ra-core'` (which exports ~400+ items), we use a
+ * controlled facade that exports only what consumers actually need. This:
+ *
+ * 1. **Reduces API surface** - Only exports used functionality
+ * 2. **Enables substitution** - Can swap ra-core implementations with native ones
+ * 3. **Improves bundle size** - Tree-shaking works better with explicit exports
+ * 4. **Documents dependencies** - Makes ra-core usage explicit and auditable
+ *
+ * For full ra-core compatibility, consumers can still import directly from 'ra-core'.
+ *
+ * @see facade/ra-core.ts for the complete list of re-exported items
+ */
+
+// Context Hooks (from ra-core via facade)
+export {
+  useCreatePath,
+  useEditContext,
+  useCreateContext,
+} from './facade/ra-core'
+
+// Base Components (Headless Controllers)
+export {
+  EditBase,
+  ShowBase,
+  CreateBase,
+} from './facade/ra-core'
+
+// Utility Functions
+export { fetchRelatedRecords } from './facade/ra-core'
+
+// Auth Hooks (from ra-core via facade)
+export { useGetIdentity } from './facade/ra-core'
+
+// Type re-exports from ra-core (for backward compatibility)
+export type {
+  Identifier,
+  RaRecord,
+  DataProvider,
+  AuthProvider,
+  UserIdentity,
+  Exporter,
+} from './facade/ra-core'
 
 // Re-export Link from react-router-dom for react-admin compatibility
 export { Link } from 'react-router-dom'

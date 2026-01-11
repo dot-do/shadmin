@@ -12,7 +12,58 @@
 export type ChoiceValue = string | number
 
 /**
- * Base choice interface with generic type parameter for full type safety.
+ * Base interface for choices using id/name pattern.
+ * This is the most common pattern for choice objects.
+ *
+ * @example
+ * ```tsx
+ * const statusChoices: IdNameChoice[] = [
+ *   { id: 'active', name: 'Active' },
+ *   { id: 'inactive', name: 'Inactive' },
+ * ]
+ * ```
+ */
+export interface IdNameChoice {
+  id: ChoiceValue
+  name: string
+  [key: string]: unknown
+}
+
+/**
+ * Base interface for choices using value/label pattern.
+ * Common in HTML native select elements and some UI libraries.
+ *
+ * @example
+ * ```tsx
+ * const countryChoices: ValueLabelChoice[] = [
+ *   { value: 'us', label: 'United States' },
+ *   { value: 'uk', label: 'United Kingdom' },
+ * ]
+ * ```
+ */
+export interface ValueLabelChoice {
+  value: ChoiceValue
+  label: string
+  [key: string]: unknown
+}
+
+/**
+ * Base choice interface that accepts either id/name or value/label patterns.
+ * Use this for components that need to support both patterns.
+ *
+ * @example
+ * ```tsx
+ * // Both patterns are valid:
+ * const choices: BaseSelectChoice[] = [
+ *   { id: '1', name: 'Option 1' },
+ *   { value: '2', label: 'Option 2' },
+ * ]
+ * ```
+ */
+export type BaseSelectChoice = IdNameChoice | ValueLabelChoice
+
+/**
+ * Choice interface with generic type parameter for full type safety.
  *
  * The generic parameter T allows you to specify the exact shape of your choice objects,
  * providing full type safety when accessing properties like id, name, value, label, etc.
@@ -115,3 +166,180 @@ export type OptionTextProp<T extends Record<string, unknown> = Record<string, un
  * @template T - The choice type
  */
 export type OptionValueProp<T extends Record<string, unknown> = Record<string, unknown>> = keyof T & string
+
+// =============================================================================
+// Type Guards for Choice Validation
+// =============================================================================
+
+/**
+ * Type guard to check if an object is a valid record (non-null object).
+ *
+ * @param value - The value to check
+ * @returns True if value is a non-null object
+ *
+ * @example
+ * ```tsx
+ * if (isRecord(choice)) {
+ *   // choice is Record<string, unknown>
+ * }
+ * ```
+ */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/**
+ * Type guard to check if a choice has the id/name pattern.
+ *
+ * @param choice - The choice object to check
+ * @returns True if choice has id and name properties with valid types
+ *
+ * @example
+ * ```tsx
+ * const choice = { id: '1', name: 'Option 1' }
+ * if (isIdNameChoice(choice)) {
+ *   // choice.id is ChoiceValue, choice.name is string
+ * }
+ * ```
+ */
+export function isIdNameChoice(choice: unknown): choice is IdNameChoice {
+  if (!isRecord(choice)) return false
+  const { id, name } = choice
+  return (
+    (typeof id === 'string' || typeof id === 'number') &&
+    typeof name === 'string'
+  )
+}
+
+/**
+ * Type guard to check if a choice has the value/label pattern.
+ *
+ * @param choice - The choice object to check
+ * @returns True if choice has value and label properties with valid types
+ *
+ * @example
+ * ```tsx
+ * const choice = { value: 'us', label: 'United States' }
+ * if (isValueLabelChoice(choice)) {
+ *   // choice.value is ChoiceValue, choice.label is string
+ * }
+ * ```
+ */
+export function isValueLabelChoice(choice: unknown): choice is ValueLabelChoice {
+  if (!isRecord(choice)) return false
+  const { value, label } = choice
+  return (
+    (typeof value === 'string' || typeof value === 'number') &&
+    typeof label === 'string'
+  )
+}
+
+/**
+ * Type guard to check if a choice is a valid BaseSelectChoice (either pattern).
+ *
+ * @param choice - The choice object to check
+ * @returns True if choice is valid IdNameChoice or ValueLabelChoice
+ *
+ * @example
+ * ```tsx
+ * const choices = [{ id: '1', name: 'A' }, { value: '2', label: 'B' }]
+ * const validChoices = choices.filter(isBaseSelectChoice)
+ * ```
+ */
+export function isBaseSelectChoice(choice: unknown): choice is BaseSelectChoice {
+  return isIdNameChoice(choice) || isValueLabelChoice(choice)
+}
+
+/**
+ * Type guard to check if a value is a valid ChoiceValue (string or number).
+ *
+ * @param value - The value to check
+ * @returns True if value is a string or number
+ *
+ * @example
+ * ```tsx
+ * if (isChoiceValue(choice.id)) {
+ *   // choice.id is ChoiceValue
+ * }
+ * ```
+ */
+export function isChoiceValue(value: unknown): value is ChoiceValue {
+  return typeof value === 'string' || typeof value === 'number'
+}
+
+/**
+ * Validates an array of choices, returning only valid ones.
+ * Useful for runtime validation of choice arrays from external sources.
+ *
+ * @param choices - Array of potential choices
+ * @param optionValue - The property name used for the value (default: 'id')
+ * @param optionText - The property name used for the text (default: 'name')
+ * @returns Array of valid choices
+ *
+ * @example
+ * ```tsx
+ * const apiData = await fetchChoices()
+ * const validChoices = validateChoices(apiData)
+ * // validChoices only contains objects with valid id/name or value/label
+ * ```
+ */
+export function validateChoices<T extends Record<string, unknown>>(
+  choices: unknown[],
+  optionValue: string = 'id',
+  optionText: string = 'name'
+): T[] {
+  return choices.filter((choice): choice is T => {
+    if (!isRecord(choice)) return false
+    const value = choice[optionValue]
+    const text = choice[optionText]
+    return isChoiceValue(value) && typeof text === 'string'
+  })
+}
+
+/**
+ * Gets the value from a choice using the specified key.
+ * Returns undefined if the key doesn't exist or the value isn't valid.
+ *
+ * @param choice - The choice object
+ * @param optionValue - The property name to use for the value (default: 'id')
+ * @returns The choice value or undefined
+ *
+ * @example
+ * ```tsx
+ * const value = getChoiceValue(choice, 'id')
+ * if (value !== undefined) {
+ *   // value is ChoiceValue (string | number)
+ * }
+ * ```
+ */
+export function getChoiceValue(
+  choice: Record<string, unknown>,
+  optionValue: string = 'id'
+): ChoiceValue | undefined {
+  const value = choice[optionValue]
+  return isChoiceValue(value) ? value : undefined
+}
+
+/**
+ * Gets the display text from a choice using the specified key or function.
+ *
+ * @param choice - The choice object
+ * @param optionText - Property name or function to get the text (default: 'name')
+ * @returns The display text
+ *
+ * @example
+ * ```tsx
+ * const text = getChoiceText(choice, 'name')
+ * const customText = getChoiceText(choice, (c) => `${c.firstName} ${c.lastName}`)
+ * ```
+ */
+export function getChoiceText(
+  choice: Record<string, unknown>,
+  optionText: string | ((choice: Record<string, unknown>) => string) = 'name'
+): string {
+  if (typeof optionText === 'function') {
+    return optionText(choice)
+  }
+  const text = choice[optionText]
+  return typeof text === 'string' ? text : String(text ?? '')
+}

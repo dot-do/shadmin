@@ -8,13 +8,13 @@ import { cloneElement, type ReactElement } from 'react'
 import { useGetList } from '../../hooks/useGetList'
 import { cn } from '../../utils'
 import { AutocompleteInput } from './AutocompleteInput'
+import type { SelectChoice } from './types'
 
 /**
- * Choice record type
+ * Choice record type for reference inputs.
+ * Uses the shared SelectChoice type for consistency.
  */
-export interface ReferenceChoice {
-  [key: string]: unknown
-}
+export type ReferenceChoice<T extends Record<string, unknown> = Record<string, unknown>> = SelectChoice<T>
 
 /**
  * Sort configuration for fetching choices

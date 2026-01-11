@@ -13,7 +13,8 @@
  * type aliases are expected in type test files.
  */
 
-import type { SelectChoice, ChoiceValue } from './types'
+import type { SelectChoice, ChoiceValue, IdNameChoice, ValueLabelChoice, BaseSelectChoice } from './types'
+import { isIdNameChoice, isValueLabelChoice, isBaseSelectChoice, isChoiceValue, isRecord, validateChoices, getChoiceValue, getChoiceText } from './types'
 
 // =============================================================================
 // Type Test Utilities
@@ -140,6 +141,141 @@ function processChoice<T extends Record<string, unknown>>(choice: SelectChoice<T
 
 const processed = processChoice({ id: 'test', name: 'Test Name', extra: 42 })
 type _Test8 = _Assert<Equals<typeof processed.extra, number>>
+
+// =============================================================================
+// Test 9: IdNameChoice base interface
+// =============================================================================
+
+// IdNameChoice requires id (ChoiceValue) and name (string)
+const idNameChoice: IdNameChoice = { id: 'test', name: 'Test Name' }
+void (idNameChoice.id satisfies ChoiceValue)
+void (idNameChoice.name satisfies string)
+
+// Numeric id is also valid
+const numericIdNameChoice: IdNameChoice = { id: 123, name: 'Numeric' }
+void (numericIdNameChoice.id satisfies ChoiceValue)
+
+// Extra properties are allowed (index signature)
+const extendedIdNameChoice: IdNameChoice = { id: 'ext', name: 'Extended', extra: 'data' }
+void (extendedIdNameChoice.extra satisfies unknown)
+
+// =============================================================================
+// Test 10: ValueLabelChoice base interface
+// =============================================================================
+
+// ValueLabelChoice requires value (ChoiceValue) and label (string)
+const valueLabelChoice: ValueLabelChoice = { value: 'us', label: 'United States' }
+void (valueLabelChoice.value satisfies ChoiceValue)
+void (valueLabelChoice.label satisfies string)
+
+// Numeric value is also valid
+const numericValueLabelChoice: ValueLabelChoice = { value: 1, label: 'First' }
+void (numericValueLabelChoice.value satisfies ChoiceValue)
+
+// =============================================================================
+// Test 11: BaseSelectChoice union type
+// =============================================================================
+
+// BaseSelectChoice accepts both patterns
+const baseChoices: BaseSelectChoice[] = [
+  { id: '1', name: 'One' },
+  { value: '2', label: 'Two' },
+]
+
+// Type narrowing works with type guards
+function processBaseChoice(choice: BaseSelectChoice): string {
+  if (isIdNameChoice(choice)) {
+    return choice.name
+  }
+  if (isValueLabelChoice(choice)) {
+    return choice.label
+  }
+  return ''
+}
+
+// =============================================================================
+// Test 12: Type guards - isIdNameChoice
+// =============================================================================
+
+// isIdNameChoice narrows to IdNameChoice
+declare const unknownChoice: unknown
+if (isIdNameChoice(unknownChoice)) {
+  void (unknownChoice.id satisfies ChoiceValue)
+  void (unknownChoice.name satisfies string)
+}
+
+// =============================================================================
+// Test 13: Type guards - isValueLabelChoice
+// =============================================================================
+
+// isValueLabelChoice narrows to ValueLabelChoice
+if (isValueLabelChoice(unknownChoice)) {
+  void (unknownChoice.value satisfies ChoiceValue)
+  void (unknownChoice.label satisfies string)
+}
+
+// =============================================================================
+// Test 14: Type guards - isBaseSelectChoice
+// =============================================================================
+
+// isBaseSelectChoice narrows to BaseSelectChoice
+if (isBaseSelectChoice(unknownChoice)) {
+  // Can use as BaseSelectChoice
+  const _choice: BaseSelectChoice = unknownChoice
+}
+
+// =============================================================================
+// Test 15: Type guards - isChoiceValue
+// =============================================================================
+
+// isChoiceValue narrows to ChoiceValue
+declare const unknownValue: unknown
+if (isChoiceValue(unknownValue)) {
+  void (unknownValue satisfies ChoiceValue)
+}
+
+// =============================================================================
+// Test 16: Type guards - isRecord
+// =============================================================================
+
+// isRecord narrows to Record<string, unknown>
+if (isRecord(unknownChoice)) {
+  void (unknownChoice satisfies Record<string, unknown>)
+}
+
+// =============================================================================
+// Test 17: validateChoices utility
+// =============================================================================
+
+// validateChoices filters and returns typed array
+const mixedData: unknown[] = [
+  { id: '1', name: 'Valid' },
+  { invalid: 'data' },
+  { id: '2', name: 'Also Valid' },
+]
+const validated = validateChoices<IdNameChoice>(mixedData)
+type _Test9 = _Assert<Equals<typeof validated, IdNameChoice[]>>
+
+// =============================================================================
+// Test 18: getChoiceValue utility
+// =============================================================================
+
+// getChoiceValue returns ChoiceValue | undefined
+const choice = { id: 'test', name: 'Test' }
+const value = getChoiceValue(choice, 'id')
+type _Test10 = _Assert<Equals<typeof value, ChoiceValue | undefined>>
+
+// =============================================================================
+// Test 19: getChoiceText utility
+// =============================================================================
+
+// getChoiceText returns string
+const text = getChoiceText(choice, 'name')
+type _Test11 = _Assert<Equals<typeof text, string>>
+
+// With function
+const customText = getChoiceText(choice, (c) => `${c.id}: ${c.name}`)
+type _Test12 = _Assert<Equals<typeof customText, string>>
 
 // =============================================================================
 // Export to ensure file is a module

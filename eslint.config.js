@@ -18,6 +18,9 @@ export default [
         ecmaFeatures: {
           jsx: true,
         },
+        // Enable type-aware linting for rules like no-unsafe-type-assertion
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         // Node globals
@@ -225,6 +228,11 @@ export default [
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/no-require-imports': 'off',
+      // Prevent unsafe type assertions that narrow types (e.g., `as unknown as X` patterns)
+      // This requires type-aware linting (projectService enabled above)
+      // TODO: Upgrade to 'error' once existing violations are fixed
+      // See: https://typescript-eslint.io/rules/no-unsafe-type-assertion/
+      '@typescript-eslint/no-unsafe-type-assertion': 'warn',
       'no-constant-binary-expression': 'warn',
     },
     settings: {
@@ -264,6 +272,15 @@ export default [
       'react-hooks/rules-of-hooks': 'warn',
     },
   },
+  // Examples have many unsafe type assertions (they're demo code, not production)
+  // Warn instead of error to allow builds while encouraging fixes
+  {
+    files: ['examples/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unsafe-type-assertion': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
   {
     ignores: [
       '**/dist/**',
@@ -273,6 +290,10 @@ export default [
       '.admin/**',
       'storybook-static/**',
       'coverage/**',
+      // Storybook config files - not part of main TypeScript project
+      '.storybook/**',
+      // Cypress test files (JavaScript, not TypeScript)
+      '**/cypress/**',
     ],
   },
 ]
