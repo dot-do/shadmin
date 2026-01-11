@@ -275,7 +275,7 @@ describe('EditBase Navigation', () => {
         return (
           <button
             data-testid="save-button"
-            onClick={() => save?.({ title: 'Updated' }).catch(() => { /* expected error */ })}
+            onClick={() => { void save?.({ title: 'Updated' })?.catch(() => { /* expected error */ }) }}
           >
             Save
           </button>
@@ -526,13 +526,11 @@ describe('EditBase Navigation', () => {
   describe('Callbacks', () => {
     it('should call onSuccess callback before navigation', async () => {
       const onSuccess = vi.fn()
-      let onSuccessCalled = false
       let navigationHappened = false
 
       const Wrapper = createWrapper(dataProvider)
 
       const trackedOnSuccess = (data: unknown, variables: unknown, context: unknown) => {
-        onSuccessCalled = true
         onSuccess(data, variables, context)
       }
 
@@ -576,7 +574,7 @@ describe('EditBase Navigation', () => {
         return (
           <button
             data-testid="save-button"
-            onClick={() => save?.({ title: 'Updated' }).catch(() => { /* expected */ })}
+            onClick={() => { void save?.({ title: 'Updated' })?.catch(() => { /* expected */ }) }}
           >
             Save
           </button>
@@ -629,10 +627,8 @@ describe('EditBase Navigation', () => {
       // Simulate a scenario where `record` from useGetOne could become stale
       // The dataProvider.update will fail after a delay, during which time
       // the `record` reference might have changed
-      let updateCallCount = 0
       dataProvider.getOne = vi.fn().mockResolvedValue({ data: originalRecord })
       dataProvider.update = vi.fn().mockImplementation(() => {
-        updateCallCount++
         return new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Server error')), 100)
         })
@@ -648,7 +644,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="current-title">{record?.title as string}</span>
             <button
               data-testid="save-button"
-              onClick={() => save?.({ title: 'New Title' }).catch(() => { /* expected */ })}
+              onClick={() => { void save?.({ title: 'New Title' })?.catch(() => { /* expected */ }) }}
             >
               Save
             </button>
@@ -684,7 +680,7 @@ describe('EditBase Navigation', () => {
         expect(screen.getByTestId('current-title')).toHaveTextContent('Original Title')
       }, { timeout: 200 })
 
-      expect(updateCallCount).toBe(1)
+      expect(dataProvider.update).toHaveBeenCalledTimes(1)
     })
 
     it('should capture previousData BEFORE optimistic update is applied', async () => {
@@ -700,7 +696,7 @@ describe('EditBase Navigation', () => {
         data: { id: 1, title: 'Initial Value', version: 1 },
       })
 
-      dataProvider.update = vi.fn().mockImplementation((resource, params) => {
+      dataProvider.update = vi.fn().mockImplementation((_resource, params) => {
         // Capture what previousData was passed to the update
         capturedPreviousData.push(params.previousData)
         return Promise.reject(new Error('Forced failure'))
@@ -717,7 +713,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="version">{record?.version as number}</span>
             <button
               data-testid="save-button"
-              onClick={() => save?.({ title: 'Modified Value', version: 2 }).catch(() => {})}
+              onClick={() => { void save?.({ title: 'Modified Value', version: 2 })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -776,11 +772,9 @@ describe('EditBase Navigation', () => {
         return Promise.resolve({ data: updatedByOtherSource })
       })
 
-      let resolveUpdate: () => void
       let rejectUpdate: (err: Error) => void
       dataProvider.update = vi.fn().mockImplementation(() => {
-        return new Promise((resolve, reject) => {
-          resolveUpdate = () => resolve({ data: { id: 1, title: 'User Edit', counter: 101 } })
+        return new Promise((_resolve, reject) => {
           rejectUpdate = (err: Error) => reject(err)
         })
       })
@@ -796,7 +790,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="counter">{record?.counter as number}</span>
             <button
               data-testid="save-button"
-              onClick={() => save?.({ title: 'User Edit', counter: 101 }).catch(() => {})}
+              onClick={() => { void save?.({ title: 'User Edit', counter: 101 })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -859,10 +853,10 @@ describe('EditBase Navigation', () => {
             <div data-testid="form-description">{record?.description as string}</div>
             <button
               data-testid="save-button"
-              onClick={() => save?.({
+              onClick={() => { void save?.({
                 title: 'Changed Title',
                 description: 'Changed description'
-              }).catch(() => {})}
+              })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -910,7 +904,7 @@ describe('EditBase Navigation', () => {
 
       dataProvider.getOne = vi.fn().mockResolvedValue({ data: originalRecord })
 
-      dataProvider.update = vi.fn().mockImplementation((resource, params) => {
+      dataProvider.update = vi.fn().mockImplementation((_resource, params) => {
         // Store what previousData was when save() was called
         savedPreviousData = params.previousData
         return Promise.reject(new Error('Update rejected'))
@@ -927,7 +921,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="timestamp">{record?.timestamp as number}</span>
             <button
               data-testid="save-button"
-              onClick={() => save?.({ name: 'New Name', timestamp: 2000 }).catch(() => {})}
+              onClick={() => { void save?.({ name: 'New Name', timestamp: 2000 })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -1029,7 +1023,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="version">{record?.version as number}</span>
             <button
               data-testid="save-button"
-              onClick={() => save?.({ title: 'User Edit B', version: 2 }).catch(() => {})}
+              onClick={() => { void save?.({ title: 'User Edit B', version: 2 })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -1150,7 +1144,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="marker">{record?.marker as string}</span>
             <button
               data-testid="save-button"
-              onClick={() => save?.({ content: 'EDITED', marker: 'edited-marker' }).catch(() => {})}
+              onClick={() => { void save?.({ content: 'EDITED', marker: 'edited-marker' })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -1233,7 +1227,6 @@ describe('EditBase Navigation', () => {
 
       let getOneCallCount = 0
       let updateReject: ((err: Error) => void) | null = null
-      let triggerBackgroundUpdate: (() => void) | null = null
 
       const testDataProvider: DataProvider = {
         getList: vi.fn(),
@@ -1271,7 +1264,7 @@ describe('EditBase Navigation', () => {
             <span data-testid="seq">{record?.seq as number}</span>
             <button
               data-testid="save-btn"
-              onClick={() => save?.({ title: 'User New Value', seq: 101 }).catch(() => {})}
+              onClick={() => { void save?.({ title: 'User New Value', seq: 101 })?.catch(() => {}) }}
             >
               Save
             </button>
@@ -1355,8 +1348,7 @@ describe('EditBase Navigation', () => {
       const rollbackHistory: string[] = []
       const stateA = { id: 1, value: 'STATE_A' }
 
-      let updateCallCount = 0
-      let rejectFns: ((err: Error) => void)[] = []
+      const rejectFns: ((err: Error) => void)[] = []
 
       dataProvider.getOne = vi.fn().mockResolvedValue({ data: stateA })
       dataProvider.update = vi.fn().mockImplementation(() => {
@@ -1381,13 +1373,13 @@ describe('EditBase Navigation', () => {
             <span data-testid="value">{record?.value as string}</span>
             <button
               data-testid="save-b"
-              onClick={() => save?.({ value: 'STATE_B' }).catch(() => {})}
+              onClick={() => { void save?.({ value: 'STATE_B' })?.catch(() => {}) }}
             >
               Save B
             </button>
             <button
               data-testid="save-c"
-              onClick={() => save?.({ value: 'STATE_C' }).catch(() => {})}
+              onClick={() => { void save?.({ value: 'STATE_C' })?.catch(() => {}) }}
             >
               Save C
             </button>
@@ -1420,7 +1412,7 @@ describe('EditBase Navigation', () => {
       })
 
       // First mutation fails - should rollback to STATE_A
-      rejectFns[0](new Error('First failure'))
+      rejectFns[0]!(new Error('First failure'))
 
       await waitFor(() => {
         expect(screen.getByTestId('value')).toHaveTextContent('STATE_A')
@@ -1438,7 +1430,7 @@ describe('EditBase Navigation', () => {
       })
 
       // Second mutation fails - should rollback to STATE_A (not STATE_B)
-      rejectFns[1](new Error('Second failure'))
+      rejectFns[1]!(new Error('Second failure'))
 
       await waitFor(() => {
         expect(screen.getByTestId('value')).toHaveTextContent('STATE_A')

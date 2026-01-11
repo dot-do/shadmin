@@ -11,10 +11,10 @@
  * - Badges on menu items
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode, ComponentType } from 'react'
+import type { ReactNode } from 'react'
 import { Menu } from './Menu'
 import { MenuItem } from './MenuItem'
 import { SubMenu } from './SubMenu'
@@ -26,7 +26,6 @@ import { TestMemoryRouter, useTestLocation } from '../../test-utils'
 const HomeIcon = () => <svg data-testid="home-icon" />
 const UsersIcon = () => <svg data-testid="users-icon" />
 const SettingsIcon = () => <svg data-testid="settings-icon" />
-const PostsIcon = () => <svg data-testid="posts-icon" />
 const ChevronIcon = () => <svg data-testid="chevron-icon" />
 
 // Test wrapper with router

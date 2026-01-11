@@ -584,7 +584,7 @@ describe('Validator Composition', () => {
     })
 
     it('should pass values context to all validators', async () => {
-      const customValidator = vi.fn((value, values) => {
+      const customValidator = vi.fn((_value, values) => {
         if (values?.password !== values?.confirmPassword) {
           return 'Passwords must match'
         }
@@ -619,7 +619,7 @@ describe('Validator Composition', () => {
 describe('Validator Types', () => {
   it('should export Validator type', () => {
     // Type check - this should compile
-    const myValidator: Validator = (value, values, props) => {
+    const myValidator: Validator = (value, _values, _props) => {
       return value ? undefined : 'Error'
     }
     expect(typeof myValidator).toBe('function')

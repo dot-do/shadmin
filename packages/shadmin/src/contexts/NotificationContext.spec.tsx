@@ -88,8 +88,8 @@ describe('NotificationContext', () => {
       })
 
       expect(capturedNotifications.length).toBe(1)
-      expect(capturedNotifications[0].message).toBe('Hello World')
-      expect(capturedNotifications[0].options?.type).toBe('success')
+      expect(capturedNotifications[0]!.message).toBe('Hello World')
+      expect(capturedNotifications[0]!.options?.type).toBe('success')
     })
 
     it('should support all notification types', () => {
@@ -101,7 +101,7 @@ describe('NotificationContext', () => {
         const { notifications } = useNotificationContext()
 
         if (notifications.length > 0) {
-          capturedType = notifications[0].options?.type
+          capturedType = notifications[0]!.options?.type
         }
 
         return (
@@ -136,7 +136,7 @@ describe('NotificationContext', () => {
         const { notifications } = useNotificationContext()
 
         if (notifications.length > 0) {
-          capturedDuration = notifications[0].options?.autoHideDuration
+          capturedDuration = notifications[0]!.options?.autoHideDuration
         }
 
         return (
@@ -168,8 +168,8 @@ describe('NotificationContext', () => {
         const { notifications } = useNotificationContext()
 
         if (notifications.length > 0) {
-          capturedUndoable = notifications[0].options?.undoable
-          capturedOnUndo = notifications[0].options?.onUndo
+          capturedUndoable = notifications[0]!.options?.undoable
+          capturedOnUndo = notifications[0]!.options?.onUndo
         }
 
         const handleUndo = () => {
@@ -205,7 +205,7 @@ describe('NotificationContext', () => {
         const { notifications } = useNotificationContext()
 
         if (notifications.length > 0) {
-          capturedType = notifications[0].options?.type ?? 'info'
+          capturedType = notifications[0]!.options?.type ?? 'info'
         }
 
         return (
@@ -275,7 +275,7 @@ describe('NotificationContext', () => {
           <div>
             <button onClick={() => notify('Message 1')}>Add 1</button>
             <button onClick={() => notify('Message 2')}>Add 2</button>
-            <button onClick={() => notifications.length > 0 && dismiss(notifications[0].id)}>
+            <button onClick={() => notifications.length > 0 && dismiss(notifications[0]!.id)}>
               Dismiss First
             </button>
             <span data-testid="count">{notifications.length}</span>
@@ -516,7 +516,7 @@ describe('NotificationContext', () => {
               Notify
             </button>
             <button
-              onClick={() => notifications.length > 0 && dismiss(notifications[0].id)}
+              onClick={() => notifications.length > 0 && dismiss(notifications[0]!.id)}
             >
               Dismiss
             </button>

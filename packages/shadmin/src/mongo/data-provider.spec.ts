@@ -156,7 +156,7 @@ describe('createMongoDataProvider', () => {
         },
       })
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
 
       expect(callBody.filter).toEqual({
         age: { $gte: 18, $lte: 65 },
@@ -177,7 +177,7 @@ describe('createMongoDataProvider', () => {
         filter: { q: 'search term' },
       })
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
 
       expect(callBody.filter.$or).toBeDefined()
       expect(callBody.filter.$or).toContainEqual({ name: { $regex: 'search term', $options: 'i' } })
@@ -253,7 +253,7 @@ describe('createMongoDataProvider', () => {
       expect(result.data[0]).toHaveProperty('id', '1')
       expect(result.data[1]).toHaveProperty('id', '2')
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.action).toBe('find')
       expect(callBody.filter._id.$in).toEqual(['1', '2'])
     })
@@ -284,7 +284,7 @@ describe('createMongoDataProvider', () => {
       expect(result.data).toHaveLength(2)
       expect(result.total).toBe(2)
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.filter.post_id).toBe('10')
     })
   })
@@ -308,7 +308,7 @@ describe('createMongoDataProvider', () => {
       expect(result.data).toHaveProperty('id', 'new-id')
       expect(result.data).toHaveProperty('name', 'New User')
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.action).toBe('insertOne')
       expect(callBody.document).toEqual({ name: 'New User', email: 'new@example.com' })
     })
@@ -338,7 +338,7 @@ describe('createMongoDataProvider', () => {
         expect.objectContaining({ method: 'PUT' })
       )
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.$set).toEqual({ name: 'Updated User' })
     })
 
@@ -357,7 +357,7 @@ describe('createMongoDataProvider', () => {
         data: { id: '123', _id: '123', name: 'Updated' },
       })
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.$set).not.toHaveProperty('id')
       expect(callBody.$set).not.toHaveProperty('_id')
       expect(callBody.$set).toHaveProperty('name', 'Updated')
@@ -378,7 +378,7 @@ describe('createMongoDataProvider', () => {
 
       expect(result.data).toEqual(['1', '2', '3'])
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.action).toBe('updateMany')
       expect(callBody.filter._id.$in).toEqual(['1', '2', '3'])
       expect(callBody.update.$set).toEqual({ status: 'inactive' })
@@ -427,7 +427,7 @@ describe('createMongoDataProvider', () => {
 
       expect(result.data).toEqual(['1', '2', '3'])
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
       expect(callBody.action).toBe('deleteMany')
       expect(callBody.filter._id.$in).toEqual(['1', '2', '3'])
     })
@@ -477,7 +477,7 @@ describe('createMongoDataProvider', () => {
         },
       })
 
-      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body)
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body)
 
       expect(callBody.filter.score.$gt).toBe(50)
       expect(callBody.filter.score.$lt).toBe(100)

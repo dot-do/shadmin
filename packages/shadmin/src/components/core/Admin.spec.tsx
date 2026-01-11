@@ -290,7 +290,6 @@ describe('<Admin /> Error Boundary Behavior', () => {
     })
 
     it('provides resetErrorBoundary callback to custom error component', () => {
-      const resetHandler = vi.fn()
       const CustomErrorComponent = ({ resetErrorBoundary }: { error: Error; resetErrorBoundary?: () => void }) => (
         <div data-testid="custom-error">
           <button onClick={resetErrorBoundary}>Retry</button>
@@ -588,9 +587,9 @@ describe('<Admin /> Theme Integration', () => {
 
         return (
           <div>
-            <span data-testid="primary">{theme.colors?.primary}</span>
-            <span data-testid="accent">{theme.colors?.accent}</span>
-            <span data-testid="spacing">{theme.spacing?.md}</span>
+            <span data-testid="primary">{theme.colors?.primary as string}</span>
+            <span data-testid="accent">{theme.colors?.accent as string}</span>
+            <span data-testid="spacing">{theme.spacing?.md as string}</span>
           </div>
         )
       }

@@ -115,9 +115,8 @@ describe('useMediaQuery', () => {
 
       // For SSR simulation, we test by removing matchMedia
       const windowWithoutMatchMedia = { ...window }
-      // @ts-expect-error - Simulating missing matchMedia
-      delete windowWithoutMatchMedia.matchMedia
-      // @ts-expect-error - Replacing window
+      // @ts-expect-error - Simulating missing matchMedia for SSR testing
+      windowWithoutMatchMedia.matchMedia = undefined
       globalThis.window = windowWithoutMatchMedia
 
       const { result } = renderHook(() => useMediaQuery('(min-width: 768px)'))

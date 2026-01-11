@@ -11,8 +11,8 @@
  * - react-admin API compatibility
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, within } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { Pagination } from './Pagination'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
 

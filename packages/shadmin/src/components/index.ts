@@ -9,6 +9,15 @@ export {
   Admin,
   ResourceRegistrationContext,
   type ResourceRegistrationContextValue,
+  // Extensions - lifecycle callbacks and plugin system
+  withLifecycleCallbacks,
+  type LifecycleCallbackContext,
+  type AfterLifecycleCallbackContext,
+  type ResourceLifecycleCallbacks,
+  type AdminPlugin,
+  type AdminPluginContext,
+  type CellRendererProps,
+  type FieldWrapperProps,
 } from './core'
 
 // List components

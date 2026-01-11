@@ -38,9 +38,10 @@ export default defineConfig({
     // CLI tests need node environment (no DOM, works with esbuild)
     environmentMatchGlobs: [
       ['packages/shadmin/src/cli/**/*.spec.ts', 'node'],
+      ['db/**/*.test.ts', 'node'],
     ],
     setupFiles: ['./packages/shadmin/src/test-utils/setup.ts'],
-    include: ['packages/**/*.spec.{ts,tsx}', 'packages/**/*.test.{ts,tsx}'],
+    include: ['packages/**/*.spec.{ts,tsx}', 'packages/**/*.test.{ts,tsx}', 'db/**/*.test.{ts,tsx}'],
     // Resource optimization
     // Vitest 4: poolOptions moved to top-level (maxForks/minForks → maxWorkers/minWorkers)
     pool: 'forks',

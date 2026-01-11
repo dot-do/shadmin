@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { Edit } from './Edit'
@@ -27,7 +27,7 @@ import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
 import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
 import type { DataProvider } from '../../types'
-import { TestMemoryRouter, useTestLocation, useTestNavigate } from '../../test-utils'
+import { TestMemoryRouter, useTestLocation } from '../../test-utils'
 
 // Test wrapper with required providers
 const createWrapper = (
@@ -545,7 +545,12 @@ describe('Edit Component', () => {
       const Consumer = () => {
         const { save } = useShadminFormContext()
         return (
-          <button data-testid="save" onClick={() => save?.({ title: 'Updated' }).catch(() => {})}>
+          <button data-testid="save" onClick={() => {
+            const result = save?.({ title: 'Updated' })
+            if (result instanceof Promise) {
+              result.catch(() => {})
+            }
+          }}>
             Save
           </button>
         )
@@ -931,7 +936,7 @@ describe('Edit Component', () => {
           <LocationTracker />
           <Edit
             id={1}
-            redirect={(resource, id, data) => `/custom/${resource}/${id}`}
+            redirect={(resource, id, _data) => `/custom/${resource}/${id}`}
           >
             <Consumer />
           </Edit>

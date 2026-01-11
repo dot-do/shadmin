@@ -280,7 +280,7 @@ describe('<CheckboxGroupInput />', () => {
       </TestForm>
     )
 
-    const checkboxGroup = screen.getAllByRole('checkbox')[0].closest('[role="group"]')
+    const checkboxGroup = screen.getAllByRole('checkbox')[0]!.closest('[role="group"]')
     expect(checkboxGroup).toHaveClass('flex-row')
   })
 

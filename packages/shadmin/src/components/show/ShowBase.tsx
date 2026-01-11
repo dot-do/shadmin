@@ -110,7 +110,7 @@ export function ShowBase<RecordType extends RaRecord = RaRecord>({
     refetch,
   } = useGetOne<RecordType>(
     resource,
-    { id, meta },
+    meta !== undefined ? { id, meta } : { id },
     restQueryOptions
   )
 

@@ -271,7 +271,7 @@ describe('<RadioButtonGroupInput />', () => {
       </TestForm>
     )
 
-    const radioGroup = screen.getAllByRole('radio')[0].closest('[role="radiogroup"]')
+    const radioGroup = screen.getAllByRole('radio')[0]!.closest('[role="radiogroup"]')
     expect(radioGroup).toHaveClass('flex-row')
   })
 

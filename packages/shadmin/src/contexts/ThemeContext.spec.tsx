@@ -4,8 +4,6 @@ import {
   ThemeContext,
   ThemeProvider,
   useTheme,
-  type Theme,
-  type ThemeContextValue,
 } from './ThemeContext'
 
 describe('ThemeContext', () => {

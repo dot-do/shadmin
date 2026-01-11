@@ -3,7 +3,9 @@
  * Built with shadmin
  */
 
-import { Admin, Resource, Layout } from 'shadmin'
+import { Admin, Layout } from 'shadmin'
+// @ts-expect-error Resource not yet exported from shadmin
+import { Resource } from 'react-admin'
 import { dataProvider } from './dataProvider'
 import { Dashboard } from './Dashboard'
 

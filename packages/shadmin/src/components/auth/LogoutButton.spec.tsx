@@ -11,7 +11,7 @@ import type { ReactNode } from 'react'
 import { LogoutButton } from './LogoutButton'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import type { AuthProvider } from '../facade'
+import type { AuthProvider } from '../../facade'
 import { MemoryRouter } from 'react-router'
 
 // Test wrapper with required providers

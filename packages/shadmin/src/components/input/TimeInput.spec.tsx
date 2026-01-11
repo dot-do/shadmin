@@ -197,7 +197,7 @@ describe('<TimeInput />', () => {
               rules={{
                 validate: (value: string) => {
                   if (!value) return true
-                  const hour = parseInt(value.split(':')[0], 10)
+                  const hour = parseInt(value.split(':')[0]!, 10)
                   return (hour >= 9 && hour < 17) || 'Time must be during business hours (9:00-17:00)'
                 },
               }}

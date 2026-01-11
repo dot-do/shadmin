@@ -315,7 +315,7 @@ describe('FilterForm', () => {
 
       render(
         <ListContextProvider value={contextValue}>
-          <FilterForm defaultValues={{ search: 'default' }}>
+          <FilterForm defaultValues={{ search: 'default', status: '' }}>
             {({ register }) => (
               <>
                 <input {...register('search')} data-testid="search-input" />

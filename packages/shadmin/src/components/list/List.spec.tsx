@@ -14,7 +14,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { List } from './List'
@@ -24,7 +24,7 @@ import { useListContext, type ListControllerResult } from '../../contexts/ListCo
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
 import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import type { DataProvider } from '../../types'
-import { TestMemoryRouter, useTestSearchParams, useTestLocation, useTestRouter } from '../../test-utils'
+import { TestMemoryRouter, useTestLocation, useTestRouter } from '../../test-utils'
 
 // Test wrapper with required providers
 const createWrapper = (dataProvider: DataProvider, initialEntries: string[] = ['/posts']) => {
@@ -293,7 +293,6 @@ describe('List Component', () => {
     })
 
     it('should accept queryOptions prop for custom React Query options', async () => {
-      const onSuccess = vi.fn()
       const Wrapper = createWrapper(dataProvider)
 
       render(
@@ -733,12 +732,10 @@ describe('List Component', () => {
         defaultOptions: { queries: { retry: false } },
       })
 
-      let locationPathname = ''
       let locationSearch = ''
 
       const LocationDisplay = () => {
         const location = useTestLocation()
-        locationPathname = location.pathname
         locationSearch = location.search
         return null
       }

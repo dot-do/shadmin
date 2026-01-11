@@ -1521,7 +1521,7 @@ describe('CRUD Flow Integration Tests', () => {
       // Step 3: Update
       await dataProvider.update('posts', {
         id: newId,
-        data: { title: 'Updated CRUD Test Post' },
+        data: { title: 'Updated CRUD Test Post' } as typeof newRecord,
         previousData: newRecord!,
       })
 

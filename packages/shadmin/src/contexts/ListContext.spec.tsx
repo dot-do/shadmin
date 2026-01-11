@@ -70,8 +70,6 @@ import {
   ListContextProvider,
   useListContext,
   type ListControllerResult,
-  type SortPayload,
-  type FilterPayload,
 } from './ListContext'
 
 interface TestRecord {

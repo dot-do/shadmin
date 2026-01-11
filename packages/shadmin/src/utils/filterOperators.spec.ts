@@ -556,19 +556,19 @@ describe('filterOperators', () => {
     it('should filter with contains operator', () => {
       const result = applyFiltersWithOperators(testData, { name_contains: 'smith' })
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(2)
+      expect(result[0]!.id).toBe(2)
     })
 
     it('should filter with startsWith operator', () => {
       const result = applyFiltersWithOperators(testData, { name_startsWith: 'john' })
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(1)
+      expect(result[0]!.id).toBe(1)
     })
 
     it('should filter with endsWith operator', () => {
       const result = applyFiltersWithOperators(testData, { email_endsWith: '.org' })
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(3)
+      expect(result[0]!.id).toBe(3)
     })
 
     it('should filter with in operator', () => {
@@ -580,7 +580,7 @@ describe('filterOperators', () => {
     it('should filter with notIn operator', () => {
       const result = applyFiltersWithOperators(testData, { status_notIn: ['active', 'pending'] })
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(4)
+      expect(result[0]!.id).toBe(4)
     })
 
     it('should filter with between operator', () => {
@@ -598,7 +598,7 @@ describe('filterOperators', () => {
     it('should filter with isNotNull operator', () => {
       const result = applyFiltersWithOperators(testData, { deletedAt_isNotNull: true })
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(3)
+      expect(result[0]!.id).toBe(3)
     })
 
     it('should filter with neq operator', () => {
@@ -632,7 +632,7 @@ describe('filterOperators', () => {
       ]
       const result = applyFiltersWithOperators(nestedData, { 'user.role': 'admin' })
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(1)
+      expect(result[0]!.id).toBe(1)
     })
   })
 

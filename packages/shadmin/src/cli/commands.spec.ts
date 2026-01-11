@@ -259,7 +259,7 @@ describe('CLI Commands', () => {
         root: '/test/path',
       })
 
-      expect(config.esbuild && config.esbuild !== false && config.esbuild.jsx).toBe('automatic')
+      expect(config.esbuild && (config.esbuild as { jsx?: string }).jsx).toBe('automatic')
     })
   })
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
@@ -21,8 +21,8 @@ function CustomChildComponent() {
   const record = useRecordContext()
   return (
     <div data-testid="custom-child">
-      <span data-testid="custom-name">{record?.name}</span>
-      <span data-testid="custom-role">{record?.role}</span>
+      <span data-testid="custom-name">{record?.name as string}</span>
+      <span data-testid="custom-role">{record?.role as string}</span>
     </div>
   )
 }

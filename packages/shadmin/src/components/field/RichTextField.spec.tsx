@@ -127,7 +127,7 @@ describe('RichTextField', () => {
     })
 
     it('should pass through additional HTML attributes', () => {
-      const { container } = render(
+      render(
         <RecordContextProvider value={{ id: 1, content: '<p>Text</p>' }}>
           <RichTextField source="content" data-testid="rich-field" />
         </RecordContextProvider>

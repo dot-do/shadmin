@@ -25,7 +25,7 @@ import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
 import type { DataProvider, RaRecord } from '../../types'
-import { TestMemoryRouter, useTestLocation } from '../../test-utils'
+import { TestMemoryRouter } from '../../test-utils'
 
 /**
  * Create a test wrapper with all required providers
@@ -990,8 +990,8 @@ describe('ShowBase Component', () => {
         const record = useRecordContext()
         return (
           <div>
-            <span data-testid="title">{record?.title ?? 'No title'}</span>
-            <span data-testid="content">{record?.content ?? 'No content'}</span>
+            <span data-testid="title">{(record?.title as string) ?? 'No title'}</span>
+            <span data-testid="content">{(record?.content as string) ?? 'No content'}</span>
           </div>
         )
       }
@@ -1011,7 +1011,7 @@ describe('ShowBase Component', () => {
     })
 
     it('should handle rapid id changes', async () => {
-      dataProvider.getOne = vi.fn().mockImplementation((resource, params) => {
+      dataProvider.getOne = vi.fn().mockImplementation((_resource, params) => {
         return Promise.resolve({ data: { id: params.id, title: `Post ${params.id}` } })
       })
 

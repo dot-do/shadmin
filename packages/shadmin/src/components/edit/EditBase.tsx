@@ -269,8 +269,8 @@ export function EditBase<RecordType extends RaRecord = RaRecord>({
       try {
         const result = await update({
           id,
-          data: dataToSave,
-          previousData: previousData as unknown as Record<string, unknown>,
+          data: dataToSave as Partial<RecordType>,
+          previousData: previousData as Partial<RecordType>,
         })
 
         // Update local record with server response (for pessimistic mode and also to ensure correct data)

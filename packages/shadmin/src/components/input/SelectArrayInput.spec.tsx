@@ -390,8 +390,6 @@ describe('<SelectArrayInput />', () => {
   })
 
   it('shows visual indicator for selected items', async () => {
-    const user = userEvent.setup()
-
     render(
       <TestForm defaultValues={{ tags: ['tech'] }}>
         <SelectArrayInput source="tags" label="Tags" choices={defaultChoices} />

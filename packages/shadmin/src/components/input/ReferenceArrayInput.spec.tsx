@@ -6,7 +6,7 @@
  * It fetches choices from a referenced resource using useGetList and provides them to child components.
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
@@ -551,7 +551,7 @@ describe('<ReferenceArrayInput /> with CheckboxGroupInput', () => {
       expect(screen.getByLabelText('Technology')).toBeInTheDocument()
     })
 
-    const checkboxGroup = screen.getAllByRole('checkbox')[0].closest('[role="group"]')
+    const checkboxGroup = screen.getAllByRole('checkbox')[0]!.closest('[role="group"]')
     expect(checkboxGroup).toHaveClass('flex-row')
   })
 

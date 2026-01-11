@@ -11,7 +11,7 @@
  * Epic: shadmin-zwnj
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -21,10 +21,10 @@ import { Resource } from './Resource'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
-import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
+import { useRecordContext } from '../../contexts/RecordContext'
 import { useShadminFormContext } from '../../contexts/FormContext'
 import type { DataProvider, RaRecord } from '../../types'
-import { createMockDataProvider, TestMemoryRouter, TestAdminContext } from '../../test-utils'
+import { createMockDataProvider, TestMemoryRouter } from '../../test-utils'
 
 // Import components that will be extended
 import { Datagrid } from '../list/Datagrid'
@@ -163,9 +163,9 @@ describe('withLifecycleCallbacks HOC', () => {
       })
 
       const originalCreate = mockDataProvider.create
-      mockDataProvider.create = vi.fn().mockImplementation(async (...args) => {
+      mockDataProvider.create = vi.fn().mockImplementation(async (resource: string, params: { data: unknown }) => {
         callOrder.push('create')
-        return originalCreate.apply(mockDataProvider, args)
+        return originalCreate.call(mockDataProvider, resource, params)
       })
 
       const wrappedProvider = withLifecycleCallbacks(mockDataProvider, [
@@ -524,8 +524,8 @@ describe('Datagrid Custom Cell Renderer', () => {
   })
 
   it('should pass record, column, and value to cellRenderer', () => {
-    const customRenderer = vi.fn(({ record, column, value, rowIndex }) => (
-      <span data-testid={`cell-${rowIndex}-${column}`}>{value}</span>
+    const customRenderer = vi.fn(({ column, value, rowIndex }: { record: unknown, column: string, value: unknown, rowIndex: number }) => (
+      <span data-testid={`cell-${rowIndex}-${column}`}>{String(value)}</span>
     ))
 
     render(
@@ -576,7 +576,7 @@ describe('Datagrid Custom Cell Renderer', () => {
     render(
       <ListContextProvider value={createListContext()}>
         <Datagrid>
-          {({ data, columns }) => (
+          {({ data }: { data: TestRecord[], columns: unknown }) => (
             <table data-testid="custom-table">
               <tbody>
                 {data.map((record) => (
@@ -604,11 +604,6 @@ describe('Datagrid Custom Cell Renderer', () => {
 // ============================================================================
 
 describe('Form Custom Field Wrapper', () => {
-  let mockDataProvider: DataProvider
-
-  beforeEach(() => {
-    mockDataProvider = createMockDataProvider()
-  })
 
   it('should accept fieldWrapper prop for custom field wrapping', async () => {
     const CustomFieldWrapper = ({ children, source, label }: {
@@ -640,7 +635,13 @@ describe('Form Custom Field Wrapper', () => {
   })
 
   it('should pass field metadata to fieldWrapper', async () => {
-    const CustomFieldWrapper = vi.fn(({ children, source, label, isRequired, error }) => (
+    const CustomFieldWrapper = vi.fn(({ children, source, isRequired, error }: {
+      children: ReactNode
+      source: string
+      label?: string
+      isRequired?: boolean
+      error?: string
+    }) => (
       <div data-testid={`field-${source}`}>
         <span data-testid={`required-${source}`}>{isRequired ? 'required' : 'optional'}</span>
         <span data-testid={`error-${source}`}>{error || 'no-error'}</span>
@@ -667,7 +668,7 @@ describe('Form Custom Field Wrapper', () => {
     // Check that the fieldWrapper was called with the correct props
     // Note: React passes undefined as second arg, so we check only the first
     const lastCallArgs = CustomFieldWrapper.mock.calls[CustomFieldWrapper.mock.calls.length - 1]
-    expect(lastCallArgs[0]).toMatchObject({
+    expect(lastCallArgs?.[0]).toMatchObject({
       source: 'name',
       label: 'Name',
       isRequired: true,
@@ -729,8 +730,8 @@ describe('Admin Plugin System', () => {
   })
 
   it('should accept plugins prop as an array', () => {
-    const plugin1 = { name: 'plugin1' }
-    const plugin2 = { name: 'plugin2' }
+    const plugin1 = { name: 'plugin1', install: vi.fn() }
+    const plugin2 = { name: 'plugin2', install: vi.fn() }
 
     expect(() => {
       render(
@@ -802,7 +803,7 @@ describe('Admin Plugin System', () => {
 
   it('should allow plugins to modify data provider', () => {
     const originalGetList = mockDataProvider.getList
-    const modifiedGetList = vi.fn().mockImplementation((...args) => originalGetList(...args))
+    const modifiedGetList = vi.fn().mockImplementation((resource: string, params: unknown) => originalGetList(resource, params as Parameters<typeof originalGetList>[1]))
 
     const plugin = {
       name: 'data-modifier',
@@ -1093,7 +1094,7 @@ describe('onBeforeSave and onAfterSave hooks', () => {
       const SaveButton = () => {
         const { save } = useShadminFormContext()
         return (
-          <button onClick={() => save?.({ title: '' }).catch(() => {})}>
+          <button onClick={() => { void save?.({ title: '' })?.catch(() => {}) }}>
             Save
           </button>
         )
@@ -1169,7 +1170,7 @@ describe('onBeforeSave and onAfterSave hooks', () => {
       const SaveButton = () => {
         const { save } = useShadminFormContext()
         return (
-          <button onClick={() => save?.({ title: 'New Title' }).catch(() => {})}>
+          <button onClick={() => { void save?.({ title: 'New Title' })?.catch(() => {}) }}>
             Save
           </button>
         )

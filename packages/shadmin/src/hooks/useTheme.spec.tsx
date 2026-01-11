@@ -66,7 +66,11 @@ describe('useTheme - Extended Theme Hook', () => {
   const createWrapper = (theme?: CustomTheme, darkTheme?: CustomTheme, defaultMode?: 'light' | 'dark' | 'system') => {
     return function Wrapper({ children }: { children: ReactNode }) {
       return (
-        <ThemeProvider theme={theme} darkTheme={darkTheme} defaultMode={defaultMode}>
+        <ThemeProvider
+          {...(theme !== undefined ? { theme } : {})}
+          {...(darkTheme !== undefined ? { darkTheme } : {})}
+          {...(defaultMode !== undefined ? { defaultMode } : {})}
+        >
           {children}
         </ThemeProvider>
       )

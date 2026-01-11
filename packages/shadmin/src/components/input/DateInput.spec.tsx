@@ -170,7 +170,7 @@ describe('<DateInput />', () => {
 
   it('supports custom validation', async () => {
     const user = userEvent.setup()
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
 
     function FormWithCustomValidation() {
       const form = useForm({

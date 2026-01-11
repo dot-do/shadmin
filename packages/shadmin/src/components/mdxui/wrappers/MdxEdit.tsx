@@ -10,12 +10,12 @@ import { useParams } from 'react-router'
 import { EditBase } from 'ra-core'
 import { useResourceContext, ResourceContextProvider } from '../../../contexts/ResourceContext'
 import type { Identifier } from '../../../contexts/ListContext'
-import type { RaRecord, MutationMode } from '../../../types'
+import type { MutationMode } from '../../../types'
 
 /**
  * Props for MdxEdit component
  */
-export interface MdxEditProps<T extends RaRecord = RaRecord> {
+export interface MdxEditProps {
   /** Resource name */
   resource?: string
   /** Record ID (optional, defaults to route param) */
@@ -86,7 +86,7 @@ function EditView({
  * </MdxEdit>
  * ```
  */
-export function MdxEdit<T extends RaRecord = RaRecord>({
+export function MdxEdit({
   resource: resourceProp,
   id: idProp,
   children,
@@ -98,7 +98,7 @@ export function MdxEdit<T extends RaRecord = RaRecord>({
   disableAuthentication,
   queryOptions,
   mutationOptions,
-}: MdxEditProps<T>) {
+}: MdxEditProps) {
   const resourceContext = useResourceContext()
   const resource = resourceProp ?? resourceContext
   const params = useParams<{ id: string }>()
@@ -119,11 +119,11 @@ export function MdxEdit<T extends RaRecord = RaRecord>({
         id={id}
         redirect={redirect}
         mutationMode={mutationMode}
-        disableAuthentication={disableAuthentication}
-        queryOptions={queryOptions}
-        mutationOptions={mutationOptions}
+        {...(disableAuthentication !== undefined && { disableAuthentication })}
+        {...(queryOptions !== undefined && { queryOptions })}
+        {...(mutationOptions !== undefined && { mutationOptions })}
       >
-        <EditView title={title} actions={actions} className={className}>
+        <EditView title={title} {...(actions !== undefined && { actions })} {...(className !== undefined && { className })}>
           {children}
         </EditView>
       </EditBase>

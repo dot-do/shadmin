@@ -40,23 +40,28 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FilterInput } from './FilterInput'
-import { ListContext, type ListContextValue } from '@/contexts/ListContext'
+import { ListContext, type ListControllerResult } from '@/contexts/ListContext'
 
 // Mock ListContext provider
-function createMockListContext(overrides: Partial<ListContextValue> = {}): ListContextValue {
+function createMockListContext(overrides: Partial<ListControllerResult> = {}): ListControllerResult {
   return {
     data: [],
     total: 0,
     isLoading: false,
+    isFetching: false,
     error: null,
     page: 1,
     perPage: 10,
     filterValues: {},
     sort: { field: 'id', order: 'ASC' },
+    selectedIds: [],
     setPage: vi.fn(),
     setPerPage: vi.fn(),
     setSort: vi.fn(),
     setFilters: vi.fn(),
+    onSelect: vi.fn(),
+    onToggleItem: vi.fn(),
+    onUnselectItems: vi.fn(),
     refetch: vi.fn(),
     resource: 'test',
     ...overrides,
@@ -65,7 +70,7 @@ function createMockListContext(overrides: Partial<ListContextValue> = {}): ListC
 
 interface TestWrapperProps {
   children: React.ReactNode
-  listContext?: Partial<ListContextValue>
+  listContext?: Partial<ListControllerResult>
 }
 
 function TestWrapper({ children, listContext = {} }: TestWrapperProps) {
@@ -405,7 +410,7 @@ describe('<FilterInput />', () => {
       )
 
       const inputs = screen.getAllByRole('spinbutton')
-      await user.type(inputs[0], '18')
+      await user.type(inputs[0]!, '18')
 
       await waitFor(() => {
         expect(setFilters).toHaveBeenCalled()

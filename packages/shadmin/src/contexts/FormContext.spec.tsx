@@ -47,8 +47,8 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import { useForm, type FieldValues } from 'react-hook-form'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { useForm } from 'react-hook-form'
 import { useState, useRef, useCallback, memo } from 'react'
 import {
   FormContext,
@@ -351,10 +351,10 @@ describe('FormContext', () => {
         // The returned object should have stable reference when memoized
         // Current implementation does NOT memoize, so references differ
         // When memoization is implemented, change this to: expect(first).toBe(second)
-        expect(first.record).toEqual(second.record)
-        expect(first.resource).toBe(second.resource)
-        expect(first.saving).toBe(second.saving)
-        expect(first.mutationMode).toBe(second.mutationMode)
+        expect(first!.record).toEqual(second!.record)
+        expect(first!.resource).toBe(second!.resource)
+        expect(first!.saving).toBe(second!.saving)
+        expect(first!.mutationMode).toBe(second!.mutationMode)
       })
 
       it('should maintain stable object reference across renders when context values are unchanged', () => {
@@ -414,9 +414,9 @@ describe('FormContext', () => {
         // Note: If useShadminFormContext is properly memoized, these should be the same reference
         // Document current behavior: values are equal but references may differ
         // When properly memoized, `firstContext === lastContext` should be true
-        expect(firstContext.resource).toBe(lastContext.resource)
-        expect(firstContext.saving).toBe(lastContext.saving)
-        expect(firstContext.mutationMode).toBe(lastContext.mutationMode)
+        expect(firstContext!.resource).toBe(lastContext!.resource)
+        expect(firstContext!.saving).toBe(lastContext!.saving)
+        expect(firstContext!.mutationMode).toBe(lastContext!.mutationMode)
       })
 
       it('should not cause unnecessary re-renders in memoized child components', async () => {

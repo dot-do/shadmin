@@ -157,14 +157,14 @@ describe('cn (lightweight class name utility)', () => {
     })
 
     it('should handle ternary for secondary variant', () => {
-      const variant = 'secondary'
+      const variant: string = 'secondary'
       expect(cn('btn', variant === 'primary' ? 'btn-primary' : 'btn-secondary')).toBe(
         'btn btn-secondary'
       )
     })
 
     it('should handle nested ternary', () => {
-      const size = 'large'
+      const size: string = 'large'
       expect(
         cn('btn', size === 'small' ? 'btn-sm' : size === 'large' ? 'btn-lg' : 'btn-md')
       ).toBe('btn btn-lg')

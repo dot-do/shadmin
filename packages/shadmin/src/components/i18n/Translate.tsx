@@ -5,7 +5,7 @@
  * Supports interpolation and pluralization.
  */
 
-import { type ReactNode } from 'react'
+import { type ReactNode, createElement, type JSX } from 'react'
 import { useTranslate } from '../../hooks/useTranslate'
 import type { TranslateOptions } from '../../contexts/TranslationContext'
 
@@ -94,7 +94,7 @@ export function Translate({
 
   // If a wrapper element is specified, use it
   if (Component) {
-    return <Component className={className}>{translation}</Component>
+    return createElement(Component, { className }, translation)
   }
 
   // Return the translation as-is

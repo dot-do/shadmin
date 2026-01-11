@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { EditableDatagrid, type EditableDatagridProps } from './EditableDatagrid'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
@@ -52,7 +52,7 @@ const createMockDataProvider = (): DataProvider => ({
   getMany: vi.fn(),
   getManyReference: vi.fn(),
   create: vi.fn(),
-  update: vi.fn().mockImplementation(async (resource, params) => ({
+  update: vi.fn().mockImplementation(async (_resource, params) => ({
     data: { ...params.previousData, ...params.data, id: params.id },
   })),
   updateMany: vi.fn(),
@@ -152,7 +152,7 @@ describe('EditableDatagrid', () => {
         editableColumns: ['name'], // Only name is editable
       })
 
-      const statusCell = screen.getAllByText('active')[0]
+      const statusCell = screen.getAllByText('active')[0]!
       await user.dblClick(statusCell)
 
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
@@ -367,7 +367,7 @@ describe('EditableDatagrid', () => {
       renderEditableDatagrid()
 
       // Start editing the status cell (last in row)
-      const statusCell = screen.getAllByText('active')[0]
+      const statusCell = screen.getAllByText('active')[0]!
       await user.dblClick(statusCell)
 
       // Tab should move to first cell of next row (Jane's name)
@@ -637,7 +637,7 @@ describe('EditableDatagrid', () => {
       await user.keyboard('{Escape}')
 
       // Cannot edit status
-      const statusCell = screen.getAllByText('active')[0]
+      const statusCell = screen.getAllByText('active')[0]!
       await user.dblClick(statusCell)
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
@@ -659,7 +659,7 @@ describe('EditableDatagrid', () => {
         },
       })
 
-      const statusCell = screen.getAllByText('active')[0]
+      const statusCell = screen.getAllByText('active')[0]!
       await user.dblClick(statusCell)
 
       expect(screen.getByTestId('custom-input')).toBeInTheDocument()
@@ -683,7 +683,7 @@ describe('EditableDatagrid', () => {
 
       const rows = screen.getAllByRole('row')
       // First data row
-      const cells = within(rows[1]).getAllByRole('cell')
+      const cells = within(rows[1]!).getAllByRole('cell')
       // Cells should indicate they are editable
       cells.forEach((cell) => {
         expect(cell).toHaveAttribute('role', 'cell')
@@ -705,9 +705,9 @@ describe('EditableDatagrid', () => {
       renderEditableDatagrid({}, { data: nullData, total: 1 })
 
       // Find the cell with null value (will render as empty)
-      const row = screen.getAllByRole('row')[1]
+      const row = screen.getAllByRole('row')[1]!
       const cells = within(row).getAllByRole('cell')
-      await user.dblClick(cells[0])
+      await user.dblClick(cells[0]!)
 
       expect(screen.getByRole('textbox')).toHaveValue('')
     })

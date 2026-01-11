@@ -142,10 +142,9 @@ export function useGetList<RecordType extends RaRecord = RaRecord>(
     // This callback is called when auth error is detected in the error handling hook
   })
 
-  return {
+  const result: UseGetListResult<RecordType> = {
     data: query.data?.data,
     total: query.data?.total,
-    pageInfo: query.data?.pageInfo,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     error,
@@ -159,4 +158,11 @@ export function useGetList<RecordType extends RaRecord = RaRecord>(
     errorCount: errorHandling.errorCount,
     shouldRedirectToLogin: errorHandling.shouldRedirectToLogin,
   }
+
+  // Only add pageInfo if it exists
+  if (query.data?.pageInfo !== undefined) {
+    result.pageInfo = query.data.pageInfo
+  }
+
+  return result
 }

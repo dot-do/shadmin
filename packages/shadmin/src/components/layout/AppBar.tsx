@@ -335,10 +335,12 @@ export function AppBar({
   try {
     const { data: identity } = useGetIdentity()
     if (!user && identity) {
+      const avatarValue = identity.avatar as string | undefined
+      const emailValue = identity.email as string | undefined
       identityData = {
         name: identity.fullName ?? 'User',
-        avatar: identity.avatar as string | undefined,
-        email: identity.email as string | undefined,
+        ...(avatarValue !== undefined && { avatar: avatarValue }),
+        ...(emailValue !== undefined && { email: emailValue }),
       }
     }
   } catch {
@@ -431,8 +433,8 @@ export function AppBar({
         {shouldShowUserMenu && (
           <UserMenu
             user={effectiveUser ?? { name: 'User' }}
-            onProfile={onProfile}
-            onLogout={onLogout}
+            {...(onProfile !== undefined && { onProfile })}
+            {...(onLogout !== undefined && { onLogout })}
           />
         )}
       </div>

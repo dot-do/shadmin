@@ -125,6 +125,9 @@ import type {
 
   // MutationMode type
   MutationMode,
+
+  // Record type for generic constraints
+  RaRecord,
 } from './index'
 
 // Import values to verify they exist
@@ -572,22 +575,26 @@ describe('Consumer Type Exports', () => {
 
   describe('Data Hook Factory Types', () => {
     it('exports QueryHookConfig type', () => {
-      const typeCheck: QueryHookConfig<unknown, unknown> | undefined = undefined
+      // QueryHookConfig requires 3-4 type args: TMethod, TParams, TResult, _TRecordType?
+      const typeCheck: QueryHookConfig<'getList', unknown, unknown> | undefined = undefined
       expect(typeCheck).toBeUndefined()
     })
 
     it('exports MutationHookConfig type', () => {
-      const typeCheck: MutationHookConfig<unknown, unknown, unknown> | undefined = undefined
+      // MutationHookConfig requires 3-4 type args: TMethod, TParams, TResult, TRecordType?
+      const typeCheck: MutationHookConfig<'create', unknown, unknown> | undefined = undefined
       expect(typeCheck).toBeUndefined()
     })
 
     it('exports CacheUpdateHandlers type', () => {
-      const typeCheck: CacheUpdateHandlers<unknown> | undefined = undefined
+      // CacheUpdateHandlers requires 3 type args: _TRecordType extends RaRecord, TParams, TResult
+      const typeCheck: CacheUpdateHandlers<RaRecord, unknown, unknown> | undefined = undefined
       expect(typeCheck).toBeUndefined()
     })
 
     it('exports BaseQueryResult type', () => {
-      const typeCheck: BaseQueryResult<unknown> | undefined = undefined
+      // BaseQueryResult is not generic
+      const typeCheck: BaseQueryResult | undefined = undefined
       expect(typeCheck).toBeUndefined()
     })
 

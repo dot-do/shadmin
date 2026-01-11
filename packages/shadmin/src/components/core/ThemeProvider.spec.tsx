@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, act, fireEvent, waitFor } from '@testing-library/react'
-import { ThemeProvider, useTheme, type CustomTheme, type CustomThemeProviderProps } from './ThemeProvider'
+import { render, screen, act, fireEvent } from '@testing-library/react'
+import { ThemeProvider, useTheme, type CustomTheme } from './ThemeProvider'
 
 // Note: ThemeProvider with CustomTheme support does not exist yet - these tests should fail
 

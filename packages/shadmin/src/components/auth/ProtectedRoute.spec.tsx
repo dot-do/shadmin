@@ -17,7 +17,7 @@ import type { ReactNode } from 'react'
 import { ProtectedRoute } from './ProtectedRoute'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import type { AuthProvider } from '../facade'
+import type { AuthProvider } from '../../facade'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
 
 // Helper component to capture current location for testing redirects

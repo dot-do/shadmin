@@ -7,7 +7,6 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import type { Identifier } from '../types'
 import type { ListControllerResult } from './ListContext'
 
 /**

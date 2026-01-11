@@ -10,7 +10,7 @@ import { useParams } from 'react-router'
 import { ShowBase } from 'ra-core'
 import { useResourceContext, ResourceContextProvider } from '../../../contexts/ResourceContext'
 import type { Identifier } from '../../../contexts/ListContext'
-import type { RaRecord } from '../../../types'
+// RaRecord type removed - not used in this file
 
 /**
  * Props for MdxShow component
@@ -109,10 +109,10 @@ export function MdxShow({
       <ShowBase
         resource={resource}
         id={id}
-        disableAuthentication={disableAuthentication}
-        queryOptions={queryOptions}
+        {...(disableAuthentication !== undefined && { disableAuthentication })}
+        {...(queryOptions !== undefined && { queryOptions })}
       >
-        <ShowView title={title} actions={actions} className={className}>
+        <ShowView title={title} {...(actions !== undefined && { actions })} {...(className !== undefined && { className })}>
           {children}
         </ShowView>
       </ShowBase>

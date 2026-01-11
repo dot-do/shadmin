@@ -8,7 +8,7 @@
  * 3. Form submission errors (field-level, server-side validation, submission failures)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
@@ -656,7 +656,7 @@ describe('Error Handling Standardization', () => {
         })
         let callCount = 0
         const dataProvider = createMockDataProvider({
-          update: vi.fn().mockImplementation((resource, params) => {
+          update: vi.fn().mockImplementation((_resource: string, params: { id: number; data: Record<string, unknown> }) => {
             callCount++
             if (callCount === 1) {
               return Promise.reject(new HttpError('Session Expired', 401))

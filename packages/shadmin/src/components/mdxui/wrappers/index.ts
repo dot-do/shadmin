@@ -6,7 +6,9 @@
  */
 
 export { MdxList, type MdxListProps } from './MdxList'
-export { MdxDatagrid, type MdxDatagridProps } from './MdxDatagrid'
+// MdxDatagrid requires @mdxui/admin which is an optional peer dependency
+// Uncomment when @mdxui/admin is installed:
+// export { MdxDatagrid, type MdxDatagridProps } from './MdxDatagrid'
 export { MdxEdit, type MdxEditProps } from './MdxEdit'
 export { MdxCreate, type MdxCreateProps } from './MdxCreate'
 export { MdxShow, type MdxShowProps } from './MdxShow'

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, within } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Datagrid, type DatagridProps } from './Datagrid'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
@@ -155,7 +155,7 @@ describe('Datagrid', () => {
     it('should toggle sort order on subsequent clicks', async () => {
       const user = userEvent.setup()
       const setSort = vi.fn()
-      const { rerender } = render(
+      render(
         <ListContextProvider value={createTestListContext({
           setSort,
           sort: { field: 'name', order: 'ASC' }
@@ -232,7 +232,7 @@ describe('Datagrid', () => {
 
       const checkboxes = screen.getAllByRole('checkbox')
       // Click the first row's checkbox (index 1, since 0 is header)
-      await user.click(checkboxes[1])
+      await user.click(checkboxes[1]!)
 
       expect(context.onToggleItem).toHaveBeenCalledWith(1)
     })
@@ -251,7 +251,7 @@ describe('Datagrid', () => {
       const user = userEvent.setup()
       const { context } = renderDatagrid({ bulkActionButtons: true })
 
-      const headerCheckbox = screen.getAllByRole('checkbox')[0]
+      const headerCheckbox = screen.getAllByRole('checkbox')[0]!
       await user.click(headerCheckbox)
 
       expect(context.onSelect).toHaveBeenCalledWith([1, 2, 3])
@@ -264,7 +264,7 @@ describe('Datagrid', () => {
         { selectedIds: [1, 2, 3] }
       )
 
-      const headerCheckbox = screen.getAllByRole('checkbox')[0]
+      const headerCheckbox = screen.getAllByRole('checkbox')[0]!
       await user.click(headerCheckbox)
 
       expect(context.onUnselectItems).toHaveBeenCalled()
@@ -287,7 +287,7 @@ describe('Datagrid', () => {
 
       const rows = screen.getAllByRole('row')
       // Click first data row (index 1)
-      await user.click(rows[1])
+      await user.click(rows[1]!)
 
       expect(onRowClick).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1, name: 'John Doe' }),
@@ -298,20 +298,20 @@ describe('Datagrid', () => {
 
     it('should support rowClick="edit" for navigation', async () => {
       const user = userEvent.setup()
-      const { context } = renderDatagrid({ rowClick: 'edit' })
+      renderDatagrid({ rowClick: 'edit' })
 
       const rows = screen.getAllByRole('row')
-      await user.click(rows[1])
+      await user.click(rows[1]!)
 
       // Should have cursor pointer style indicating clickable
-      expect(rows[1]).toHaveStyle({ cursor: 'pointer' })
+      expect(rows[1]!).toHaveStyle({ cursor: 'pointer' })
     })
 
-    it('should support rowClick="show" for navigation', async () => {
+    it('should support rowClick="show" for navigation', () => {
       renderDatagrid({ rowClick: 'show' })
 
       const rows = screen.getAllByRole('row')
-      expect(rows[1]).toHaveStyle({ cursor: 'pointer' })
+      expect(rows[1]!).toHaveStyle({ cursor: 'pointer' })
     })
 
     it('should not make rows clickable when rowClick is false', () => {
@@ -319,7 +319,7 @@ describe('Datagrid', () => {
 
       const rows = screen.getAllByRole('row')
       // Default cursor, not pointer
-      expect(rows[1]).not.toHaveStyle({ cursor: 'pointer' })
+      expect(rows[1]!).not.toHaveStyle({ cursor: 'pointer' })
     })
 
     it('should support rowClick as a function returning a path', async () => {
@@ -328,7 +328,7 @@ describe('Datagrid', () => {
       renderDatagrid({ rowClick })
 
       const rows = screen.getAllByRole('row')
-      await user.click(rows[1])
+      await user.click(rows[1]!)
 
       expect(rowClick).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1 }),
@@ -431,7 +431,7 @@ describe('Datagrid', () => {
       // The hover class should be present
       const rows = screen.getAllByRole('row')
       // Data rows should have hover class
-      expect(rows[1].className).toMatch(/hover/i)
+      expect(rows[1]!.className).toMatch(/hover/i)
     })
 
     it('should apply size prop for density', () => {
@@ -607,6 +607,7 @@ describe('Datagrid', () => {
     })
 
     it('should handle sort when field is undefined', () => {
+      // @ts-expect-error - Testing undefined sort value
       renderDatagrid({}, { sort: undefined })
       const headers = screen.getAllByRole('columnheader')
       // No column should have aria-sort
@@ -665,7 +666,7 @@ describe('Datagrid', () => {
       const skeletonRows = screen.getAllByTestId('skeleton-row')
       expect(skeletonRows.length).toBeGreaterThan(0)
       // Each skeleton row should have same number of cells as columns
-      const firstRowCells = skeletonRows[0].querySelectorAll('td')
+      const firstRowCells = skeletonRows[0]!.querySelectorAll('td')
       expect(firstRowCells).toHaveLength(2)
     })
   })
@@ -702,7 +703,7 @@ describe('Datagrid', () => {
 
       // Click expand on first row
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
 
       expect(screen.getByTestId('expand-panel')).toBeInTheDocument()
     })
@@ -715,11 +716,11 @@ describe('Datagrid', () => {
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
 
       // Expand
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
       expect(screen.getByTestId('expand-panel')).toBeInTheDocument()
 
       // Collapse
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
       expect(screen.queryByTestId('expand-panel')).not.toBeInTheDocument()
     })
 
@@ -732,7 +733,7 @@ describe('Datagrid', () => {
       renderDatagrid({ expand: <ExpandPanel /> })
 
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
 
       expect(screen.getByTestId('expand-panel')).toHaveTextContent('john@example.com.ai')
     })
@@ -748,9 +749,9 @@ describe('Datagrid', () => {
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
 
       // Expand first row
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
       // Expand second row
-      await user.click(expandButtons[1])
+      await user.click(expandButtons[1]!)
 
       expect(screen.getByTestId('expand-panel-1')).toBeInTheDocument()
       expect(screen.getByTestId('expand-panel-2')).toBeInTheDocument()
@@ -762,7 +763,7 @@ describe('Datagrid', () => {
       renderDatagrid({ expand: <ExpandPanel /> })
 
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
 
       // Find the expanded row's cell - it should span all columns
       const expandedCell = screen.getByTestId('expand-panel').closest('td')
@@ -787,19 +788,18 @@ describe('Datagrid', () => {
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
 
       // Initially not expanded
-      expect(expandButtons[0]).toHaveAttribute('aria-expanded', 'false')
+      expect(expandButtons[0]!).toHaveAttribute('aria-expanded', 'false')
 
       // Click to expand
-      await user.click(expandButtons[0])
-      expect(expandButtons[0]).toHaveAttribute('aria-expanded', 'true')
+      await user.click(expandButtons[0]!)
+      expect(expandButtons[0]!).toHaveAttribute('aria-expanded', 'true')
 
       // Click to collapse
-      await user.click(expandButtons[0])
-      expect(expandButtons[0]).toHaveAttribute('aria-expanded', 'false')
+      await user.click(expandButtons[0]!)
+      expect(expandButtons[0]!).toHaveAttribute('aria-expanded', 'false')
     })
 
-    it('should support expand as a function for conditional expansion', async () => {
-      const user = userEvent.setup()
+    it('should support expand as a function for conditional expansion', () => {
       const ExpandPanel = () => {
         const record = useRecordContext<TestRecord>()
         return <div data-testid="expand-panel">{record?.name}</div>
@@ -809,12 +809,6 @@ describe('Datagrid', () => {
         expand: <ExpandPanel />,
         isRowExpandable: (record: TestRecord) => record.status === 'active',
       })
-
-      const rows = screen.getAllByRole('row')
-      // Row 1 (John Doe - active) - should have expand button
-      // Row 2 (Jane Smith - inactive) - should not have expand button
-      // Row 3 (Bob Johnson - active) - should have expand button
-
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
       // Should only have 2 expand buttons (for active users)
       expect(expandButtons).toHaveLength(2)

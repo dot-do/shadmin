@@ -43,12 +43,12 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
 import { FormContextProvider } from '../../contexts/FormContext'
 import { useLocation } from 'react-router'
-import { TestMemoryRouter, useTestSearchParams, useTestLocation } from '../../test-utils/TestMemoryRouter'
+import { TestMemoryRouter } from '../../test-utils/TestMemoryRouter'
 import { TabbedForm, useTabbedFormContext, type TabbedFormContextValue } from './TabbedForm'
 import { FormTab } from './FormTab'
 import { TextInput } from '../input/TextInput'
@@ -71,32 +71,6 @@ function TestFormWrapper({
       <FormContextProvider {...form} save={onSubmit}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           {children}
-          <button type="submit">Submit</button>
-        </form>
-      </FormContextProvider>
-    </TestMemoryRouter>
-  )
-}
-
-// Helper to render TabbedForm with context
-function renderTabbedForm(
-  ui: React.ReactElement,
-  options?: {
-    defaultValues?: Record<string, unknown>
-    onSubmit?: (data: Record<string, unknown>) => void
-    initialEntries?: string[]
-  }
-) {
-  const form = useForm({
-    defaultValues: options?.defaultValues ?? {},
-    mode: 'onSubmit',
-  })
-
-  return render(
-    <TestMemoryRouter initialEntries={options?.initialEntries ?? ['/']}>
-      <FormContextProvider {...form} save={options?.onSubmit ?? vi.fn()}>
-        <form onSubmit={form.handleSubmit(options?.onSubmit ?? vi.fn())}>
-          {ui}
           <button type="submit">Submit</button>
         </form>
       </FormContextProvider>

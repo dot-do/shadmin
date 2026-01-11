@@ -32,7 +32,6 @@ describe('TypeScript Type Checking', () => {
     let exitCode = 0
     let errorCount = 0
     let stdout = ''
-    let _stderr = ''
 
     try {
       // Run tsc --noEmit and capture output
@@ -47,7 +46,6 @@ describe('TypeScript Type Checking', () => {
       const execError = error as { status?: number; stdout?: string; stderr?: string }
       exitCode = execError.status ?? 1
       stdout = execError.stdout ?? ''
-      stderr = execError.stderr ?? ''
 
       // Count TypeScript errors in output
       const errorMatches = stdout.match(/error TS\d+/g)

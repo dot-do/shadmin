@@ -117,7 +117,7 @@ describe('Query Invalidation - Create', () => {
   })
 
   it('should add new record to cache immediately after create', async () => {
-    const { wrapper, queryClient } = createTestWrapper(dataProvider)
+    const { wrapper } = createTestWrapper(dataProvider)
 
     // Pre-populate cache
     const { result: listResult } = renderHook(

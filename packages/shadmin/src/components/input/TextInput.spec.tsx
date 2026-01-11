@@ -268,7 +268,7 @@ describe('<TextInput />', () => {
       <TestForm>
         <TextInput
           source="phone"
-          inputProps={{ 'data-testid': 'phone-input', autoComplete: 'tel' }}
+          inputProps={{ 'data-testid': 'phone-input', autoComplete: 'tel' } as React.InputHTMLAttributes<HTMLInputElement> & { 'data-testid': string }}
         />
       </TestForm>
     )

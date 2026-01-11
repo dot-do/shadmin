@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 /**
  * Type tests for SelectChoice interface
  *
@@ -11,6 +12,9 @@
  * Note: Variables and type aliases prefixed with _ are intentionally unused - they exist
  * to verify type assignments compile correctly. The TS6196 errors for unused
  * type aliases are expected in type test files.
+ *
+ * @ts-expect-error directives are used to suppress TS6196 (unused type aliases) which
+ * are intentional in type test files where we verify type assignments compile.
  */
 
 import type { SelectChoice, ChoiceValue, IdNameChoice, ValueLabelChoice, BaseSelectChoice } from './types'
@@ -49,8 +53,10 @@ void (basicChoice.id satisfies string)      // Should be string, not unknown
 void (basicChoice.name satisfies string)    // Should be string, not unknown
 
 // Type check: id should be string
-type _Test1 = _Assert<Equals<BasicChoice['id'], string>>
-type _Test2 = _Assert<Equals<BasicChoice['name'], string>>
+interface _TypeTests1 {
+  _Test1: _Assert<Equals<BasicChoice['id'], string>>
+  _Test2: _Assert<Equals<BasicChoice['name'], string>>
+}
 
 // =============================================================================
 // Test 2: SelectChoice with numeric id
@@ -61,7 +67,9 @@ type NumericIdChoice = SelectChoice<{ id: number; name: string }>
 declare const numericChoice: NumericIdChoice
 void (numericChoice.id satisfies number)  // Should be number, not unknown
 
-type _Test3 = _Assert<Equals<NumericIdChoice['id'], number>>
+interface _TypeTests2 {
+  _Test3: _Assert<Equals<NumericIdChoice['id'], number>>
+}
 
 // =============================================================================
 // Test 3: SelectChoice with custom value/label fields
@@ -74,15 +82,19 @@ void (customChoice.value satisfies string)                    // Should be strin
 void (customChoice.label satisfies string)                    // Should be string
 void (customChoice.disabled satisfies boolean | undefined)    // Should be boolean | undefined
 
-type _Test4 = _Assert<Equals<CustomChoice['value'], string>>
-type _Test5 = _Assert<Equals<CustomChoice['label'], string>>
-type _Test6 = _Assert<Equals<CustomChoice['disabled'], boolean | undefined>>
+interface _TypeTests3 {
+  _Test4: _Assert<Equals<CustomChoice['value'], string>>
+  _Test5: _Assert<Equals<CustomChoice['label'], string>>
+  _Test6: _Assert<Equals<CustomChoice['disabled'], boolean | undefined>>
+}
 
 // =============================================================================
 // Test 4: ChoiceValue type should accept string | number
 // =============================================================================
 
-type _Test7 = _Assert<Equals<ChoiceValue, string | number>>
+interface _TypeTests4 {
+  _Test7: _Assert<Equals<ChoiceValue, string | number>>
+}
 
 // Should accept strings and numbers
 void ('test' satisfies ChoiceValue)
@@ -140,7 +152,9 @@ function processChoice<T extends Record<string, unknown>>(choice: SelectChoice<T
 }
 
 const processed = processChoice({ id: 'test', name: 'Test Name', extra: 42 })
-type _Test8 = _Assert<Equals<typeof processed.extra, number>>
+interface _TypeTests5 {
+  _Test8: _Assert<Equals<typeof processed.extra, number>>
+}
 
 // =============================================================================
 // Test 9: IdNameChoice base interface
@@ -177,13 +191,13 @@ void (numericValueLabelChoice.value satisfies ChoiceValue)
 // =============================================================================
 
 // BaseSelectChoice accepts both patterns
-const baseChoices: BaseSelectChoice[] = [
+void ([
   { id: '1', name: 'One' },
   { value: '2', label: 'Two' },
-]
+] satisfies BaseSelectChoice[])
 
 // Type narrowing works with type guards
-function processBaseChoice(choice: BaseSelectChoice): string {
+void (function _processBaseChoice(choice: BaseSelectChoice): string {
   if (isIdNameChoice(choice)) {
     return choice.name
   }
@@ -191,7 +205,7 @@ function processBaseChoice(choice: BaseSelectChoice): string {
     return choice.label
   }
   return ''
-}
+})
 
 // =============================================================================
 // Test 12: Type guards - isIdNameChoice
@@ -221,7 +235,7 @@ if (isValueLabelChoice(unknownChoice)) {
 // isBaseSelectChoice narrows to BaseSelectChoice
 if (isBaseSelectChoice(unknownChoice)) {
   // Can use as BaseSelectChoice
-  const _choice: BaseSelectChoice = unknownChoice
+  void (unknownChoice satisfies BaseSelectChoice)
 }
 
 // =============================================================================
@@ -254,7 +268,9 @@ const mixedData: unknown[] = [
   { id: '2', name: 'Also Valid' },
 ]
 const validated = validateChoices<IdNameChoice>(mixedData)
-type _Test9 = _Assert<Equals<typeof validated, IdNameChoice[]>>
+interface _TypeTests6 {
+  _Test9: _Assert<Equals<typeof validated, IdNameChoice[]>>
+}
 
 // =============================================================================
 // Test 18: getChoiceValue utility
@@ -263,7 +279,9 @@ type _Test9 = _Assert<Equals<typeof validated, IdNameChoice[]>>
 // getChoiceValue returns ChoiceValue | undefined
 const choice = { id: 'test', name: 'Test' }
 const value = getChoiceValue(choice, 'id')
-type _Test10 = _Assert<Equals<typeof value, ChoiceValue | undefined>>
+interface _TypeTests7 {
+  _Test10: _Assert<Equals<typeof value, ChoiceValue | undefined>>
+}
 
 // =============================================================================
 // Test 19: getChoiceText utility
@@ -271,14 +289,24 @@ type _Test10 = _Assert<Equals<typeof value, ChoiceValue | undefined>>
 
 // getChoiceText returns string
 const text = getChoiceText(choice, 'name')
-type _Test11 = _Assert<Equals<typeof text, string>>
-
 // With function
 const customText = getChoiceText(choice, (c) => `${c.id}: ${c.name}`)
-type _Test12 = _Assert<Equals<typeof customText, string>>
+interface _TypeTests8 {
+  _Test11: _Assert<Equals<typeof text, string>>
+  _Test12: _Assert<Equals<typeof customText, string>>
+}
 
 // =============================================================================
-// Export to ensure file is a module
+// Export type tests to ensure they are "used" (suppresses TS6196)
 // =============================================================================
 
-export {}
+export type {
+  _TypeTests1,
+  _TypeTests2,
+  _TypeTests3,
+  _TypeTests4,
+  _TypeTests5,
+  _TypeTests6,
+  _TypeTests7,
+  _TypeTests8,
+}

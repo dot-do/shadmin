@@ -212,7 +212,7 @@ describe('<ArrayInput />', () => {
 
       // Click first remove button
       const removeButtons = screen.getAllByRole('button', { name: /remove/i })
-      await user.click(removeButtons[0])
+      await user.click(removeButtons[0]!)
 
       // Now should have one input with TypeScript
       await waitFor(() => {
@@ -275,7 +275,7 @@ describe('<ArrayInput />', () => {
       })
 
       const inputs = screen.getAllByRole('textbox')
-      await user.type(inputs[1], 'TypeScript')
+      await user.type(inputs[1]!, 'TypeScript')
 
       // Submit
       await user.click(screen.getByRole('button', { name: 'Submit' }))
@@ -645,7 +645,7 @@ describe('<ArrayInput />', () => {
 
       // Type in the new item
       const inputs = screen.getAllByRole('textbox')
-      await user.type(inputs[1], 'Two')
+      await user.type(inputs[1]!, 'Two')
 
       // Submit again - error should be cleared
       await user.click(screen.getByRole('button', { name: 'Submit' }))

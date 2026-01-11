@@ -346,7 +346,7 @@ describe('<ImageInput />', () => {
       })
 
       const removeButtons = screen.getAllByRole('button', { name: /remove/i })
-      await user.click(removeButtons[0])
+      await user.click(removeButtons[0]!)
 
       await waitFor(() => {
         expect(screen.getAllByRole('img').length).toBe(1)

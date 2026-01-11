@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
 import { FormContextProvider } from '../../contexts/FormContext'
@@ -213,7 +213,7 @@ describe('<SimpleFormIterator />', () => {
       )
 
       const removeButtons = screen.getAllByRole('button', { name: /remove/i })
-      await user.click(removeButtons[0])
+      await user.click(removeButtons[0]!)
 
       await waitFor(() => {
         expect(screen.getAllByRole('textbox')).toHaveLength(1)
@@ -284,7 +284,7 @@ describe('<SimpleFormIterator />', () => {
 
       // Remove middle item
       const removeButtons = screen.getAllByRole('button', { name: /remove/i })
-      await user.click(removeButtons[1])
+      await user.click(removeButtons[1]!)
 
       await waitFor(() => {
         const inputs = screen.getAllByRole('textbox')
@@ -359,7 +359,7 @@ describe('<SimpleFormIterator />', () => {
 
       // Type in the new item
       const inputs = screen.getAllByRole('textbox')
-      await user.type(inputs[1], 'Added')
+      await user.type(inputs[1]!, 'Added')
 
       // Submit
       await user.click(screen.getByRole('button', { name: 'Submit' }))

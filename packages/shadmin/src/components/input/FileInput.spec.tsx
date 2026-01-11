@@ -195,9 +195,9 @@ describe('<FileInput />', () => {
         expect.anything()
       )
       // Verify the file is in the array
-      const submittedData = onSubmit.mock.calls[0][0]
+      const submittedData = onSubmit.mock.calls[0]![0] as { document: File[] }
       expect(submittedData.document[0]).toBeInstanceOf(File)
-      expect(submittedData.document[0].name).toBe('test.pdf')
+      expect(submittedData.document[0]!.name).toBe('test.pdf')
     })
   })
 
@@ -460,7 +460,7 @@ describe('<FileInput />', () => {
 
     // Find and click the remove button for the first file
     const removeButtons = screen.getAllByRole('button', { name: /remove|clear|delete/i })
-    await user.click(removeButtons[0])
+    await user.click(removeButtons[0]!)
 
     await waitFor(() => {
       expect(screen.queryByText('file1.pdf')).not.toBeInTheDocument()

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, within, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { VirtualDatagrid, type VirtualDatagridProps } from './VirtualDatagrid'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
@@ -268,7 +268,7 @@ describe('VirtualDatagrid', () => {
     it('should toggle sort order on subsequent clicks', async () => {
       const user = userEvent.setup()
       const setSort = vi.fn()
-      const { rerender } = render(
+      render(
         <ListContextProvider value={createTestListContext({
           setSort,
           sort: { field: 'name', order: 'ASC' }
@@ -315,7 +315,7 @@ describe('VirtualDatagrid', () => {
 
       const checkboxes = screen.getAllByRole('checkbox')
       // Click the first row's checkbox (index 1, since 0 is header)
-      await user.click(checkboxes[1])
+      await user.click(checkboxes[1]!)
 
       expect(context.onToggleItem).toHaveBeenCalledWith(1)
     })
@@ -625,7 +625,7 @@ describe('VirtualDatagrid', () => {
       renderVirtualDatagrid({ expand: <ExpandPanel /> })
 
       const expandButtons = screen.getAllByRole('button', { name: /expand/i })
-      await user.click(expandButtons[0])
+      await user.click(expandButtons[0]!)
 
       expect(screen.getByTestId('expand-panel')).toBeInTheDocument()
     })

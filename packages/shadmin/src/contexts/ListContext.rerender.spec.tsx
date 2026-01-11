@@ -4,9 +4,9 @@
  * These tests verify that splitting ListContext into focused sub-contexts
  * prevents unnecessary re-renders when unrelated state changes.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
-import { useState, useRef, useCallback, memo, useMemo } from 'react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { useState, useCallback, memo, useMemo } from 'react'
 import {
   ListContextProvider,
   useListContext,
@@ -16,25 +16,21 @@ import {
   ListPaginationContext,
   ListPaginationContextProvider,
   useListPaginationContext,
-  usePickPaginationContext,
 } from './ListPaginationContext'
 import {
   ListSortContext,
   ListSortContextProvider,
   useListSortContext,
-  usePickSortContext,
 } from './ListSortContext'
 import {
   ListFilterContext,
   ListFilterContextProvider,
   useListFilterContext,
-  usePickFilterContext,
 } from './ListFilterContext'
 import {
   ListSelectionContext,
   ListSelectionContextProvider,
   useListSelectionContext,
-  usePickSelectionContext,
 } from './ListSelectionContext'
 
 interface TestRecord {
@@ -106,7 +102,7 @@ describe('ListContext Re-render Optimization', () => {
       })
 
       const TestWrapper = () => {
-        const [sort, setSort] = useState({ field: 'id', order: 'ASC' as const })
+        const [sort, setSort] = useState<{ field: string; order: 'ASC' | 'DESC' }>({ field: 'id', order: 'ASC' })
 
         // Stable callbacks using useCallback
         const stableSetSort = useCallback((newSort: { field: string; order: 'ASC' | 'DESC' }) => {

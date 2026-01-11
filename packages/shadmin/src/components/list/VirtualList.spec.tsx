@@ -322,7 +322,7 @@ describe('VirtualList', () => {
 
     it('should use custom link function', () => {
       renderVirtualList({
-        linkType: (record, id) => `/custom/${id}`,
+        linkType: (_record, id) => `/custom/${id}`,
       })
       const links = screen.getAllByRole('link')
       const user1Link = links.find(l => l.getAttribute('href') === '/custom/1')
@@ -347,7 +347,7 @@ describe('VirtualList', () => {
     it('should render loading indicator when isLoading is true', () => {
       renderVirtualList({}, { isLoading: true, data: undefined })
       // Should show skeleton items
-      const skeletons = screen.getAllByClassName ? [] : document.querySelectorAll('.animate-pulse')
+      const skeletons = document.querySelectorAll('.animate-pulse')
       expect(skeletons.length).toBeGreaterThan(0)
     })
   })

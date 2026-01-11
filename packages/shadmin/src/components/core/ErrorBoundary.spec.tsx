@@ -14,7 +14,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import * as React from 'react'
 import { useState, useEffect } from 'react'
 
@@ -223,7 +223,7 @@ describe('ErrorBoundary', () => {
         )
 
         expect(onError).toHaveBeenCalled()
-        const [error, errorInfo] = onError.mock.calls[0]
+        const [error, errorInfo] = onError.mock.calls[0]!
         expect(error.message).toBe('Stack trace test')
         expect(errorInfo).toHaveProperty('componentStack')
       })
@@ -282,8 +282,8 @@ describe('ErrorBoundary', () => {
         )
 
         expect(onError).toHaveBeenCalled()
-        expect(onError.mock.calls[0][0]).toBe(testError)
-        expect(onError.mock.calls[0][0].message).toBe('Triggered error with context')
+        expect(onError.mock.calls[0]![0]).toBe(testError)
+        expect(onError.mock.calls[0]![0].message).toBe('Triggered error with context')
       })
     })
 
@@ -958,7 +958,7 @@ describe('ErrorBoundary', () => {
 
         expect(onError).toHaveBeenCalledTimes(1)
 
-        const [error, errorInfo] = onError.mock.calls[0]
+        const [error, errorInfo] = onError.mock.calls[0]!
         expect(error).toBeInstanceOf(Error)
         expect(error.message).toBe('Test error for callback')
         expect(errorInfo).toBeDefined()
@@ -1000,7 +1000,7 @@ describe('ErrorBoundary', () => {
         )
 
         expect(onError).toHaveBeenCalled()
-        const errorInfo = onError.mock.calls[0][1]
+        const errorInfo = onError.mock.calls[0]![1]
         expect(errorInfo.boundaryId).toBe('user-profile-boundary')
       })
     })
@@ -1229,8 +1229,8 @@ describe('ErrorBoundary', () => {
       )
 
       expect(onError).toHaveBeenCalledTimes(2)
-      expect(onError.mock.calls[0][0].message).toBe('First error')
-      expect(onError.mock.calls[1][0].message).toBe('Second error')
+      expect(onError.mock.calls[0]![0].message).toBe('First error')
+      expect(onError.mock.calls[1]![0].message).toBe('Second error')
     })
 
     it('should handle errors with stack traces', () => {
@@ -1251,7 +1251,7 @@ describe('ErrorBoundary', () => {
       )
 
       expect(onError).toHaveBeenCalled()
-      const error = onError.mock.calls[0][0]
+      const error = onError.mock.calls[0]![0]
       expect(error.stack).toBeDefined()
       expect(error.stack).toContain('Error')
     })
@@ -1357,13 +1357,7 @@ describe('ErrorBoundary', () => {
     })
 
     it('should support selective error catching with shouldCatch', () => {
-      const NetworkError = class extends Error {
-        constructor() {
-          super('Network error')
-          this.name = 'NetworkError'
-        }
-      }
-
+      // NetworkError would be caught, ValidationError would not
       const ValidationError = class extends Error {
         constructor() {
           super('Validation error')

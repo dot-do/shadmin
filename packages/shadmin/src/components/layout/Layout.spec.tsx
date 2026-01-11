@@ -11,10 +11,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode } from 'react'
-import { Layout } from './Layout'
+import type { ReactNode, ComponentType } from 'react'
+import { Layout, type MenuItem } from './Layout'
 import { AppBar } from './AppBar'
 import { ContainerLayout } from './ContainerLayout'
 import { TestMemoryRouter } from '../../test-utils'
@@ -453,13 +453,7 @@ describe('Layout Component', () => {
     })
 
     it('should pass menu items to Menu component', () => {
-      interface MenuItem {
-        name: string
-        label: string
-        icon?: string
-      }
-
-      const CustomMenu = ({ items }: { items: MenuItem[] }) => (
+      const CustomMenu: ComponentType<{ items?: MenuItem[] }> = ({ items = [] }) => (
         <nav data-testid="my-menu">
           <ul>
             {items.map((item) => (

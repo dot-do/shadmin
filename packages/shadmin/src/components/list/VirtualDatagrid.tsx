@@ -176,14 +176,12 @@ export function VirtualDatagrid<T extends RaRecord = RaRecord>({
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({})
 
   // Build columns from children or columnsProp
-  const { tableColumns, columnConfig } = useMemo(() => {
+  const { tableColumns } = useMemo(() => {
     const cols: ColumnDef<T>[] = []
-    const columnConfigArray: DatagridColumn<T>[] = []
 
     if (columnsProp) {
       // Use explicit columns config with per-column render support
       columnsProp.forEach((col) => {
-        columnConfigArray.push(col)
         cols.push({
           id: col.source,
           accessorKey: col.source,
@@ -214,7 +212,6 @@ export function VirtualDatagrid<T extends RaRecord = RaRecord>({
         if (isValidElement(child)) {
           const source = getChildSource(child)
           if (source) {
-            columnConfigArray.push({ source })
             cols.push({
               id: source,
               accessorKey: source,
@@ -254,7 +251,7 @@ export function VirtualDatagrid<T extends RaRecord = RaRecord>({
       })
     }
 
-    return { tableColumns: cols, columnConfig: columnConfigArray }
+    return { tableColumns: cols }
   }, [children, columnsProp, cellRenderer])
 
   // Toggle row expansion
@@ -437,14 +434,15 @@ export function VirtualDatagrid<T extends RaRecord = RaRecord>({
   const { rows } = table.getRowModel()
 
   // Create virtualizer for rows
+  const measureElementFn = dynamicRowHeight && typeof window !== 'undefined'
+    ? (element: Element) => element?.getBoundingClientRect().height ?? (estimateRowHeight as number)
+    : null
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => containerRef.current,
     estimateSize: typeof estimateRowHeight === 'function' ? estimateRowHeight : () => estimateRowHeight,
     overscan,
-    measureElement: dynamicRowHeight && typeof window !== 'undefined'
-      ? (element) => element?.getBoundingClientRect().height ?? estimateRowHeight as number
-      : undefined,
+    ...(measureElementFn && { measureElement: measureElementFn }),
   })
 
   const virtualRows = rowVirtualizer.getVirtualItems()
@@ -473,17 +471,8 @@ export function VirtualDatagrid<T extends RaRecord = RaRecord>({
   // Determine if rows are clickable
   const isRowClickable = Boolean(rowClick) && rowClick !== false
 
-  // Get row height based on size
-  const getRowHeight = useCallback(() => {
-    switch (size) {
-      case 'sm':
-        return 36
-      case 'lg':
-        return 56
-      default:
-        return 48
-    }
-  }, [size])
+  // Row height calculation is used inline in the component
+  // (keeping size prop available for future use)
 
   // Build table classes
   const tableClasses = cn(

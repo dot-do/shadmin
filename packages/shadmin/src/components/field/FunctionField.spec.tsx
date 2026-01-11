@@ -25,7 +25,7 @@ describe('FunctionField', () => {
           <FunctionField
             render={(r) => (
               <span data-testid="status-badge" className="badge">
-                {r?.status}
+                {String(r?.status ?? '')}
               </span>
             )}
           />

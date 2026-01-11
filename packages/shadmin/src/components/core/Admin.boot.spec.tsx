@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router'
 import type { ReactNode } from 'react'
 import { Admin } from './Admin'
@@ -22,12 +22,11 @@ import {
   useDataProvider,
   useAuthProviderOptional,
   useResourceDefinitions,
-  useResourceContext,
   useResource,
   useNotify,
-  useRecordContext,
 } from '../../contexts'
 import { createMockDataProvider, createMockAuthProvider } from '../../test-utils'
+import type { AuthProvider } from '../../facade'
 
 // Helper to wrap Admin with MemoryRouter
 const renderAdmin = (ui: React.ReactElement, { initialEntries = ['/'] } = {}) => {
@@ -128,7 +127,7 @@ describe('Admin Boot Sequence', () => {
     })
 
     it('makes authProvider available when provided', async () => {
-      const authProvider = createMockAuthProvider()
+      const authProvider = createMockAuthProvider() as AuthProvider
       let hasAuthProvider = false
 
       const AuthChecker = () => {
@@ -446,9 +445,8 @@ describe('DataProvider Initialization', () => {
 
   describe('dataProvider validation', () => {
     it('throws error if dataProvider is not provided', () => {
-      // TypeScript should catch this, but runtime should also validate
+      // Runtime validation requires dataProvider even though TypeScript allows it to be optional
       expect(() => {
-        // @ts-expect-error - intentionally testing missing required prop
         renderAdmin(<Admin />)
       }).toThrow()
     })
@@ -533,7 +531,7 @@ describe('AuthProvider Initialization', () => {
 
   describe('with authProvider', () => {
     it('makes authProvider available via hook', async () => {
-      const mockAuthProvider = createMockAuthProvider()
+      const mockAuthProvider = createMockAuthProvider() as AuthProvider
       let capturedAuthProvider: unknown = null
 
       const AuthConsumer = () => {
@@ -553,7 +551,7 @@ describe('AuthProvider Initialization', () => {
     })
 
     it('calls checkAuth on boot', async () => {
-      const mockAuthProvider = createMockAuthProvider()
+      const mockAuthProvider = createMockAuthProvider() as AuthProvider
       const checkAuthSpy = vi.spyOn(mockAuthProvider, 'checkAuth')
 
       renderAdmin(
@@ -570,7 +568,7 @@ describe('AuthProvider Initialization', () => {
     it('provides getIdentity to components', async () => {
       const mockAuthProvider = createMockAuthProvider({
         identity: { id: 1, fullName: 'Test User' },
-      })
+      }) as AuthProvider
 
       let identity: { fullName?: string } | null = null
 
@@ -607,7 +605,7 @@ describe('AuthProvider Initialization', () => {
 
   describe('authentication flow', () => {
     it('redirects to login when not authenticated', async () => {
-      const mockAuthProvider = createMockAuthProvider({ isAuthenticated: false })
+      const mockAuthProvider = createMockAuthProvider({ isAuthenticated: false }) as AuthProvider
 
       renderAdmin(
         <Admin
@@ -628,7 +626,7 @@ describe('AuthProvider Initialization', () => {
     })
 
     it('shows content when authenticated', async () => {
-      const mockAuthProvider = createMockAuthProvider({ isAuthenticated: true })
+      const mockAuthProvider = createMockAuthProvider({ isAuthenticated: true }) as AuthProvider
 
       renderAdmin(
         <Admin dataProvider={defaultDataProvider} authProvider={mockAuthProvider}>
@@ -999,7 +997,7 @@ describe('Full Boot Integration', () => {
     })
     const authProvider = createMockAuthProvider({
       identity: { id: 1, fullName: 'Admin User' },
-    })
+    }) as AuthProvider
 
     const Dashboard = () => <div data-testid="dashboard">Welcome, Admin!</div>
     const Layout = ({ children }: { children: ReactNode }) => (

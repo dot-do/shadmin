@@ -84,7 +84,7 @@ describe('DataProviderContext', () => {
         const dataProvider = useDataProvider()
 
         const handleLoad = async () => {
-          const result = await dataProvider.getList('users', {
+          const result = await dataProvider.getList<{ id: number; name: string }>('users', {
             pagination: { page: 1, perPage: 10 },
             sort: { field: 'id', order: 'ASC' },
             filter: {},

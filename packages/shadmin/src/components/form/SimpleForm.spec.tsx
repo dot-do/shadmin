@@ -51,8 +51,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, act, type RenderResult } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useForm, useFormContext } from 'react-hook-form'
-import { SimpleForm, type SimpleFormProps } from './SimpleForm'
+import { useFormContext } from 'react-hook-form'
+import { SimpleForm } from './SimpleForm'
 import { FormDataConsumer, useFormData } from './FormDataConsumer'
 import { Toolbar, SaveButton, DeleteButton } from './Toolbar'
 import { TextInput } from '../input/TextInput'
@@ -972,7 +972,7 @@ describe('<SimpleForm />', () => {
           expect.anything()
         )
         // age should be undefined or not present
-        const calledWith = onSubmit.mock.calls[0][0]
+        const calledWith = onSubmit.mock.calls[0]![0]
         expect(calledWith.age).toBeUndefined()
       })
     })

@@ -418,7 +418,7 @@ describe('validate prop integration', () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
 
-      const asyncValidator = async (value: unknown) => {
+      const asyncValidator = async (_value: unknown) => {
         await new Promise(resolve => setTimeout(resolve, 50))
         return undefined // valid
       }

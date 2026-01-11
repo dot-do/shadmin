@@ -40,7 +40,7 @@ describe('useNotify', () => {
     })
 
     expect(result.current.context.notifications).toHaveLength(1)
-    expect(result.current.context.notifications[0].message).toBe('Test message')
+    expect(result.current.context.notifications[0]!.message).toBe('Test message')
   })
 
   it('should support success notification type', () => {
@@ -56,7 +56,7 @@ describe('useNotify', () => {
       result.current.notify('Saved!', { type: 'success' })
     })
 
-    expect(result.current.context.notifications[0].options?.type).toBe('success')
+    expect(result.current.context.notifications[0]!.options?.type).toBe('success')
   })
 
   it('should support error notification type', () => {
@@ -72,7 +72,7 @@ describe('useNotify', () => {
       result.current.notify('Error occurred', { type: 'error' })
     })
 
-    expect(result.current.context.notifications[0].options?.type).toBe('error')
+    expect(result.current.context.notifications[0]!.options?.type).toBe('error')
   })
 
   it('should support warning notification type', () => {
@@ -88,7 +88,7 @@ describe('useNotify', () => {
       result.current.notify('Warning', { type: 'warning' })
     })
 
-    expect(result.current.context.notifications[0].options?.type).toBe('warning')
+    expect(result.current.context.notifications[0]!.options?.type).toBe('warning')
   })
 
   it('should default to info type', () => {
@@ -104,7 +104,7 @@ describe('useNotify', () => {
       result.current.notify('Info message')
     })
 
-    expect(result.current.context.notifications[0].options?.type).toBe('info')
+    expect(result.current.context.notifications[0]!.options?.type).toBe('info')
   })
 
   it('should support undoable option', () => {
@@ -121,8 +121,8 @@ describe('useNotify', () => {
       result.current.notify('Deleted', { type: 'info', undoable: true, onUndo })
     })
 
-    expect(result.current.context.notifications[0].options?.undoable).toBe(true)
-    expect(result.current.context.notifications[0].options?.onUndo).toBe(onUndo)
+    expect(result.current.context.notifications[0]!.options?.undoable).toBe(true)
+    expect(result.current.context.notifications[0]!.options?.onUndo).toBe(onUndo)
   })
 
   it('should support autoHideDuration option', () => {
@@ -138,7 +138,7 @@ describe('useNotify', () => {
       result.current.notify('Quick message', { autoHideDuration: 2000 })
     })
 
-    expect(result.current.context.notifications[0].options?.autoHideDuration).toBe(2000)
+    expect(result.current.context.notifications[0]!.options?.autoHideDuration).toBe(2000)
   })
 
   it('should throw error when used outside NotificationContextProvider', () => {

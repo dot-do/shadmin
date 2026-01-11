@@ -12,7 +12,7 @@
  * - Use sensible defaults when URL params are missing
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { useListParams } from './useListParams'
@@ -203,7 +203,6 @@ describe('useListParams', () => {
 
   describe('setFilters updates URL', () => {
     it('should update URL with filter param when setFilters is called', async () => {
-      const wrapper = createWrapper(['/posts'])
       let currentSearch = ''
 
       const TestWrapper = ({ children }: { children: ReactNode }) => {
@@ -235,7 +234,6 @@ describe('useListParams', () => {
     })
 
     it('should encode filter values as JSON in URL', async () => {
-      const wrapper = createWrapper(['/posts'])
       let currentSearch = ''
 
       const TestWrapper = ({ children }: { children: ReactNode }) => {

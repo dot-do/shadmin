@@ -110,12 +110,12 @@ export function MdxCreate<T extends RaRecord = RaRecord>({
         resource={resource}
         redirect={redirect}
         mutationMode={mutationMode}
-        disableAuthentication={disableAuthentication}
-        record={record}
-        transform={transform}
-        mutationOptions={mutationOptions}
+        {...(disableAuthentication !== undefined && { disableAuthentication })}
+        {...(record !== undefined && { record })}
+        {...(transform !== undefined && { transform })}
+        {...(mutationOptions !== undefined && { mutationOptions })}
       >
-        <CreateView title={title} actions={actions} className={className}>
+        <CreateView title={title} {...(actions !== undefined && { actions })} {...(className !== undefined && { className })}>
           {children}
         </CreateView>
       </CreateBase>

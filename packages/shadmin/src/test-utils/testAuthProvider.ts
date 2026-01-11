@@ -4,61 +4,15 @@
  */
 
 import { vi } from 'vitest'
+import type { AuthProvider, UserIdentity, LoginParams } from '../facade/auth-provider'
 
-/**
- * User identity returned by the auth provider
- */
-export interface UserIdentity {
-  id: string | number
-  fullName?: string
-  avatar?: string
-  email?: string
-  [key: string]: unknown
-}
-
-/**
- * Login parameters
- */
-export interface LoginParams {
-  username: string
-  password: string
-  [key: string]: unknown
-}
+// Re-export for convenience
+export type { AuthProvider, UserIdentity, LoginParams }
 
 /**
  * Permission types - can be a string, array of strings, or any custom type
  */
 export type Permissions = string | string[] | Record<string, boolean> | unknown
-
-/**
- * AuthProvider interface - main authentication abstraction
- */
-export interface AuthProvider {
-  /**
-   * Authenticate a user with credentials
-   */
-  login: (params: LoginParams) => Promise<void | string | { redirectTo?: string }>
-  /**
-   * Log out the current user
-   */
-  logout: (params?: unknown) => Promise<void | string | false>
-  /**
-   * Check if the user is authenticated (called on every route change)
-   */
-  checkAuth: (params?: unknown) => Promise<void>
-  /**
-   * Called when an API request returns an error
-   */
-  checkError: (error: unknown) => Promise<void>
-  /**
-   * Get the user's permissions
-   */
-  getPermissions: (params?: unknown) => Promise<Permissions>
-  /**
-   * Get the current user's identity (for display purposes)
-   */
-  getIdentity?: () => Promise<UserIdentity>
-}
 
 /**
  * Options for creating a mock auth provider

@@ -74,7 +74,7 @@ class InMemoryDataStore {
     return record
   }
 
-  update(resource: string, id: number | string, data: Partial<Record>): TestRecord {
+  update(resource: string, id: number | string, data: Partial<TestRecord>): TestRecord {
     const records = this.getAll(resource)
     const index = records.findIndex((r) => String(r.id) === String(id))
     if (index === -1) {
@@ -92,7 +92,7 @@ class InMemoryDataStore {
     if (index === -1) {
       throw new Error(`Record not found: ${resource}/${id}`)
     }
-    const deleted = records[index]
+    const deleted = records[index]!
     records.splice(index, 1)
     this.store.set(resource, records)
     return deleted
@@ -110,7 +110,7 @@ class InMemoryDataStore {
  */
 function createRealDataProvider(store: InMemoryDataStore): DataProvider {
   return {
-    async getList(resource, params) {
+    async getList(resource: string, params: { pagination: { page: number; perPage: number }; sort: { field: string; order: 'ASC' | 'DESC' }; filter: Record<string, unknown> }) {
       const { pagination, sort, filter } = params
       let records = [...store.getAll(resource)]
 
@@ -163,7 +163,7 @@ function createRealDataProvider(store: InMemoryDataStore): DataProvider {
       }
     },
 
-    async getOne(resource, params) {
+    async getOne(resource: string, params: { id: number | string }) {
       const record = store.findById(resource, params.id)
       if (!record) {
         const error = new Error(`${resource} with id ${params.id} not found`)
@@ -173,14 +173,14 @@ function createRealDataProvider(store: InMemoryDataStore): DataProvider {
       return { data: record }
     },
 
-    async getMany(resource, params) {
+    async getMany(resource: string, params: { ids: (number | string)[] }) {
       const records = params.ids
-        .map((id) => store.findById(resource, id))
+        .map((id: number | string) => store.findById(resource, id))
         .filter(Boolean) as TestRecord[]
       return { data: records }
     },
 
-    async getManyReference(resource, params) {
+    async getManyReference(resource: string, params: { target: string; id: number | string; pagination: { page: number; perPage: number }; sort: { field: string; order: 'ASC' | 'DESC' }; filter: Record<string, unknown> }) {
       const { target, id, pagination, sort } = params
       let records = store.getAll(resource).filter(
         (r) => String(r[target]) === String(id)
@@ -208,33 +208,33 @@ function createRealDataProvider(store: InMemoryDataStore): DataProvider {
       }
     },
 
-    async create(resource, params) {
+    async create(resource: string, params: { data: Record<string, unknown> }) {
       const id = store.getNextId(resource)
       const record = { ...params.data, id }
       store.add(resource, record)
       return { data: record }
     },
 
-    async update(resource, params) {
+    async update(resource: string, params: { id: number | string; data: Record<string, unknown> }) {
       const updated = store.update(resource, params.id, params.data)
       return { data: updated }
     },
 
-    async updateMany(resource, params) {
-      const results = params.ids.map((id) => {
+    async updateMany(resource: string, params: { ids: (number | string)[]; data: Record<string, unknown> }) {
+      const results = params.ids.map((id: number | string) => {
         store.update(resource, id, params.data)
         return id
       })
       return { data: results }
     },
 
-    async delete(resource, params) {
+    async delete(resource: string, params: { id: number | string }) {
       const deleted = store.remove(resource, params.id)
       return { data: deleted }
     },
 
-    async deleteMany(resource, params) {
-      params.ids.forEach((id) => store.remove(resource, id))
+    async deleteMany(resource: string, params: { ids: (number | string)[] }) {
+      params.ids.forEach((id: number | string) => store.remove(resource, id))
       return { data: params.ids }
     },
   } as unknown as DataProvider
@@ -284,7 +284,7 @@ describe('DataProvider Integration - Real CRUD Flows', () => {
 
       expect(result.data).toHaveLength(5)
       expect(result.total).toBe(5)
-      expect(result.data[0].title).toBe('Introduction to React')
+      expect(result.data[0]!.title).toBe('Introduction to React')
     })
 
     it('should paginate correctly with real data', async () => {
@@ -297,8 +297,8 @@ describe('DataProvider Integration - Real CRUD Flows', () => {
       expect(page1.data).toHaveLength(2)
       expect(page1.pageInfo?.hasNextPage).toBe(true)
       expect(page1.pageInfo?.hasPreviousPage).toBe(false)
-      expect(page1.data[0].id).toBe(1)
-      expect(page1.data[1].id).toBe(2)
+      expect(page1.data[0]!.id).toBe(1)
+      expect(page1.data[1]!.id).toBe(2)
 
       const page2 = await dataProvider.getList('posts', {
         pagination: { page: 2, perPage: 2 },
@@ -309,8 +309,8 @@ describe('DataProvider Integration - Real CRUD Flows', () => {
       expect(page2.data).toHaveLength(2)
       expect(page2.pageInfo?.hasNextPage).toBe(true)
       expect(page2.pageInfo?.hasPreviousPage).toBe(true)
-      expect(page2.data[0].id).toBe(3)
-      expect(page2.data[1].id).toBe(4)
+      expect(page2.data[0]!.id).toBe(3)
+      expect(page2.data[1]!.id).toBe(4)
 
       // Verify the store wasn't modified
       expect(store.getAll('posts')).toHaveLength(5)
@@ -335,7 +335,7 @@ describe('DataProvider Integration - Real CRUD Flows', () => {
       })
 
       expect(result.data).toHaveLength(1)
-      expect(result.data[0].title).toBe('Introduction to React')
+      expect(result.data[0]!.title).toBe('Introduction to React')
     })
 
     it('should support case-insensitive search', async () => {
@@ -346,7 +346,7 @@ describe('DataProvider Integration - Real CRUD Flows', () => {
       })
 
       expect(result.data).toHaveLength(1)
-      expect(result.data[0].title).toBe('Advanced TypeScript')
+      expect(result.data[0]!.title).toBe('Advanced TypeScript')
     })
 
     it('should support range filters (gte)', async () => {
@@ -544,7 +544,7 @@ describe('DataProvider Integration - Real CRUD Flows', () => {
 
       const result = await dataProvider.delete('posts', { id: 1 })
 
-      expect(result.data.id).toBe(1)
+      expect(result.data!.id).toBe(1)
       expect(store.getAll('posts')).toHaveLength(initialCount - 1)
       expect(store.findById('posts', 1)).toBeUndefined()
     })
@@ -883,10 +883,10 @@ describe('Error Handling Integration', () => {
     it('should handle validation errors with field details', async () => {
       const validatingProvider: DataProvider = {
         ...createRealDataProvider(store),
-        create: vi.fn().mockImplementation(async (resource, params) => {
+        create: vi.fn().mockImplementation(async (_resource: string, params: { data: { title?: string } }) => {
           if (!params.data.title) {
             const error = new Error('Validation failed') as Error & {
-              validationErrors: TestRecord<string, string[]>
+              validationErrors: Record<string, string[]>
             }
             error.validationErrors = {
               title: ['Title is required', 'Title must be at least 3 characters'],
@@ -903,7 +903,7 @@ describe('Error Handling Integration', () => {
       } catch (error) {
         expect((error as Error).message).toContain('Validation failed')
         expect(
-          (error as Error & { validationErrors: TestRecord<string, string[]> }).validationErrors.title
+          (error as Error & { validationErrors: Record<string, string[]> }).validationErrors.title
         ).toContain('Title is required')
       }
     })
@@ -1040,7 +1040,7 @@ describe('Data Consistency Integration', () => {
       filter: {},
     })
 
-    expect(updatedResult.total).toBe(initialCount + 1)
+    expect(updatedResult.total).toBe(initialCount! + 1)
     expect(updatedResult.data.find((p) => p.title === 'Consistency Test Post')).toBeDefined()
   })
 
@@ -1070,7 +1070,7 @@ describe('Data Consistency Integration', () => {
       filter: {},
     })
 
-    expect(updatedResult.total).toBe(initialCount - 1)
+    expect(updatedResult.total).toBe(initialCount! - 1)
     expect(updatedResult.data.find((p) => p.id === 1)).toBeUndefined()
   })
 
@@ -1114,7 +1114,7 @@ describe('Data Consistency Integration', () => {
       filter: { published: true },
     })
 
-    expect(updatedPublished.total).toBe(initialPublished.total - 1)
+    expect(updatedPublished.total).toBe(initialPublished.total! - 1)
   })
 })
 

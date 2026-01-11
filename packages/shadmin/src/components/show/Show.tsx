@@ -137,22 +137,22 @@ export function Show<RecordType extends RaRecord = RaRecord>({
   return (
     <ShowBase<RecordType>
       id={id}
-      resource={resource}
-      queryOptions={queryOptions}
+      {...(resource !== undefined && { resource })}
+      {...(queryOptions !== undefined && { queryOptions })}
     >
       {(controllerProps: ShowControllerResult<RecordType>) => (
         <ShowView
-          title={title}
-          actions={actions}
-          empty={empty}
-          className={className}
-          aside={aside}
+          {...(title !== undefined && { title })}
+          {...(actions !== undefined && { actions })}
+          {...(empty !== undefined && { empty })}
+          {...(className !== undefined && { className })}
+          {...(aside !== undefined && { aside })}
           isLoading={controllerProps.isLoading}
-          error={controllerProps.error}
-          record={controllerProps.record}
-          loading={loading}
-          errorComponent={errorComponent}
-          emptyWhileLoading={emptyWhileLoading}
+          {...(controllerProps.error !== null && { error: controllerProps.error })}
+          {...(controllerProps.record !== undefined && { record: controllerProps.record })}
+          {...(loading !== undefined && { loading })}
+          {...(errorComponent !== undefined && { errorComponent })}
+          {...(emptyWhileLoading !== undefined && { emptyWhileLoading })}
         >
           {children}
         </ShowView>

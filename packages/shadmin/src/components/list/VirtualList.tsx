@@ -208,16 +208,21 @@ export function VirtualList<RecordType extends RaRecord = RaRecord>({
     [linkType, resource]
   )
 
-  // Create virtualizer
-  const rowVirtualizer = useVirtualizer({
+  // Create virtualizer - only include measureElement when actually needed
+  const virtualizerOptions = {
     count: data?.length ?? 0,
     getScrollElement: () => containerRef.current,
     estimateSize: typeof estimateItemHeight === 'function' ? estimateItemHeight : () => estimateItemHeight,
     overscan,
-    measureElement: dynamicItemHeight && typeof window !== 'undefined'
-      ? (element) => element?.getBoundingClientRect().height ?? (typeof estimateItemHeight === 'number' ? estimateItemHeight : 72)
-      : undefined,
-  })
+  }
+  const rowVirtualizer = useVirtualizer(
+    dynamicItemHeight && typeof window !== 'undefined'
+      ? {
+          ...virtualizerOptions,
+          measureElement: (element: Element) => element?.getBoundingClientRect().height ?? (typeof estimateItemHeight === 'number' ? estimateItemHeight : 72),
+        }
+      : virtualizerOptions
+  )
 
   const virtualItems = rowVirtualizer.getVirtualItems()
   const totalSize = rowVirtualizer.getTotalSize()

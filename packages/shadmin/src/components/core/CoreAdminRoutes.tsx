@@ -73,6 +73,8 @@ export const CoreAdminRoutes = ({
   menuItems = [],
   children,
 }: CoreAdminRoutesProps & { children?: ReactNode }) => {
+  // Note: children prop is reserved for future customization support
+  void children
   // Use React Router's location hook for route matching
   const location = useLocation()
   const pathname = location.pathname

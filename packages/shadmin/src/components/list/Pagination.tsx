@@ -155,7 +155,7 @@ const buttonSizes = {
  * <Pagination rowsPerPageOptions={[]} />
  * ```
  */
-export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTMLAttributes<HTMLDivElement>>(
+export const Pagination = forwardRef<HTMLDivElement, PaginationProps & React.HTMLAttributes<HTMLDivElement> & { 'data-testid'?: string }>(
   (
     {
       rowsPerPageOptions = [10, 25, 50, 100],
