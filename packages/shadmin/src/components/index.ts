@@ -353,6 +353,33 @@ export {
   type ColumnsButtonProps,
 } from './buttons'
 
+// i18n components (locale switching, translations, formatting)
+export {
+  LocaleSwitcher,
+  Translate,
+  TranslateLabel,
+  useFormatters,
+  // Formatting utilities
+  formatDate,
+  formatDateTime,
+  formatTime,
+  formatNumber,
+  formatCurrency,
+  formatPercent,
+  formatRelativeTime,
+  formatList,
+  getLocaleDisplayName,
+  // Types
+  type LocaleSwitcherProps,
+  type TranslateProps,
+  type TranslateLabelProps,
+  type UseFormattersResult,
+  type DateFormatOptions,
+  type NumberFormatOptions,
+  type CurrencyFormatOptions,
+  type RelativeTimeFormatOptions,
+} from './i18n'
+
 // =============================================================================
 // @MDXUI/ADMIN INTEGRATION
 // =============================================================================
