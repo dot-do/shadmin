@@ -1,6 +1,45 @@
 /**
- * SearchInput component tests
- * TDD: RED phase - Write failing tests first
+ * SearchInput Component Test Suite
+ *
+ * This comprehensive test suite validates the SearchInput component which provides
+ * a debounced text search input for filtering list data in the shadmin admin framework.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Rendering - Text input with type="search", placeholder, className, accessibility attributes
+ * 2. Debounced Input - Delayed setFilters calls to prevent excessive API requests during typing
+ * 3. Filter State Integration - Source-based filter key (default: "q"), preserving existing filters
+ * 4. Clear Functionality - Clear button visibility, immediate filter update on clear
+ * 5. Accessibility - type="search" (searchbox role), aria-label support, disabled state
+ * 6. Edge Cases - Pending debounce cleanup, unmount handling, external filterValues sync
+ *
+ * WHY THESE TESTS MATTER:
+ * - SearchInput is the primary full-text search interface for admin list views
+ * - Debouncing is CRITICAL: without it, every keystroke triggers an API call
+ * - Filter key naming ("q", "search", etc.) must match backend query parameter expectations
+ * - Preserving existing filters prevents search from clearing other active filters
+ * - Page reset to 1 on search change prevents confusing empty results on high page numbers
+ * - Clear button must bypass debounce for immediate feedback
+ *
+ * TEST SETUP:
+ * - createTestListContext() provides a mock ListControllerResult with vi.fn() mocks
+ * - vi.useFakeTimers() enables precise debounce timing control
+ * - fireEvent.change() is used instead of userEvent for fake timer compatibility
+ * - act() wrapper ensures timer advancement updates React state correctly
+ *
+ * DEBOUNCE MECHANICS:
+ * - Default debounce: 500ms
+ * - Configurable via debounce prop
+ * - debounce={0} enables immediate filter updates (useful for testing)
+ * - Each keystroke resets the debounce timer (only final value triggers setFilters)
+ *
+ * EDGE CASES COVERED:
+ * - Debounce timer cleanup on clear button click
+ * - Debounce timer cleanup on component unmount (prevents memory leaks)
+ * - Empty string handling in filterValues
+ * - External filterValues changes syncing to input value
+ * - Rapid typing (multiple keystrokes faster than debounce)
+ * - Zero debounce for immediate updates
+ * - Special characters in search terms (email addresses, HTML entities)
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'

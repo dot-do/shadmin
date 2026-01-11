@@ -15,6 +15,7 @@ import { parseArgs, createViteConfig } from './commands'
 import { scanResources } from './scanner'
 import { shouldShowInteractiveMenu } from './interactive'
 import { showInteractiveMenu } from './InteractiveMenu'
+import { extractTranslationKeys, formatExtractionResult } from './translation-extractor'
 import { createRequire } from 'module'
 
 const require = createRequire(import.meta.url)
@@ -28,12 +29,13 @@ Usage:
   shadmin [command] [root] [options]
 
 Commands:
-  dev       Start development server (default)
-  build     Build for production
-  preview   Preview production build
-  init      Initialize with example template (interactive)
-  help      Show this help message
-  version   Show version number
+  dev                   Start development server (default)
+  build                 Build for production
+  preview               Preview production build
+  init                  Initialize with example template (interactive)
+  extract-translations  Extract translation keys from source files
+  help                  Show this help message
+  version               Show version number
 
 Options:
   -p, --port <port>    Port number (default: 5173)
@@ -45,6 +47,10 @@ Options:
   -h, --help           Show help
   -v, --version        Show version
 
+Extract Translations Options:
+  -f, --format <fmt>   Output format: json or po (default: json)
+  -O, --output <path>  Write output to file instead of stdout
+
 Examples:
   shadmin                   # Dev server (shows menu if no resources)
   shadmin ./my-admin        # Dev server in ./my-admin
@@ -52,6 +58,9 @@ Examples:
   shadmin init              # Interactive template selection
   shadmin build             # Build for production
   shadmin preview           # Preview production build
+  shadmin extract-translations              # Extract keys as JSON to stdout
+  shadmin extract-translations -f po        # Extract keys as PO format
+  shadmin extract-translations -O keys.json # Write to file
 `
 
 async function main() {
@@ -104,6 +113,33 @@ async function main() {
       const config = createViteConfig(args)
       const server = await preview(config)
       server.printUrls()
+      break
+    }
+
+    case 'extract-translations': {
+      const format = args.format || 'json'
+      const result = await extractTranslationKeys({
+        rootDir: args.root,
+        format,
+        ...(args.output && { output: args.output }),
+      })
+
+      // If output file specified, we've already written to it
+      if (args.output) {
+        console.log(`Extracted ${result.keys.length} translation keys from ${result.filesScanned} files`)
+        console.log(`Output written to: ${args.output}`)
+      } else {
+        // Print to stdout
+        console.log(formatExtractionResult(result, format))
+      }
+
+      // Report errors if any
+      if (result.errors.length > 0) {
+        console.error('\nWarning: Some files had parsing errors:')
+        for (const err of result.errors) {
+          console.error(`  ${err.file}: ${err.error}`)
+        }
+      }
       break
     }
   }

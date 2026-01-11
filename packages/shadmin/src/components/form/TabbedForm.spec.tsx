@@ -1,6 +1,45 @@
 /**
- * TabbedForm Component Tests
- * Following TDD: RED phase - write comprehensive failing tests first
+ * TabbedForm Component Test Suite
+ *
+ * This comprehensive test suite validates the TabbedForm component which provides
+ * multi-tabbed form organization with validation error tracking per tab.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Basic Rendering - FormTab children, tab list/triggers, first tab active by default
+ * 2. Tab Navigation - Click to switch, keyboard navigation (arrow keys), defaultTab prop
+ * 3. react-hook-form Integration - All inputs registered across all tabs, values preserved on switch
+ * 4. Validation Across Tabs - Errors displayed on correct tab, navigation to first error tab
+ * 5. Tab Error Indicators - data-has-error attribute, error count badges, indicator clearing
+ * 6. Dirty State Tracking Per Tab - data-dirty attribute, getDirtyTabs() context method
+ * 7. URL Sync for Active Tab - syncWithLocation prop, tab path in URL, restoration on mount
+ * 8. TabbedForm Context - activeTab, setActiveTab(), tabs array via useTabbedFormContext
+ * 9. FormTab Component - Children rendering, name/label props, icon/disabled/className support
+ * 10. Accessibility - ARIA tablist, tab, tabpanel roles, aria-selected, aria-controls
+ *
+ * WHY THESE TESTS MATTER:
+ * - TabbedForm enables complex forms to be organized into logical sections
+ * - ALL form inputs must register even when their tab is not visible (for submission)
+ * - Validation errors must guide users to the tab containing the invalid field
+ * - Error/dirty indicators on tabs provide at-a-glance feedback
+ * - URL sync allows deep linking to specific tabs and browser back/forward support
+ * - Proper accessibility ensures screen reader navigation works correctly
+ *
+ * TEST SETUP:
+ * - TestFormWrapper provides useForm + FormContextProvider + TestMemoryRouter
+ * - renderTabbedForm helper simplifies common setup patterns
+ * - userEvent handles tab clicks and keyboard navigation
+ * - waitFor manages async validation state changes
+ * - TestMemoryRouter enables URL sync testing with controlled history
+ *
+ * EDGE CASES COVERED:
+ * - Values preserved when switching between tabs multiple times
+ * - Multiple validation errors across different tabs
+ * - First tab with error activated on submission from later tab
+ * - Error count badge for tabs with multiple invalid fields
+ * - Dirty state tracking with getDirtyTabs() returning correct tab names
+ * - URL path sync with custom path prop on FormTab
+ * - Tab name generation from label when name prop not provided
+ * - Disabled tabs not selectable
  */
 
 import { describe, it, expect, vi } from 'vitest'

@@ -38,6 +38,11 @@ import { useMutation, useQueryClient, type UseMutationOptions } from '@tanstack/
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useShadminDO, useShadminDOOptional } from './provider'
 import type { RaRecord, Identifier } from '../types'
+import {
+  extractFieldErrors as extractFieldErrorsFromBody,
+  getObjectProp,
+  hasIdParam,
+} from '../utils/type-guards'
 import type {
   UseDOFormCreateParams,
   UseDOFormUpdateParams,
@@ -94,39 +99,15 @@ export interface UseDOFormExtendedOptions<
 
 /**
  * Extract field errors from an error response
+ * Uses type guards for safe property access on unknown error shapes
  */
 function extractFieldErrors(error: Error): Record<string, string[]> | null {
-  // Check for validation error shape
-  const body = (error as { body?: Record<string, unknown> }).body
+  // Use type guard to safely access the body property
+  const body = getObjectProp(error, 'body')
+  if (!body) return null
 
-  if (body && typeof body === 'object') {
-    // Handle { errors: { field: ['message'] } } format
-    if ('errors' in body && typeof body.errors === 'object' && body.errors !== null) {
-      return body.errors as Record<string, string[]>
-    }
-
-    // Handle { fieldErrors: { field: ['message'] } } format
-    if ('fieldErrors' in body && typeof body.fieldErrors === 'object' && body.fieldErrors !== null) {
-      return body.fieldErrors as Record<string, string[]>
-    }
-
-    // Handle { field: ['message'] } format
-    const maybeFieldErrors: Record<string, string[]> = {}
-    let hasFieldErrors = false
-
-    for (const [key, value] of Object.entries(body)) {
-      if (Array.isArray(value) && value.every((v) => typeof v === 'string')) {
-        maybeFieldErrors[key] = value
-        hasFieldErrors = true
-      }
-    }
-
-    if (hasFieldErrors) {
-      return maybeFieldErrors
-    }
-  }
-
-  return null
+  // Delegate to the type-safe extraction function
+  return extractFieldErrorsFromBody(body)
 }
 
 /**
@@ -305,15 +286,13 @@ export function useDOForm<
 
       const cache = queryClient.getQueryCache()
 
-      // Snapshot and update show cache
+      // Snapshot and update show cache - use type guard for query key param
       const showQueries = cache.findAll({
         queryKey: ['do', resourceName, 'show'],
         predicate: (query) => {
           const key = query.queryKey
-          if (key.length >= 4 && typeof key[3] === 'object' && key[3] !== null) {
-            return (key[3] as { id?: unknown }).id === variables.id
-          }
-          return false
+          const param = key.length >= 4 ? key[3] : undefined
+          return hasIdParam(param) && param.id === variables.id
         },
       })
 
@@ -351,15 +330,13 @@ export function useDOForm<
 
       const cache = queryClient.getQueryCache()
 
-      // Update show cache with server response
+      // Update show cache with server response - use type guard for query key param
       const showQueries = cache.findAll({
         queryKey: ['do', resourceName, 'show'],
         predicate: (query) => {
           const key = query.queryKey
-          if (key.length >= 4 && typeof key[3] === 'object' && key[3] !== null) {
-            return (key[3] as { id?: unknown }).id === variables.id
-          }
-          return false
+          const param = key.length >= 4 ? key[3] : undefined
+          return hasIdParam(param) && param.id === variables.id
         },
       })
 
@@ -442,15 +419,13 @@ export function useDOForm<
         })
       })
 
-      // Snapshot show cache
+      // Snapshot show cache - use type guard for query key param
       const showQueries = cache.findAll({
         queryKey: ['do', resourceName, 'show'],
         predicate: (query) => {
           const key = query.queryKey
-          if (key.length >= 4 && typeof key[3] === 'object' && key[3] !== null) {
-            return (key[3] as { id?: unknown }).id === id
-          }
-          return false
+          const param = key.length >= 4 ? key[3] : undefined
+          return hasIdParam(param) && param.id === id
         },
       })
 

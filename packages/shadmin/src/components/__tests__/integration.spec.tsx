@@ -1,8 +1,60 @@
 /**
- * Component Integration Tests
+ * Component Integration Test Suite
  *
- * Tests for component combinations to verify they work together correctly.
- * These tests focus on realistic usage patterns with multiple components.
+ * This comprehensive test suite validates how shadmin components work together
+ * in realistic usage patterns. Unlike unit tests that isolate components, these
+ * tests verify the interactions between List, Datagrid, Form, Field, and Input components.
+ *
+ * KEY INTEGRATION SCENARIOS TESTED:
+ * 1. List + Datagrid + Pagination - Data fetching, display, sorting, pagination navigation
+ * 2. Create + SimpleForm + Inputs - Form rendering, data submission to DataProvider
+ * 3. Edit + SimpleForm + Validation - Record loading, editing, validation, update submission
+ * 4. Show + Fields - Record display with various field types (Text, Number, Boolean, Date)
+ * 5. Cross-Component Flows - List-to-Show, Create-to-List data consistency
+ * 6. Full CRUD Cycle - Create -> Read -> Update -> Delete with state verification
+ * 7. Navigation Flows - List -> Show -> Edit -> List, deep linking, state persistence
+ * 8. Filter and Sort Flows - Text/author filtering, column sorting, combined with pagination
+ * 9. Form Flows - Submission, validation errors, cancel, reset, pre-population
+ *
+ * WHY INTEGRATION TESTS MATTER:
+ * - Unit tests can pass while component combinations fail (context wiring issues)
+ * - DataProvider interactions span multiple components and need end-to-end verification
+ * - React Query caching behavior affects data consistency between views
+ * - Navigation state preservation is only testable with multiple component renders
+ * - Form validation errors must correctly prevent DataProvider calls
+ *
+ * TEST SETUP:
+ * - createTestWrapper() provides QueryClient + NotificationContext + DataProviderContext +
+ *   MemoryRouter + ResourceContext for full app-like environment
+ * - createMockDataProvider() creates a configurable mock with realistic behavior
+ * - Mutable records array simulates real database state changes
+ * - userEvent provides realistic user interaction sequences
+ *
+ * COMPONENT DEPENDENCIES VERIFIED:
+ * - List depends on: DataProviderContext, ResourceContext, QueryClient
+ * - Datagrid depends on: ListContext (from List)
+ * - SimpleForm depends on: FormContext (from Edit/Create)
+ * - Fields/Inputs depend on: RecordContext, FormContext
+ * - Pagination depends on: ListContext
+ *
+ * MOCK DATAPROVIDER PATTERNS:
+ * - Paginated getList with computed slices
+ * - Filtered getList with author/q search
+ * - Sorted getList with field/order comparison
+ * - Stateful create/update/delete modifying shared records array
+ *
+ * EDGE CASES COVERED:
+ * - Empty list display with custom empty component
+ * - Loading state while fetching
+ * - Error state when fetch fails
+ * - Multiple field types in single view
+ * - Nested field paths (metadata.author.name)
+ * - Missing values with emptyText fallback
+ * - Custom title and actions on Show
+ * - Form submission with multiple input types
+ * - HTML5 validation (required, pattern)
+ * - Deep linking with pagination parameters
+ * - State persistence across navigation
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'

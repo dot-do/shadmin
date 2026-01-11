@@ -1,9 +1,72 @@
 /**
- * Facade DataProvider Tests
- * RED Phase: Define tests for the DataProvider facade interface
+ * Facade DataProvider Type Tests
  *
- * These tests verify that the facade layer properly abstracts ra-core
- * and provides a stable API for shadmin components.
+ * This test suite validates the DataProvider type definitions exported by the facade layer.
+ * The facade provides a stable, shadmin-specific API that abstracts the underlying ra-core types.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Identifier Type - Union of string | number for record IDs
+ * 2. RaRecord Type - Base record interface with required 'id' field
+ * 3. Payload Types - SortPayload, PaginationPayload, FilterPayload
+ * 4. Params/Result Types - For each DataProvider method
+ * 5. DataProvider Interface - Complete CRUD interface contract
+ * 6. Type Compatibility - Ensuring facade types work with ra-core
+ *
+ * WHY THESE TESTS MATTER:
+ * - The facade layer is shadmin's public API - it must be stable
+ * - Type tests catch breaking changes at compile time
+ * - DataProvider is THE central abstraction for all data operations
+ * - Components depend on these types for type-safe data access
+ * - Any ra-core version upgrade must maintain facade compatibility
+ *
+ * DATAPROVIDER METHODS:
+ *
+ * Read Operations:
+ *   getList(resource, params) → { data: Record[], total?, pageInfo? }
+ *     - Fetch paginated, sorted, filtered list
+ *     - Supports offset pagination (total) or cursor pagination (pageInfo)
+ *
+ *   getOne(resource, { id }) → { data: Record }
+ *     - Fetch single record by ID
+ *
+ *   getMany(resource, { ids }) → { data: Record[] }
+ *     - Fetch multiple records by ID array (for reference fields)
+ *
+ *   getManyReference(resource, { target, id, ... }) → { data: Record[], total }
+ *     - Fetch related records (e.g., comments for a post)
+ *
+ * Write Operations:
+ *   create(resource, { data }) → { data: Record }
+ *     - Create new record, returns created record with ID
+ *
+ *   update(resource, { id, data, previousData }) → { data: Record }
+ *     - Update existing record, previousData enables optimistic locking
+ *
+ *   updateMany(resource, { ids, data }) → { data: Identifier[] }
+ *     - Bulk update, returns array of updated IDs
+ *
+ *   delete(resource, { id, previousData }) → { data: Record }
+ *     - Delete single record
+ *
+ *   deleteMany(resource, { ids }) → { data: Identifier[] }
+ *     - Bulk delete, returns array of deleted IDs
+ *
+ * COMMON PARAMS:
+ *   pagination: { page: number, perPage: number }
+ *   sort: { field: string, order: 'ASC' | 'DESC' }
+ *   filter: { [key: string]: any } - See filterOperators for key format
+ *   meta: { [key: string]: any } - Custom metadata for DataProvider
+ *
+ * TEST SETUP:
+ * - Type tests use explicit type annotations to verify compile-time correctness
+ * - Mock implementations verify runtime behavior
+ * - vi.fn() mocks enable parameter and call assertions
+ *
+ * EDGE CASES COVERED:
+ * - String vs number identifiers
+ * - Generic typing for custom record types
+ * - Optional fields (meta, previousData, pageInfo)
+ * - Cursor-based pagination via pageInfo
  */
 
 import { describe, it, expect, vi } from 'vitest'

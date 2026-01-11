@@ -1,6 +1,51 @@
 /**
- * SimpleForm Component Tests
- * Following TDD: RED phase - write failing tests first
+ * SimpleForm Component Test Suite
+ *
+ * This comprehensive test suite validates the SimpleForm component which provides
+ * a complete form solution integrating react-hook-form with shadmin's admin framework.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Basic Props Interface - Children rendering, className/id, resource/record context passing
+ * 2. react-hook-form Integration - defaultValues, onSubmit, mode/reValidateMode props
+ * 3. FormContext Provider - Exposing form methods to children via useFormContext
+ * 4. Validation Handling - Required fields, async validation, error display, resolver support
+ * 5. Dirty State Tracking - isDirty, resetOnSubmit, pristine when values match default
+ * 6. Submit Button with Loading State - Default save button, loading spinner, disabled when invalid
+ * 7. Error Display - Submit error handling, clearable errors, custom onError handler
+ * 8. warnWhenUnsavedChanges - beforeunload event handling for unsaved form protection
+ * 9. Additional Features - noValidate, sanitizeEmptyValues, transform, onSuccess callback
+ *
+ * WHY THESE TESTS MATTER:
+ * - SimpleForm is THE primary form component for Create/Edit views in shadmin
+ * - Proper react-hook-form integration ensures form state, validation, and submission work correctly
+ * - Context providers must expose all necessary form methods for custom child components
+ * - Dirty state tracking enables "unsaved changes" warnings and conditional UI
+ * - The validation system must support both synchronous rules and async server-side validation
+ * - Transform and sanitize features enable data normalization before submission
+ *
+ * TEST SETUP:
+ * - renderSimpleForm() helper waits for react-hook-form async initialization
+ * - FormContextDisplay/ShadminContextDisplay components expose context for assertions
+ * - userEvent provides realistic form interactions (typing, clicking, tabbing)
+ * - waitFor handles async validation and submission scenarios
+ * - beforeunload event mocking for warnWhenUnsavedChanges tests
+ *
+ * RELATED COMPONENTS TESTED:
+ * - FormDataConsumer - Render prop component for accessing form data reactively
+ * - useFormData hook - Hook alternative to FormDataConsumer
+ * - Toolbar - Container for form action buttons
+ * - SaveButton - Submit button with loading state
+ * - DeleteButton - Delete action with confirmation dialog
+ *
+ * EDGE CASES COVERED:
+ * - Multiple validation errors on different fields
+ * - Async validation functions
+ * - Submission during pending async operation
+ * - Form reset after successful submission
+ * - warnWhenUnsavedChanges lifecycle (mount, dirty, pristine, unmount)
+ * - Custom resolver for schema validation (e.g., Zod)
+ * - Transform function modifying data before onSubmit
+ * - Empty value sanitization removing blank strings
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'

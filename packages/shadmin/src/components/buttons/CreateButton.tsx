@@ -123,6 +123,8 @@ export const CreateButton = forwardRef<HTMLAnchorElement, CreateButtonProps>(
           className
         )}
         state={scrollToTop ? { _scrollToTop: true } : undefined}
+        // Type assertion: ButtonHTMLAttributes and LinkProps have overlapping but incompatible types
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {...(props as any)}
       >
         {icon && <span className="mr-2">{icon}</span>}

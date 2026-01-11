@@ -19,17 +19,15 @@ export default defineConfig({
     setupFiles: ['./packages/shadmin/src/test-utils/setup.ts'],
     include: ['packages/**/*.spec.{ts,tsx}', 'packages/**/*.test.{ts,tsx}'],
     // Resource optimization
+    // Vitest 4: poolOptions moved to top-level (maxForks/minForks → maxWorkers/minWorkers)
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 2,
-        minForks: 1,
-      },
-    },
+    maxWorkers: 2,
+    minWorkers: 1,
     maxConcurrency: 5,
     fileParallelism: false,
     testTimeout: 10000,
     hookTimeout: 10000,
+    teardownTimeout: 5000,
     isolate: true,
     coverage: {
       provider: 'v8',

@@ -1,3 +1,68 @@
+/**
+ * ListContext Test Suite
+ *
+ * This test suite validates the ListContext system which manages list/datagrid state
+ * for displaying collections of records in shadmin admin interfaces.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. ListContext Export - React context object availability
+ * 2. ListContextProvider - Providing list controller state to component tree
+ * 3. useListContext Hook - Required hook that throws outside provider
+ * 4. List Controller Properties - data, total, pagination, sort, filters, selection
+ * 5. List Controller Callbacks - setPage, setPerPage, setSort, setFilters, selection handlers
+ *
+ * WHY THESE TESTS MATTER:
+ * - ListContext is the foundation for all list views (List, Datagrid, SimpleList)
+ * - The controller pattern separates data fetching from UI rendering
+ * - Selection state enables bulk actions (delete many, update many)
+ * - Pagination, sorting, and filtering must be properly propagated to DataProvider
+ * - Error handling is critical for user feedback in list views
+ *
+ * LIST CONTROLLER RESULT INTERFACE:
+ *
+ * Data State:
+ *   data          - Array of records from current page
+ *   total         - Total count of matching records (for pagination)
+ *   isLoading     - True during initial data fetch
+ *   isFetching    - True during any data fetch (including refetch)
+ *   error         - Error object if fetch failed
+ *   resource      - Name of the resource being listed
+ *
+ * Pagination State:
+ *   page          - Current page number (1-indexed)
+ *   perPage       - Records per page
+ *   setPage       - Callback to navigate to a specific page
+ *   setPerPage    - Callback to change page size
+ *
+ * Sorting State:
+ *   sort          - { field, order } current sort configuration
+ *   setSort       - Callback to change sort field/order
+ *
+ * Filter State:
+ *   filterValues  - Current filter object (e.g., { status: 'active', age_gte: 18 })
+ *   setFilters    - Callback to update filters
+ *
+ * Selection State:
+ *   selectedIds   - Array of selected record IDs
+ *   onSelect      - Callback to set selection to specific IDs
+ *   onToggleItem  - Callback to toggle a single item's selection
+ *   onUnselectItems - Callback to clear all selections
+ *
+ * Refetch:
+ *   refetch       - Callback to trigger a fresh data fetch
+ *
+ * TEST SETUP:
+ * - createTestListContext() factory creates fully mocked controller state
+ * - All callbacks are vi.fn() mocks for assertion
+ * - Consumer components access context and render for assertions
+ *
+ * EDGE CASES COVERED:
+ * - useListContext throws descriptive error outside provider
+ * - Empty data arrays handled correctly
+ * - Error state propagated to consumers
+ * - All callbacks receive correct parameters when invoked
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import {

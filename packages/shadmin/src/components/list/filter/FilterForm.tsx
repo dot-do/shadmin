@@ -67,15 +67,20 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
     ...filterValues,
   } as TFieldValues
 
+  // Type assertions required: react-hook-form's generic constraints don't allow
+  // dynamically constructed default values without explicit casting
   const form = useForm<TFieldValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultValues: mergedDefaultValues as any,
   })
 
   const { handleSubmit, reset: formReset, setValue, watch: _watch } = form
 
   // Sync form values with filterValues from context
+  // Type assertions required: filterValues keys come from context and may not match TFieldValues at compile time
   useEffect(() => {
     Object.entries(filterValues).forEach(([key, value]) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setValue(key as any, value as any)
     })
   }, [filterValues, setValue])
@@ -92,6 +97,8 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
 
   const handleReset = useCallback(() => {
     // Reset form to empty state
+    // Type assertion required: defaultValues may be undefined which useForm accepts
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formReset(defaultValues as any)
     // Reset page to 1
     setPage?.(1)

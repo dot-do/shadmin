@@ -1,3 +1,44 @@
+/**
+ * DataProviderContext Test Suite
+ *
+ * This test suite validates the DataProviderContext which provides the data access
+ * layer abstraction for all CRUD operations in the shadmin admin framework.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. DataProviderContext Export - React context object availability
+ * 2. DataProviderContextProvider - Providing dataProvider to component tree
+ * 3. useDataProvider Hook - Required hook that throws outside provider, exposes all methods
+ * 4. useDataProviderOptional Hook - Optional hook that returns null outside provider
+ *
+ * WHY THESE TESTS MATTER:
+ * - DataProvider is the abstraction layer between UI and data sources (REST, GraphQL, etc.)
+ * - All List, Show, Edit, Create components depend on this context for data operations
+ * - The required vs optional hooks enable both strict and flexible component patterns
+ * - All 9 DataProvider methods must be available: getList, getOne, getMany, getManyReference,
+ *   create, update, updateMany, delete, deleteMany
+ *
+ * TEST SETUP:
+ * - createMockDataProvider() creates a fully mocked DataProvider with vi.fn() for each method
+ * - Consumer components test context access patterns
+ * - Simple render tests verify context propagation
+ *
+ * DATAPROVIDER INTERFACE:
+ * - getList(resource, params) - Fetch paginated list with sort/filter
+ * - getOne(resource, params) - Fetch single record by ID
+ * - getMany(resource, params) - Fetch multiple records by IDs
+ * - getManyReference(resource, params) - Fetch related records
+ * - create(resource, params) - Create new record
+ * - update(resource, params) - Update existing record
+ * - updateMany(resource, params) - Bulk update records
+ * - delete(resource, params) - Delete single record
+ * - deleteMany(resource, params) - Bulk delete records
+ *
+ * EDGE CASES COVERED:
+ * - useDataProvider throws descriptive error outside provider
+ * - useDataProviderOptional returns null (not undefined) outside provider
+ * - All method types are 'function' after context access
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import {

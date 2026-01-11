@@ -2,12 +2,51 @@
  * FormDataConsumer Component and useFormData Hook
  *
  * Provides reactive access to form data within form children.
- * Two patterns are supported:
- * 1. Render props pattern via FormDataConsumer component
- * 2. Hook pattern via useFormData hook
  *
- * Both patterns efficiently watch form values and re-render only when
- * the watched data changes, leveraging react-hook-form's useWatch.
+ * **RECOMMENDED**: Use the `useFormData` hook for new code.
+ * The `FormDataConsumer` component is provided for backward compatibility
+ * but the hooks pattern is preferred for cleaner, more composable code.
+ *
+ * ## Migration from FormDataConsumer to useFormData
+ *
+ * The render props pattern creates deeper nesting and makes code harder to test.
+ * The hooks pattern is more composable and follows React best practices.
+ *
+ * ### Before (Render Props - Legacy Pattern)
+ * ```tsx
+ * <SimpleForm onSubmit={handleSubmit}>
+ *   <TextInput source="type" />
+ *   <FormDataConsumer>
+ *     {({ formData, setValue }) => (
+ *       formData.type === 'premium' && (
+ *         <TextInput source="discountCode" />
+ *       )
+ *     )}
+ *   </FormDataConsumer>
+ * </SimpleForm>
+ * ```
+ *
+ * ### After (Hooks - Recommended Pattern)
+ * ```tsx
+ * function ConditionalDiscountCode() {
+ *   const { formData } = useFormData<{ type: string }>()
+ *   if (formData.type !== 'premium') return null
+ *   return <TextInput source="discountCode" />
+ * }
+ *
+ * <SimpleForm onSubmit={handleSubmit}>
+ *   <TextInput source="type" />
+ *   <ConditionalDiscountCode />
+ * </SimpleForm>
+ * ```
+ *
+ * ## Benefits of Hooks Pattern
+ *
+ * 1. **Testability**: Components using hooks are easier to test in isolation
+ * 2. **Composition**: Hooks compose naturally with other hooks
+ * 3. **Readability**: Less nesting, clearer data flow
+ * 4. **Type Safety**: TypeScript inference works better with hooks
+ * 5. **Reusability**: Extract logic into custom hooks
  *
  * @module FormDataConsumer
  */
@@ -153,7 +192,9 @@ export interface UseFormDataOptions<T extends FieldValues = FieldValues> {
 
 /**
  * Hook for accessing form data reactively.
- * Alternative to FormDataConsumer for cases where hooks are preferred over render props.
+ *
+ * **This is the RECOMMENDED pattern** for accessing form data in shadmin.
+ * It provides cleaner, more composable code compared to the render props pattern.
  *
  * This hook must be used within a FormProvider context (e.g., inside SimpleForm).
  *
@@ -161,9 +202,11 @@ export interface UseFormDataOptions<T extends FieldValues = FieldValues> {
  * @param options - Optional configuration with source path for scoped data
  * @returns Object containing form data, scoped data, and form methods
  *
+ * ## Basic Usage
+ *
  * @example
  * ```tsx
- * // Basic usage - access all form data
+ * // Access all form data
  * function MyComponent() {
  *   const { formData, setValue } = useFormData<MyFormType>()
  *
@@ -173,12 +216,80 @@ export interface UseFormDataOptions<T extends FieldValues = FieldValues> {
  *     </button>
  *   )
  * }
+ * ```
  *
- * // With scoped data access
+ * ## Conditional Rendering
+ *
+ * @example
+ * ```tsx
+ * // Show/hide fields based on form values
+ * function PremiumFields() {
+ *   const { formData } = useFormData<{ tier: string }>()
+ *
+ *   if (formData.tier !== 'premium') return null
+ *
+ *   return (
+ *     <>
+ *       <TextInput source="discountCode" />
+ *       <NumberInput source="customLimit" />
+ *     </>
+ *   )
+ * }
+ * ```
+ *
+ * ## Scoped Data Access
+ *
+ * @example
+ * ```tsx
+ * // Access nested data with type safety
+ * interface UserForm {
+ *   user: { address: { city: string; zip: string } }
+ * }
+ *
  * function AddressDisplay() {
- *   const { scopedFormData } = useFormData<MyFormType>({ source: 'address' })
+ *   const { scopedFormData } = useFormData<UserForm>({ source: 'user.address' })
  *
- *   return <div>City: {scopedFormData?.city}</div>
+ *   return (
+ *     <div>
+ *       City: {scopedFormData?.city}, Zip: {scopedFormData?.zip}
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * ## Validation and Form State
+ *
+ * @example
+ * ```tsx
+ * // Access form state and trigger validation
+ * function FormStatus() {
+ *   const { formState, trigger } = useFormData()
+ *
+ *   return (
+ *     <div>
+ *       <span>{formState.isDirty ? 'Modified' : 'Unchanged'}</span>
+ *       <button type="button" onClick={() => trigger()}>
+ *         Validate All
+ *       </button>
+ *     </div>
+ *   )
+ * }
+ * ```
+ *
+ * ## Computed Values
+ *
+ * @example
+ * ```tsx
+ * // Create derived values from form data
+ * function OrderTotal() {
+ *   const { formData } = useFormData<{ items: { price: number; qty: number }[] }>()
+ *
+ *   const total = useMemo(() =>
+ *     formData.items?.reduce((sum, item) => sum + item.price * item.qty, 0) ?? 0,
+ *     [formData.items]
+ *   )
+ *
+ *   return <div>Total: ${total.toFixed(2)}</div>
  * }
  * ```
  *
@@ -235,28 +346,62 @@ export function useFormData<T extends FieldValues = FieldValues>(
 
 /**
  * FormDataConsumer component for accessing form data in render props pattern.
- * Allows children to reactively access and modify form data.
  *
- * For a hooks-based alternative, see {@link useFormData}.
+ * **DEPRECATION NOTICE**: This component uses the render props pattern which
+ * creates deeper nesting and is harder to test. Consider migrating to the
+ * `useFormData` hook for new code.
+ *
+ * @deprecated Prefer using `useFormData` hook instead. See module documentation
+ * for migration examples. This component will continue to work but the hooks
+ * pattern is the recommended approach.
  *
  * @template T - The form data type extending FieldValues
  * @template TSource - Optional source path type for scoped data access
  *
+ * ## Why Migrate to useFormData?
+ *
+ * | Aspect | FormDataConsumer | useFormData |
+ * |--------|------------------|-------------|
+ * | Nesting | Deep nesting with render props | Flat component structure |
+ * | Testing | Hard to test inline functions | Easy to test components |
+ * | Types | Complex generic inference | Cleaner type inference |
+ * | Composition | Limited | Composes with other hooks |
+ *
+ * ## Migration Example
+ *
  * @example
  * ```tsx
- * // Basic usage - conditional rendering based on form data
- * <SimpleForm onSubmit={handleSubmit}>
- *   <TextInput source="type" />
- *   <FormDataConsumer>
- *     {({ formData }) => (
- *       formData.type === 'premium' && (
- *         <TextInput source="discountCode" />
- *       )
- *     )}
- *   </FormDataConsumer>
- * </SimpleForm>
+ * // Before (FormDataConsumer)
+ * <FormDataConsumer>
+ *   {({ formData }) => (
+ *     formData.type === 'premium' && <TextInput source="code" />
+ *   )}
+ * </FormDataConsumer>
  *
- * // Using form methods to programmatically update values
+ * // After (useFormData hook)
+ * function PremiumField() {
+ *   const { formData } = useFormData<{ type: string }>()
+ *   if (formData.type !== 'premium') return null
+ *   return <TextInput source="code" />
+ * }
+ * ```
+ *
+ * ## Legacy Usage Examples
+ *
+ * These patterns still work but are not recommended for new code:
+ *
+ * @example
+ * ```tsx
+ * // Conditional rendering based on form data
+ * <FormDataConsumer>
+ *   {({ formData }) => (
+ *     formData.type === 'premium' && (
+ *       <TextInput source="discountCode" />
+ *     )
+ *   )}
+ * </FormDataConsumer>
+ *
+ * // Programmatically update values
  * <FormDataConsumer>
  *   {({ formData, setValue }) => (
  *     <button
@@ -268,22 +413,10 @@ export function useFormData<T extends FieldValues = FieldValues>(
  *   )}
  * </FormDataConsumer>
  *
- * // With scoped data access for nested objects
+ * // Scoped data access for nested objects
  * <FormDataConsumer source="address">
- *   {({ scopedFormData, formData }) => (
- *     <div>
- *       Street: {scopedFormData?.street}
- *       Full data: {JSON.stringify(formData)}
- *     </div>
- *   )}
- * </FormDataConsumer>
- *
- * // Accessing form state for validation display
- * <FormDataConsumer>
- *   {({ formState }) => (
- *     formState.errors.email && (
- *       <div className="error">{formState.errors.email.message}</div>
- *     )
+ *   {({ scopedFormData }) => (
+ *     <div>Street: {scopedFormData?.street}</div>
  *   )}
  * </FormDataConsumer>
  * ```

@@ -40,3 +40,10 @@ export {
   type InteractiveMenuOptions,
 } from './interactive'
 export { showInteractiveMenu, InteractiveMenu } from './InteractiveMenu'
+export {
+  extractTranslationKeys,
+  formatExtractionResult,
+  type TranslationKey,
+  type ExtractionResult,
+  type ExtractorOptions,
+} from './translation-extractor'

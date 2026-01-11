@@ -35,6 +35,7 @@
  */
 
 import type { AuthProvider, UserIdentity, LoginParams } from '../facade'
+import { getErrorStatus, getErrorCode, isStringArray } from '../utils/type-guards'
 
 import type { DOClientProxy, ConnectionState } from './types'
 
@@ -368,8 +369,9 @@ export function createDotdoAuthProvider(
      * Check if an error should trigger logout
      */
     checkError: async (error: unknown): Promise<void> => {
-      const status = (error as { status?: number }).status
-      const code = (error as { code?: string }).code
+      // Use type guards for safe property access from unknown error
+      const status = getErrorStatus(error)
+      const code = getErrorCode(error)
 
       // 401 Unauthorized or 403 Forbidden should trigger logout
       if (status === 401 || status === 403) {
@@ -466,7 +468,8 @@ export function createDotdoAuthProvider(
       record?: RecordType
     }): Promise<boolean> => {
       const permissionsResult = await authProvider.getPermissions({})
-      const permissions = Array.isArray(permissionsResult) ? (permissionsResult as string[]) : []
+      // Use type guard to safely validate permissions array
+      const permissions = isStringArray(permissionsResult) ? permissionsResult : []
 
       // Check for wildcard permission
       if (permissions.includes('*') || permissions.includes('admin')) {

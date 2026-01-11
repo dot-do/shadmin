@@ -30,7 +30,7 @@ export interface ViteConfigOptions {
 /**
  * Available CLI commands
  */
-export type CLICommand = 'dev' | 'build' | 'preview' | 'help' | 'version'
+export type CLICommand = 'dev' | 'build' | 'preview' | 'help' | 'version' | 'extract-translations'
 
 /**
  * Parsed CLI arguments
@@ -52,10 +52,14 @@ export interface CLIArgs {
   configFile?: string
   /** Custom resources directory name */
   resourcesDir?: string
+  /** Output format for extract-translations (json or po) */
+  format?: 'json' | 'po'
+  /** Output file path for extract-translations */
+  output?: string
 }
 
 /** Valid commands */
-const COMMANDS = new Set<CLICommand>(['dev', 'build', 'preview', 'help', 'version'])
+const COMMANDS = new Set<CLICommand>(['dev', 'build', 'preview', 'help', 'version', 'extract-translations'])
 
 /**
  * Parses command line arguments
@@ -153,6 +157,26 @@ export function parseArgs(args: string[]): CLIArgs {
       const resourcesDirValue = args[++i]
       if (resourcesDirValue !== undefined) {
         result.resourcesDir = resourcesDirValue
+      }
+      i++
+      continue
+    }
+
+    // Format option (for extract-translations)
+    if (arg === '--format' || arg === '-f') {
+      const formatValue = args[++i]
+      if (formatValue === 'json' || formatValue === 'po') {
+        result.format = formatValue
+      }
+      i++
+      continue
+    }
+
+    // Output option (for extract-translations)
+    if (arg === '--output' || arg === '-O') {
+      const outputValue = args[++i]
+      if (outputValue !== undefined) {
+        result.output = outputValue
       }
       i++
       continue

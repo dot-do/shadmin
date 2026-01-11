@@ -1,7 +1,38 @@
 /**
- * FilterOperatorSelect Component Tests
- * Issue: shadmin-qyay
- * TDD: RED phase - write failing tests first
+ * FilterOperatorSelect Component Test Suite
+ *
+ * This test suite validates the FilterOperatorSelect component which provides
+ * a dropdown for selecting filter operators (equals, greater than, contains, etc.).
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Basic Rendering - Select element with provided operators as options
+ * 2. Value Management - Current value selection and onChange callback
+ * 3. Human-Readable Labels - Mapping operator codes to display text (eq -> "equals")
+ * 4. Compact Mode - Short notation (eq -> "=") for space-constrained UIs
+ * 5. Operator Type Presets - Text, number, and date operator sets
+ * 6. Accessibility - aria-label support, disabled state
+ *
+ * WHY THESE TESTS MATTER:
+ * - FilterOperatorSelect enables rich filtering beyond simple equality checks
+ * - Human-readable labels improve UX by making operator meaning clear
+ * - Preset operator types ensure appropriate operators for each data type
+ * - Compact mode is essential for dense UI layouts (e.g., inline filters)
+ * - The onChange callback must emit the correct operator value for filter updates
+ *
+ * TEST SETUP:
+ * - Direct component rendering (no context needed)
+ * - vi.fn() mocks for onChange callback
+ * - userEvent for realistic select option changes
+ *
+ * OPERATOR TYPES:
+ * - Text: eq, neq, contains, startsWith, endsWith, isNull, isNotNull
+ * - Number: eq, neq, gt, gte, lt, lte, between, isNull, isNotNull
+ * - Date: eq, neq, gt, gte, lt, lte, between, isNull, isNotNull
+ *
+ * EDGE CASES COVERED:
+ * - Custom operators list restricting available options
+ * - Compact mode displaying symbols instead of words
+ * - Type presets providing appropriate operator sets
  */
 
 import { describe, it, expect, vi } from 'vitest'

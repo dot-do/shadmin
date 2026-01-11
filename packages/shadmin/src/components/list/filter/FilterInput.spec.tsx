@@ -1,7 +1,39 @@
 /**
- * FilterInput Component Tests
- * Issue: shadmin-qyay
- * TDD: RED phase - write failing tests first
+ * FilterInput Component Test Suite
+ *
+ * This test suite validates the FilterInput component which provides a flexible
+ * text/number/date input with operator support for filtering list data in shadmin.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Basic Rendering - Input element, label derivation from source, placeholder, disabled state
+ * 2. Operator Support - Dropdown for selecting comparison operators (eq, neq, gt, lt, contains, etc.)
+ * 3. Filter Value Handling - Integration with ListContext.setFilters, operator-based key naming
+ * 4. Input Types - Text (default), number (spinbutton), and date inputs
+ * 5. Debouncing - Delayed filter updates to prevent excessive API calls during typing
+ * 6. Clearing - Proper filter removal when input is cleared
+ * 7. Special Operators - Between (two inputs), isNull/isNotNull (hidden input)
+ *
+ * WHY THESE TESTS MATTER:
+ * - FilterInput is a core building block for list filtering with complex query operators
+ * - Operator support enables rich filtering (greater than, contains, between ranges)
+ * - Filter key naming with operators (e.g., age_gt, name_contains) is critical for backend parsing
+ * - Debouncing prevents performance issues with keystroke-by-keystroke API calls
+ * - Initialization from existing filterValues ensures URL/state restoration works correctly
+ * - Special operators like "between" and "isNull" require different UI patterns
+ *
+ * TEST SETUP:
+ * - createMockListContext() provides a mock ListContextValue with vi.fn() mocks
+ * - TestWrapper component wraps FilterInput in ListContext.Provider
+ * - userEvent is used for realistic typing and selection interactions
+ * - waitFor is used for async debounce/filter update assertions
+ *
+ * EDGE CASES COVERED:
+ * - Default operator (eq) when showOperator is false
+ * - Custom operators list restriction
+ * - Operator change updating filter key (removing old, adding new)
+ * - Initializing from filter value with embedded operator (e.g., age_gt: '25')
+ * - Between operator showing two inputs and submitting as array
+ * - isNull/isNotNull operators hiding the value input entirely
  */
 
 import { describe, it, expect, vi } from 'vitest'

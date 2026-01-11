@@ -268,9 +268,9 @@
     "format": "prettier --write src"
   },
   "peerDependencies": {
+    "@mdxui/admin": ">=0.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@mdxui/admin": ">=0.1.0"
+    "react-dom": "^19.0.0"
   },
   "peerDependenciesMeta": {
     "@mdxui/admin": {
@@ -322,6 +322,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.18",
     "@vitejs/plugin-react": "^4.3.4",
     "esbuild": "^0.25.0",
     "ink": "^6.6.0",

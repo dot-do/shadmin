@@ -1,5 +1,65 @@
 /**
- * Tests for filter operator utilities
+ * Filter Operators Test Suite
+ *
+ * This comprehensive test suite validates the filter operator system which enables
+ * rich data filtering capabilities across shadmin list views and data grids.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. FILTER_OPERATORS - Complete set of supported operators (eq, neq, gt, gte, lt, lte, etc.)
+ * 2. parseFilterOperator - Parse filter keys like "age_gt" into {field, operator} objects
+ * 3. buildFilterKey - Build filter keys from field name and operator
+ * 4. applyFilterOperator - Apply a single filter comparison to a value
+ * 5. applyFiltersWithOperators - Apply multiple filters to filter an array of records
+ * 6. getOperatorsForType - Get valid operators for different field types (text, number, date, etc.)
+ *
+ * WHY THESE TESTS MATTER:
+ * - Filter operators enable advanced query building in list views (ListContext)
+ * - The client-side filtering is essential for local data manipulation and previews
+ * - Server-side DataProviders must translate these operators to their query language
+ * - Type-specific operators prevent invalid comparisons (e.g., "contains" on numbers)
+ *
+ * FILTER OPERATOR CATEGORIES:
+ *
+ * Equality:
+ *   eq     - Equal (default when no suffix provided)
+ *   neq    - Not equal
+ *
+ * Comparison (for numbers, dates):
+ *   gt     - Greater than
+ *   gte    - Greater than or equal
+ *   lt     - Less than
+ *   lte    - Less than or equal
+ *   between - Value falls within range [min, max] inclusive
+ *
+ * String matching (case-insensitive):
+ *   contains   - Substring match anywhere
+ *   startsWith - Prefix match
+ *   endsWith   - Suffix match
+ *
+ * Set membership:
+ *   in     - Value is in the provided array
+ *   notIn  - Value is not in the provided array
+ *
+ * Null checking:
+ *   isNull    - Value is null or undefined
+ *   isNotNull - Value is not null/undefined
+ *
+ * FILTER KEY FORMAT:
+ * - "field" → implicit eq operator
+ * - "field_operator" → explicit operator suffix
+ * - "user.name_contains" → nested field with operator
+ * - "created_at_gte" → underscore in field name handled correctly
+ *
+ * EDGE CASES COVERED:
+ * - Null/undefined values in comparisons
+ * - Empty filter arrays (in/notIn with [])
+ * - Invalid between range formats
+ * - Case-insensitive string comparisons
+ * - Numeric strings compared as numbers
+ * - Date comparisons using ISO strings
+ * - Nested field access (user.profile.name)
+ * - Field names containing underscores
+ *
  * Issue: shadmin-qyay
  */
 

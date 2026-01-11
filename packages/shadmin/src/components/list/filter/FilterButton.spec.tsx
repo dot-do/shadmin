@@ -1,6 +1,36 @@
 /**
- * FilterButton component tests
- * TDD: RED phase - Write failing tests first
+ * FilterButton Component Test Suite
+ *
+ * This test suite validates the FilterButton component which provides a toggle button
+ * for showing/hiding filter panels in list views within the shadmin admin framework.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Basic Rendering - Button renders with correct labels, custom classes, and accessibility attributes
+ * 2. Toggle Visibility - Controlled and uncontrolled toggle state management via onToggle callback
+ * 3. Active Filter Count - Dynamic badge showing number of active (non-empty) filters
+ * 4. Visual States - data-has-filters attribute for styling active vs inactive states
+ * 5. Accessibility - aria-expanded, aria-controls, and disabled state support
+ *
+ * WHY THESE TESTS MATTER:
+ * - FilterButton is the primary UI trigger for filter panels in list views
+ * - The active filter count provides immediate feedback about applied filters
+ * - Proper toggle state management is critical for controlled vs uncontrolled usage patterns
+ * - Filter count must correctly exclude empty/null/undefined values to avoid misleading users
+ * - Boolean false and 0 are valid filter values and must be counted correctly
+ *
+ * TEST SETUP:
+ * - createTestListContext() provides a mock ListControllerResult with vi.fn() mocks
+ * - Tests wrap FilterButton in ListContextProvider to simulate real usage
+ * - userEvent is used for realistic user interactions (clicking)
+ *
+ * EDGE CASES COVERED:
+ * - Filtering out empty string, null, and undefined from filter count
+ * - Counting boolean false and numeric 0 as valid filter values
+ * - Handling arrays, dates, and multiple filter types in count calculation
+ * - Very large filter counts (99 filters)
+ * - Multiple toggle clicks maintaining correct aria-expanded state
+ * - Controlled mode (isOpen prop) vs uncontrolled mode (internal state)
+ * - Preventing internal state toggle when onToggle is provided (controlled mode)
  */
 
 import { describe, it, expect, vi } from 'vitest'

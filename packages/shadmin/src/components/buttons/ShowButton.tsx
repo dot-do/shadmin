@@ -130,6 +130,8 @@ export const ShowButton = forwardRef<HTMLAnchorElement, ShowButtonProps>(
           className
         )}
         state={scrollToTop ? { _scrollToTop: true } : undefined}
+        // Type assertion: ButtonHTMLAttributes and LinkProps have overlapping but incompatible types
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {...(props as any)}
       >
         {icon && <span className="mr-2">{icon}</span>}
@@ -141,4 +143,6 @@ export const ShowButton = forwardRef<HTMLAnchorElement, ShowButtonProps>(
   props: ShowButtonProps<RecordType> & { ref?: React.Ref<HTMLAnchorElement> }
 ) => React.ReactElement | null
 
+// Type assertion required: forwardRef with generic constraints doesn't preserve displayName type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(ShowButton as any).displayName = 'ShowButton'

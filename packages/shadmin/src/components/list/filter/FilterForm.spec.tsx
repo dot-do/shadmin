@@ -1,6 +1,34 @@
 /**
- * FilterForm component tests
- * TDD: RED phase - Write failing tests first
+ * FilterForm Component Test Suite
+ *
+ * This test suite validates the FilterForm component which provides a wrapper around
+ * react-hook-form to manage list filters within the shadmin admin framework.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. Form Rendering - Basic rendering with children and custom styling
+ * 2. Form Submission - Integration with ListContext.setFilters to apply filters
+ * 3. ListContext Integration - Syncing form state with context filterValues
+ * 4. Filter Reset - Clearing all filters and resetting pagination
+ *
+ * WHY THESE TESTS MATTER:
+ * - FilterForm is the primary mechanism for users to filter data in List views
+ * - It must correctly integrate with both react-hook-form and ListContext
+ * - Page reset on filter change prevents confusing empty results on high page numbers
+ * - The render prop pattern allows flexible filter UI composition
+ *
+ * TEST SETUP:
+ * - createTestListContext() provides a mock ListControllerResult with vi.fn() mocks
+ * - Tests wrap FilterForm in ListContextProvider to simulate real usage
+ * - userEvent is used for realistic user interactions (typing, clicking)
+ *
+ * EDGE CASES COVERED:
+ * - Empty default values
+ * - Null/undefined children
+ * - Merging defaultValues with existing filterValues
+ * - Multiple form submissions
+ * - Enter key submission
+ * - Nested object filter values (e.g., 'nested.field')
+ * - Exposing all react-hook-form methods to render prop
  */
 
 import { describe, it, expect, vi } from 'vitest'

@@ -226,4 +226,6 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
   props: DeleteWithConfirmButtonProps<RecordType> & { ref?: React.Ref<HTMLButtonElement> }
 ) => React.ReactElement | null
 
+// Type assertion required: forwardRef with generic constraints doesn't preserve displayName type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(DeleteWithConfirmButton as any).displayName = 'DeleteWithConfirmButton'

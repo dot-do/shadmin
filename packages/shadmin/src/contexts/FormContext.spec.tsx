@@ -1,3 +1,51 @@
+/**
+ * FormContext Test Suite
+ *
+ * This comprehensive test suite validates the FormContext system which bridges
+ * react-hook-form with shadmin-specific form state management.
+ *
+ * KEY CONCEPTS TESTED:
+ * 1. FormContext Export - React context object availability
+ * 2. FormContextProvider - Providing react-hook-form + shadmin context to children
+ * 3. useFormContext Hook - Access to react-hook-form methods (register, handleSubmit, etc.)
+ * 4. useShadminFormContext Hook - Access to shadmin-specific state (record, resource, save, etc.)
+ * 5. Memoization - Context value stability across re-renders
+ *
+ * WHY THESE TESTS MATTER:
+ * - FormContext unifies react-hook-form's context with shadmin's admin-specific needs
+ * - SimpleForm, Edit, and Create all depend on this context for form operations
+ * - The dual context pattern (react-hook-form + shadmin) enables both standard and custom forms
+ * - Proper memoization prevents unnecessary re-renders in complex form hierarchies
+ * - Function reference stability (save, onDelete) is critical for memo optimization
+ *
+ * TEST SETUP:
+ * - TestComponent wrappers create useForm instances and FormContextProvider
+ * - Consumer components access and display context values for assertions
+ * - fireEvent/waitFor handle form interactions and async state updates
+ * - Render counting tracks re-render behavior for memoization tests
+ *
+ * SHADMIN FORM CONTEXT PROPERTIES:
+ * - record: Current record being edited (undefined for Create)
+ * - resource: Resource name (e.g., 'posts', 'users')
+ * - save: Async function to persist form data
+ * - saving: Boolean indicating submission in progress
+ * - mutationMode: 'pessimistic' | 'optimistic' | 'undoable'
+ * - onDelete: Optional delete handler
+ *
+ * MEMOIZATION TESTS (WHY):
+ * - Documents current behavior: useShadminFormContext creates new object per render
+ * - Tests verify VALUE equality even when REFERENCE differs
+ * - Function references (save, onDelete) should be stable when useCallback is used
+ * - Tests guide future memoization optimizations by showing expected behavior
+ *
+ * EDGE CASES COVERED:
+ * - useFormContext returns null outside provider (react-hook-form behavior)
+ * - useShadminFormContext properties undefined when not provided
+ * - Optimistic vs pessimistic mutation mode handling
+ * - Re-render behavior with stable vs unstable context values
+ * - Memoized child components and context reference stability
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { useForm, type FieldValues } from 'react-hook-form'

@@ -64,6 +64,17 @@ export {
   type InfiniteListViewProps,
 } from './InfiniteList'
 
+// Virtual components for large datasets (10K+ rows)
+export {
+  VirtualDatagrid,
+  type VirtualDatagridProps,
+} from './VirtualDatagrid'
+
+export {
+  VirtualList,
+  type VirtualListProps,
+} from './VirtualList'
+
 // List Actions and Toolbar
 export { ListActions, type ListActionsProps } from './ListActions'
 export { ListToolbar, type ListToolbarProps } from './ListToolbar'
