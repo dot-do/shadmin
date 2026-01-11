@@ -53,6 +53,10 @@ export type {
   PaginationPayload,
   SortPayload,
   SortOrder,
+  // Filter types
+  FilterOperator,
+  FilterKeys,
+  TypedFilterPayload,
   FilterPayload,
   // Resource types
   ResourceDefinition,

@@ -28,6 +28,10 @@ export type {
   SortPayload,
   SortOrder,
   PaginationPayload,
+  // Filter types
+  FilterOperator,
+  FilterKeys,
+  TypedFilterPayload,
   FilterPayload,
   // GetList
   GetListParams,

@@ -27,7 +27,15 @@ import {
 } from './ListSelectionContext'
 
 // Re-export types for backward compatibility
-export type { Identifier, SortPayload, SortOrder, FilterPayload } from '../types'
+export type {
+  Identifier,
+  SortPayload,
+  SortOrder,
+  FilterPayload,
+  FilterOperator,
+  FilterKeys,
+  TypedFilterPayload,
+} from '../types'
 
 /**
  * Result type for the list controller containing all list state and callbacks.

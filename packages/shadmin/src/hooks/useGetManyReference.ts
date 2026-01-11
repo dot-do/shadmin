@@ -11,6 +11,7 @@ import type {
   Identifier,
   GetManyReferenceResult,
 } from '../types'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
 
 /**
  * Parameters for useGetManyReference hook
@@ -34,8 +35,8 @@ export interface UseGetManyReferenceParams {
  * Default parameters for useGetManyReference
  */
 const defaultParams: Required<Pick<UseGetManyReferenceParams, 'pagination' | 'sort' | 'filter'>> = {
-  pagination: { page: 1, perPage: 10 },
-  sort: { field: 'id', order: 'ASC' },
+  pagination: { page: PAGINATION_DEFAULTS.PAGE, perPage: PAGINATION_DEFAULTS.PER_PAGE },
+  sort: { field: SORT_DEFAULTS.FIELD, order: SORT_DEFAULTS.ORDER },
   filter: {},
 }
 

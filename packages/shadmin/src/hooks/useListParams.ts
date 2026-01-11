@@ -16,6 +16,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { useTestSearchParams } from '../test-utils/TestMemoryRouter'
 import type { SortPayload, FilterPayload } from '../contexts/ListContext'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS, TIMING_DEFAULTS } from '../constants'
 
 /**
  * Parameters for useListParams hook
@@ -62,12 +63,7 @@ export interface UseListParamsResult {
 /**
  * Default sort configuration
  */
-const defaultSort: SortPayload = { field: 'id', order: 'ASC' }
-
-/**
- * Default debounce delay for URL updates (in milliseconds)
- */
-const DEFAULT_DEBOUNCE_DELAY = 200
+const defaultSort: SortPayload = { field: SORT_DEFAULTS.FIELD, order: SORT_DEFAULTS.ORDER }
 
 /**
  * Parse a number from URL, returning undefined if invalid
@@ -278,11 +274,11 @@ interface ListParamsState {
 export function useListParams({
   resource,
   storeKey,
-  perPage: defaultPerPage = 10,
+  perPage: defaultPerPage = PAGINATION_DEFAULTS.PER_PAGE,
   sort: defaultSortProp,
   filterDefaultValues = {},
   disableSyncWithLocation = false,
-  debounceDelay = DEFAULT_DEBOUNCE_DELAY,
+  debounceDelay = TIMING_DEFAULTS.DEBOUNCE_DELAY,
 }: UseListParamsProps): UseListParamsResult {
   // URL sync hooks
   let searchParams: URLSearchParams

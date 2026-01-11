@@ -10,6 +10,7 @@
 
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QUERY_DEFAULTS } from '../constants'
 
 /**
  * Default options for the QueryClient
@@ -17,9 +18,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 export const DEFAULT_QUERY_CLIENT_OPTIONS = {
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
+      staleTime: QUERY_DEFAULTS.STALE_TIME,
+      retry: QUERY_DEFAULTS.RETRY_COUNT,
+      refetchOnWindowFocus: QUERY_DEFAULTS.REFETCH_ON_WINDOW_FOCUS,
     },
   },
 } as const

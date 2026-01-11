@@ -37,6 +37,7 @@ import { useEffect, useMemo, useCallback } from 'react'
 import { useShadminDO, useShadminDOOptional } from './provider'
 import type { RaRecord } from '../types'
 import type { UseDOListParams, UseDOListResult, DOListResult } from './types'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
 
 /**
  * Options for useDOList hook
@@ -54,10 +55,10 @@ export interface UseDOListOptions<RecordType extends RaRecord = RaRecord>
  * Default parameters for list queries
  */
 const defaultParams: Required<Pick<UseDOListParams, 'page' | 'perPage' | 'sortField' | 'sortOrder' | 'filter'>> = {
-  page: 1,
-  perPage: 10,
-  sortField: 'id',
-  sortOrder: 'ASC',
+  page: PAGINATION_DEFAULTS.PAGE,
+  perPage: PAGINATION_DEFAULTS.PER_PAGE,
+  sortField: SORT_DEFAULTS.FIELD,
+  sortOrder: SORT_DEFAULTS.ORDER,
   filter: {},
 }
 

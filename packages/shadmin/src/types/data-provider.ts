@@ -38,15 +38,121 @@ export interface PaginationPayload {
 }
 
 /**
- * Filter payload for list queries.
- * Keys can be field names or field names with operator suffixes (e.g., 'age_gt', 'name_contains').
+ * Filter operators that can be appended to field names.
+ * These are common operators used by data providers for server-side filtering.
  *
  * @example
  * ```tsx
- * const filter: FilterPayload = { status: 'active', age_gt: 18 }
+ * // Using operators with field names:
+ * { age_gt: 18, name_contains: 'john', status_in: ['active', 'pending'] }
  * ```
  */
-export type FilterPayload<_T extends RaRecord = RaRecord> = Record<string, unknown>
+export type FilterOperator =
+  | '' // exact match (no suffix)
+  | '_gt' // greater than
+  | '_gte' // greater than or equal
+  | '_lt' // less than
+  | '_lte' // less than or equal
+  | '_ne' // not equal
+  | '_eq' // equal (explicit)
+  | '_in' // in array
+  | '_nin' // not in array
+  | '_contains' // contains substring (case-sensitive)
+  | '_icontains' // contains substring (case-insensitive)
+  | '_startswith' // starts with
+  | '_endswith' // ends with
+  | '_isnull' // is null check
+  | '_like' // SQL LIKE pattern
+  | '_ilike' // SQL ILIKE pattern (case-insensitive)
+  | '_regex' // regex match
+  | '_exists' // field exists
+  | '_between' // between two values
+  | '_not' // negation
+
+/**
+ * Extract non-id keys from a record type for filter field generation.
+ * Excludes 'id' since it's handled separately and includes nested paths.
+ */
+type FilterableKeys<T extends RaRecord> = Exclude<keyof T, 'id'> & string
+
+/**
+ * Generate filter keys for a record type by combining field names with operators.
+ * This creates all valid filter key combinations for type-safe filtering.
+ *
+ * @template T - The record type to generate filter keys for
+ *
+ * @example
+ * ```tsx
+ * interface User extends RaRecord {
+ *   name: string
+ *   age: number
+ * }
+ * // FilterKeys<User> includes: 'name', 'name_contains', 'age', 'age_gt', 'age_lte', etc.
+ * ```
+ */
+export type FilterKeys<T extends RaRecord> =
+  | FilterableKeys<T>
+  | `${FilterableKeys<T>}${Exclude<FilterOperator, ''>}`
+  | 'id'
+  | `id${Exclude<FilterOperator, ''>}`
+  | 'q' // common full-text search key
+  | `${string}.${string}` // nested field access (e.g., 'author.name')
+
+/**
+ * Typed filter payload for a specific record type.
+ * Provides type-safe filter keys based on the record's fields.
+ *
+ * @template T - The record type this filter applies to
+ *
+ * @example
+ * ```tsx
+ * interface User extends RaRecord {
+ *   name: string
+ *   age: number
+ *   active: boolean
+ * }
+ *
+ * // Type-safe filter creation:
+ * const filter: TypedFilterPayload<User> = {
+ *   name_contains: 'john',
+ *   age_gte: 18,
+ *   active: true
+ * }
+ * ```
+ */
+export type TypedFilterPayload<T extends RaRecord = RaRecord> = {
+  [K in FilterKeys<T>]?: unknown
+}
+
+/**
+ * Filter payload for list queries.
+ * Keys can be field names or field names with operator suffixes (e.g., 'age_gt', 'name_contains').
+ *
+ * When used with a generic type parameter, provides type-safe filter key suggestions.
+ * Without a type parameter (or with RaRecord), allows any string keys for maximum flexibility.
+ *
+ * @template T - The record type for type-safe filter keys. Defaults to RaRecord for backward compatibility.
+ *
+ * @example
+ * ```tsx
+ * // Untyped usage (backward compatible):
+ * const filter: FilterPayload = { status: 'active', age_gt: 18 }
+ *
+ * // Typed usage (with specific record type):
+ * interface User extends RaRecord {
+ *   name: string
+ *   age: number
+ * }
+ * const typedFilter: FilterPayload<User> = { name_contains: 'john', age_gte: 18 }
+ * ```
+ */
+export type FilterPayload<T extends RaRecord = RaRecord> =
+  // When T is exactly RaRecord (the default), use loose typing for backward compatibility
+  T extends { [key: string]: unknown }
+    ? [keyof Omit<T, 'id'>] extends [never]
+      ? Record<string, unknown> // No specific fields, allow anything
+      : TypedFilterPayload<T> & Record<string, unknown> // Has fields, suggest them but allow extras
+    : Record<string, unknown>
 
 // GetList
 export interface GetListParams<T extends RaRecord = RaRecord> {

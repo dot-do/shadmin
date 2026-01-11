@@ -4,6 +4,7 @@
  */
 
 import { Component, createContext, useContext, type ReactNode, type ErrorInfo, type ComponentType } from 'react'
+import { cn } from '../../utils/cn'
 
 /**
  * Error info provided to callbacks and fallback components
@@ -122,30 +123,22 @@ function DefaultFallback({
     <div
       role="alert"
       data-testid="error-boundary-fallback"
-      style={{
-        padding: '20px',
-        margin: '20px',
-        border: '1px solid #dc2626',
-        borderRadius: '8px',
-        backgroundColor: '#fef2f2',
-      }}
+      className="m-5 rounded-lg border border-red-600 bg-red-50 p-5"
     >
-      <h2 style={{ color: '#dc2626', marginTop: 0 }}>Something went wrong</h2>
-      <p data-testid="error-message" style={{ color: '#991b1b' }}>{error.message}</p>
-      <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+      <h2 className="mt-0 text-red-600">Something went wrong</h2>
+      <p data-testid="error-message" className="text-red-800">{error.message}</p>
+      <div className="mt-4 flex gap-2.5">
         {(showRefreshButton || canRetry) && (
           <button
             onClick={resetErrorBoundary}
             disabled={!canRetry}
             data-testid="error-retry-button"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: canRetry ? '#2563eb' : '#9ca3af',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: canRetry ? 'pointer' : 'not-allowed',
-            }}
+            className={cn(
+              'rounded border-none px-4 py-2 text-white',
+              canRetry
+                ? 'cursor-pointer bg-blue-600'
+                : 'cursor-not-allowed bg-gray-400'
+            )}
           >
             {showRefreshButton ? 'Refresh' : 'Try Again'}
           </button>
@@ -154,14 +147,7 @@ function DefaultFallback({
           <button
             onClick={() => (window.location.href = '/')}
             data-testid="error-home-button"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="cursor-pointer rounded border-none bg-gray-500 px-4 py-2 text-white"
           >
             Go to Dashboard
           </button>
@@ -170,14 +156,7 @@ function DefaultFallback({
           <button
             onClick={() => (window.location.href = '/login')}
             data-testid="error-logout-button"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="cursor-pointer rounded border-none bg-gray-500 px-4 py-2 text-white"
           >
             Logout
           </button>

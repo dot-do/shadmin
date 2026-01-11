@@ -20,6 +20,7 @@ import { ResourceContextProvider, useResourceContext } from '../../contexts/Reso
 import { useGetList, type UseGetListOptions } from '../../hooks/useGetList'
 import { useListParams } from '../../hooks/useListParams'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { PAGINATION_DEFAULTS } from '../../constants'
 
 /**
  * Props for InfiniteListBase component
@@ -51,7 +52,7 @@ export interface InfiniteListBaseProps<RecordType extends { id: Identifier } = {
 export function InfiniteListBase<RecordType extends { id: Identifier } = { id: Identifier }>({
   resource: resourceProp,
   children,
-  perPage: defaultPerPage = 10,
+  perPage: defaultPerPage = PAGINATION_DEFAULTS.PER_PAGE,
   sort: defaultSort,
   filter: permanentFilter = {},
   filterDefaultValues = {},

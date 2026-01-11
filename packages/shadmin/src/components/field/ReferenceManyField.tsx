@@ -9,6 +9,7 @@ import { cn } from '@/utils'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetManyReference } from '../../hooks/useGetManyReference'
 import type { Identifier } from '../../facade'
+import { PAGINATION_DEFAULTS } from '../../constants'
 
 export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> {
   /** The field name in the record that contains the ID to look up (defaults to 'id' if not provided) */
@@ -89,8 +90,8 @@ export function ReferenceManyField({
   record: recordProp,
   label,
   emptyText,
-  perPage = 10,
-  page = 1,
+  perPage = PAGINATION_DEFAULTS.PER_PAGE,
+  page = PAGINATION_DEFAULTS.PAGE,
   sort,
   filter,
   className,

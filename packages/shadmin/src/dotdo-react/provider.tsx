@@ -32,6 +32,7 @@ import type {
   SubscriptionHandle,
   DOClientProxy,
 } from './types'
+import { DO_CLIENT_DEFAULTS } from '../constants'
 
 /**
  * Context for Durable Objects integration
@@ -110,16 +111,16 @@ async function createRealClient(
 
     // Build client options, only including defined values to satisfy exactOptionalPropertyTypes
     const clientOptions: Record<string, unknown> = {
-      timeout: config?.timeout ?? 30000,
-      batching: config?.batching ?? true,
-      batchWindow: config?.batchWindow ?? 0,
-      maxBatchSize: config?.maxBatchSize ?? 100,
-      offlineQueueLimit: config?.offlineQueueLimit ?? 1000,
+      timeout: config?.timeout ?? DO_CLIENT_DEFAULTS.TIMEOUT,
+      batching: config?.batching ?? DO_CLIENT_DEFAULTS.BATCHING,
+      batchWindow: config?.batchWindow ?? DO_CLIENT_DEFAULTS.BATCH_WINDOW,
+      maxBatchSize: config?.maxBatchSize ?? DO_CLIENT_DEFAULTS.MAX_BATCH_SIZE,
+      offlineQueueLimit: config?.offlineQueueLimit ?? DO_CLIENT_DEFAULTS.OFFLINE_QUEUE_LIMIT,
       reconnect: config?.reconnect ?? {
-        maxAttempts: Infinity,
-        baseDelay: 1000,
-        maxDelay: 30000,
-        jitter: 0.1,
+        maxAttempts: DO_CLIENT_DEFAULTS.RECONNECT.MAX_ATTEMPTS,
+        baseDelay: DO_CLIENT_DEFAULTS.RECONNECT.BASE_DELAY,
+        maxDelay: DO_CLIENT_DEFAULTS.RECONNECT.MAX_DELAY,
+        jitter: DO_CLIENT_DEFAULTS.RECONNECT.JITTER,
       },
     }
     if (config?.auth !== undefined) {

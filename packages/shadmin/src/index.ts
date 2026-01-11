@@ -152,6 +152,9 @@ export {
   type ListContextProviderProps,
   type SortPayload,
   type FilterPayload,
+  type FilterOperator,
+  type FilterKeys,
+  type TypedFilterPayload,
 } from './contexts/ListContext'
 
 // Notification Context
@@ -404,6 +407,22 @@ export {
 // UTILITY EXPORTS
 // =============================================================================
 export * from './utils'
+
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+// Configurable defaults for pagination, sorting, timing, and client configuration
+export {
+  PAGINATION_DEFAULTS,
+  SORT_DEFAULTS,
+  DEFAULT_SORT,
+  TIMING_DEFAULTS,
+  QUERY_DEFAULTS,
+  DO_CLIENT_DEFAULTS,
+  type PaginationConfig,
+  type SortConfig,
+  type ListQueryConfig,
+} from './constants'
 
 // =============================================================================
 // DOTDO INTEGRATION

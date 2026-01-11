@@ -11,6 +11,7 @@ import { ListContextProvider, type FilterPayload, type Identifier } from '../../
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { useGetList, type UseGetListOptions } from '../../hooks/useGetList'
 import { useListParams } from '../../hooks/useListParams'
+import { PAGINATION_DEFAULTS } from '../../constants'
 
 /**
  * Props for ListBase component
@@ -63,7 +64,7 @@ export interface ListBaseProps<RecordType extends { id: Identifier } = { id: Ide
 export function ListBase<RecordType extends { id: Identifier } = { id: Identifier }>({
   resource: resourceProp,
   children,
-  perPage: defaultPerPage = 10,
+  perPage: defaultPerPage = PAGINATION_DEFAULTS.PER_PAGE,
   sort: defaultSort,
   filter: permanentFilter = {},
   filterDefaultValues = {},

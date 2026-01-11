@@ -18,6 +18,7 @@ import type {
   SortPayload,
   FilterPayload,
 } from '../types'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
 
 /**
  * Parameters for useGetList hook.
@@ -33,8 +34,8 @@ export interface UseGetListParams {
  * Default parameters for useGetList
  */
 const defaultParams: Required<Pick<UseGetListParams, 'pagination' | 'sort' | 'filter'>> = {
-  pagination: { page: 1, perPage: 10 },
-  sort: { field: 'id', order: 'ASC' },
+  pagination: { page: PAGINATION_DEFAULTS.PAGE, perPage: PAGINATION_DEFAULTS.PER_PAGE },
+  sort: { field: SORT_DEFAULTS.FIELD, order: SORT_DEFAULTS.ORDER },
   filter: {},
 }
 

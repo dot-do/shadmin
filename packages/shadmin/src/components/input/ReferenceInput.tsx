@@ -9,6 +9,7 @@ import { useGetList } from '../../hooks/useGetList'
 import { cn } from '../../utils'
 import { AutocompleteInput } from './AutocompleteInput'
 import type { SelectChoice } from './types'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../../constants'
 
 /**
  * Choice record type for reference inputs.
@@ -165,8 +166,8 @@ export function ReferenceInput({
   children,
   label,
   filter = {},
-  sort = { field: 'id', order: 'ASC' },
-  perPage = 25,
+  sort = { field: SORT_DEFAULTS.FIELD, order: SORT_DEFAULTS.ORDER },
+  perPage = PAGINATION_DEFAULTS.REFERENCE_PER_PAGE,
   optionValue = 'id',
   optionText = 'name',
   emptyText,

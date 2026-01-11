@@ -9,6 +9,7 @@
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
 import { useGetList } from '../../hooks/useGetList'
 import type { RaRecord } from '../../types'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../../constants'
 
 /**
  * Props for ReferenceArrayInput component
@@ -104,8 +105,8 @@ export function ReferenceArrayInput({
   source: _source,
   reference,
   filter = {},
-  sort = { field: 'id', order: 'ASC' },
-  perPage = 25,
+  sort = { field: SORT_DEFAULTS.FIELD, order: SORT_DEFAULTS.ORDER },
+  perPage = PAGINATION_DEFAULTS.REFERENCE_PER_PAGE,
   disabled = false,
   children,
 }: ReferenceArrayInputProps) {
