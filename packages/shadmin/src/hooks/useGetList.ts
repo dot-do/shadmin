@@ -121,7 +121,7 @@ export function useGetList<RecordType extends RaRecord = RaRecord>(
 
   const query = useQuery<GetListResult<RecordType>, Error>({
     queryKey,
-    queryFn: () => dataProvider.getList<RecordType>(resource, mergedParams),
+    queryFn: ({ signal }) => dataProvider.getList<RecordType>(resource, { ...mergedParams, signal }),
     ...options,
   })
 

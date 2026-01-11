@@ -91,7 +91,7 @@ export function useGetOne<RecordType extends RaRecord = RaRecord>(
 
   const query = useQuery<GetOneResult<RecordType>, Error>({
     queryKey,
-    queryFn: () => dataProvider.getOne<RecordType>(resource, getOneParams),
+    queryFn: ({ signal }) => dataProvider.getOne<RecordType>(resource, { ...getOneParams, signal }),
     ...options,
   })
 

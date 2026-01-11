@@ -152,7 +152,7 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: GetListParams
       ): Promise<GetListResult<RecordType>> => {
-        const { pagination, sort, filter } = params
+        const { pagination, sort, filter, signal } = params
 
         const query: Record<string, unknown> = {
           _page: pagination.page,
@@ -165,7 +165,9 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         // TODO: Implement actual dotdo list API call
         // The query params format should match dotdo's expected format
         const url = buildUrl(resource, undefined, query)
-        const response = await doFetch<DOListResponse<RecordType>>(url)
+        const fetchOptions: DORequestOptions = {}
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions)
 
         const result: GetListResult<RecordType> = {
           data: response.data,
@@ -184,11 +186,13 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: GetOneParams
       ): Promise<GetOneResult<RecordType>> => {
-        const { id } = params
+        const { id, signal } = params
 
         // TODO: Implement actual dotdo single record API call
         const url = buildUrl(resource, String(id))
-        const response = await doFetch<DORecordResponse<RecordType>>(url)
+        const fetchOptions: DORequestOptions = {}
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions)
 
         return {
           data: response.data,
@@ -202,12 +206,14 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: GetManyParams
       ): Promise<GetManyResult<RecordType>> => {
-        const { ids } = params
+        const { ids, signal } = params
 
         // TODO: Implement actual dotdo batch get API call
         // Some APIs support ?ids=1,2,3, others need multiple requests
         const url = buildUrl(resource, undefined, { ids: ids.join(',') })
-        const response = await doFetch<DOListResponse<RecordType>>(url)
+        const fetchOptions: DORequestOptions = {}
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions)
 
         return {
           data: response.data,
@@ -221,7 +227,7 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: GetManyReferenceParams
       ): Promise<GetManyReferenceResult<RecordType>> => {
-        const { target, id, pagination, sort, filter } = params
+        const { target, id, pagination, sort, filter, signal } = params
 
         const query: Record<string, unknown> = {
           [target]: id,
@@ -234,7 +240,9 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
 
         // TODO: Implement actual dotdo reference query API call
         const url = buildUrl(resource, undefined, query)
-        const response = await doFetch<DOListResponse<RecordType>>(url)
+        const fetchOptions: DORequestOptions = {}
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions)
 
         const result: GetManyReferenceResult<RecordType> = {
           data: response.data,
@@ -253,14 +261,13 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: CreateParams<TVariables>
       ): Promise<CreateResult<RecordType>> => {
-        const { data } = params
+        const { data, signal } = params
 
         // TODO: Implement actual dotdo create API call
         const url = buildUrl(resource)
-        const response = await doFetch<DORecordResponse<RecordType>>(url, {
-          method: 'POST',
-          body: data,
-        })
+        const fetchOptions: DORequestOptions = { method: 'POST', body: data }
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions)
 
         return {
           data: response.data,
@@ -274,15 +281,14 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: UpdateParams<TVariables>
       ): Promise<UpdateResult<RecordType>> => {
-        const { id, data } = params
+        const { id, data, signal } = params
 
         // TODO: Implement actual dotdo update API call
         // Consider whether to use PUT (full replace) or PATCH (partial update)
         const url = buildUrl(resource, String(id))
-        const response = await doFetch<DORecordResponse<RecordType>>(url, {
-          method: 'PUT',
-          body: data,
-        })
+        const fetchOptions: DORequestOptions = { method: 'PUT', body: data }
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions)
 
         return {
           data: response.data,
@@ -296,15 +302,14 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: UpdateManyParams<TVariables>
       ): Promise<UpdateManyResult<RecordType>> => {
-        const { ids, data } = params
+        const { ids, data, signal } = params
 
         // TODO: Implement actual dotdo batch update API call
         // This could be a single batch endpoint or multiple individual calls
         const url = buildUrl(resource, undefined, { ids: ids.join(',') })
-        const response = await doFetch<DOBatchResponse>(url, {
-          method: 'PUT',
-          body: data,
-        })
+        const fetchOptions: DORequestOptions = { method: 'PUT', body: data }
+        if (signal) fetchOptions.signal = signal
+        const response = await doFetch<DOBatchResponse>(url, fetchOptions)
 
         return {
           data: response.data,
@@ -318,11 +323,13 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: DeleteParams<RecordType>
       ): Promise<DeleteResult<RecordType>> => {
-        const { id, previousData } = params
+        const { id, previousData, signal } = params
 
         // TODO: Implement actual dotdo delete API call
         const url = buildUrl(resource, String(id))
-        await doFetch(url, { method: 'DELETE' })
+        const fetchOptions: DORequestOptions = { method: 'DELETE' }
+        if (signal) fetchOptions.signal = signal
+        await doFetch(url, fetchOptions)
 
         const result: DeleteResult<RecordType> = {}
         if (previousData !== undefined) {
@@ -338,12 +345,14 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         resource: string,
         params: DeleteManyParams
       ): Promise<DeleteManyResult<RecordType>> => {
-        const { ids } = params
+        const { ids, signal } = params
 
         // TODO: Implement actual dotdo batch delete API call
         // This could be a single batch endpoint or multiple individual calls
         const url = buildUrl(resource, undefined, { ids: ids.join(',') })
-        await doFetch(url, { method: 'DELETE' })
+        const fetchOptions: DORequestOptions = { method: 'DELETE' }
+        if (signal) fetchOptions.signal = signal
+        await doFetch(url, fetchOptions)
 
         return {
           data: ids,

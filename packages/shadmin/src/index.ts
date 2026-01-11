@@ -327,6 +327,13 @@ export {
   type UseLocaleResult,
 } from './hooks/useLocale'
 
+export { useLocaleState } from './hooks/useLocaleState'
+
+export {
+  useSetLocale,
+  type SetLocale,
+} from './hooks/useSetLocale'
+
 // Data Hook Factories - For creating custom data hooks
 export {
   createQueryHook,

@@ -138,10 +138,10 @@ export function createQueryHook<
 
     const query = useQuery({
       queryKey,
-      queryFn: () =>
+      queryFn: ({ signal }) =>
         (dataProvider[method] as (resource: string, params: unknown) => Promise<unknown>)(
           resource,
-          transformedParams
+          { ...transformedParams, signal }
         ),
       ...options,
     })
@@ -216,10 +216,10 @@ export function createSimpleQueryHook<
 
     const query = useQuery({
       queryKey,
-      queryFn: () =>
+      queryFn: ({ signal }) =>
         (dataProvider[method] as (resource: string, params: unknown) => Promise<unknown>)(
           resource,
-          transformedParams
+          { ...transformedParams, signal }
         ),
       ...options,
     })

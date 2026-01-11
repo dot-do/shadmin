@@ -54,6 +54,8 @@ export interface GetListParams<T extends RaRecord = RaRecord> {
   sort: SortPayload<T>
   filter: FilterPayload<T>
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface GetListResult<RecordType extends RaRecord = RaRecord> {
@@ -69,6 +71,8 @@ export interface GetListResult<RecordType extends RaRecord = RaRecord> {
 export interface GetOneParams {
   id: Identifier
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface GetOneResult<RecordType extends RaRecord = RaRecord> {
@@ -79,6 +83,8 @@ export interface GetOneResult<RecordType extends RaRecord = RaRecord> {
 export interface GetManyParams {
   ids: Identifier[]
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface GetManyResult<RecordType extends RaRecord = RaRecord> {
@@ -93,6 +99,8 @@ export interface GetManyReferenceParams<T extends RaRecord = RaRecord> {
   sort: SortPayload<T>
   filter: FilterPayload<T>
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface GetManyReferenceResult<RecordType extends RaRecord = RaRecord> {
@@ -108,6 +116,8 @@ export interface GetManyReferenceResult<RecordType extends RaRecord = RaRecord> 
 export interface CreateParams<T = Record<string, unknown>> {
   data: T
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface CreateResult<RecordType extends RaRecord = RaRecord> {
@@ -120,6 +130,8 @@ export interface UpdateParams<T = Record<string, unknown>> {
   data: T
   previousData?: T
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface UpdateResult<RecordType extends RaRecord = RaRecord> {
@@ -131,6 +143,8 @@ export interface UpdateManyParams<T = Record<string, unknown>> {
   ids: Identifier[]
   data: T
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface UpdateManyResult<RecordType extends RaRecord = RaRecord> {
@@ -142,6 +156,8 @@ export interface DeleteParams<RecordType extends RaRecord = RaRecord> {
   id: Identifier
   previousData?: RecordType
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface DeleteResult<RecordType extends RaRecord = RaRecord> {
@@ -152,6 +168,8 @@ export interface DeleteResult<RecordType extends RaRecord = RaRecord> {
 export interface DeleteManyParams {
   ids: Identifier[]
   meta?: Record<string, unknown>
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal
 }
 
 export interface DeleteManyResult<RecordType extends RaRecord = RaRecord> {

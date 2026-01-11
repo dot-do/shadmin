@@ -50,6 +50,8 @@ export { useListParams, type UseListParamsProps, type UseListParamsResult } from
 // i18n hooks
 export { useTranslate, type TranslateFunction, type TranslateOptions } from './useTranslate'
 export { useLocale, type UseLocaleResult } from './useLocale'
+export { useLocaleState } from './useLocaleState'
+export { useSetLocale, type SetLocale } from './useSetLocale'
 
 // Data hook factories - for creating custom data hooks
 export {
