@@ -142,9 +142,10 @@ describe('useTheme - Extended Theme Hook', () => {
         wrapper: createWrapper(customTheme),
       })
 
-      expect(result.current.theme.colors?.brand?.['50']).toBe('#eff6ff')
-      expect(result.current.theme.colors?.brand?.['500']).toBe('#3b82f6')
-      expect(result.current.theme.colors?.brand?.['900']).toBe('#1e3a8a')
+      const brand = result.current.theme.colors?.brand as { [key: string]: string } | undefined
+      expect(brand?.['50']).toBe('#eff6ff')
+      expect(brand?.['500']).toBe('#3b82f6')
+      expect(brand?.['900']).toBe('#1e3a8a')
     })
   })
 
@@ -340,7 +341,7 @@ describe('useTheme - Extended Theme Hook', () => {
         const { theme, isDarkMode } = useTheme()
         return (
           <div data-testid="consumer1">
-            {theme.colors?.primary} - {isDarkMode ? 'dark' : 'light'}
+            {String(theme.colors?.primary ?? '')} - {isDarkMode ? 'dark' : 'light'}
           </div>
         )
       }
@@ -349,7 +350,7 @@ describe('useTheme - Extended Theme Hook', () => {
         const { theme, isDarkMode } = useTheme()
         return (
           <div data-testid="consumer2">
-            {theme.colors?.primary} - {isDarkMode ? 'dark' : 'light'}
+            {String(theme.colors?.primary ?? '')} - {isDarkMode ? 'dark' : 'light'}
           </div>
         )
       }
@@ -389,7 +390,7 @@ describe('useTheme - Extended Theme Hook', () => {
 
       const Consumer = () => {
         const { theme } = useTheme()
-        return <div data-testid="consumer">{theme.colors?.primary}</div>
+        return <div data-testid="consumer">{String(theme.colors?.primary ?? '')}</div>
       }
 
       const { rerender } = render(

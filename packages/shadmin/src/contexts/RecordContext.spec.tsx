@@ -10,6 +10,7 @@ interface TestRecord {
   id: number
   name: string
   email: string
+  [key: string]: unknown
 }
 
 describe('RecordContext', () => {

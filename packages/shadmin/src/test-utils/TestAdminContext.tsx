@@ -294,7 +294,7 @@ export function TestAdminContext({
  */
 export function createAdminRender(defaultProps: Omit<TestAdminContextProps, 'children'> = {}) {
   return function adminRender(
-    ui: ReactNode,
+    _ui: ReactNode,
     props: Omit<TestAdminContextProps, 'children'> = {}
   ): { wrapper: React.FC<{ children: ReactNode }> } {
     const mergedProps = {

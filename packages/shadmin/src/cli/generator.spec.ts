@@ -33,6 +33,7 @@ const createResource = (overrides: Partial<ResourceDefinition> = {}): ResourceDe
     options: false,
   },
   warnings: [],
+  isMdx: false,
   ...overrides,
 })
 

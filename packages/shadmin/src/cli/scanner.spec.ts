@@ -91,7 +91,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.list).toBe(true)
+      expect(resources[0]!.hasComponent.list).toBe(true)
     })
 
     it('should detect edit component export', async () => {
@@ -105,7 +105,7 @@ export const edit = () => <div>Edit</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.edit).toBe(true)
+      expect(resources[0]!.hasComponent.edit).toBe(true)
     })
 
     it('should detect show component export', async () => {
@@ -119,7 +119,7 @@ export const show = () => <div>Show</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.show).toBe(true)
+      expect(resources[0]!.hasComponent.show).toBe(true)
     })
 
     it('should detect create component export', async () => {
@@ -133,7 +133,7 @@ export const create = () => <div>Create</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.create).toBe(true)
+      expect(resources[0]!.hasComponent.create).toBe(true)
     })
 
     it('should detect all CRUD components', async () => {
@@ -150,7 +150,7 @@ export const create = () => <div>Create</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent).toEqual({
+      expect(resources[0]!.hasComponent).toEqual({
         list: true,
         edit: true,
         show: true,
@@ -170,7 +170,7 @@ export const list = () => <div>Products</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].name).toBe('products')
+      expect(resources[0]!.name).toBe('products')
     })
 
     it('should prefer explicit name export over filename', async () => {
@@ -184,7 +184,7 @@ export const list = () => <div>Products</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].name).toBe('products')
+      expect(resources[0]!.name).toBe('products')
     })
 
     it('should support .jsx files', async () => {
@@ -199,7 +199,7 @@ export const list = () => <div>Categories</div>
       const resources = await scanResources(testDir)
 
       expect(resources).toHaveLength(1)
-      expect(resources[0].name).toBe('categories')
+      expect(resources[0]!.name).toBe('categories')
     })
 
     it('should ignore non-resource files', async () => {
@@ -219,7 +219,7 @@ export const list = () => <div>Categories</div>
       const resources = await scanResources(testDir)
 
       expect(resources).toHaveLength(1)
-      expect(resources[0].name).toBe('posts')
+      expect(resources[0]!.name).toBe('posts')
     })
 
     it('should detect icon export', async () => {
@@ -233,7 +233,7 @@ export const icon = () => <span>📝</span>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.icon).toBe(true)
+      expect(resources[0]!.hasComponent.icon).toBe(true)
     })
 
     it('should detect recordRepresentation export', async () => {
@@ -247,7 +247,7 @@ export const recordRepresentation = (record) => record.title
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasExport.recordRepresentation).toBe(true)
+      expect(resources[0]!.hasExport.recordRepresentation).toBe(true)
     })
 
     it('should detect options export', async () => {
@@ -261,7 +261,7 @@ export const options = { label: 'Blog Posts' }
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasExport.options).toBe(true)
+      expect(resources[0]!.hasExport.options).toBe(true)
     })
 
     it('should handle nested resources directory structure', async () => {
@@ -274,7 +274,7 @@ export const options = { label: 'Blog Posts' }
       const resources = await scanResources(testDir)
 
       expect(resources).toHaveLength(1)
-      expect(resources[0].name).toBe('admin/users')
+      expect(resources[0]!.name).toBe('admin/users')
     })
 
     it('should include relative import path for each resource', async () => {
@@ -285,7 +285,7 @@ export const options = { label: 'Blog Posts' }
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].importPath).toBe('./resources/posts')
+      expect(resources[0]!.importPath).toBe('./resources/posts')
     })
   })
 
@@ -301,7 +301,7 @@ export const name = 'empty'
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].warnings).toContain(
+      expect(resources[0]!.warnings).toContain(
         'Resource "empty" has no CRUD components defined'
       )
     })
@@ -317,7 +317,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].warnings).toHaveLength(0)
+      expect(resources[0]!.warnings).toHaveLength(0)
     })
   })
 
@@ -331,8 +331,8 @@ export const list = () => <div>List</div>
       const resources = await scanResources(testDir)
 
       // File path needed for HMR module tracking
-      expect(resources[0].filePath).toBeDefined()
-      expect(typeof resources[0].filePath).toBe('string')
+      expect(resources[0]!.filePath).toBeDefined()
+      expect(typeof resources[0]!.filePath).toBe('string')
     })
   })
 })
@@ -355,6 +355,7 @@ describe('ResourceDefinition type', () => {
         options: false,
       },
       warnings: [],
+      isMdx: false,
     }
 
     expect(resource.name).toBe('posts')
@@ -435,7 +436,7 @@ export const list = () => <div>Help</div>
       const resources = await scanResources(testDir)
 
       expect(resources).toHaveLength(1)
-      expect(resources[0].name).toBe('help')
+      expect(resources[0]!.name).toBe('help')
     })
   })
 
@@ -453,7 +454,7 @@ name: user-guide
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].name).toBe('user-guide')
+      expect(resources[0]!.name).toBe('user-guide')
     })
 
     it('should fall back to filename when no name in frontmatter', async () => {
@@ -469,7 +470,7 @@ title: Tutorial
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].name).toBe('tutorial')
+      expect(resources[0]!.name).toBe('tutorial')
     })
 
     it('should handle MDX files without frontmatter', async () => {
@@ -485,7 +486,7 @@ export const list = () => <div>README</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].name).toBe('readme')
+      expect(resources[0]!.name).toBe('readme')
     })
   })
 
@@ -503,7 +504,7 @@ export const list = () => <div>Docs List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.list).toBe(true)
+      expect(resources[0]!.hasComponent.list).toBe(true)
     })
 
     it('should detect all CRUD component exports in MDX', async () => {
@@ -522,7 +523,7 @@ export const create = () => <div>Create</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent).toEqual({
+      expect(resources[0]!.hasComponent).toEqual({
         list: true,
         edit: true,
         show: true,
@@ -545,7 +546,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasComponent.icon).toBe(true)
+      expect(resources[0]!.hasComponent.icon).toBe(true)
     })
 
     it('should detect recordRepresentation export in MDX', async () => {
@@ -562,7 +563,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasExport.recordRepresentation).toBe(true)
+      expect(resources[0]!.hasExport.recordRepresentation).toBe(true)
     })
 
     it('should detect options export in MDX', async () => {
@@ -579,7 +580,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].hasExport.options).toBe(true)
+      expect(resources[0]!.hasExport.options).toBe(true)
     })
   })
 
@@ -597,7 +598,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].importPath).toBe('./resources/docs')
+      expect(resources[0]!.importPath).toBe('./resources/docs')
     })
 
     it('should handle nested MDX files', async () => {
@@ -614,8 +615,8 @@ export const list = () => <div>Admin Help</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].name).toBe('admin/help')
-      expect(resources[0].importPath).toBe('./resources/admin/help')
+      expect(resources[0]!.name).toBe('admin/help')
+      expect(resources[0]!.importPath).toBe('./resources/admin/help')
     })
   })
 
@@ -633,7 +634,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].isMdx).toBe(true)
+      expect(resources[0]!.isMdx).toBe(true)
     })
 
     it('should mark TSX files without isMdx flag', async () => {
@@ -644,7 +645,7 @@ export const list = () => <div>List</div>
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].isMdx).toBe(false)
+      expect(resources[0]!.isMdx).toBe(false)
     })
   })
 
@@ -662,7 +663,7 @@ name: empty
 
       const resources = await scanResources(testDir)
 
-      expect(resources[0].warnings).toContain(
+      expect(resources[0]!.warnings).toContain(
         'Resource "empty" has no CRUD components defined'
       )
     })

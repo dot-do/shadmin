@@ -30,6 +30,7 @@ const entries = {
   // Integration subpaths
   dotdo: resolve(__dirname, 'src/dotdo/index.ts'),
   'dotdo-react': resolve(__dirname, 'src/dotdo-react/index.ts'),
+  mongo: resolve(__dirname, 'src/mongo/index.ts'),
   // Utilities and errors
   utils: resolve(__dirname, 'src/utils/index.ts'),
   errors: resolve(__dirname, 'src/errors/index.ts'),

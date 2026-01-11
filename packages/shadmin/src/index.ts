@@ -449,6 +449,24 @@ export {
 } from './dotdo'
 
 // =============================================================================
+// MONGO.DO INTEGRATION
+// =============================================================================
+// createMongoDataProvider for connecting shadmin to mongo.do edge database
+// Creates react-admin compatible DataProvider for MongoDB operations at the edge
+export {
+  createMongoDataProvider,
+  type MongoConfig,
+  type MongoDataProviderOptions,
+  type MongoListResponse,
+  type MongoRecordResponse,
+  type MongoBatchResponse,
+  type MongoWriteResponse,
+  type MongoErrorResponse,
+  type MongoRequestOptions,
+  type MongoFilterOperators,
+} from './mongo'
+
+// =============================================================================
 // VERSION
 // =============================================================================
 export const VERSION = '0.0.5'

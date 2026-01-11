@@ -32,7 +32,7 @@ describe('TypeScript Type Checking', () => {
     let exitCode = 0
     let errorCount = 0
     let stdout = ''
-    let stderr = ''
+    let _stderr = ''
 
     try {
       // Run tsc --noEmit and capture output

@@ -226,6 +226,16 @@
         "default": "./dist/dotdo-react.cjs"
       }
     },
+    "./mongo": {
+      "import": {
+        "types": "./dist/mongo/index.d.ts",
+        "default": "./dist/mongo.js"
+      },
+      "require": {
+        "types": "./dist/mongo/index.d.ts",
+        "default": "./dist/mongo.cjs"
+      }
+    },
     "./utils": {
       "import": {
         "types": "./dist/utils/index.d.ts",

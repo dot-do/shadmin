@@ -299,18 +299,19 @@ describe('List + Datagrid + Pagination Integration', () => {
       })
 
       // Verify first sort call has title field
-      const sortCall = (dataProvider.getList as ReturnType<typeof vi.fn>).mock.calls.find(
-        (call: [string, { sort?: { field: string } }]) => call[1]?.sort?.field === 'title'
+      const calls = (dataProvider.getList as ReturnType<typeof vi.fn>).mock.calls as Array<[string, { sort?: { field: string } }]>
+      const sortCall = calls.find(
+        (call) => call[1]?.sort?.field === 'title'
       )
       expect(sortCall).toBeTruthy()
-      expect(sortCall![1].sort.field).toBe('title')
+      expect(sortCall![1].sort!.field).toBe('title')
     })
   })
 
   describe('Pagination Integration', () => {
     beforeEach(() => {
       // Setup paginated data
-      dataProvider.getList = vi.fn().mockImplementation((resource, params) => {
+      dataProvider.getList = vi.fn().mockImplementation((_resource, params) => {
         const allData = Array.from({ length: 25 }, (_, i) => ({
           id: i + 1,
           title: `Post ${i + 1}`,
@@ -1159,7 +1160,7 @@ describe('Cross-Component Flow Tests', () => {
         total: 1,
       })
 
-      dataProvider.create = vi.fn().mockImplementation(async (resource, { data }) => {
+      dataProvider.create = vi.fn().mockImplementation(async (_resource, { data }) => {
         const newRecord = { id: 2, ...data }
         existingRecords.push(newRecord)
         return { data: newRecord }
@@ -1221,16 +1222,16 @@ describe('CRUD Flow Integration Tests', () => {
           total: records.length,
         })
       ),
-      getOne: vi.fn().mockImplementation((resource, { id }) => {
+      getOne: vi.fn().mockImplementation((_resource, { id }) => {
         const record = records.find((r) => r.id === id)
         return Promise.resolve({ data: record })
       }),
-      create: vi.fn().mockImplementation((resource, { data }) => {
+      create: vi.fn().mockImplementation((_resource, { data }) => {
         const newRecord = { id: records.length + 1, ...data }
         records.push(newRecord)
         return Promise.resolve({ data: newRecord })
       }),
-      update: vi.fn().mockImplementation((resource, { id, data }) => {
+      update: vi.fn().mockImplementation((_resource, { id, data }) => {
         const index = records.findIndex((r) => r.id === id)
         if (index !== -1) {
           records[index] = { ...records[index], ...data }
@@ -1238,7 +1239,7 @@ describe('CRUD Flow Integration Tests', () => {
         }
         return Promise.reject(new Error('Record not found'))
       }),
-      delete: vi.fn().mockImplementation((resource, { id }) => {
+      delete: vi.fn().mockImplementation((_resource, { id }) => {
         const index = records.findIndex((r) => r.id === id)
         if (index !== -1) {
           const deleted = records.splice(index, 1)[0]
@@ -1287,7 +1288,7 @@ describe('CRUD Flow Integration Tests', () => {
 
       // Verify the record was added to our mock data
       expect(records).toHaveLength(4)
-      expect(records[3].title).toBe('New Integration Post')
+      expect(records[3]?.title).toBe('New Integration Post')
 
       // Re-render list to verify new record appears
       const ListWrapper = createTestWrapper(dataProvider, ['/posts'])
@@ -1356,7 +1357,7 @@ describe('CRUD Flow Integration Tests', () => {
       const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
 
       // Render edit form with initial values
-      const { rerender } = render(
+      render(
         <Wrapper>
           <Edit resource="posts" id={1}>
             <SimpleForm onSubmit={handleSubmit} defaultValues={{ title: 'First Post', author: 'John' }}>
@@ -1446,12 +1447,9 @@ describe('CRUD Flow Integration Tests', () => {
     })
 
     it('should handle delete with confirmation', async () => {
-      const onDelete = vi.fn().mockImplementation(async () => {
-        await dataProvider.delete('posts', { id: 1 })
-      })
-
-      // Mock window.confirm
+      // Mock window.confirm (created but used only for cleanup)
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+      void confirmSpy // Mark as intentionally unused in this test
 
       const Wrapper = createTestWrapper(dataProvider, ['/posts/1/edit'])
 
@@ -1502,7 +1500,9 @@ describe('CRUD Flow Integration Tests', () => {
         expect(dataProvider.create).toHaveBeenCalled()
       })
       expect(records).toHaveLength(4)
-      const newId = records[3].id
+      const newRecord = records[3]
+      expect(newRecord).toBeDefined()
+      const newId = newRecord!.id
 
       // Step 2: Read/Show
       const ShowWrapper = createTestWrapper(dataProvider, [`/posts/${newId}/show`])
@@ -1522,7 +1522,7 @@ describe('CRUD Flow Integration Tests', () => {
       await dataProvider.update('posts', {
         id: newId,
         data: { title: 'Updated CRUD Test Post' },
-        previousData: records[3],
+        previousData: newRecord!,
       })
 
       expect(records.find((r) => r.id === newId)?.title).toBe('Updated CRUD Test Post')
@@ -1552,7 +1552,7 @@ describe('Navigation Flow Integration Tests', () => {
         ],
         total: 3,
       }),
-      getOne: vi.fn().mockImplementation((resource, { id }) =>
+      getOne: vi.fn().mockImplementation((_resource, { id }) =>
         Promise.resolve({
           data: { id, title: `Post ${id}`, author: `Author ${id}` },
         })
@@ -1730,7 +1730,7 @@ describe('Navigation Flow Integration Tests', () => {
     })
 
     it('should handle deep link with pagination parameters', async () => {
-      dataProvider.getList = vi.fn().mockImplementation((resource, params) => {
+      dataProvider.getList = vi.fn().mockImplementation((_resource, params) => {
         const { page = 1, perPage = 10 } = params.pagination || {}
         const allData = Array.from({ length: 30 }, (_, i) => ({
           id: i + 1,
@@ -1834,7 +1834,7 @@ describe('Filter and Sort Flow Integration Tests', () => {
     ]
 
     dataProvider = createMockDataProvider({
-      getList: vi.fn().mockImplementation((resource, params) => {
+      getList: vi.fn().mockImplementation((_resource, params) => {
         let filtered = [...allRecords]
 
         // Apply filters
@@ -2043,7 +2043,8 @@ describe('Filter and Sort Flow Integration Tests', () => {
       await waitFor(() => {
         const calls = (dataProvider.getList as ReturnType<typeof vi.fn>).mock.calls
         const lastCall = calls[calls.length - 1]
-        expect(lastCall[1].sort?.field).toBe('title')
+        expect(lastCall).toBeDefined()
+        expect(lastCall?.[1].sort?.field).toBe('title')
       })
 
       // Second click - should toggle to DESC
@@ -2052,7 +2053,8 @@ describe('Filter and Sort Flow Integration Tests', () => {
       await waitFor(() => {
         const calls = (dataProvider.getList as ReturnType<typeof vi.fn>).mock.calls
         const lastCall = calls[calls.length - 1]
-        expect(lastCall[1].sort?.field).toBe('title')
+        expect(lastCall).toBeDefined()
+        expect(lastCall?.[1].sort?.field).toBe('title')
       })
     })
 

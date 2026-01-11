@@ -27,16 +27,16 @@ import type { AuthProvider } from '../../facade'
  * Creates a real in-memory data store with actual CRUD operations.
  * This simulates a real backend without network latency.
  */
-interface Record {
+interface TestRecord {
   id: number | string
   [key: string]: unknown
 }
 
 class InMemoryDataStore {
-  private store: Map<string, Record[]> = new Map()
+  private store: Map<string, TestRecord[]> = new Map()
   private nextIds: Map<string, number> = new Map()
 
-  constructor(initialData: { [resource: string]: Record[] } = {}) {
+  constructor(initialData: { [resource: string]: TestRecord[] } = {}) {
     Object.entries(initialData).forEach(([resource, records]) => {
       this.store.set(resource, [...records])
       const maxId = records.reduce((max, r) => {
@@ -53,28 +53,28 @@ class InMemoryDataStore {
     return current
   }
 
-  getAll(resource: string): Record[] {
+  getAll(resource: string): TestRecord[] {
     return this.store.get(resource) || []
   }
 
-  setAll(resource: string, records: Record[]): void {
+  setAll(resource: string, records: TestRecord[]): void {
     this.store.set(resource, records)
   }
 
-  findById(resource: string, id: number | string): Record | undefined {
+  findById(resource: string, id: number | string): TestRecord | undefined {
     return this.getAll(resource).find(
       (r) => String(r.id) === String(id)
     )
   }
 
-  add(resource: string, record: Record): Record {
+  add(resource: string, record: TestRecord): TestRecord {
     const records = this.getAll(resource)
     records.push(record)
     this.store.set(resource, records)
     return record
   }
 
-  update(resource: string, id: number | string, data: Partial<Record>): Record {
+  update(resource: string, id: number | string, data: Partial<Record>): TestRecord {
     const records = this.getAll(resource)
     const index = records.findIndex((r) => String(r.id) === String(id))
     if (index === -1) {
@@ -86,7 +86,7 @@ class InMemoryDataStore {
     return updated
   }
 
-  remove(resource: string, id: number | string): Record {
+  remove(resource: string, id: number | string): TestRecord {
     const records = this.getAll(resource)
     const index = records.findIndex((r) => String(r.id) === String(id))
     if (index === -1) {
@@ -176,7 +176,7 @@ function createRealDataProvider(store: InMemoryDataStore): DataProvider {
     async getMany(resource, params) {
       const records = params.ids
         .map((id) => store.findById(resource, id))
-        .filter(Boolean) as Record[]
+        .filter(Boolean) as TestRecord[]
       return { data: records }
     },
 
@@ -237,7 +237,7 @@ function createRealDataProvider(store: InMemoryDataStore): DataProvider {
       params.ids.forEach((id) => store.remove(resource, id))
       return { data: params.ids }
     },
-  }
+  } as unknown as DataProvider
 }
 
 // =============================================================================
@@ -886,7 +886,7 @@ describe('Error Handling Integration', () => {
         create: vi.fn().mockImplementation(async (resource, params) => {
           if (!params.data.title) {
             const error = new Error('Validation failed') as Error & {
-              validationErrors: Record<string, string[]>
+              validationErrors: TestRecord<string, string[]>
             }
             error.validationErrors = {
               title: ['Title is required', 'Title must be at least 3 characters'],
@@ -903,7 +903,7 @@ describe('Error Handling Integration', () => {
       } catch (error) {
         expect((error as Error).message).toContain('Validation failed')
         expect(
-          (error as Error & { validationErrors: Record<string, string[]> }).validationErrors.title
+          (error as Error & { validationErrors: TestRecord<string, string[]> }).validationErrors.title
         ).toContain('Title is required')
       }
     })

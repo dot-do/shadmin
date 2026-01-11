@@ -804,7 +804,7 @@ describe('Screen Reader Compatibility', () => {
 
   describe('Error States', () => {
     it('Error component should have role="alert"', () => {
-      render(<ErrorComponent message="Something went wrong" />)
+      render(<ErrorComponent error="Something went wrong" />)
 
       const alert = screen.getByRole('alert')
       expect(alert).toBeInTheDocument()

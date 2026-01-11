@@ -248,7 +248,7 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
       if (delay) await wait(delay)
 
       const newId = getNextId(resource)
-      const newItem = { ...params.data, id: newId } as RecordType
+      const newItem = { ...params.data, id: newId } as unknown as RecordType
 
       if (!store[resource]) {
         store[resource] = []
@@ -274,7 +274,7 @@ export function createMockDataProvider(options: MockDataProviderOptions = {}): D
         throw new Error(`Resource ${resource} with id ${params.id} not found`)
       }
 
-      const updated = { ...items[index], ...params.data, id: params.id } as RecordType
+      const updated = { ...items[index], ...params.data, id: params.id } as unknown as RecordType
       store[resource]![index] = updated as Record<string, unknown>
 
       return {

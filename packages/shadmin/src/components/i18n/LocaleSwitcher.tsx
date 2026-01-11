@@ -12,7 +12,7 @@ import {
 } from '../../contexts/TranslationContext'
 
 export interface LocaleSwitcherProps
-  extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'> {
+  extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value' | 'size'> {
   /** Override available locales (defaults to those from i18nProvider) */
   locales?: { locale: string; name: string }[]
   /** Custom label for the select element */

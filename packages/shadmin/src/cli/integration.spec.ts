@@ -64,9 +64,9 @@ export const icon = () => <span>📝</span>
 
       // Assert: Scanner found the resource
       expect(resources).toHaveLength(1)
-      expect(resources[0].name).toBe('posts')
-      expect(resources[0].hasComponent.list).toBe(true)
-      expect(resources[0].hasComponent.icon).toBe(true)
+      expect(resources[0]!.name).toBe('posts')
+      expect(resources[0]!.hasComponent.list).toBe(true)
+      expect(resources[0]!.hasComponent.icon).toBe(true)
 
       // Act: Generate entry point
       const entryPoint = generateEntryPoint(resources)
@@ -191,14 +191,14 @@ export const options = { label: 'Products' }
       const entryPoint = generateEntryPoint(resources)
 
       // Assert: All props present
-      expect(resources[0].hasComponent).toEqual({
+      expect(resources[0]!.hasComponent).toEqual({
         list: true,
         edit: true,
         show: true,
         create: true,
         icon: true,
       })
-      expect(resources[0].hasExport).toEqual({
+      expect(resources[0]!.hasExport).toEqual({
         recordRepresentation: true,
         options: true,
       })
@@ -488,7 +488,7 @@ export const options = { label: 'Products' }
 
       // Assert: Only tsx file discovered
       expect(resources).toHaveLength(1)
-      expect(resources[0].name).toBe('posts')
+      expect(resources[0]!.name).toBe('posts')
     })
 
     it('should handle resources with no CRUD components', async () => {
@@ -504,7 +504,7 @@ export const options = { label: 'Products' }
 
       // Assert: Resource discovered with warning
       expect(resources).toHaveLength(1)
-      expect(resources[0].warnings).toContain('Resource "empty" has no CRUD components defined')
+      expect(resources[0]!.warnings).toContain('Resource "empty" has no CRUD components defined')
 
       // Assert: Still generates valid code
       expect(entryPoint).toContain('name="empty"')
@@ -530,8 +530,8 @@ export function edit() {
       const resources = await scanResources(testDir)
 
       // Assert
-      expect(resources[0].hasComponent.list).toBe(true)
-      expect(resources[0].hasComponent.edit).toBe(true)
+      expect(resources[0]!.hasComponent.list).toBe(true)
+      expect(resources[0]!.hasComponent.edit).toBe(true)
     })
 
     it('should handle resources with named export syntax', async () => {
@@ -551,8 +551,8 @@ export { name, list, show }
       const resources = await scanResources(testDir)
 
       // Assert
-      expect(resources[0].hasComponent.list).toBe(true)
-      expect(resources[0].hasComponent.show).toBe(true)
+      expect(resources[0]!.hasComponent.list).toBe(true)
+      expect(resources[0]!.hasComponent.show).toBe(true)
     })
 
     it('should infer name from filename when not exported', async () => {
@@ -566,7 +566,7 @@ export { name, list, show }
       const resources = await scanResources(testDir)
 
       // Assert
-      expect(resources[0].name).toBe('categories')
+      expect(resources[0]!.name).toBe('categories')
     })
 
     it('should support both .tsx and .jsx extensions', async () => {

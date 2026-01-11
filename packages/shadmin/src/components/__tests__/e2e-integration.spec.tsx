@@ -13,8 +13,8 @@
  * component coordination across the admin framework.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, within, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
@@ -22,7 +22,6 @@ import type { ReactNode } from 'react'
 // Components
 import { List } from '../list/List'
 import { Datagrid } from '../list/Datagrid'
-import { Pagination } from '../list/Pagination'
 import { Create } from '../create/Create'
 import { Edit } from '../edit/Edit'
 import { Show } from '../show/Show'
@@ -30,21 +29,12 @@ import { SimpleForm } from '../form/SimpleForm'
 import { TextField } from '../field/TextField'
 import { NumberField } from '../field/NumberField'
 import { BooleanField } from '../field/BooleanField'
-import { ReferenceField } from '../field/ReferenceField'
 import { TextInput } from '../input/TextInput'
 import { NumberInput } from '../input/NumberInput'
 import { BooleanInput } from '../input/BooleanInput'
-import { ReferenceInput } from '../input/ReferenceInput'
-import { SelectInput } from '../input/SelectInput'
-import { FilterForm } from '../list/filter/FilterForm'
-import { FilterInput } from '../list/filter/FilterInput'
-import { DeleteButton } from '../button/DeleteButton'
-import { BulkDeleteButton } from '../button/BulkDeleteButton'
 
 // Auth Components
 import { CanAccess } from '../auth/CanAccess'
-import { LogoutButton } from '../auth/LogoutButton'
-import { ProtectedRoute } from '../auth/ProtectedRoute'
 
 // Contexts and utilities
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
@@ -52,7 +42,7 @@ import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import type { DataProvider, AuthProvider } from '../../facade'
-import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
+import { MemoryRouter } from 'react-router'
 
 // =============================================================================
 // Test Utilities
@@ -100,7 +90,7 @@ const createMockDataProvider = (
 
   const getNextId = (resource: string): number => {
     const items = store[resource] ?? []
-    const maxId = items.reduce((max, item) => {
+    const maxId = items.reduce<number>((max, item) => {
       const record = item as { id: number }
       return Math.max(max, record.id)
     }, 0)
@@ -229,7 +219,7 @@ const createMockDataProvider = (
       if (index === -1) {
         throw new Error(`Resource ${resource} with id ${params.id} not found`)
       }
-      const updated = { ...items[index], ...params.data, id: params.id }
+      const updated = { ...(items[index] as Record<string, unknown>), ...params.data, id: params.id }
       store[resource]![index] = updated
       return { data: updated }
     }),
@@ -239,7 +229,7 @@ const createMockDataProvider = (
       const ids = params.ids.map(String)
       items.forEach((item, index) => {
         if (ids.includes(String((item as { id: number | string }).id))) {
-          store[resource]![index] = { ...item, ...params.data }
+          store[resource]![index] = { ...(item as Record<string, unknown>), ...params.data }
         }
       })
       return { data: params.ids }
@@ -627,24 +617,24 @@ describe('Full CRUD Flow Integration', () => {
 
   describe('Delete Operation', () => {
     it('should delete a single record', async () => {
-      const initialCount = dataProvider._store.posts.length
+      const initialCount = dataProvider._store.posts!.length
 
       await act(async () => {
         await dataProvider.delete('posts', { id: 1 })
       })
 
-      expect(dataProvider._store.posts.length).toBe(initialCount - 1)
-      expect(dataProvider._store.posts.find((p: unknown) => (p as { id: number }).id === 1)).toBeUndefined()
+      expect(dataProvider._store.posts!.length).toBe(initialCount - 1)
+      expect(dataProvider._store.posts!.find((p: unknown) => (p as { id: number }).id === 1)).toBeUndefined()
     })
 
     it('should delete multiple records with bulk delete', async () => {
-      const initialCount = dataProvider._store.posts.length
+      const initialCount = dataProvider._store.posts!.length
 
       await act(async () => {
         await dataProvider.deleteMany('posts', { ids: [1, 2, 3] })
       })
 
-      expect(dataProvider._store.posts.length).toBe(initialCount - 3)
+      expect(dataProvider._store.posts!.length).toBe(initialCount - 3)
     })
 
     it('should handle delete errors', async () => {
@@ -688,11 +678,9 @@ describe('Full CRUD Flow Integration', () => {
 
 describe('Filter and Search Integration', () => {
   let dataProvider: ReturnType<typeof createMockDataProvider>
-  let user: ReturnType<typeof userEvent.setup>
 
   beforeEach(() => {
     dataProvider = createMockDataProvider()
-    user = userEvent.setup()
   })
 
   describe('Text Search (q filter)', () => {
@@ -704,7 +692,7 @@ describe('Filter and Search Integration', () => {
       })
 
       expect(result.data.length).toBe(1)
-      expect((result.data[0] as { title: string }).title).toBe('Introduction to React')
+      expect((result.data[0] as unknown as { title: string }).title).toBe('Introduction to React')
     })
 
     it('should return empty results for non-matching search', async () => {
@@ -725,7 +713,7 @@ describe('Filter and Search Integration', () => {
       })
 
       expect(result.data.length).toBe(1)
-      expect((result.data[0] as { title: string }).title).toBe('Advanced TypeScript')
+      expect((result.data[0] as unknown as { title: string }).title).toBe('Advanced TypeScript')
     })
   })
 
@@ -834,7 +822,7 @@ describe('Filter and Search Integration', () => {
       })
 
       expect(result.data.length).toBe(1)
-      expect((result.data[0] as { title: string }).title).toBe('Testing Best Practices')
+      expect((result.data[0] as unknown as { title: string }).title).toBe('Testing Best Practices')
     })
   })
 
@@ -974,8 +962,8 @@ describe('Pagination Integration', () => {
       })
 
       // Highest views first
-      expect((page1.data[0] as { views: number }).views).toBe(2000)
-      expect((page1.data[1] as { views: number }).views).toBe(1500)
+      expect((page1.data[0] as unknown as { views: number }).views).toBe(2000)
+      expect((page1.data[1] as unknown as { views: number }).views).toBe(1500)
 
       const page2 = await dataProvider.getList('posts', {
         pagination: { page: 2, perPage: 2 },
@@ -983,8 +971,8 @@ describe('Pagination Integration', () => {
         filter: {},
       })
 
-      expect((page2.data[0] as { views: number }).views).toBe(1200)
-      expect((page2.data[1] as { views: number }).views).toBe(800)
+      expect((page2.data[0] as unknown as { views: number }).views).toBe(1200)
+      expect((page2.data[1] as unknown as { views: number }).views).toBe(800)
     })
   })
 
@@ -1352,7 +1340,7 @@ describe('Reference Field/Input Integration', () => {
     it('should fetch and display referenced record', async () => {
       // Get author for a post
       const authorResult = await dataProvider.getOne('authors', { id: 1 })
-      expect((authorResult.data as { name: string }).name).toBe('John Smith')
+      expect((authorResult.data as unknown as { name: string }).name).toBe('John Smith')
     })
 
     it('should handle multiple reference lookups efficiently', async () => {
@@ -1375,6 +1363,7 @@ describe('Reference Field/Input Integration', () => {
         id: 1,
         pagination: { page: 1, perPage: 10 },
         sort: { field: 'id', order: 'ASC' },
+        filter: {},
       })
 
       expect(result.data.length).toBe(2)
@@ -1395,6 +1384,7 @@ describe('Reference Field/Input Integration', () => {
         id: 1,
         pagination: { page: 1, perPage: 2 },
         sort: { field: 'id', order: 'ASC' },
+        filter: {},
       })
 
       expect(page1.data.length).toBe(2)
@@ -1417,7 +1407,7 @@ describe('Reference Field/Input Integration', () => {
 
       // Verify the update
       const result = await dataProvider.getOne('authors', { id: 1 })
-      expect((result.data as { name: string }).name).toBe('John Smith Updated')
+      expect((result.data as unknown as { name: string }).name).toBe('John Smith Updated')
     })
   })
 })
@@ -1545,7 +1535,7 @@ describe('Component + Auth Integration', () => {
         },
       })
 
-      const { container } = render(
+      render(
         <QueryClientProvider client={queryClient}>
           <AuthProviderContextProvider authProvider={authProvider}>
             <CanAccess permission="admin">
@@ -1663,8 +1653,8 @@ describe('Sorting Integration', () => {
         filter: {},
       })
 
-      const page1LastViews = (page1.data[page1.data.length - 1] as { views: number }).views
-      const page2FirstViews = (page2.data[0] as { views: number }).views
+      const page1LastViews = (page1.data[page1.data.length - 1] as unknown as { views: number }).views
+      const page2FirstViews = (page2.data[0] as unknown as { views: number }).views
 
       expect(page1LastViews).toBeGreaterThanOrEqual(page2FirstViews)
     })
@@ -1815,7 +1805,7 @@ describe('Concurrent Operations Integration', () => {
       ])
 
       expect(readResult.data.length).toBeGreaterThan(0)
-      expect((createResult.data as { title: string }).title).toBe('New Post')
+      expect((createResult.data as unknown as { title: string }).title).toBe('New Post')
     })
   })
 })
