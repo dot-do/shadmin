@@ -354,4 +354,294 @@ describe('Package Exports', () => {
       expect(typeof shadmin.useLogout).toBe('function')
     })
   })
+
+  // ============================================================================
+  // RA-CORE RE-EXPORTS
+  // These tests verify that all ra-core APIs are accessible through shadmin
+  // for drop-in react-admin compatibility
+  // ============================================================================
+
+  describe('ra-core Validators', () => {
+    it('exports required', () => {
+      expect(shadmin.required).toBeDefined()
+      expect(typeof shadmin.required).toBe('function')
+    })
+
+    it('exports minLength', () => {
+      expect(shadmin.minLength).toBeDefined()
+      expect(typeof shadmin.minLength).toBe('function')
+    })
+
+    it('exports maxLength', () => {
+      expect(shadmin.maxLength).toBeDefined()
+      expect(typeof shadmin.maxLength).toBe('function')
+    })
+
+    it('exports minValue', () => {
+      expect(shadmin.minValue).toBeDefined()
+      expect(typeof shadmin.minValue).toBe('function')
+    })
+
+    it('exports maxValue', () => {
+      expect(shadmin.maxValue).toBeDefined()
+      expect(typeof shadmin.maxValue).toBe('function')
+    })
+
+    it('exports number', () => {
+      expect(shadmin.number).toBeDefined()
+      expect(typeof shadmin.number).toBe('function')
+    })
+
+    it('exports regex', () => {
+      expect(shadmin.regex).toBeDefined()
+      expect(typeof shadmin.regex).toBe('function')
+    })
+
+    it('exports email', () => {
+      expect(shadmin.email).toBeDefined()
+      expect(typeof shadmin.email).toBe('function')
+    })
+
+    it('exports choices', () => {
+      expect(shadmin.choices).toBeDefined()
+      expect(typeof shadmin.choices).toBe('function')
+    })
+
+    it('exports composeValidators', () => {
+      expect(shadmin.composeValidators).toBeDefined()
+      expect(typeof shadmin.composeValidators).toBe('function')
+    })
+  })
+
+  describe('ra-core Controller Hooks', () => {
+    it('exports useEditController', () => {
+      expect(shadmin.useEditController).toBeDefined()
+      expect(typeof shadmin.useEditController).toBe('function')
+    })
+
+    it('exports useListController', () => {
+      expect(shadmin.useListController).toBeDefined()
+      expect(typeof shadmin.useListController).toBe('function')
+    })
+
+    it('exports useShowController', () => {
+      expect(shadmin.useShowController).toBeDefined()
+      expect(typeof shadmin.useShowController).toBe('function')
+    })
+
+    it('exports useCreateController', () => {
+      expect(shadmin.useCreateController).toBeDefined()
+      expect(typeof shadmin.useCreateController).toBe('function')
+    })
+  })
+
+  describe('ra-core Context Providers', () => {
+    it('exports EditContextProvider', () => {
+      expect(shadmin.EditContextProvider).toBeDefined()
+      expect(typeof shadmin.EditContextProvider).toBe('function')
+    })
+
+    it('exports ListContextProvider', () => {
+      expect(shadmin.ListContextProvider).toBeDefined()
+      expect(typeof shadmin.ListContextProvider).toBe('function')
+    })
+
+    it('exports ShowContextProvider', () => {
+      expect(shadmin.ShowContextProvider).toBeDefined()
+      expect(typeof shadmin.ShowContextProvider).toBe('function')
+    })
+
+    it('exports CreateContextProvider', () => {
+      expect(shadmin.CreateContextProvider).toBeDefined()
+      expect(typeof shadmin.CreateContextProvider).toBe('function')
+    })
+
+    it('exports RecordContextProvider', () => {
+      expect(shadmin.RecordContextProvider).toBeDefined()
+      expect(typeof shadmin.RecordContextProvider).toBe('function')
+    })
+  })
+
+  describe('ra-core Selection Hooks', () => {
+    it('exports useUnselectAll', () => {
+      expect(shadmin.useUnselectAll).toBeDefined()
+      expect(typeof shadmin.useUnselectAll).toBe('function')
+    })
+
+    it('exports useRecordSelection', () => {
+      expect(shadmin.useRecordSelection).toBeDefined()
+      expect(typeof shadmin.useRecordSelection).toBe('function')
+    })
+
+    it('exports useSelectAll', () => {
+      expect(shadmin.useSelectAll).toBeDefined()
+      expect(typeof shadmin.useSelectAll).toBe('function')
+    })
+
+    it('exports useUnselect', () => {
+      expect(shadmin.useUnselect).toBeDefined()
+      expect(typeof shadmin.useUnselect).toBe('function')
+    })
+  })
+
+  describe('ra-core Export Utilities', () => {
+    it('exports fetchRelatedRecords', () => {
+      expect(shadmin.fetchRelatedRecords).toBeDefined()
+      expect(typeof shadmin.fetchRelatedRecords).toBe('function')
+    })
+
+    it('exports downloadCSV', () => {
+      expect(shadmin.downloadCSV).toBeDefined()
+      expect(typeof shadmin.downloadCSV).toBe('function')
+    })
+
+    it('exports defaultExporter', () => {
+      expect(shadmin.defaultExporter).toBeDefined()
+      expect(typeof shadmin.defaultExporter).toBe('function')
+    })
+  })
+
+  describe('ra-core Routing Hooks', () => {
+    it('exports useCreatePath', () => {
+      expect(shadmin.useCreatePath).toBeDefined()
+      expect(typeof shadmin.useCreatePath).toBe('function')
+    })
+
+    it('exports useBasename', () => {
+      expect(shadmin.useBasename).toBeDefined()
+      expect(typeof shadmin.useBasename).toBe('function')
+    })
+
+    it('exports useGetPathForRecord', () => {
+      expect(shadmin.useGetPathForRecord).toBeDefined()
+      expect(typeof shadmin.useGetPathForRecord).toBe('function')
+    })
+  })
+
+  describe('ra-core Auth Hooks', () => {
+    it('exports useAuthenticated', () => {
+      expect(shadmin.useAuthenticated).toBeDefined()
+      expect(typeof shadmin.useAuthenticated).toBe('function')
+    })
+
+    it('exports useCheckAuth', () => {
+      expect(shadmin.useCheckAuth).toBeDefined()
+      expect(typeof shadmin.useCheckAuth).toBe('function')
+    })
+
+    it('exports useGetIdentity', () => {
+      expect(shadmin.useGetIdentity).toBeDefined()
+      expect(typeof shadmin.useGetIdentity).toBe('function')
+    })
+
+    it('exports useLogoutIfAccessDenied', () => {
+      expect(shadmin.useLogoutIfAccessDenied).toBeDefined()
+      expect(typeof shadmin.useLogoutIfAccessDenied).toBe('function')
+    })
+  })
+
+  describe('ra-core Data Hooks', () => {
+    it('exports useExpanded', () => {
+      expect(shadmin.useExpanded).toBeDefined()
+      expect(typeof shadmin.useExpanded).toBe('function')
+    })
+
+    it('exports useInfiniteGetList', () => {
+      expect(shadmin.useInfiniteGetList).toBeDefined()
+      expect(typeof shadmin.useInfiniteGetList).toBe('function')
+    })
+
+    it('exports usePaginationState', () => {
+      expect(shadmin.usePaginationState).toBeDefined()
+      expect(typeof shadmin.usePaginationState).toBe('function')
+    })
+
+    it('exports useSortState', () => {
+      expect(shadmin.useSortState).toBeDefined()
+      expect(typeof shadmin.useSortState).toBe('function')
+    })
+
+    it('exports useFilterState', () => {
+      expect(shadmin.useFilterState).toBeDefined()
+      expect(typeof shadmin.useFilterState).toBe('function')
+    })
+
+    it('exports useGetManyAggregate', () => {
+      expect(shadmin.useGetManyAggregate).toBeDefined()
+      expect(typeof shadmin.useGetManyAggregate).toBe('function')
+    })
+  })
+
+  describe('ra-core Form Hooks', () => {
+    it('exports useInput', () => {
+      expect(shadmin.useInput).toBeDefined()
+      expect(typeof shadmin.useInput).toBe('function')
+    })
+
+    it('exports useAugmentedForm', () => {
+      expect(shadmin.useAugmentedForm).toBeDefined()
+      expect(typeof shadmin.useAugmentedForm).toBe('function')
+    })
+
+    it('exports useWarnWhenUnsavedChanges', () => {
+      expect(shadmin.useWarnWhenUnsavedChanges).toBeDefined()
+      expect(typeof shadmin.useWarnWhenUnsavedChanges).toBe('function')
+    })
+
+    it('exports useSuggestions', () => {
+      expect(shadmin.useSuggestions).toBeDefined()
+      expect(typeof shadmin.useSuggestions).toBe('function')
+    })
+  })
+
+  describe('ra-core i18n Hooks', () => {
+    it('exports useLocaleState', () => {
+      expect(shadmin.useLocaleState).toBeDefined()
+      expect(typeof shadmin.useLocaleState).toBe('function')
+    })
+
+    it('exports useSetLocale', () => {
+      expect(shadmin.useSetLocale).toBeDefined()
+      expect(typeof shadmin.useSetLocale).toBe('function')
+    })
+  })
+
+  describe('ra-core Store Hooks', () => {
+    it('exports useStore', () => {
+      expect(shadmin.useStore).toBeDefined()
+      expect(typeof shadmin.useStore).toBe('function')
+    })
+
+    it('exports useRemoveFromStore', () => {
+      expect(shadmin.useRemoveFromStore).toBeDefined()
+      expect(typeof shadmin.useRemoveFromStore).toBe('function')
+    })
+
+    it('exports useResetStore', () => {
+      expect(shadmin.useResetStore).toBeDefined()
+      expect(typeof shadmin.useResetStore).toBe('function')
+    })
+  })
+
+  describe('ra-core Utility Functions', () => {
+    it('exports HttpError', () => {
+      expect(shadmin.HttpError).toBeDefined()
+      expect(typeof shadmin.HttpError).toBe('function')
+    })
+
+    it('exports fetchUtils', () => {
+      expect(shadmin.fetchUtils).toBeDefined()
+      expect(typeof shadmin.fetchUtils).toBe('object')
+    })
+
+    it('exports combineDataProviders', () => {
+      expect(shadmin.combineDataProviders).toBeDefined()
+      expect(typeof shadmin.combineDataProviders).toBe('function')
+    })
+
+    it('exports withLifecycleCallbacks', () => {
+      expect(shadmin.withLifecycleCallbacks).toBeDefined()
+      expect(typeof shadmin.withLifecycleCallbacks).toBe('function')
+    })
+  })
 })

@@ -784,4 +784,95 @@ describe('Consumer Type Exports', () => {
       expect(typeof shadmin.useLocale).toBe('function')
     })
   })
+
+  describe('Error Classes and Type Guards', () => {
+    it('exports HttpError class', () => {
+      expect(shadmin.HttpError).toBeDefined()
+      const error = new shadmin.HttpError('Not found', 404)
+      expect(error.message).toBe('Not found')
+      expect(error.status).toBe(404)
+    })
+
+    it('exports NetworkError class', () => {
+      expect(shadmin.NetworkError).toBeDefined()
+      const error = new shadmin.NetworkError('Connection failed')
+      expect(error.message).toBe('Connection failed')
+    })
+
+    it('exports TimeoutError class', () => {
+      expect(shadmin.TimeoutError).toBeDefined()
+      const error = new shadmin.TimeoutError('Request timed out')
+      expect(error.message).toBe('Request timed out')
+    })
+
+    it('exports ValidationError class', () => {
+      expect(shadmin.ValidationError).toBeDefined()
+      const error = new shadmin.ValidationError('Validation failed', { email: ['Invalid email'] })
+      expect(error.message).toBe('Validation failed')
+      expect(error.errors.email).toEqual(['Invalid email'])
+    })
+
+    it('exports isHttpError type guard', () => {
+      expect(shadmin.isHttpError).toBeDefined()
+      expect(typeof shadmin.isHttpError).toBe('function')
+      expect(shadmin.isHttpError(new shadmin.HttpError('test', 400))).toBe(true)
+      expect(shadmin.isHttpError(new Error('test'))).toBe(false)
+    })
+
+    it('exports isNetworkError type guard', () => {
+      expect(shadmin.isNetworkError).toBeDefined()
+      expect(typeof shadmin.isNetworkError).toBe('function')
+      expect(shadmin.isNetworkError(new shadmin.NetworkError())).toBe(true)
+      expect(shadmin.isNetworkError(new Error('test'))).toBe(false)
+    })
+
+    it('exports isTimeoutError type guard', () => {
+      expect(shadmin.isTimeoutError).toBeDefined()
+      expect(typeof shadmin.isTimeoutError).toBe('function')
+      expect(shadmin.isTimeoutError(new shadmin.TimeoutError())).toBe(true)
+      expect(shadmin.isTimeoutError(new Error('test'))).toBe(false)
+    })
+
+    it('exports isValidationError type guard', () => {
+      expect(shadmin.isValidationError).toBeDefined()
+      expect(typeof shadmin.isValidationError).toBe('function')
+      expect(shadmin.isValidationError(new shadmin.ValidationError('test', {}))).toBe(true)
+      expect(shadmin.isValidationError(new Error('test'))).toBe(false)
+    })
+
+    it('exports isNotFoundError helper', () => {
+      expect(shadmin.isNotFoundError).toBeDefined()
+      expect(typeof shadmin.isNotFoundError).toBe('function')
+      expect(shadmin.isNotFoundError(new shadmin.HttpError('not found', 404))).toBe(true)
+      expect(shadmin.isNotFoundError(new shadmin.HttpError('bad request', 400))).toBe(false)
+    })
+
+    it('exports isForbiddenError helper', () => {
+      expect(shadmin.isForbiddenError).toBeDefined()
+      expect(typeof shadmin.isForbiddenError).toBe('function')
+      expect(shadmin.isForbiddenError(new shadmin.HttpError('forbidden', 403))).toBe(true)
+      expect(shadmin.isForbiddenError(new shadmin.HttpError('not found', 404))).toBe(false)
+    })
+
+    it('exports isServerError helper', () => {
+      expect(shadmin.isServerError).toBeDefined()
+      expect(typeof shadmin.isServerError).toBe('function')
+      expect(shadmin.isServerError(new shadmin.HttpError('server error', 500))).toBe(true)
+      expect(shadmin.isServerError(new shadmin.HttpError('bad request', 400))).toBe(false)
+    })
+
+    it('exports isConflictError helper', () => {
+      expect(shadmin.isConflictError).toBeDefined()
+      expect(typeof shadmin.isConflictError).toBe('function')
+      expect(shadmin.isConflictError(new shadmin.HttpError('conflict', 409))).toBe(true)
+      expect(shadmin.isConflictError(new shadmin.HttpError('not found', 404))).toBe(false)
+    })
+
+    it('exports extractFieldErrors helper', () => {
+      expect(shadmin.extractFieldErrors).toBeDefined()
+      expect(typeof shadmin.extractFieldErrors).toBe('function')
+      const validationError = new shadmin.ValidationError('test', { name: ['required'] })
+      expect(shadmin.extractFieldErrors(validationError)).toEqual({ name: ['required'] })
+    })
+  })
 })

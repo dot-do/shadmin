@@ -3,10 +3,16 @@
 // Uses ra-core for headless admin functionality
 
 // =============================================================================
-// RA-CORE RE-EXPORTS
+// RA-CORE RE-EXPORTS (with explicit overrides for shadmin implementations)
 // =============================================================================
 // Re-export ra-core for drop-in react-admin compatibility
 // This provides all hooks, types, and utilities from react-admin's core
+//
+// IMPORTANT: Some exports conflict with shadmin's implementations.
+// We explicitly re-export shadmin versions after ra-core to ensure:
+// - ArrayInputContext: Uses shadmin's shadcn/ui implementation
+// - ArrayInputContextValue: Uses shadmin's type definition
+// - FormDataConsumer: Uses shadmin's optimized implementation
 export * from 'ra-core'
 
 // Re-export Link from react-router-dom for react-admin compatibility
@@ -16,9 +22,20 @@ export { Link } from 'react-router-dom'
 // SHADMIN COMPONENTS
 // =============================================================================
 // Shadmin components (override ra-ui-materialui with shadcn/ui)
-// Note: FormDataConsumer is explicitly exported to override ra-core's version
-// with our optimized shadmin implementation that includes useFormData hook
+// Note: These exports will override any conflicting ra-core exports above
+//
+// Explicitly re-export ArrayInputContext and ArrayInputContextValue from shadmin
+// to resolve TypeScript's ambiguity error (TS2308)
+export {
+  ArrayInputContext,
+  type ArrayInputContextValue,
+} from './components/input/ArrayInput'
+
+// Re-export all other components
 export * from './components'
+
+// Explicitly export FormDataConsumer to override ra-core's version
+// with our optimized shadmin implementation that includes useFormData hook
 export { FormDataConsumer, useFormData } from './components/form/FormDataConsumer'
 
 // =============================================================================
@@ -319,6 +336,26 @@ export type {
   AdminLayoutProps,
   AdminProps,
 } from './types'
+
+// =============================================================================
+// ERROR EXPORTS
+// =============================================================================
+// Custom error classes for standardized error handling
+export {
+  HttpError,
+  NetworkError,
+  TimeoutError,
+  ValidationError,
+  isHttpError,
+  isNetworkError,
+  isTimeoutError,
+  isValidationError,
+  isNotFoundError,
+  isForbiddenError,
+  isServerError,
+  isConflictError,
+  extractFieldErrors,
+} from './errors'
 
 // =============================================================================
 // UTILITY EXPORTS
