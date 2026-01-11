@@ -2,11 +2,17 @@
  * CoreAdminContext
  * Internal component that orchestrates all providers
  * Provides QueryClient, DataProvider, AuthProvider, and ResourceDefinitions
+ *
+ * Performance Optimizations:
+ * 1. QueryClient is separated into its own context to prevent re-renders
+ *    when DataProvider changes
+ * 2. Each provider layer is memoized independently
+ * 3. Children are passed through without re-creating provider tree
  */
 
-import { type ReactNode, useMemo, useState } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { type ReactNode, useMemo, useState, memo } from 'react'
 import {
+  QueryClientContextProvider,
   DataProviderContextProvider,
   AuthProviderContextProvider,
   ResourceDefinitionContextProvider,
@@ -22,8 +28,67 @@ export interface CoreAdminContextProps {
 }
 
 /**
+ * Inner provider that wraps DataProvider and AuthProvider.
+ * Memoized to prevent re-renders when QueryClient changes.
+ */
+const DataAndAuthProviders = memo(function DataAndAuthProviders({
+  children,
+  dataProvider,
+  authProvider,
+}: {
+  children: ReactNode
+  dataProvider: DataProvider
+  authProvider?: AuthProvider | undefined
+}) {
+  // If authProvider is provided, wrap with it
+  if (authProvider) {
+    return (
+      <DataProviderContextProvider dataProvider={dataProvider}>
+        <AuthProviderContextProvider authProvider={authProvider}>
+          {children}
+        </AuthProviderContextProvider>
+      </DataProviderContextProvider>
+    )
+  }
+
+  // Without authProvider, just wrap with DataProvider
+  return (
+    <DataProviderContextProvider dataProvider={dataProvider}>
+      {children}
+    </DataProviderContextProvider>
+  )
+})
+
+/**
+ * Resource definitions provider.
+ * Memoized to prevent re-renders from parent context changes.
+ */
+const ResourceDefinitionsProvider = memo(function ResourceDefinitionsProvider({
+  children,
+  definitions,
+}: {
+  children: ReactNode
+  definitions: ResourceDefinitions
+}) {
+  return (
+    <ResourceDefinitionContextProvider definitions={definitions}>
+      {children}
+    </ResourceDefinitionContextProvider>
+  )
+})
+
+/**
  * CoreAdminContext component
- * Wraps children with all necessary context providers
+ * Wraps children with all necessary context providers.
+ *
+ * Provider hierarchy (optimized for minimal re-renders):
+ * 1. QueryClientContextProvider - Stable, rarely changes
+ * 2. DataProviderContextProvider - Changes only when dataProvider changes
+ * 3. AuthProviderContextProvider (optional) - Changes only when authProvider changes
+ * 4. ResourceDefinitionContextProvider - Populated by Resource components
+ *
+ * By splitting into memoized sub-components, a change in one provider
+ * (e.g., DataProvider) won't cause all children to unmount/remount.
  */
 export const CoreAdminContext = ({
   children,
@@ -31,48 +96,23 @@ export const CoreAdminContext = ({
   authProvider,
   basename: _basename,
 }: CoreAdminContextProps) => {
-  // Create QueryClient with sensible defaults
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 5 * 60 * 1000, // 5 minutes
-            retry: 1,
-            refetchOnWindowFocus: false,
-          },
-        },
-      })
-  )
-
   // Resource definitions will be populated by Resource components
+  // Using useState ensures stable reference across renders
   const [resourceDefinitions] = useState<ResourceDefinitions>({})
 
-  // Wrap with all providers
-  const content = useMemo(() => {
-    let result = (
-      <ResourceDefinitionContextProvider definitions={resourceDefinitions}>
-        {children}
-      </ResourceDefinitionContextProvider>
-    )
-
-    // Conditionally wrap with AuthProvider
-    if (authProvider) {
-      result = (
-        <AuthProviderContextProvider authProvider={authProvider}>
-          {result}
-        </AuthProviderContextProvider>
-      )
-    }
-
-    return result
-  }, [children, authProvider, resourceDefinitions])
+  // Memoize the resource definitions value to prevent unnecessary re-renders
+  const memoizedResourceDefinitions = useMemo(
+    () => resourceDefinitions,
+    [resourceDefinitions]
+  )
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <DataProviderContextProvider dataProvider={dataProvider}>
-        {content}
-      </DataProviderContextProvider>
-    </QueryClientProvider>
+    <QueryClientContextProvider>
+      <DataAndAuthProviders dataProvider={dataProvider} authProvider={authProvider}>
+        <ResourceDefinitionsProvider definitions={memoizedResourceDefinitions}>
+          {children}
+        </ResourceDefinitionsProvider>
+      </DataAndAuthProviders>
+    </QueryClientContextProvider>
   )
 }

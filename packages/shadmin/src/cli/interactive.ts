@@ -6,11 +6,16 @@
 import type { ResourceDefinition } from './scanner'
 
 /**
+ * Valid template identifiers
+ */
+export type TemplateId = 'basic' | 'blog' | 'ecommerce' | 'crm' | 'content'
+
+/**
  * Example template definition
  */
-export interface ExampleTemplate {
+export interface ExampleTemplate<T extends TemplateId = TemplateId> {
   /** Unique identifier */
-  id: string
+  id: T
   /** Display name */
   name: string
   /** Short description */
@@ -32,7 +37,7 @@ export interface InteractiveMenuOptions {
 /**
  * Available example templates
  */
-export const EXAMPLE_TEMPLATES: ExampleTemplate[] = [
+export const EXAMPLE_TEMPLATES: readonly ExampleTemplate[] = [
   {
     id: 'basic',
     name: 'Basic Admin',
@@ -66,9 +71,14 @@ export const EXAMPLE_TEMPLATES: ExampleTemplate[] = [
 ]
 
 /**
- * Template file contents
+ * Template file contents - maps file paths to file content
  */
-type TemplateFiles = Record<string, string>
+type TemplateFiles = Readonly<Record<string, string>>
+
+/**
+ * Template registry type - maps template IDs to their file contents
+ */
+type TemplateRegistry = Readonly<Record<TemplateId, TemplateFiles>>
 
 /**
  * Shared shadmin.config.ts content for all templates
@@ -453,24 +463,37 @@ export const icon = () => <span>🧭</span>
 }
 
 /**
- * Template registry
+ * Template registry - maps template IDs to their file contents
  */
-const TEMPLATE_REGISTRY: Record<string, TemplateFiles> = {
+const TEMPLATE_REGISTRY: TemplateRegistry = {
   basic: BASIC_TEMPLATE,
   blog: BLOG_TEMPLATE,
   ecommerce: ECOMMERCE_TEMPLATE,
   crm: CRM_TEMPLATE,
   content: CONTENT_TEMPLATE,
+} as const
+
+/**
+ * Type guard to check if a string is a valid template ID
+ *
+ * @param id - String to check
+ * @returns Whether the string is a valid TemplateId
+ */
+export function isValidTemplateId(id: string): id is TemplateId {
+  return id in TEMPLATE_REGISTRY
 }
 
 /**
  * Gets the files for a template
  *
  * @param templateId - Template identifier
- * @returns Object mapping file paths to contents
+ * @returns Object mapping file paths to contents, or empty object for unknown template
  */
 export function getTemplateFiles(templateId: string): TemplateFiles {
-  return TEMPLATE_REGISTRY[templateId] || {}
+  if (isValidTemplateId(templateId)) {
+    return TEMPLATE_REGISTRY[templateId]
+  }
+  return {}
 }
 
 /**

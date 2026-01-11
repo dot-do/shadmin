@@ -1025,5 +1025,576 @@ describe('useCanAccess', () => {
       // canAccessCheck takes priority and returns true
       expect(result.current.canAccess).toBe(true)
     })
+
+    it('should handle canAccessCheck that returns false for invalid permissions', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(null),
+      })
+
+      const canAccessCheck = (perms: unknown) => {
+        // Check safely returns false when permissions are invalid
+        if (!perms || typeof perms !== 'object') {
+          return false
+        }
+        return true
+      }
+
+      const { result } = renderHook(
+        () => useCanAccess({ canAccessCheck }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      // canAccessCheck returns false for null permissions
+      expect(result.current.canAccess).toBe(false)
+    })
+
+    it('should receive correct permissions in canAccessCheck', async () => {
+      const permissions = { role: 'admin', level: 5, scopes: ['read', 'write'] }
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(permissions),
+      })
+
+      let receivedPermissions: unknown
+      const canAccessCheck = (perms: unknown) => {
+        receivedPermissions = perms
+        return true
+      }
+
+      const { result } = renderHook(
+        () => useCanAccess({ canAccessCheck }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(receivedPermissions).toEqual(permissions)
+    })
+  })
+
+  describe('permission denied scenarios', () => {
+    it('should deny access when user has different but similar-looking permissions', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['administrator', 'admin-panel']),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+    })
+
+    it('should deny access for all permission checks when one is missing', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['read', 'create']),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: ['read', 'create', 'delete'], requireAll: true }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+    })
+
+    it('should deny access when wildcard does not cover the prefix', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['posts.*']),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'comments.read' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+    })
+
+    it('should deny access for unauthorized action on authorized resource', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue({
+          posts: { read: true, create: true, update: true, delete: false },
+        }),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ resource: 'posts', action: 'delete' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+    })
+
+    it('should deny access when resource permission object is empty', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue({
+          posts: {},
+        }),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ resource: 'posts', action: 'read' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+    })
+  })
+
+  describe('loading state transitions', () => {
+    it('should transition from loading to loaded correctly', async () => {
+      let resolvePermissions: (value: unknown) => void
+      const permissionsPromise = new Promise((resolve) => {
+        resolvePermissions = resolve
+      })
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockReturnValue(permissionsPromise),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      // Initially loading
+      expect(result.current.isLoading).toBe(true)
+      expect(result.current.canAccess).toBe(false)
+      expect(result.current.error).toBeNull()
+
+      // Resolve permissions
+      resolvePermissions!(['admin'])
+
+      // After loading
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(true)
+      expect(result.current.error).toBeNull()
+    })
+
+    it('should maintain false canAccess during slow loading', async () => {
+      let resolvePermissions: (value: unknown) => void
+      const permissionsPromise = new Promise((resolve) => {
+        resolvePermissions = resolve
+      })
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockReturnValue(permissionsPromise),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      // Check multiple times during loading
+      expect(result.current.isLoading).toBe(true)
+      expect(result.current.canAccess).toBe(false)
+
+      await new Promise((r) => setTimeout(r, 10))
+      expect(result.current.isLoading).toBe(true)
+      expect(result.current.canAccess).toBe(false)
+
+      resolvePermissions!(['admin'])
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(true)
+    })
+  })
+
+  describe('error handling scenarios', () => {
+    it('should handle network errors gracefully', async () => {
+      const networkError = new Error('Network request failed')
+      networkError.name = 'NetworkError'
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockRejectedValue(networkError),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+      expect(result.current.error?.name).toBe('NetworkError')
+    })
+
+    it('should handle timeout errors gracefully', async () => {
+      const timeoutError = new Error('Request timed out')
+      timeoutError.name = 'TimeoutError'
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockRejectedValue(timeoutError),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(false)
+      expect(result.current.error?.message).toBe('Request timed out')
+    })
+
+    it('should not throw when error occurs during permission check', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockRejectedValue(new Error('Auth server down')),
+      })
+
+      expect(() => {
+        renderHook(
+          () => useCanAccess({ permission: 'admin' }),
+          { wrapper: createWrapper(authProvider) }
+        )
+      }).not.toThrow()
+    })
+
+    it('should correctly report error state alongside canAccess false', async () => {
+      const error = new Error('Permission fetch failed')
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockRejectedValue(error),
+      })
+
+      const { result } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.error).not.toBeNull()
+      })
+
+      // Both error and canAccess false should be true
+      expect(result.current.canAccess).toBe(false)
+      expect(result.current.error).toEqual(error)
+      expect(result.current.isLoading).toBe(false)
+    })
+  })
+
+  describe('multiple resource checks', () => {
+    it('should correctly check multiple different resources independently', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['posts.read', 'comments.write']),
+      })
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            staleTime: 5 * 60 * 1000,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          <AuthProviderContextProvider authProvider={authProvider}>
+            {children}
+          </AuthProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      // Check posts.read
+      const { result: postsRead } = renderHook(
+        () => useCanAccess({ resource: 'posts', action: 'read' }),
+        { wrapper }
+      )
+
+      // Check posts.write (should be false)
+      const { result: postsWrite } = renderHook(
+        () => useCanAccess({ resource: 'posts', action: 'write' }),
+        { wrapper }
+      )
+
+      // Check comments.write
+      const { result: commentsWrite } = renderHook(
+        () => useCanAccess({ resource: 'comments', action: 'write' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(postsRead.current.isLoading).toBe(false)
+        expect(postsWrite.current.isLoading).toBe(false)
+        expect(commentsWrite.current.isLoading).toBe(false)
+      })
+
+      expect(postsRead.current.canAccess).toBe(true)
+      expect(postsWrite.current.canAccess).toBe(false)
+      expect(commentsWrite.current.canAccess).toBe(true)
+    })
+
+    it('should handle mixed permission formats for different resources', async () => {
+      // Some resources use array format, some use object format
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['users.read', 'users.create']),
+      })
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          <AuthProviderContextProvider authProvider={authProvider}>
+            {children}
+          </AuthProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      const { result: usersRead } = renderHook(
+        () => useCanAccess({ resource: 'users', action: 'read' }),
+        { wrapper }
+      )
+
+      const { result: usersDelete } = renderHook(
+        () => useCanAccess({ resource: 'users', action: 'delete' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(usersRead.current.isLoading).toBe(false)
+        expect(usersDelete.current.isLoading).toBe(false)
+      })
+
+      expect(usersRead.current.canAccess).toBe(true)
+      expect(usersDelete.current.canAccess).toBe(false)
+    })
+  })
+
+  describe('caching behavior', () => {
+    it('should share cached permissions across multiple hooks', async () => {
+      const getPermissionsMock = vi.fn().mockResolvedValue(['admin', 'editor'])
+      authProvider = createMockAuthProvider({
+        getPermissions: getPermissionsMock,
+      })
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            staleTime: 5 * 60 * 1000,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          <AuthProviderContextProvider authProvider={authProvider}>
+            {children}
+          </AuthProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      // First hook
+      const { result: result1 } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(result1.current.isLoading).toBe(false)
+      })
+
+      // Second hook with different permission check
+      const { result: result2 } = renderHook(
+        () => useCanAccess({ permission: 'editor' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(result2.current.isLoading).toBe(false)
+      })
+
+      // Third hook with resource/action check
+      const { result: result3 } = renderHook(
+        () => useCanAccess({ resource: 'posts', action: 'read' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(result3.current.isLoading).toBe(false)
+      })
+
+      // All should use the same cached permissions
+      expect(getPermissionsMock).toHaveBeenCalledTimes(1)
+      expect(result1.current.canAccess).toBe(true)
+      expect(result2.current.canAccess).toBe(true)
+      expect(result3.current.canAccess).toBe(false) // posts.read not in permissions
+    })
+
+    it('should not refetch when component remounts within stale time', async () => {
+      const getPermissionsMock = vi.fn().mockResolvedValue(['admin'])
+      authProvider = createMockAuthProvider({
+        getPermissions: getPermissionsMock,
+      })
+
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            staleTime: 5 * 60 * 1000,
+          },
+        },
+      })
+
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={queryClient}>
+          <AuthProviderContextProvider authProvider={authProvider}>
+            {children}
+          </AuthProviderContextProvider>
+        </QueryClientProvider>
+      )
+
+      // First mount
+      const { result: result1, unmount } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(result1.current.isLoading).toBe(false)
+      })
+
+      expect(getPermissionsMock).toHaveBeenCalledTimes(1)
+
+      // Unmount
+      unmount()
+
+      // Remount
+      const { result: result2 } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper }
+      )
+
+      await waitFor(() => {
+        expect(result2.current.isLoading).toBe(false)
+      })
+
+      // Should still only be called once due to caching
+      expect(getPermissionsMock).toHaveBeenCalledTimes(1)
+      expect(result2.current.canAccess).toBe(true)
+    })
+  })
+
+  describe('memoization', () => {
+    it('should return stable reference when permissions do not change', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue(['admin']),
+      })
+
+      const { result, rerender } = renderHook(
+        () => useCanAccess({ permission: 'admin' }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      const firstResult = result.current
+
+      rerender()
+
+      // Reference should be stable
+      expect(result.current).toBe(firstResult)
+    })
+  })
+
+  describe('complex permission structures', () => {
+    it('should handle deeply nested object permissions', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue({
+          modules: {
+            admin: {
+              users: { read: true, write: false },
+              settings: { read: true, write: true },
+            },
+          },
+        }),
+      })
+
+      // Custom check for nested structure
+      const canAccessCheck = (perms: unknown) => {
+        const p = perms as { modules?: { admin?: { users?: { read?: boolean } } } }
+        return p?.modules?.admin?.users?.read === true
+      }
+
+      const { result } = renderHook(
+        () => useCanAccess({ canAccessCheck }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(true)
+    })
+
+    it('should handle permissions with numeric keys', async () => {
+      authProvider = createMockAuthProvider({
+        getPermissions: vi.fn().mockResolvedValue({
+          1: { read: true },
+          2: { read: false },
+        }),
+      })
+
+      const canAccessCheck = (perms: unknown) => {
+        const p = perms as Record<string, { read: boolean }>
+        return p['1']?.read === true
+      }
+
+      const { result } = renderHook(
+        () => useCanAccess({ canAccessCheck }),
+        { wrapper: createWrapper(authProvider) }
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.canAccess).toBe(true)
+    })
   })
 })

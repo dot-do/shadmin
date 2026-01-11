@@ -1,5 +1,14 @@
 // Context exports
 export {
+  QueryClientInstanceContext,
+  QueryClientContextProvider,
+  useQueryClientInstance,
+  useQueryClientInstanceOptional,
+  DEFAULT_QUERY_CLIENT_OPTIONS,
+  type QueryClientContextProviderProps,
+} from './QueryClientContext'
+
+export {
   DataProviderContext,
   DataProviderContextProvider,
   useDataProvider,

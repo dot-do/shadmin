@@ -7,8 +7,10 @@ import { describe, it, expect } from 'vitest'
 import {
   EXAMPLE_TEMPLATES,
   getTemplateFiles,
+  isValidTemplateId,
   shouldShowInteractiveMenu,
   type ExampleTemplate,
+  type TemplateId,
 } from './interactive'
 
 describe('Interactive CLI Menu', () => {
@@ -28,10 +30,8 @@ describe('Interactive CLI Menu', () => {
       }
     })
 
-    it('should include a basic/minimal template', () => {
-      const basic = EXAMPLE_TEMPLATES.find(
-        (t) => t.id === 'basic' || t.id === 'minimal'
-      )
+    it('should include a basic template', () => {
+      const basic = EXAMPLE_TEMPLATES.find((t) => t.id === 'basic')
       expect(basic).toBeDefined()
     })
 
@@ -41,9 +41,7 @@ describe('Interactive CLI Menu', () => {
     })
 
     it('should include an e-commerce example', () => {
-      const ecommerce = EXAMPLE_TEMPLATES.find(
-        (t) => t.id === 'ecommerce' || t.id === 'shop'
-      )
+      const ecommerce = EXAMPLE_TEMPLATES.find((t) => t.id === 'ecommerce')
       expect(ecommerce).toBeDefined()
     })
   })
@@ -158,17 +156,41 @@ describe('Interactive CLI Menu', () => {
 
   describe('ExampleTemplate interface', () => {
     it('should match expected shape', () => {
-      const template: ExampleTemplate = {
-        id: 'test',
+      const template: ExampleTemplate<'basic'> = {
+        id: 'basic',
         name: 'Test Template',
         description: 'A test template',
         icon: '🧪',
       }
 
-      expect(template.id).toBe('test')
+      expect(template.id).toBe('basic')
       expect(template.name).toBe('Test Template')
       expect(template.description).toBe('A test template')
       expect(template.icon).toBe('🧪')
+    })
+  })
+
+  describe('isValidTemplateId', () => {
+    it('should return true for valid template IDs', () => {
+      const validIds: TemplateId[] = ['basic', 'blog', 'ecommerce', 'crm', 'content']
+      for (const id of validIds) {
+        expect(isValidTemplateId(id)).toBe(true)
+      }
+    })
+
+    it('should return false for invalid template IDs', () => {
+      expect(isValidTemplateId('unknown')).toBe(false)
+      expect(isValidTemplateId('test')).toBe(false)
+      expect(isValidTemplateId('')).toBe(false)
+    })
+
+    it('should work as a type guard', () => {
+      const maybeId: string = 'basic'
+      if (isValidTemplateId(maybeId)) {
+        // TypeScript should narrow maybeId to TemplateId here
+        const id: TemplateId = maybeId
+        expect(id).toBe('basic')
+      }
     })
   })
 })

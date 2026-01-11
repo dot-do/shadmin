@@ -185,6 +185,66 @@
         "types": "./dist/components/mdxui/index.d.ts",
         "default": "./dist/components/mdxui/index.cjs"
       }
+    },
+    "./components": {
+      "import": {
+        "types": "./dist/components/index.d.ts",
+        "default": "./dist/components.js"
+      },
+      "require": {
+        "types": "./dist/components/index.d.ts",
+        "default": "./dist/components.cjs"
+      }
+    },
+    "./types": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/types.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/types.cjs"
+      }
+    },
+    "./dotdo": {
+      "import": {
+        "types": "./dist/dotdo/index.d.ts",
+        "default": "./dist/dotdo.js"
+      },
+      "require": {
+        "types": "./dist/dotdo/index.d.ts",
+        "default": "./dist/dotdo.cjs"
+      }
+    },
+    "./dotdo-react": {
+      "import": {
+        "types": "./dist/dotdo-react/index.d.ts",
+        "default": "./dist/dotdo-react.js"
+      },
+      "require": {
+        "types": "./dist/dotdo-react/index.d.ts",
+        "default": "./dist/dotdo-react.cjs"
+      }
+    },
+    "./utils": {
+      "import": {
+        "types": "./dist/utils/index.d.ts",
+        "default": "./dist/utils.js"
+      },
+      "require": {
+        "types": "./dist/utils/index.d.ts",
+        "default": "./dist/utils.cjs"
+      }
+    },
+    "./errors": {
+      "import": {
+        "types": "./dist/errors/index.d.ts",
+        "default": "./dist/errors.js"
+      },
+      "require": {
+        "types": "./dist/errors/index.d.ts",
+        "default": "./dist/errors.cjs"
+      }
     }
   },
   "files": [
