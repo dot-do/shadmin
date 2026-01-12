@@ -7,7 +7,7 @@
 
 import type { ReactNode, ReactElement } from 'react'
 import { useParams } from 'react-router'
-import { ShowBase } from 'ra-core'
+import { ShowBase } from '../../../facade'
 import { useResourceContext, ResourceContextProvider } from '../../../contexts/ResourceContext'
 import type { Identifier } from '../../../contexts/ListContext'
 // RaRecord type removed - not used in this file

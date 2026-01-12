@@ -2,6 +2,131 @@
 
 This document describes the architectural patterns and decisions in the shadmin package.
 
+## Migration Phases
+
+### Phase 1: Facade Layer ✅ COMPLETE
+- Controlled re-exports from ra-core
+- Internal code can use either ra-core or facade
+- Type definitions established
+
+### Phase 2: Internal Migration ✅ COMPLETE
+- All internal imports routed through facade
+- Zero direct ra-core imports outside facade
+- ESLint rule enforces this
+- Logging abstraction added
+- Performance monitoring utilities
+- Comprehensive test coverage
+
+### Phase 3: Native Implementation (Future)
+- Replace facade implementations with native code
+- ra-core becomes optional peer dependency
+- Timeline: Post v1.0 stabilization
+
+---
+
+## Dependency Rules
+
+### Import Hierarchy
+```
+1. Components may import from: hooks, contexts, facade, utils, types
+2. Hooks may import from: contexts, facade, utils, types
+3. Contexts may import from: facade, types
+4. Facade may import from: ra-core (only location allowed)
+5. Types may import from: nothing (leaf nodes)
+```
+
+### Enforced by ESLint
+- `no-restricted-imports`: Blocks direct ra-core imports outside facade
+- Run `pnpm audit:imports` to verify compliance
+
+### Audit Script
+The import audit script (`scripts/audit-imports.ts`) scans for violations:
+```bash
+pnpm audit:imports
+```
+
+---
+
+## Performance
+
+### Context Architecture
+- Contexts split by concern (RecordContext, ListContext, FormContext, etc.)
+- Sub-contexts prevent cascading re-renders
+
+### Monitoring
+- Development profiler available via `@/utils/profiler`
+- React DevTools integration via displayName
+- Configurable render warnings and callbacks
+
+### Profiler API
+```typescript
+import { configureRenderMonitor, getRenderSummary } from 'shadmin/utils'
+
+// Configure warnings
+configureRenderMonitor({
+  warnThreshold: 10,
+  verbose: true,
+  onExcessiveRenders: (component) => console.warn(`Excessive renders: ${component}`)
+})
+
+// Get summary statistics
+const summary = getRenderSummary()
+// { ComponentA: { count: 3, avgDuration: 4.0, maxDuration: 5.0 }, ... }
+```
+
+---
+
+## Logging
+
+### Logger API
+```typescript
+import { logger, reportError, setErrorHandler } from 'shadmin/utils'
+
+// Development-only logging (silent in production)
+logger.debug('message', { data: 123 })
+logger.warn('warning')
+
+// Always logs (production + development)
+logger.error('error occurred', error)
+
+// Custom error handler integration (e.g., Sentry)
+setErrorHandler((error, context) => {
+  Sentry.captureException(error, { extra: context })
+})
+reportError(new Error('something failed'), { userId: '123' })
+```
+
+---
+
+## Facade Layer
+
+The facade (`src/facade/`) provides a controlled abstraction between shadmin and ra-core.
+
+```
+External Consumer -> shadmin public API -> ra-core (for compatibility)
+Internal Component -> facade -> shadmin native types (for decoupling)
+```
+
+### Facade Modules
+| Module | Purpose |
+|--------|---------|
+| `data-provider.ts` | DataProvider types and utilities |
+| `auth-provider.ts` | AuthProvider types and utilities |
+| `core-types.ts` | Resource, notification, i18n types |
+| `ra-core.ts` | Controlled re-exports of hooks/components |
+| `index.ts` | Main facade exports |
+
+### Usage
+```typescript
+// Internal code should use:
+import { useRecordContext, DataProvider } from '../facade'
+
+// NOT:
+import { useRecordContext } from 'ra-core'  // ❌ Blocked by audit
+```
+
+---
+
 ## Type Assertion Policy
 
 TypeScript type assertions (`as`) are used sparingly in shadmin. Each assertion must be justified with a comment explaining why it's safe. This section documents the categories of justified assertions.
@@ -151,3 +276,58 @@ When adding a new type assertion:
 
 - [TypeScript Handbook: Type Assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions)
 - [React Admin: Type Safety](https://marmelab.com/react-admin/TypeScript.html)
+
+---
+
+## Test Coverage
+
+Phase 2 added comprehensive test coverage across key modules:
+
+### Facade Layer Tests
+| File | Coverage |
+|------|----------|
+| `facade/data-provider.spec.ts` | DataProvider type guards and utilities |
+| `facade/auth-provider.spec.ts` | AuthProvider type guards and utilities |
+| `facade/core-types.spec.ts` | Core type definitions |
+
+### Utilities Tests
+| File | Coverage |
+|------|----------|
+| `utils/logger.spec.ts` | Logging abstraction, error handlers |
+| `utils/profiler.spec.ts` | Render timing, configuration, summaries |
+| `utils/cn.spec.ts` | Class name utilities |
+| `utils/filterOperators.spec.ts` | Filter operator helpers |
+
+### CLI Tests
+| File | Coverage |
+|------|----------|
+| `cli/generator.spec.ts` | Code generation |
+| `cli/scanner.spec.ts` | File scanning |
+| `cli/translation-extractor.spec.ts` | i18n extraction |
+| `cli/integration.spec.ts` | End-to-end CLI flows |
+| `cli/config.spec.ts` | Configuration handling |
+| `cli/commands.spec.ts` | Command parsing |
+| `cli/interactive.spec.ts` | Interactive prompts |
+| `cli/vite-plugin.spec.ts` | Vite plugin integration |
+
+### Type Tests
+| File | Coverage |
+|------|----------|
+| `types/filter-payload.spec.ts` | Filter payload types |
+| `components/input/types.spec.ts` | Input component types |
+| `consumer-types.spec.ts` | External API types |
+| `exports.spec.ts` | Package exports |
+| `subpaths.spec.ts` | Subpath exports |
+| `typecheck.spec.ts` | Full type compilation |
+
+### Running Tests
+```bash
+# Run all tests
+pnpm test:run
+
+# Run with coverage
+pnpm test:coverage
+
+# Run specific test file
+npx vitest run src/facade/data-provider.spec.ts
+```

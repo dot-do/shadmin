@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from 'ra-core'
+import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from '../../facade'
 import type { Identifier } from '../../facade'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'

@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from 'ra-core'
+import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from '../../facade'
 import type { MutationMode, Identifier } from '../../facade'
 import { cn } from '../../utils'
 

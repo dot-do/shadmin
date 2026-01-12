@@ -12,7 +12,7 @@ import {
   ResourceContext as RaCoreResourceContext,
   ResourceContextProvider as RaCoreResourceContextProvider,
   useResourceContext as useRaCoreResourceContext,
-} from 'ra-core'
+} from '../facade'
 import type { ResourceDefinition } from '../types'
 
 // Re-export ra-core's ResourceContext as our own

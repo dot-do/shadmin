@@ -11,7 +11,7 @@
  */
 
 import { type ReactNode, useState, useCallback } from 'react'
-import { useGetIdentity, useLogout } from 'ra-core'
+import { useGetIdentity, useLogout } from '../../facade'
 import { cn } from '../../lib/utils'
 import { useSidebar, SidebarTrigger } from './Layout'
 

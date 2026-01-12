@@ -5,7 +5,7 @@
 
 import { forwardRef, type ReactNode, type AnchorHTMLAttributes } from 'react'
 import { Link } from 'react-router-dom'
-import { useCreatePath, useResourceContext, useRecordContext } from 'ra-core'
+import { useCreatePath, useResourceContext, useRecordContext } from '../../facade'
 import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
 

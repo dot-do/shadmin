@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { useListContext, useResourceContext, useDataProvider, fetchRelatedRecords } from 'ra-core'
+import { useListContext, useResourceContext, useDataProvider, fetchRelatedRecords } from '../../facade'
 import type { Exporter } from '../../facade'
 import { cn } from '../../utils'
 

@@ -6,7 +6,7 @@
  */
 
 import type { ReactNode, ReactElement } from 'react'
-import { CreateBase } from 'ra-core'
+import { CreateBase } from '../../../facade'
 import { useResourceContext, ResourceContextProvider } from '../../../contexts/ResourceContext'
 import type { RaRecord, MutationMode } from '../../../types'
 

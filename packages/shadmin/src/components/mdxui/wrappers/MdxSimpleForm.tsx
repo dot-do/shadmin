@@ -7,7 +7,7 @@
 
 import { useCallback, Children, isValidElement, cloneElement, type ReactNode, type ReactElement } from 'react'
 import { useForm, FormProvider, type DefaultValues, type Path, type PathValue, type SubmitHandler } from 'react-hook-form'
-import { useEditContext, useCreateContext } from 'ra-core'
+import { useEditContext, useCreateContext } from '../../../facade'
 import { cn } from '../../../utils'
 import type { RaRecord } from '../../../types'
 
