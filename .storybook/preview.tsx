@@ -97,6 +97,11 @@ const preview: Preview = {
         },
       },
     },
+    // Chromatic visual regression testing configuration
+    chromatic: {
+      // Test at mobile (320px), tablet (768px), and desktop (1200px) viewports
+      viewports: [320, 768, 1200],
+    },
   },
   decorators: [
     withAdminContext,

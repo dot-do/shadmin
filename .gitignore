@@ -45,6 +45,9 @@ build-storybook.log
 # Chromatic
 chromatic-archives/
 
+# Generated documentation
+docs/api/
+
 # Misc
 *.bak
 *.tmp

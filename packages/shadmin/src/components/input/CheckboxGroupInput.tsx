@@ -49,7 +49,7 @@ export interface CheckboxGroupInputProps<T extends FieldValues = FieldValues>
    * The property name to use as the option text, or a function to render custom text.
    * @default 'name'
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allows strongly-typed callbacks without casting; see types.ts OptionTextProp
   optionText?: string | ((choice: any) => string)
   /**
    * The property name to check for disabling individual options.
@@ -164,6 +164,10 @@ export const CheckboxGroupInput = forwardRef<HTMLInputElement, CheckboxGroupInpu
     const errorId = `${groupId}-error`
     const helperId = `${groupId}-helper`
 
+    // Type assertion: useController's defaultValue expects the inferred field type,
+    // but CheckboxGroupInput always uses string[] arrays regardless of form schema.
+    // Empty array is the correct default for a multi-select checkbox group.
+    type DefaultValueType = Parameters<typeof useController<FieldValues, Path<FieldValues>>>['0']['defaultValue']
     const {
       field,
       fieldState: { error },
@@ -171,7 +175,7 @@ export const CheckboxGroupInput = forwardRef<HTMLInputElement, CheckboxGroupInpu
       name: source,
       control,
       ...(rules !== undefined && { rules }),
-      defaultValue: [] as unknown as Parameters<typeof useController<FieldValues, Path<FieldValues>>>['0']['defaultValue'],
+      defaultValue: [] as unknown as DefaultValueType,
     })
 
     const showLabel = label !== false

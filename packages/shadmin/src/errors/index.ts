@@ -140,17 +140,112 @@ export function isConflictError(error: unknown): boolean {
 }
 
 /**
+ * Type guard to check if a value is a valid FieldErrors object
+ * (Record<string, string[]>)
+ */
+function isFieldErrors(value: unknown): value is Record<string, string[]> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false
+  }
+
+  return Object.entries(value as Record<string, unknown>).every(
+    ([_key, val]) => Array.isArray(val) && val.every((v) => typeof v === 'string')
+  )
+}
+
+/**
+ * Type-safe error shape extractor functions
+ * Each function attempts to extract field errors from a specific API response shape
+ */
+type ErrorShapeExtractor = (error: unknown) => unknown
+
+/**
  * Extract field errors from an HTTP error response body
+ *
+ * Handles multiple common API response formats:
+ * 1. ValidationError instance - Our custom error class
+ * 2. body.errors - Common REST API format
+ * 3. response.data.fieldErrors - Common in REST APIs (e.g., Spring)
+ * 4. response.data.errors - Alternative REST format
+ * 5. details - Zod validation error format
+ * 6. errors[0].extensions.validation - GraphQL error format
+ * 7. response.body.errors - Nested body format (e.g., fetch wrapper)
+ *
+ * @param error - The error object to extract field errors from
+ * @returns A Record<string, string[]> of field errors, or null if not found
+ *
+ * @example
+ * ```ts
+ * // REST API error
+ * const error = new HttpError('Validation failed', 400, {
+ *   errors: { email: ['Invalid email format'] }
+ * })
+ * extractFieldErrors(error) // { email: ['Invalid email format'] }
+ *
+ * // GraphQL error
+ * const graphqlError = {
+ *   errors: [{
+ *     extensions: { validation: { username: ['Already taken'] } }
+ *   }]
+ * }
+ * extractFieldErrors(graphqlError) // { username: ['Already taken'] }
+ * ```
  */
 export function extractFieldErrors(error: unknown): Record<string, string[]> | null {
+  // 1. ValidationError instance - our custom error class
   if (isValidationError(error)) {
     return error.errors
   }
-  if (isHttpError(error) && error.body && typeof error.body === 'object') {
-    const body = error.body as Record<string, unknown>
-    if (body.errors && typeof body.errors === 'object') {
-      return body.errors as Record<string, string[]>
+
+  // Define error shape extractors for common API response formats
+  const shapeExtractors: ErrorShapeExtractor[] = [
+    // 2. body.errors - Common REST API format (HttpError with body)
+    (e: unknown) => {
+      const obj = e as { body?: { errors?: unknown } } | undefined
+      return obj?.body?.errors
+    },
+
+    // 3. response.data.fieldErrors - Common in REST APIs (e.g., Spring, axios-wrapped)
+    (e: unknown) => {
+      const obj = e as { response?: { data?: { fieldErrors?: unknown } } } | undefined
+      return obj?.response?.data?.fieldErrors
+    },
+
+    // 4. response.data.errors - Alternative REST format
+    (e: unknown) => {
+      const obj = e as { response?: { data?: { errors?: unknown } } } | undefined
+      return obj?.response?.data?.errors
+    },
+
+    // 5. details - Zod validation error format
+    (e: unknown) => {
+      const obj = e as { details?: unknown } | undefined
+      return obj?.details
+    },
+
+    // 6. errors[0].extensions.validation - GraphQL error format
+    (e: unknown) => {
+      const obj = e as { errors?: Array<{ extensions?: { validation?: unknown } }> } | undefined
+      return obj?.errors?.[0]?.extensions?.validation
+    },
+
+    // 7. response.body.errors - Nested body format (e.g., fetch wrapper)
+    (e: unknown) => {
+      const obj = e as { response?: { body?: { errors?: unknown } } } | undefined
+      return obj?.response?.body?.errors
+    },
+
+    // 8. Direct field errors object at root level
+    (e: unknown) => e,
+  ]
+
+  // Try each extractor until we find valid field errors
+  for (const extract of shapeExtractors) {
+    const result = extract(error)
+    if (isFieldErrors(result)) {
+      return result
     }
   }
+
   return null
 }

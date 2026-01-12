@@ -232,7 +232,7 @@ export function useDOListContext<RecordType extends RaRecord = RaRecord>(
   options: UseDOListOptions<RecordType> = {}
 ): UseDOListResult<RecordType> {
   // Import useResourceContext from shadmin
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- Avoids circular dependency; dynamic require breaks cycle between dotdo-react and contexts
   const { useResourceContext } = require('../contexts/ResourceContext') as {
     useResourceContext: () => string | undefined
   }

@@ -3,10 +3,10 @@ import {
   type FormHTMLAttributes,
   useEffect,
   useCallback,
+  useContext,
 } from 'react'
-import { useForm, FormProvider, type UseFormReturn, type FieldValues } from 'react-hook-form'
+import { useForm, FormProvider, type UseFormReturn, type FieldValues, type DefaultValues, type Path, type PathValue } from 'react-hook-form'
 import { ListContext, type FilterPayload } from '@/contexts/ListContext'
-import { useContext } from 'react'
 import { cn } from '@/utils'
 
 /**
@@ -67,21 +67,21 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
     ...filterValues,
   } as TFieldValues
 
-  // Type assertions required: react-hook-form's generic constraints don't allow
-  // dynamically constructed default values without explicit casting
+  // Type assertion: react-hook-form's generic constraints require DefaultValues<T>
+  // but merged values from context may include additional fields not in TFieldValues.
+  // This is safe because useForm accepts partial default values at runtime.
   const form = useForm<TFieldValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    defaultValues: mergedDefaultValues as any,
+    defaultValues: mergedDefaultValues as DefaultValues<TFieldValues>,
   })
 
   const { handleSubmit, reset: formReset, setValue, watch: _watch } = form
 
   // Sync form values with filterValues from context
-  // Type assertions required: filterValues keys come from context and may not match TFieldValues at compile time
+  // Type assertion: filterValues keys come from context and may not be statically known.
+  // Path<T> and PathValue<T,P> provide type-safe field access at runtime.
   useEffect(() => {
     Object.entries(filterValues).forEach(([key, value]) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setValue(key as any, value as any)
+      setValue(key as Path<TFieldValues>, value as PathValue<TFieldValues, Path<TFieldValues>>)
     })
   }, [filterValues, setValue])
 
@@ -97,9 +97,9 @@ export function FilterForm<TFieldValues extends FieldValues = FieldValues>({
 
   const handleReset = useCallback(() => {
     // Reset form to empty state
-    // Type assertion required: defaultValues may be undefined which useForm accepts
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    formReset(defaultValues as any)
+    // Type assertion: defaultValues is Partial<T> but formReset expects DefaultValues<T>.
+    // DefaultValues<T> is a mapped type that makes all fields optional with undefined.
+    formReset(defaultValues as DefaultValues<TFieldValues>)
     // Reset page to 1
     setPage?.(1)
     // Clear all filters

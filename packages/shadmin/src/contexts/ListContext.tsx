@@ -142,7 +142,10 @@ export function ListContextProvider<T extends RaRecord = RaRecord>({
     ]
   )
 
-  // Pick and memoize the sub-context values
+  // TYPE ASSERTIONS NOTE: ListContext stores RaRecord as base type but consumers provide
+  // specific record types via generics. The context cannot be generic (React limitation),
+  // so we widen T to RaRecord for storage and narrow on retrieval.
+  // See: ARCHITECTURE.md#type-assertions
   const paginationContext = usePickPaginationContext(value as ListControllerResult<RaRecord>)
   const sortContext = usePickSortContext(value as ListControllerResult<RaRecord>)
   const filterContext = usePickFilterContext(value as ListControllerResult<RaRecord>)
@@ -177,5 +180,7 @@ export function useListContext<T extends RaRecord = RaRecord>(): ListControllerR
   if (context === undefined) {
     throw new Error('useListContext must be used inside a ListContextProvider')
   }
+  // TYPE ASSERTION: Context stores RaRecord base type; caller narrows via generic T.
+  // Safe because T extends RaRecord guarantees structural compatibility.
   return context as ListControllerResult<T>
 }

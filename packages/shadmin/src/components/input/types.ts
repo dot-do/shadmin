@@ -151,12 +151,13 @@ export type AutocompleteArrayChoice<T extends Record<string, unknown> = Record<s
  *
  * The function form uses a permissive `any` parameter to allow strongly-typed
  * callbacks like `(choice: MyType) => string` to be passed without type errors.
+ * This enables contravariant callback assignment without forcing users to cast.
  *
  * @template T - The choice type (used only for string key inference)
  */
 export type OptionTextProp<T extends Record<string, unknown> = Record<string, unknown>> =
   | (keyof T & string)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allows strongly-typed callbacks without casting; function contravariance requires wider type
   | ((choice: any) => string)
   | React.ReactElement
 

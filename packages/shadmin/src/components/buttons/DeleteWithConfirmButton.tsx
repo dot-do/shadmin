@@ -9,6 +9,14 @@ import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'
 
+/**
+ * Generic component type with displayName property.
+ * Used for typing forwardRef components that need displayName assignment.
+ */
+interface ComponentWithDisplayName<P> extends React.FC<P> {
+  displayName?: string
+}
+
 const buttonBaseStyles = cn(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium',
   'ring-offset-background transition-colors',
@@ -229,6 +237,6 @@ export const DeleteWithConfirmButton = forwardRef<HTMLButtonElement, DeleteWithC
   props: DeleteWithConfirmButtonProps<RecordType> & { ref?: React.Ref<HTMLButtonElement> }
 ) => React.ReactElement | null
 
-// Type assertion required: forwardRef with generic constraints doesn't preserve displayName type
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(DeleteWithConfirmButton as any).displayName = 'DeleteWithConfirmButton'
+// Type assertion: forwardRef with generic constraints doesn't preserve displayName type.
+// Using ComponentWithDisplayName provides type-safe displayName assignment.
+;(DeleteWithConfirmButton as ComponentWithDisplayName<DeleteWithConfirmButtonProps>).displayName = 'DeleteWithConfirmButton'

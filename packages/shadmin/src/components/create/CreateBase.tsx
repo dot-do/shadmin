@@ -286,7 +286,9 @@ export function CreateBase<
     defaultValues: {},
   })
 
-  // Create a save wrapper that works with FormContext's expected signature
+  // Create a save wrapper that works with FormContext's expected signature.
+  // Type assertion: FieldValues is the base type, TData is the user-specified record type.
+  // At runtime, data will conform to TData's structure if forms are used correctly.
   const formSave = useCallback(
     async (data: FieldValues) => {
       await save(data as unknown as TData)

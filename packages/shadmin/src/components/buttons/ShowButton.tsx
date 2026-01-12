@@ -4,10 +4,18 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { Link, type To } from 'react-router-dom'
+import { Link, type To, type LinkProps } from 'react-router-dom'
 import { useCreatePath, useResourceContext, useRecordContext } from 'ra-core'
 import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
+
+/**
+ * Generic component type with displayName property.
+ * Used for typing forwardRef components that need displayName assignment.
+ */
+interface ComponentWithDisplayName<P> extends React.FC<P> {
+  displayName?: string
+}
 
 const buttonBaseStyles = cn(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium',
@@ -36,7 +44,7 @@ const buttonSizes = {
 /**
  * Props for ShowButton component
  */
-export interface ShowButtonProps<RecordType extends RaRecord = any>
+export interface ShowButtonProps<RecordType extends RaRecord = RaRecord>
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   /**
    * The record to show
@@ -91,7 +99,7 @@ export interface ShowButtonProps<RecordType extends RaRecord = any>
  * );
  */
 export const ShowButton = forwardRef<HTMLAnchorElement, ShowButtonProps>(
-  <RecordType extends RaRecord = any>(
+  <RecordType extends RaRecord = RaRecord>(
     {
       record: recordProp,
       resource: resourceProp,
@@ -130,19 +138,19 @@ export const ShowButton = forwardRef<HTMLAnchorElement, ShowButtonProps>(
           className
         )}
         state={scrollToTop ? { _scrollToTop: true } : undefined}
-        // Type assertion: ButtonHTMLAttributes and LinkProps have overlapping but incompatible types
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(props as any)}
+        // Type assertion: ButtonHTMLAttributes includes properties that don't map 1:1 to LinkProps.
+        // This is safe because Link accepts all standard anchor attributes.
+        {...(props as Partial<LinkProps>)}
       >
         {icon && <span className="mr-2">{icon}</span>}
         {label}
       </Link>
     )
   }
-) as <RecordType extends RaRecord = any>(
+) as <RecordType extends RaRecord = RaRecord>(
   props: ShowButtonProps<RecordType> & { ref?: React.Ref<HTMLAnchorElement> }
 ) => React.ReactElement | null
 
-// Type assertion required: forwardRef with generic constraints doesn't preserve displayName type
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(ShowButton as any).displayName = 'ShowButton'
+// Type assertion: forwardRef with generic constraints doesn't preserve displayName type.
+// Using ComponentWithDisplayName provides type-safe displayName assignment.
+;(ShowButton as ComponentWithDisplayName<ShowButtonProps>).displayName = 'ShowButton'

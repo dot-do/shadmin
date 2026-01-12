@@ -81,5 +81,8 @@ export function RecordContextProvider<T extends RaRecord = RaRecord>({
  * ```
  */
 export function useRecordContext<T extends RaRecord = RaRecord>(): T | undefined {
+  // TYPE ASSERTION: Context stores RaRecord base type; caller narrows via generic T.
+  // Safe because T extends RaRecord guarantees structural compatibility.
+  // See: ARCHITECTURE.md#type-assertions
   return useContext(RecordContext) as T | undefined
 }

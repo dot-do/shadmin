@@ -3,7 +3,12 @@
  */
 
 // SimpleForm - main form component
-export { SimpleForm, type SimpleFormProps } from './SimpleForm'
+export {
+  SimpleForm,
+  type SimpleFormProps,
+  type FormSubmitHandler,
+  type SaveHandlerCallbacks,
+} from './SimpleForm'
 
 // TabbedForm - Organize form inputs into tabs
 export {

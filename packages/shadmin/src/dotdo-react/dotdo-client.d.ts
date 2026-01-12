@@ -26,11 +26,11 @@ declare module '@dotdo/client' {
   export interface DOClient {
     connectionState: 'connecting' | 'connected' | 'reconnecting' | 'disconnected' | 'failed'
     queuedCallCount: number
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- External library (@dotdo/client) callback types are untyped
     subscribe(channel: string, callback: (data: any) => void): { unsubscribe: () => void }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- External library event handler signature is untyped
     on(event: string, callback: (...args: any[]) => void): void
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- External library event handler signature is untyped
     off(event: string, callback: (...args: any[]) => void): void
     disconnect(): void
     [key: string]: unknown

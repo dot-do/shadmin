@@ -29,13 +29,50 @@ import { cn } from '../../utils'
 import { Toolbar as DefaultToolbar } from './Toolbar'
 
 /**
- * Type for save handler that accepts both ra-core SaveHandler and standard form handlers.
- * ra-core's SaveHandler returns Promise<void | RecordType> | Record<string, string>
- * Standard form handlers return void | Promise<void>
- * The second parameter can be either SaveHandlerCallbacks or BaseSyntheticEvent.
+ * Callbacks for ra-core style save handlers.
+ * These callbacks allow post-save actions like navigation or notifications.
+ *
+ * @template TResult - The type of the result data passed to onSuccess (typically RaRecord)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FormSubmitHandler<T> = (data: T, callbacksOrEvent?: any) => unknown
+export interface SaveHandlerCallbacks<TResult = unknown> {
+  /** Called when save operation succeeds with the saved record */
+  onSuccess?: (data: TResult) => void
+  /** Called when save operation fails with the error */
+  onError?: (error: Error) => void
+}
+
+/**
+ * Type for save handler that accepts both ra-core SaveHandler and standard form handlers.
+ *
+ * ra-core's SaveHandler signature: (data: T, callbacks?: SaveHandlerCallbacks) => Promise<void | Record> | Record<string, string>
+ * Standard form handlers: (data: T, event?: BaseSyntheticEvent) => void | Promise<void>
+ *
+ * The second parameter can be either:
+ * - `SaveHandlerCallbacks` for ra-core style handlers (with onSuccess/onError callbacks)
+ * - `React.BaseSyntheticEvent` for standard form submit handlers (the form event)
+ *
+ * @template T - The form data type (extends FieldValues)
+ * @template TResult - The result type for SaveHandlerCallbacks.onSuccess (defaults to unknown)
+ *
+ * @example
+ * ```tsx
+ * // ra-core style handler with callbacks
+ * const onSubmit: FormSubmitHandler<FormValues> = (data, callbacks) => {
+ *   await api.save(data)
+ *   callbacks?.onSuccess?.(savedRecord)
+ * }
+ *
+ * // Standard form handler
+ * const onSubmit: FormSubmitHandler<FormValues> = (data, event) => {
+ *   event?.preventDefault()
+ *   await api.save(data)
+ * }
+ * ```
+ */
+export type FormSubmitHandler<T, TResult = unknown> = (
+  data: T,
+  callbacksOrEvent?: SaveHandlerCallbacks<TResult> | React.BaseSyntheticEvent
+) => unknown
 
 /**
  * Props passed to the fieldWrapper component

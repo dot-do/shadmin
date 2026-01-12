@@ -263,23 +263,29 @@ export function createDotdoAuthProvider(
     // The client proxy allows dynamic method access
     // We use the pattern: client[`auth.${method}`](params)
     // Or access via client.auth[method](params) if the client supports namespaced access
-    // Cast through unknown first to avoid type narrowing issues
+    // TYPE ASSERTION: @dotdo/client uses a Proxy-based API where methods are accessed dynamically.
+    // The client exposes methods via string keys, requiring Record<string, unknown> access pattern.
+    // See: ARCHITECTURE.md#type-assertions
     const clientRecord = client as unknown as Record<string, unknown>
 
     const authMethod = clientRecord[`auth.${method}`]
     if (typeof authMethod === 'function') {
+      // TYPE ASSERTION: Runtime typeof check confirms this is a function.
+      // Generic T is provided by caller and represents the expected return type.
       return (authMethod as (params?: unknown) => Promise<T>)(params)
     }
 
     // Fallback: try calling as auth_method
     const fallbackMethod = clientRecord[`auth_${method}`]
     if (typeof fallbackMethod === 'function') {
+      // TYPE ASSERTION: Runtime typeof check confirms this is a function.
       return (fallbackMethod as (params?: unknown) => Promise<T>)(params)
     }
 
     // Last resort: try direct method name
     const directMethod = clientRecord[method]
     if (typeof directMethod === 'function') {
+      // TYPE ASSERTION: Runtime typeof check confirms this is a function.
       return (directMethod as (params?: unknown) => Promise<T>)(params)
     }
 

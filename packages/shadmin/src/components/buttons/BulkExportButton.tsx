@@ -68,7 +68,7 @@ export interface BulkExportButtonProps extends ButtonHTMLAttributes<HTMLButtonEl
   /**
    * Additional metadata to pass to the exporter
    */
-  meta?: any
+  meta?: Record<string, unknown>
 }
 
 /**

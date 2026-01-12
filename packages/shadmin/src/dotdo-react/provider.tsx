@@ -25,6 +25,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef, type ReactNode } from 'react'
+import { logger } from '../utils/logger'
 import type {
   ShadminDOProviderConfig,
   ShadminDOContextValue,
@@ -73,9 +74,9 @@ interface InternalClient {
   queuedCallCount: number
   call: (method: string, ...args: unknown[]) => Promise<unknown>
   subscribe: <T,>(channel: string, callback: (data: T) => void) => SubscriptionHandle
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Matches @dotdo/client event handler signature which is untyped
   on: (event: string, callback: (...args: any[]) => void) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Matches @dotdo/client event handler signature which is untyped
   off: (event: string, callback: (...args: any[]) => void) => void
   disconnect: () => void
 }
@@ -129,28 +130,37 @@ async function createRealClient(
 
     const client = createClient(baseUrl, clientOptions)
 
+    // TYPE ASSERTIONS NOTE: The @dotdo/client uses a Proxy-based API where methods are
+    // accessed dynamically via string keys. The client type is intentionally loose to allow
+    // this flexibility. We provide type-safe wrappers around the untyped client methods.
+    // See: ARCHITECTURE.md#type-assertions
     return {
       get connectionState() {
+        // TYPE ASSERTION: Client connectionState is a string union, cast to our narrower type
         return client.connectionState as ConnectionState
       },
       get queuedCallCount() {
         return client.queuedCallCount
       },
       call: async (method: string, ...args: unknown[]) => {
-        // Access the method via proxy and call it
+        // TYPE ASSERTION: Access method via proxy - client uses dynamic method dispatch
         const fn = (client as Record<string, unknown>)[method]
         if (typeof fn === 'function') {
+          // TYPE ASSERTION: Runtime typeof check confirms this is a function
           return (fn as (...args: unknown[]) => Promise<unknown>)(...args)
         }
         throw new Error(`Method ${method} not found on client`)
       },
       subscribe: <T,>(channel: string, callback: (data: T) => void) => {
+        // TYPE ASSERTION: Widen callback type to match client's untyped signature
         return client.subscribe(channel, callback as (data: unknown) => void)
       },
       on: (event: string, callback: (...args: unknown[]) => void) => {
+        // TYPE ASSERTION: Narrow event/callback types to known signatures
         client.on(event as 'connectionStateChange', callback as (state: ConnectionState) => void)
       },
       off: (event: string, callback: (...args: unknown[]) => void) => {
+        // TYPE ASSERTION: Narrow event/callback types to known signatures
         client.off(event as 'connectionStateChange', callback as (state: ConnectionState) => void)
       },
       disconnect: () => {
@@ -158,9 +168,7 @@ async function createRealClient(
       },
     }
   } catch {
-    console.warn(
-      'shadmin/dotdo-react: @dotdo/client not found. Install it with: npm install @dotdo/client'
-    )
+    logger.warn('@dotdo/client not found. Install it with: npm install @dotdo/client')
     return createMockClient()
   }
 }
@@ -274,7 +282,6 @@ export function ShadminDOProvider({
         setIsInitialized(true)
       } catch (error) {
         if (mounted) {
-          console.error('Failed to initialize DO client:', error)
           setConnectionState('failed')
           onErrorRef.current?.(error instanceof Error ? error : new Error(String(error)))
           setIsInitialized(true)

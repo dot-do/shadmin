@@ -29,6 +29,7 @@ import { useLocation, useNavigate, matchPath, type NavigateOptions } from 'react
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 import { FormTab, FormTabPanel, generateTabName, type FormTabProps } from './FormTab'
+import type { FormSubmitHandler } from './SimpleForm'
 
 // ============================================================================
 // Types & Interfaces
@@ -127,8 +128,14 @@ export function useOptionalTabbedFormContext(): TabbedFormContextValue | undefin
 
 /**
  * Props for TabbedForm component
+ *
+ * @template TData - The form data type, defaults to Record<string, unknown>
+ * @template TResult - The result type for save handler callbacks, defaults to unknown
  */
-export interface TabbedFormProps {
+export interface TabbedFormProps<
+  TData extends Record<string, unknown> = Record<string, unknown>,
+  TResult = unknown,
+> {
   /** FormTab children defining each tab */
   children?: ReactNode | undefined
   /** Additional CSS class for the form container */
@@ -157,7 +164,7 @@ export interface TabbedFormProps {
    */
   mode?: 'onBlur' | 'onChange' | 'onSubmit' | 'onTouched' | 'all' | undefined
   /** Default values for the form fields (react-admin compatibility) */
-  defaultValues?: Record<string, unknown> | undefined
+  defaultValues?: TData | undefined
   /**
    * Warn users before navigating away from unsaved changes.
    * React-admin compatibility prop.
@@ -171,11 +178,27 @@ export interface TabbedFormProps {
   /**
    * Custom submit handler for the form.
    * Supports both ra-core's SaveHandler and regular form submit handlers.
+   *
+   * The second parameter can be either:
+   * - `SaveHandlerCallbacks` for ra-core style handlers (with onSuccess/onError callbacks)
+   * - `React.BaseSyntheticEvent` for standard form submit handlers (the form event)
+   *
+   * @example
+   * ```tsx
+   * // ra-core style handler
+   * onSubmit={(data, callbacks) => {
+   *   await api.save(data)
+   *   callbacks?.onSuccess?.(savedRecord)
+   * }}
+   *
+   * // Standard form handler
+   * onSubmit={(data, event) => {
+   *   event?.preventDefault()
+   *   await api.save(data)
+   * }}
+   * ```
    */
-  onSubmit?:
-    | ((data: any, callbacks?: { onSuccess?: (data: any) => void; onError?: (error: Error) => void }) => Promise<void | any> | void | Record<string, string>)
-    | ((data: any, event?: React.BaseSyntheticEvent) => void | Promise<void> | Promise<unknown>)
-    | undefined
+  onSubmit?: FormSubmitHandler<TData, TResult> | undefined
 }
 
 // ============================================================================
@@ -371,7 +394,10 @@ function useFormRootPath(): string {
  * ```
  */
 
-export function TabbedForm({
+export function TabbedForm<
+  TData extends Record<string, unknown> = Record<string, unknown>,
+  TResult = unknown,
+>({
   children,
   className,
   defaultTab,
@@ -383,7 +409,7 @@ export function TabbedForm({
   warnWhenUnsavedChanges: _warnWhenUnsavedChanges,
   toolbar: _toolbar,
   onSubmit: _onSubmit,
-}: TabbedFormProps) {
+}: TabbedFormProps<TData, TResult>) {
   // ---------------------------------------------------------------------------
   // Tab Configuration
   // ---------------------------------------------------------------------------

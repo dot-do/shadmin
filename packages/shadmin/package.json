@@ -275,8 +275,41 @@
     "test:coverage": "vitest run --coverage",
     "test:light": "vitest run --no-file-parallelism --pool=forks --poolOptions.forks.maxForks=2",
     "test:single": "vitest run --no-file-parallelism --pool=forks --poolOptions.forks.maxForks=1",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "docs": "typedoc",
+    "docs:watch": "typedoc --watch",
+    "size": "size-limit",
+    "size:why": "size-limit --why"
   },
+  "size-limit": [
+    {
+      "name": "Full bundle (all exports)",
+      "path": "dist/index.js",
+      "limit": "150 KB"
+    },
+    {
+      "name": "List components",
+      "path": "dist/components/list.js",
+      "import": "{ List, Datagrid }",
+      "limit": "70 KB"
+    },
+    {
+      "name": "Form components",
+      "path": "dist/components/form.js",
+      "import": "{ SimpleForm }",
+      "limit": "30 KB"
+    },
+    {
+      "name": "Hooks only",
+      "path": "dist/hooks.js",
+      "limit": "25 KB"
+    },
+    {
+      "name": "Contexts only",
+      "path": "dist/contexts.js",
+      "limit": "10 KB"
+    }
+  ],
   "peerDependencies": {
     "@mdxui/admin": ">=0.1.0",
     "react": "^19.0.0",
@@ -289,6 +322,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@size-limit/preset-small-lib": "^12.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.6.1",
@@ -307,7 +341,10 @@
     "jsdom": "^25.0.1",
     "react": "^19.2.3",
     "react-dom": "^19.0.0",
+    "size-limit": "^12.0.0",
     "tailwind-merge": "^3.4.0",
+    "typedoc": "^0.28.16",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5",

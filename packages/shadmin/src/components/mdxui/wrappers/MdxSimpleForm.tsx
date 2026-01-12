@@ -6,7 +6,7 @@
  */
 
 import { useCallback, Children, isValidElement, cloneElement, type ReactNode, type ReactElement } from 'react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, type DefaultValues, type Path, type PathValue, type SubmitHandler } from 'react-hook-form'
 import { useEditContext, useCreateContext } from 'ra-core'
 import { cn } from '../../../utils'
 import type { RaRecord } from '../../../types'
@@ -103,10 +103,11 @@ export function MdxSimpleForm<T extends RaRecord = RaRecord>({
     ...(record ?? {}),
   } as T
 
-  // Initialize form - use unknown cast to satisfy react-hook-form's strict typing
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Initialize form
+  // Type assertion: react-hook-form requires DefaultValues<T> but T extends RaRecord,
+  // which includes { id } that may not be in the merged default values at edit time.
   const methods = useForm<T>({
-    defaultValues: defaultValues as any,
+    defaultValues: defaultValues as DefaultValues<T>,
     mode,
     reValidateMode,
   })
@@ -148,20 +149,23 @@ export function MdxSimpleForm<T extends RaRecord = RaRecord>({
     const fieldError = errors[source as keyof typeof errors]
 
     // Inject form registration and error state
-    // Use getValues for initial value to avoid type complexity with watch
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // Type assertion: source comes from child props and is dynamically accessed.
+    // Path<T> provides type-safe field paths at runtime.
+    type FieldPath = Path<T>
+    type FieldValue = PathValue<T, FieldPath>
     return cloneElement(child, {
-      ...methods.register(source as any),
+      ...methods.register(source as FieldPath),
       error: fieldError?.message as string | undefined,
-      value: methods.getValues(source as any),
-      onChange: (value: unknown) => methods.setValue(source as any, value as any),
+      value: methods.getValues(source as FieldPath),
+      onChange: (value: unknown) => methods.setValue(source as FieldPath, value as FieldValue),
     } as Record<string, unknown>)
   })
 
   return (
     <FormProvider {...methods}>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <form onSubmit={handleSubmit(onSubmit as any)} className={cn('space-y-4', className)}>
+      {/* Type assertion: onSubmit is async but SubmitHandler expects sync return.
+          This is safe because handleSubmit handles the Promise internally. */}
+      <form onSubmit={handleSubmit(onSubmit as SubmitHandler<T>)} className={cn('space-y-4', className)}>
         <div className="space-y-4">
           {formChildren}
         </div>

@@ -154,6 +154,19 @@ export function createDotdoDataProvider(
 
   /**
    * The DataProvider implementation
+   *
+   * TYPE ASSERTIONS NOTE: All client method calls use type assertions because:
+   * 1. DOClientProxy methods return generic results with unknown record types
+   * 2. RecordType is provided by the caller and specifies the expected shape
+   * 3. The DO client returns data matching DO*Result structures
+   * 4. We cast to the caller's expected RecordType for type-safe consumption
+   *
+   * This pattern is safe because:
+   * - The server validates and returns properly-shaped data
+   * - TypeScript generics ensure caller expectations are documented
+   * - Runtime errors will occur if the actual data doesn't match
+   *
+   * See: ARCHITECTURE.md#type-assertions
    */
   const dataProvider: DataProvider = {
     /**

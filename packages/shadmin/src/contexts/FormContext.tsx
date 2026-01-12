@@ -96,6 +96,9 @@ export function FormContextProvider<T extends FieldValues = FieldValues>({
 
   return (
     <FormProvider {...formMethods}>
+      {/* TYPE ASSERTION: Context stores FieldValues base type; consumers narrow via generics.
+          Safe because T extends FieldValues guarantees structural compatibility.
+          See: ARCHITECTURE.md#type-assertions */}
       <FormContext.Provider value={shadminContext as ShadminFormContextValue<FieldValues>}>
         {children}
       </FormContext.Provider>
@@ -130,7 +133,8 @@ export function useShadminFormContext<T extends FieldValues = FieldValues>():
   UseFormReturn<T> & ShadminFormContextValue<T> {
   const rhfContext = useRHFFormContext<T>()
   const rawContext = useContext(FormContext)
-  // Type assertion is safe because provider ensures correct type structure
+  // TYPE ASSERTION: Provider ensures correct type structure. Context stores FieldValues
+  // base type; caller narrows via generic T. See: ARCHITECTURE.md#type-assertions
   const shadminContext = rawContext as ShadminFormContextValue<T> | undefined
 
   // Memoize the combined context to prevent unnecessary re-renders in consumers

@@ -63,7 +63,7 @@ export interface MutationErrorHandling {
 /**
  * Configuration for creating a query hook
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- _TRecordType is used for documentation and future type inference extensibility
 export interface QueryHookConfig<
   TMethod extends keyof DataProvider,
   TParams,
@@ -105,7 +105,7 @@ export function createQueryHook<
   TMethod extends keyof DataProvider,
   TParams,
   TResult,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- _TRecordType reserved for future type inference; maintains API symmetry with config
   _TRecordType extends RaRecord = RaRecord,
   TOptions extends Omit<UseQueryOptions<unknown, Error>, 'queryKey' | 'queryFn'> = Omit<
     UseQueryOptions<unknown, Error>,
@@ -193,7 +193,7 @@ export function createSimpleQueryHook<
   TMethod extends keyof DataProvider,
   TParams,
   TResult,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- _TRecordType reserved for future type inference; maintains API symmetry with config
   _TRecordType extends RaRecord = RaRecord,
   TOptions extends Omit<UseQueryOptions<unknown, Error>, 'queryKey' | 'queryFn'> = Omit<
     UseQueryOptions<unknown, Error>,
@@ -243,7 +243,7 @@ export function createSimpleQueryHook<
 /**
  * Cache update handler for mutations
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- _TRecordType reserved for future type inference; documents expected record shape
 export interface CacheUpdateHandlers<_TRecordType extends RaRecord, TParams, TResult> {
   /** Called before mutation to capture cache state */
   onMutate?: (

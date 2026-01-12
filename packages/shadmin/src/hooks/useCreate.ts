@@ -13,6 +13,7 @@ import {
   isConflictError as checkConflictError,
   extractFieldErrors,
 } from '../errors'
+import { logger } from '../utils/logger'
 import type {
   RaRecord,
   CreateParams,
@@ -194,12 +195,14 @@ export function useCreate<
             })
             // Handle promise if returned
             if (result && typeof result.catch === 'function') {
-              result.catch(() => {
-                // Silently ignore if getManyReference fails
+              result.catch((error) => {
+                // Log but don't throw - cache invalidation failure shouldn't break create
+                logger.warn('getManyReference cache invalidation failed:', error)
               })
             }
-          } catch {
-            // Silently ignore if getManyReference is not implemented
+          } catch (error) {
+            // Log but don't throw - getManyReference may not be implemented
+            logger.warn('getManyReference not available or failed:', error)
           }
         }
       })
@@ -331,8 +334,9 @@ export function useCreate<
   // Create mutate function (fire and forget) - exported for API compatibility
   const _mutate = useCallback(
     (params: UseCreateMutateParams<TVariables>): void => {
-      mutateAsync(params).catch(() => {
-        // Errors are handled by the mutation state
+      mutateAsync(params).catch((error) => {
+        // Errors are handled by the mutation state, but log in dev for visibility
+        logger.warn('useCreate mutate failed (error available in mutation state):', error)
       })
     },
     [mutateAsync]

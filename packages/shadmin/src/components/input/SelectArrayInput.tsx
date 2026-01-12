@@ -48,7 +48,7 @@ export interface SelectArrayInputProps<T extends FieldValues = FieldValues>
    * The property name to use as the option text, or a function to render custom text.
    * @default 'name'
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allows strongly-typed callbacks without casting; see types.ts OptionTextProp
   optionText?: string | ((choice: any) => string)
   /**
    * Whether the select should take full width of its container.

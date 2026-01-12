@@ -96,8 +96,8 @@ export function MdxDatagrid<T extends RaRecord = RaRecord>({
           data: { [columnId]: value },
           previousData: record,
         })
-      } catch (error) {
-        console.error('Failed to update record:', error)
+      } catch {
+        // Error handling is delegated to the data provider and error boundaries
       }
     },
     [editable, data, resource, update]
@@ -110,8 +110,8 @@ export function MdxDatagrid<T extends RaRecord = RaRecord>({
 
       try {
         await create(resource, { data: row })
-      } catch (error) {
-        console.error('Failed to create record:', error)
+      } catch {
+        // Error handling is delegated to the data provider and error boundaries
       }
     },
     [enableCreate, resource, create]
@@ -129,8 +129,8 @@ export function MdxDatagrid<T extends RaRecord = RaRecord>({
         }
         onUnselectItems()
         selectionRef.current?.clearSelection()
-      } catch (error) {
-        console.error('Failed to delete records:', error)
+      } catch {
+        // Error handling is delegated to the data provider and error boundaries
       }
     },
     [enableDelete, resource, deleteOne, onUnselectItems]

@@ -1,18 +1,23 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { createRequire } from 'module'
+
+// Create a require function for ESM context to use require.resolve
+const require = createRequire(import.meta.url)
 
 // Dedupe React to prevent "Invalid hook call" errors from duplicate React instances
 // This is a nested pnpm workspace (shadmin is a workspace inside ui), which creates
 // duplicate React installations in both .pnpm stores. We must force ALL React imports
 // to resolve to the SAME physical location.
 
-// Use the LOCAL pnpm store's react/react-dom (they were installed together)
-// The local .pnpm folder has react and react-dom that share the same React internals
-const localPnpmStore = path.resolve(__dirname, 'node_modules/.pnpm')
-const reactPath = path.resolve(localPnpmStore, 'react@19.2.3/node_modules/react')
-const reactDomPath = path.resolve(localPnpmStore, 'react-dom@19.2.3_react@19.2.3/node_modules/react-dom')
-const schedulerPath = path.resolve(localPnpmStore, 'scheduler@0.25.0/node_modules/scheduler')
+// Dynamically resolve React paths to avoid hardcoding versions.
+// require.resolve finds the actual installed package location in node_modules,
+// then we get the directory containing that package.
+const reactPath = path.dirname(require.resolve('react/package.json'))
+const reactDomPath = path.dirname(require.resolve('react-dom/package.json'))
+// scheduler is a transitive dependency of react-dom, symlinked in its node_modules
+const schedulerPath = path.resolve(reactDomPath, '../scheduler')
 
 export default defineConfig({
   plugins: [react()],

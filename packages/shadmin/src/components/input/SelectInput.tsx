@@ -60,7 +60,7 @@ export interface SelectInputProps<T extends FieldValues = FieldValues>
    * or a React element for custom rendering.
    * @default 'name'
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allows strongly-typed callbacks without casting; see types.ts OptionTextProp
   optionText?: string | ((choice: any) => string) | ReactElement
   /**
    * Text to display for the empty/placeholder option.

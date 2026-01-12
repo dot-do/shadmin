@@ -11,8 +11,14 @@ import { EmailField } from './EmailField'
 import { UrlField } from './UrlField'
 import { ImageField } from './ImageField'
 import { ReferenceField } from './ReferenceField'
+import { ReferenceArrayField } from './ReferenceArrayField'
+import { ReferenceManyField } from './ReferenceManyField'
 import { ChipField } from './ChipField'
 import { FunctionField } from './FunctionField'
+import { ArrayField } from './ArrayField'
+import { RichTextField } from './RichTextField'
+import { FileField } from './FileField'
+import { SelectField } from './SelectField'
 
 // Sample record for demonstrations
 const sampleRecord = {
@@ -46,7 +52,47 @@ const sampleRecord = {
       value: 'Deep Nested Value',
     },
   },
+  // For ArrayField
+  tags: [
+    { id: 1, name: 'React' },
+    { id: 2, name: 'TypeScript' },
+    { id: 3, name: 'Tailwind' },
+  ],
+  skills: ['JavaScript', 'Python', 'Go'],
+  // For RichTextField
+  bio: '<p>Hello, I am <strong>John Doe</strong>. I work as a <em>software engineer</em> at a tech company.</p>',
+  description: '<h3>About Me</h3><p>I have over <strong>10 years</strong> of experience in web development.</p><ul><li>Frontend Expert</li><li>Backend Developer</li></ul>',
+  // For FileField
+  document: 'https://example.com.ai/files/resume.pdf',
+  attachments: [
+    { src: 'https://example.com.ai/files/contract.pdf', title: 'Contract' },
+    { src: 'https://example.com.ai/files/invoice.pdf', title: 'Invoice' },
+  ],
+  // For SelectField
+  country: 'us',
+  category: 'tech',
+  // For ReferenceArrayField
+  tagIds: [1, 2, 3],
+  projectIds: [101, 102],
 }
+
+// Mock data for reference components
+const mockTags = [
+  { id: 1, name: 'React', color: 'blue' },
+  { id: 2, name: 'TypeScript', color: 'purple' },
+  { id: 3, name: 'Tailwind', color: 'teal' },
+]
+
+const mockProjects = [
+  { id: 101, name: 'Website Redesign', status: 'active' },
+  { id: 102, name: 'Mobile App', status: 'completed' },
+]
+
+const mockComments = [
+  { id: 1, post_id: 1, body: 'Great article!', author: 'Alice' },
+  { id: 2, post_id: 1, body: 'Very helpful, thanks!', author: 'Bob' },
+  { id: 3, post_id: 1, body: 'Looking forward to more.', author: 'Charlie' },
+]
 
 // Mock data provider for ReferenceField
 const mockDataProvider = {
@@ -59,8 +105,26 @@ const mockDataProvider = {
       role: 'Editor',
     },
   }),
-  getMany: async () => ({ data: [] }),
-  getManyReference: async () => ({ data: [], total: 0 }),
+  getMany: async (_resource: string, { ids }: { ids: unknown[] }) => {
+    // Return mock data based on resource
+    if (_resource === 'tags') {
+      const data = mockTags.filter(tag => ids.includes(tag.id))
+      return { data }
+    }
+    if (_resource === 'projects') {
+      const data = mockProjects.filter(project => ids.includes(project.id))
+      return { data }
+    }
+    return { data: [] }
+  },
+  getManyReference: async (_resource: string, { target, id }: { target: string; id: unknown }) => {
+    // Return mock data based on resource and target
+    if (_resource === 'comments' && target === 'post_id') {
+      const data = mockComments.filter(comment => comment.post_id === id)
+      return { data, total: data.length }
+    }
+    return { data: [], total: 0 }
+  },
   create: async () => ({ data: { id: 1 } }),
   update: async () => ({ data: { id: 1 } }),
   updateMany: async () => ({ data: [] }),
@@ -948,6 +1012,447 @@ export const ReferenceFieldEmpty: StoryObj<typeof ReferenceField> = {
 }
 
 // =============================================================================
+// ArrayField Stories
+// =============================================================================
+
+/**
+ * Basic array of objects with TextField children
+ */
+export const ArrayFieldBasic: StoryObj<typeof ArrayField> = {
+  render: () => (
+    <RecordWrapper>
+      <ArrayField source="tags">
+        <ChipField source="name" variant="secondary" />
+      </ArrayField>
+    </RecordWrapper>
+  ),
+  name: 'ArrayField - Basic',
+}
+
+/**
+ * ArrayField with label
+ */
+export const ArrayFieldWithLabel: StoryObj<typeof ArrayField> = {
+  render: () => (
+    <RecordWrapper>
+      <ArrayField source="tags" label="Skills">
+        <ChipField source="name" variant="outline" />
+      </ArrayField>
+    </RecordWrapper>
+  ),
+  name: 'ArrayField - With Label',
+}
+
+/**
+ * ArrayField with nested TextField
+ */
+export const ArrayFieldNested: StoryObj<typeof ArrayField> = {
+  render: () => (
+    <RecordWrapper>
+      <ArrayField source="tags">
+        <div className="flex items-center gap-2 rounded border p-2">
+          <TextField source="id" className="text-muted-foreground text-sm" />
+          <TextField source="name" className="font-medium" />
+        </div>
+      </ArrayField>
+    </RecordWrapper>
+  ),
+  name: 'ArrayField - Nested Content',
+}
+
+/**
+ * Empty array with fallback
+ */
+export const ArrayFieldEmpty: StoryObj<typeof ArrayField> = {
+  render: () => (
+    <RecordWrapper>
+      <ArrayField source="nonexistent" emptyText="No items found">
+        <TextField source="name" />
+      </ArrayField>
+    </RecordWrapper>
+  ),
+  name: 'ArrayField - Empty',
+}
+
+// =============================================================================
+// RichTextField Stories
+// =============================================================================
+
+/**
+ * Basic HTML content rendering
+ */
+export const RichTextFieldBasic: StoryObj<typeof RichTextField> = {
+  render: () => (
+    <RecordWrapper>
+      <RichTextField source="bio" />
+    </RecordWrapper>
+  ),
+  name: 'RichTextField - Basic',
+}
+
+/**
+ * Complex HTML with headings and lists
+ */
+export const RichTextFieldComplex: StoryObj<typeof RichTextField> = {
+  render: () => (
+    <RecordWrapper>
+      <RichTextField source="description" />
+    </RecordWrapper>
+  ),
+  name: 'RichTextField - Complex HTML',
+}
+
+/**
+ * With label
+ */
+export const RichTextFieldWithLabel: StoryObj<typeof RichTextField> = {
+  render: () => (
+    <RecordWrapper>
+      <RichTextField source="bio" label="Biography" />
+    </RecordWrapper>
+  ),
+  name: 'RichTextField - With Label',
+}
+
+/**
+ * Strip HTML tags to plain text
+ */
+export const RichTextFieldStripped: StoryObj<typeof RichTextField> = {
+  render: () => (
+    <RecordWrapper>
+      <RichTextField source="bio" stripTags />
+    </RecordWrapper>
+  ),
+  name: 'RichTextField - Strip Tags',
+}
+
+/**
+ * Empty content with fallback
+ */
+export const RichTextFieldEmpty: StoryObj<typeof RichTextField> = {
+  render: () => (
+    <RecordWrapper>
+      <RichTextField source="nonexistent" emptyText="No content available" />
+    </RecordWrapper>
+  ),
+  name: 'RichTextField - Empty',
+}
+
+// =============================================================================
+// FileField Stories
+// =============================================================================
+
+/**
+ * Basic file link
+ */
+export const FileFieldBasic: StoryObj<typeof FileField> = {
+  render: () => (
+    <RecordWrapper>
+      <FileField source="document" />
+    </RecordWrapper>
+  ),
+  name: 'FileField - Basic',
+}
+
+/**
+ * With custom title
+ */
+export const FileFieldWithTitle: StoryObj<typeof FileField> = {
+  render: () => (
+    <RecordWrapper>
+      <FileField source="document" title="Download Resume" />
+    </RecordWrapper>
+  ),
+  name: 'FileField - Custom Title',
+}
+
+/**
+ * With label
+ */
+export const FileFieldWithLabel: StoryObj<typeof FileField> = {
+  render: () => (
+    <RecordWrapper>
+      <FileField source="document" label="Document" />
+    </RecordWrapper>
+  ),
+  name: 'FileField - With Label',
+}
+
+/**
+ * With download attribute
+ */
+export const FileFieldDownload: StoryObj<typeof FileField> = {
+  render: () => (
+    <RecordWrapper>
+      <FileField source="document" download />
+    </RecordWrapper>
+  ),
+  name: 'FileField - Download',
+}
+
+/**
+ * Array of files
+ */
+export const FileFieldArray: StoryObj<typeof FileField> = {
+  render: () => (
+    <RecordWrapper>
+      <FileField source="attachments" title="title" />
+    </RecordWrapper>
+  ),
+  name: 'FileField - Array',
+}
+
+/**
+ * Empty file with fallback
+ */
+export const FileFieldEmpty: StoryObj<typeof FileField> = {
+  render: () => (
+    <RecordWrapper>
+      <FileField source="nonexistent" emptyText="No file attached" />
+    </RecordWrapper>
+  ),
+  name: 'FileField - Empty',
+}
+
+// =============================================================================
+// SelectField Stories
+// =============================================================================
+
+const countryChoices = [
+  { id: 'us', name: 'United States' },
+  { id: 'uk', name: 'United Kingdom' },
+  { id: 'ca', name: 'Canada' },
+  { id: 'de', name: 'Germany' },
+]
+
+const categoryChoices = [
+  { id: 'tech', name: 'Technology' },
+  { id: 'health', name: 'Healthcare' },
+  { id: 'finance', name: 'Finance' },
+]
+
+/**
+ * Basic select field with choices
+ */
+export const SelectFieldBasic: StoryObj<typeof SelectField> = {
+  render: () => (
+    <RecordWrapper>
+      <SelectField source="country" choices={countryChoices} />
+    </RecordWrapper>
+  ),
+  name: 'SelectField - Basic',
+}
+
+/**
+ * With label
+ */
+export const SelectFieldWithLabel: StoryObj<typeof SelectField> = {
+  render: () => (
+    <RecordWrapper>
+      <SelectField source="country" label="Country" choices={countryChoices} />
+    </RecordWrapper>
+  ),
+  name: 'SelectField - With Label',
+}
+
+/**
+ * Without choices (shows raw value)
+ */
+export const SelectFieldNoChoices: StoryObj<typeof SelectField> = {
+  render: () => (
+    <RecordWrapper>
+      <SelectField source="status" />
+    </RecordWrapper>
+  ),
+  name: 'SelectField - No Choices',
+}
+
+/**
+ * With custom optionValue and optionText
+ */
+export const SelectFieldCustomOptions: StoryObj<typeof SelectField> = {
+  render: () => (
+    <RecordWrapper>
+      <SelectField
+        source="country"
+        choices={[
+          { value: 'us', label: 'United States of America' },
+          { value: 'uk', label: 'United Kingdom of Great Britain' },
+        ]}
+        optionValue="value"
+        optionText="label"
+      />
+    </RecordWrapper>
+  ),
+  name: 'SelectField - Custom Options',
+}
+
+/**
+ * With function optionText renderer
+ */
+export const SelectFieldFunctionText: StoryObj<typeof SelectField> = {
+  render: () => (
+    <RecordWrapper>
+      <SelectField
+        source="category"
+        choices={categoryChoices}
+        optionText={(choice) => `${choice.name} (${choice.id})`}
+      />
+    </RecordWrapper>
+  ),
+  name: 'SelectField - Function Text',
+}
+
+/**
+ * Value not found in choices
+ */
+export const SelectFieldNotFound: StoryObj<typeof SelectField> = {
+  render: () => (
+    <RecordWrapper>
+      <SelectField
+        source="status"
+        choices={[{ id: 'pending', name: 'Pending' }]}
+        emptyText="Unknown status"
+      />
+    </RecordWrapper>
+  ),
+  name: 'SelectField - Not Found',
+}
+
+// =============================================================================
+// ReferenceArrayField Stories
+// =============================================================================
+
+/**
+ * Basic reference array with chips
+ */
+export const ReferenceArrayFieldBasic: StoryObj<typeof ReferenceArrayField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceArrayField source="tagIds" reference="tags">
+        <ChipField source="name" variant="secondary" />
+      </ReferenceArrayField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceArrayField - Basic',
+}
+
+/**
+ * With label
+ */
+export const ReferenceArrayFieldWithLabel: StoryObj<typeof ReferenceArrayField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceArrayField source="tagIds" reference="tags" label="Tags">
+        <ChipField source="name" variant="outline" />
+      </ReferenceArrayField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceArrayField - With Label',
+}
+
+/**
+ * With custom children
+ */
+export const ReferenceArrayFieldCustom: StoryObj<typeof ReferenceArrayField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceArrayField source="tagIds" reference="tags">
+        <div className="inline-flex items-center gap-1 rounded border px-2 py-1">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          <TextField source="name" className="text-sm" />
+        </div>
+      </ReferenceArrayField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceArrayField - Custom Children',
+}
+
+/**
+ * Empty array with fallback
+ */
+export const ReferenceArrayFieldEmpty: StoryObj<typeof ReferenceArrayField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceArrayField source="nonexistent" reference="tags" emptyText="No tags assigned">
+        <ChipField source="name" />
+      </ReferenceArrayField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceArrayField - Empty',
+}
+
+// =============================================================================
+// ReferenceManyField Stories
+// =============================================================================
+
+/**
+ * Basic one-to-many reference
+ */
+export const ReferenceManyFieldBasic: StoryObj<typeof ReferenceManyField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceManyField source="id" reference="comments" target="post_id">
+        <div className="rounded border p-2">
+          <TextField source="body" />
+        </div>
+      </ReferenceManyField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceManyField - Basic',
+}
+
+/**
+ * With label
+ */
+export const ReferenceManyFieldWithLabel: StoryObj<typeof ReferenceManyField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceManyField source="id" reference="comments" target="post_id" label="Comments">
+        <div className="rounded border p-2">
+          <TextField source="author" className="font-medium" />
+          <TextField source="body" className="text-muted-foreground" />
+        </div>
+      </ReferenceManyField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceManyField - With Label',
+}
+
+/**
+ * With chips
+ */
+export const ReferenceManyFieldChips: StoryObj<typeof ReferenceManyField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceManyField source="id" reference="comments" target="post_id">
+        <ChipField source="author" variant="secondary" />
+      </ReferenceManyField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceManyField - With Chips',
+}
+
+/**
+ * Empty with fallback
+ */
+export const ReferenceManyFieldEmpty: StoryObj<typeof ReferenceManyField> = {
+  render: () => (
+    <FullWrapper>
+      <ReferenceManyField
+        source="id"
+        reference="nonexistent_resource"
+        target="post_id"
+        emptyText="No comments yet"
+      >
+        <TextField source="body" />
+      </ReferenceManyField>
+    </FullWrapper>
+  ),
+  name: 'ReferenceManyField - Empty',
+}
+
+// =============================================================================
 // Combined Showcase
 // =============================================================================
 
@@ -966,6 +1471,7 @@ export const AllFieldsShowcase: StoryObj = {
             <TextField source="name" label="Name" />
             <NumberField source="salary" label="Salary" options={{ style: 'currency', currency: 'USD' }} />
             <DateField source="createdAt" label="Created" showTime />
+            <SelectField source="country" label="Country" choices={countryChoices} />
           </div>
 
           <div className="space-y-4">
@@ -980,6 +1486,7 @@ export const AllFieldsShowcase: StoryObj = {
             <EmailField source="email" label="Email" />
             <UrlField source="website" label="Website" truncateUrl />
             <ImageField source="avatar" label="Avatar" sx={{ width: 60, height: 60, borderRadius: '50%' }} />
+            <FileField source="document" label="Document" />
           </div>
 
           <div className="space-y-4">
@@ -991,6 +1498,21 @@ export const AllFieldsShowcase: StoryObj = {
             <ReferenceField source="authorId" reference="users" label="Author">
               <TextField source="name" />
             </ReferenceField>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-muted-foreground">Rich Content</h3>
+            <RichTextField source="bio" label="Bio" />
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-muted-foreground">Arrays & Collections</h3>
+            <ArrayField source="tags" label="Tags">
+              <ChipField source="name" variant="outline" size="sm" />
+            </ArrayField>
+            <ReferenceArrayField source="tagIds" reference="tags" label="Referenced Tags">
+              <ChipField source="name" variant="secondary" size="sm" />
+            </ReferenceArrayField>
           </div>
         </div>
       </div>

@@ -10,8 +10,9 @@ import { createContext, useContext } from 'react'
 
 /**
  * Context value for creating new suggestions
+ * @typeParam TChoice - The type of choice being created (defaults to unknown for maximum flexibility)
  */
-export interface CreateSuggestionContextValue {
+export interface CreateSuggestionContextValue<TChoice = unknown> {
   /**
    * The current filter/search text entered by the user
    */
@@ -20,7 +21,7 @@ export interface CreateSuggestionContextValue {
    * Callback to create a new choice with the given value
    * @param choice - The new choice to create
    */
-  onCreate: (choice: any) => void
+  onCreate: (choice: TChoice) => void
   /**
    * Callback to cancel the create operation
    */
@@ -41,6 +42,7 @@ CreateSuggestionContext.displayName = 'CreateSuggestionContext'
  * Hook to access the create suggestion context.
  * Must be used within a CreateSuggestionContext.Provider.
  *
+ * @typeParam TChoice - The type of choice being created
  * @throws Error if used outside of a CreateSuggestionContext.Provider
  *
  * @example
@@ -48,10 +50,15 @@ CreateSuggestionContext.displayName = 'CreateSuggestionContext'
  * import { useCreateSuggestionContext, Create, SimpleForm, TextInput } from 'shadmin';
  * import { Dialog, DialogContent, DialogTitle } from '@shadcn/ui';
  *
- * const CreateAuthor = () => {
- *   const { filter, onCancel, onCreate } = useCreateSuggestionContext();
+ * interface Author {
+ *   id: number;
+ *   name: string;
+ * }
  *
- *   const handleSubmit = (data: any) => {
+ * const CreateAuthor = () => {
+ *   const { filter, onCancel, onCreate } = useCreateSuggestionContext<Author>();
+ *
+ *   const handleSubmit = (data: { name: string }) => {
  *     // Create the author and call onCreate with the result
  *     createAuthor(data).then(onCreate);
  *   };
@@ -69,12 +76,14 @@ CreateSuggestionContext.displayName = 'CreateSuggestionContext'
  * };
  * ```
  */
-export function useCreateSuggestionContext(): CreateSuggestionContextValue {
+export function useCreateSuggestionContext<TChoice = unknown>(): CreateSuggestionContextValue<TChoice> {
   const context = useContext(CreateSuggestionContext)
   if (!context) {
     throw new Error(
       'useCreateSuggestionContext must be used inside a CreateSuggestionContext.Provider'
     )
   }
-  return context
+  // Cast is safe: Context stores generic choice type, caller specifies expected type
+  // The generic parameter allows consumers to type-narrow the onCreate callback
+  return context as CreateSuggestionContextValue<TChoice>
 }

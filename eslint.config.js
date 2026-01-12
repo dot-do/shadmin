@@ -3,6 +3,7 @@ import tsPlugin from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
+import importPlugin from 'eslint-plugin-import'
 import prettierConfig from 'eslint-config-prettier'
 
 export default [
@@ -209,6 +210,7 @@ export default [
       '@typescript-eslint': tsPlugin,
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
+      import: importPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -234,6 +236,10 @@ export default [
       // See: https://typescript-eslint.io/rules/no-unsafe-type-assertion/
       '@typescript-eslint/no-unsafe-type-assertion': 'warn',
       'no-constant-binary-expression': 'warn',
+      // Prevent circular dependencies - these cause build ordering issues,
+      // runtime initialization bugs, and difficult-to-debug stack traces
+      // Using maxDepth: 4 instead of Infinity for performance (avoids OOM on large codebases)
+      'import/no-cycle': ['error', { maxDepth: 4 }],
     },
     settings: {
       react: {
@@ -270,6 +276,21 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': 'warn',
       'react-hooks/rules-of-hooks': 'warn',
+    },
+  },
+  // Production code should not use console.log/warn/error
+  // Excludes CLI code (which legitimately uses console) and test files
+  // Start as 'warn' for incremental fixes
+  {
+    files: ['packages/shadmin/src/**/*.ts', 'packages/shadmin/src/**/*.tsx'],
+    ignores: [
+      'packages/shadmin/src/cli/**/*',
+      '**/*.spec.*',
+      '**/*.test.*',
+      '**/*.stories.*',
+    ],
+    rules: {
+      'no-console': 'warn',
     },
   },
   // Examples have many unsafe type assertions (they're demo code, not production)

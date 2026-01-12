@@ -4,7 +4,7 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
-import { Link, type To } from 'react-router-dom'
+import { Link, type To, type LinkProps } from 'react-router-dom'
 import { useCreatePath, useResourceContext } from 'ra-core'
 import { cn } from '../../utils'
 
@@ -123,9 +123,9 @@ export const CreateButton = forwardRef<HTMLAnchorElement, CreateButtonProps>(
           className
         )}
         state={scrollToTop ? { _scrollToTop: true } : undefined}
-        // Type assertion: ButtonHTMLAttributes and LinkProps have overlapping but incompatible types
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        {...(props as any)}
+        // Type assertion: ButtonHTMLAttributes includes properties that don't map 1:1 to LinkProps.
+        // This is safe because Link accepts all standard anchor attributes.
+        {...(props as Partial<LinkProps>)}
       >
         {icon && <span className="mr-2">{icon}</span>}
         {label}
