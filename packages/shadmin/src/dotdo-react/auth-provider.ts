@@ -34,9 +34,9 @@
  * ```
  */
 
-import type { AuthProvider, UserIdentity, LoginParams } from '../facade'
 import { getErrorStatus, getErrorCode, isStringArray } from '../utils/type-guards'
 
+import type { AuthProvider, UserIdentity, LoginParams } from '../facade'
 import type { DOClientProxy, ConnectionState } from './types'
 
 /**

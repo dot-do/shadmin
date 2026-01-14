@@ -4,6 +4,7 @@
  */
 
 import { vi } from 'vitest'
+
 import type { AuthProvider, UserIdentity, LoginParams } from '../facade/auth-provider'
 
 // Re-export for convenience

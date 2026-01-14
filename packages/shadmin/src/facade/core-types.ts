@@ -14,8 +14,8 @@
  * @module facade/core-types
  */
 
-import type { ComponentType, ReactNode } from 'react'
 import type { Identifier, RaRecord, SortPayload, FilterPayload } from './data-provider'
+import type { ComponentType, ReactNode } from 'react'
 
 // Re-export data-provider types for convenience
 export type { Identifier, RaRecord, SortPayload, FilterPayload } from './data-provider'

@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+
 import { cn } from './utils'
 
 describe('cn (class name utility)', () => {

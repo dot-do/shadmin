@@ -44,7 +44,6 @@ import type {
   DeleteManyResult,
   RaRecord,
 } from '../facade'
-
 import type {
   MongoConfig,
   MongoDataProviderOptions,

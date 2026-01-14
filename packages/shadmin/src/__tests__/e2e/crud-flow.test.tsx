@@ -8,26 +8,28 @@
  * Issue: ui-p4cv
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, useCallback } from 'react'
 import { MemoryRouter, Routes, Route, useNavigate, useLocation } from 'react-router'
-import { List } from '../../components/list/List'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+import { Button } from '../../components/Button'
 import { Create } from '../../components/create/Create'
+import { useCreateContext } from '../../components/create/CreateContext'
 import { Edit } from '../../components/edit/Edit'
-import { Datagrid } from '../../components/list/Datagrid'
+import { Confirm } from '../../components/feedback/Confirm'
 import { SimpleForm } from '../../components/form/SimpleForm'
 import { TextInput } from '../../components/input/TextInput'
-import { Confirm } from '../../components/feedback/Confirm'
-import { Button } from '../../components/Button'
+import { Datagrid } from '../../components/list/Datagrid'
+import { List } from '../../components/list/List'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import { useCreateContext } from '../../components/create/CreateContext'
 import { useRecordContext } from '../../contexts/RecordContext'
+import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { useDelete } from '../../hooks/useDelete'
+
 import type { DataProvider, RaRecord, Identifier } from '../../types'
 
 // --------------------------------------------------------------------------

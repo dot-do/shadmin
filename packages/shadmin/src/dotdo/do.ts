@@ -7,10 +7,11 @@
  * @module dotdo/do
  */
 
+import { createAuthProviderFactory } from './auth-provider'
+import { createDataProviderFactory } from './data-provider'
+
 import type { DOConfig, DOResult, DBOptions, AuthOptions } from './types'
 import type { DataProvider, AuthProvider } from '../facade'
-import { createDataProviderFactory } from './data-provider'
-import { createAuthProviderFactory } from './auth-provider'
 
 /**
  * Create dotdo integration for shadmin

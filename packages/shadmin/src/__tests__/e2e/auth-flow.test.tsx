@@ -12,19 +12,21 @@
  * @module __tests__/e2e/auth-flow
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import { CanAccess } from '../../components/auth/CanAccess'
 import { LoginPage } from '../../components/auth/LoginPage'
 import { LogoutButton } from '../../components/auth/LogoutButton'
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute'
-import { CanAccess } from '../../components/auth/CanAccess'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
+
 import type { AuthProvider } from '../../facade'
+import type { ReactNode } from 'react'
 
 // Helper component to display current location for testing redirects
 const LocationDisplay = () => {

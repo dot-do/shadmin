@@ -29,8 +29,90 @@ import type {
   DeleteManyResult,
   RaRecord,
 } from '../facade'
+import type { DOConfig, DBOptions, DOListResponse, DORecordResponse, DOBatchResponse, DORequestOptions, DOErrorResponse } from './types'
 
-import type { DOConfig, DBOptions, DOListResponse, DORecordResponse, DOBatchResponse, DORequestOptions } from './types'
+/**
+ * Custom error class for dotdo data operation errors
+ *
+ * Includes structured error information from the dotdo API response
+ * to enable proper error handling in the UI.
+ */
+export class DODataError extends Error {
+  /** Error code from dotdo API (e.g., 'NOT_FOUND', 'VALIDATION_ERROR') */
+  public readonly code: string
+  /** HTTP status code */
+  public readonly status: number | undefined
+  /** Additional error details from the API */
+  public readonly details: Record<string, unknown> | undefined
+  /** The resource that was being accessed */
+  public readonly resource: string | undefined
+
+  constructor(
+    message: string,
+    code: string,
+    status?: number,
+    details?: Record<string, unknown>,
+    resource?: string
+  ) {
+    super(message)
+    this.name = 'DODataError'
+    this.code = code
+    this.status = status
+    this.details = details
+    this.resource = resource
+  }
+}
+
+/**
+ * Configuration for retry behavior
+ */
+interface RetryConfig {
+  maxRetries: number
+  baseDelayMs: number
+  maxDelayMs: number
+}
+
+const DEFAULT_RETRY_CONFIG: RetryConfig = {
+  maxRetries: 3,
+  baseDelayMs: 1000,
+  maxDelayMs: 10000,
+}
+
+/**
+ * Sleep for a specified duration
+ */
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Calculate exponential backoff delay with jitter
+ *
+ * Jitter helps prevent thundering herd problems when multiple
+ * clients retry simultaneously.
+ */
+const getBackoffDelay = (attempt: number, config: RetryConfig): number => {
+  const exponentialDelay = config.baseDelayMs * Math.pow(2, attempt)
+  const jitter = Math.random() * 0.3 * exponentialDelay // Add up to 30% jitter
+  return Math.min(exponentialDelay + jitter, config.maxDelayMs)
+}
+
+/**
+ * Check if an error is retryable (network errors, 5xx server errors)
+ *
+ * Non-retryable errors include:
+ * - 4xx client errors (bad request, not found, validation errors)
+ * - Authentication errors (handled separately)
+ */
+const isRetryableError = (error: unknown): boolean => {
+  if (error instanceof TypeError) {
+    // Network errors like "Failed to fetch"
+    return true
+  }
+  if (error instanceof DODataError) {
+    // Retry 5xx server errors, but not 4xx client errors
+    return error.status !== undefined && error.status >= 500
+  }
+  return false
+}
 
 /**
  * Creates a DataProvider factory bound to a dotdo API endpoint
@@ -94,9 +176,19 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
     }
 
     /**
-     * Make a fetch request to the dotdo API
+     * Make a single fetch request to the dotdo API
+     *
+     * @param url - The full URL to fetch
+     * @param options - Request options
+     * @param resource - Optional resource name for error context
+     * @returns The parsed JSON response
+     * @throws {DODataError} When the API returns an error
      */
-    const doFetch = async <T>(url: string, options: DORequestOptions = {}): Promise<T> => {
+    const doFetchOnce = async <T>(
+      url: string,
+      options: DORequestOptions = {},
+      resource?: string
+    ): Promise<T> => {
       const { method = 'GET', body, headers: requestHeaders = {}, signal } = options
 
       const token = getAuthToken()
@@ -129,24 +221,99 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
         clearTimeout(timeoutId)
 
         if (!response.ok) {
-          // TODO: Parse dotdo error response and throw appropriate error
-          const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error?.message ?? `HTTP ${response.status}: ${response.statusText}`)
+          // Parse dotdo error response format
+          const errorData = (await response.json().catch(() => ({} as DOErrorResponse))) as DOErrorResponse
+          const errorMessage = errorData.error?.message ?? `HTTP ${response.status}: ${response.statusText}`
+          const errorCode = errorData.error?.code ?? `HTTP_${response.status}`
+          throw new DODataError(errorMessage, errorCode, response.status, errorData.error?.details, resource)
+        }
+
+        // Handle 204 No Content (for DELETE operations)
+        if (response.status === 204) {
+          return {} as T
         }
 
         return response.json()
       } catch (error) {
         clearTimeout(timeoutId)
-        throw error
+        // Re-wrap non-DODataError fetch errors for consistency
+        if (error instanceof DODataError) {
+          throw error
+        }
+        if (error instanceof Error) {
+          throw new DODataError(error.message, 'NETWORK_ERROR', undefined, undefined, resource)
+        }
+        throw new DODataError('Unknown error occurred', 'UNKNOWN_ERROR', undefined, undefined, resource)
       }
     }
 
     /**
+     * Make a fetch request to the dotdo API with retry logic
+     *
+     * Implements exponential backoff with jitter for transient failures.
+     * Retries on network errors and 5xx server errors.
+     *
+     * @param url - The full URL to fetch
+     * @param options - Request options
+     * @param resource - Optional resource name for error context
+     * @param retryConfig - Optional retry configuration
+     * @returns The parsed JSON response
+     * @throws {DODataError} When all retries are exhausted or on non-retryable errors
+     */
+    const doFetch = async <T>(
+      url: string,
+      options: DORequestOptions = {},
+      resource?: string,
+      retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG
+    ): Promise<T> => {
+      let lastError: Error | undefined
+
+      for (let attempt = 0; attempt <= retryConfig.maxRetries; attempt++) {
+        try {
+          return await doFetchOnce<T>(url, options, resource)
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error(String(error))
+
+          // Don't retry if this was the last attempt or error is not retryable
+          if (attempt === retryConfig.maxRetries || !isRetryableError(error)) {
+            throw error
+          }
+
+          // Wait before retrying with exponential backoff
+          const delay = getBackoffDelay(attempt, retryConfig)
+          await sleep(delay)
+        }
+      }
+
+      // This should never be reached due to the throw in the loop, but TypeScript needs it
+      throw lastError ?? new DODataError('All retries exhausted', 'RETRY_EXHAUSTED', undefined, undefined, resource)
+    }
+
+    /**
      * The DataProvider implementation
+     *
+     * Implements the react-admin DataProvider interface using dotdo HTTP API.
+     * All methods support AbortSignal for request cancellation.
      */
     const dataProvider: DataProvider = {
       /**
-       * Get a list of records
+       * Fetch a paginated list of records with sorting and filtering
+       *
+       * Sends GET request to /{resource}?_page=N&_perPage=N&_sortField=X&_sortOrder=Y&...filters
+       *
+       * @param resource - The resource name (e.g., 'users', 'posts')
+       * @param params - Pagination, sorting, and filter parameters
+       * @returns Paginated list of records with total count
+       * @throws {DODataError} When the API returns an error
+       *
+       * @example
+       * ```ts
+       * const { data, total } = await dataProvider.getList('users', {
+       *   pagination: { page: 1, perPage: 25 },
+       *   sort: { field: 'createdAt', order: 'DESC' },
+       *   filter: { role: 'admin' }
+       * })
+       * ```
        */
       getList: async <RecordType extends RaRecord = RaRecord>(
         resource: string,
@@ -162,12 +329,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
           ...filter,
         }
 
-        // TODO: Implement actual dotdo list API call
-        // The query params format should match dotdo's expected format
         const url = buildUrl(resource, undefined, query)
         const fetchOptions: DORequestOptions = {}
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions)
+        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions, resource)
 
         const result: GetListResult<RecordType> = {
           data: response.data,
@@ -180,7 +345,19 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       },
 
       /**
-       * Get a single record by ID
+       * Fetch a single record by its ID
+       *
+       * Sends GET request to /{resource}/{id}
+       *
+       * @param resource - The resource name
+       * @param params - Object containing the record ID
+       * @returns The requested record
+       * @throws {DODataError} When record is not found (404) or other API errors
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.getOne('users', { id: '123' })
+       * ```
        */
       getOne: async <RecordType extends RaRecord = RaRecord>(
         resource: string,
@@ -188,11 +365,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<GetOneResult<RecordType>> => {
         const { id, signal } = params
 
-        // TODO: Implement actual dotdo single record API call
         const url = buildUrl(resource, String(id))
         const fetchOptions: DORequestOptions = {}
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions)
+        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions, resource)
 
         return {
           data: response.data,
@@ -200,7 +376,20 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       },
 
       /**
-       * Get multiple records by IDs
+       * Fetch multiple records by their IDs in a single request
+       *
+       * Sends GET request to /{resource}?ids=1,2,3
+       * Useful for resolving references without N+1 queries.
+       *
+       * @param resource - The resource name
+       * @param params - Object containing array of IDs to fetch
+       * @returns Array of requested records
+       * @throws {DODataError} When the API returns an error
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.getMany('users', { ids: ['1', '2', '3'] })
+       * ```
        */
       getMany: async <RecordType extends RaRecord = RaRecord>(
         resource: string,
@@ -208,12 +397,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<GetManyResult<RecordType>> => {
         const { ids, signal } = params
 
-        // TODO: Implement actual dotdo batch get API call
-        // Some APIs support ?ids=1,2,3, others need multiple requests
         const url = buildUrl(resource, undefined, { ids: ids.join(',') })
         const fetchOptions: DORequestOptions = {}
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions)
+        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions, resource)
 
         return {
           data: response.data,
@@ -221,7 +408,27 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       },
 
       /**
-       * Get records by reference (foreign key relationship)
+       * Fetch records by foreign key reference with pagination
+       *
+       * Sends GET request to /{resource}?{target}={id}&_page=N&...
+       * Used for displaying related records (e.g., comments for a post).
+       *
+       * @param resource - The resource name to fetch
+       * @param params - Target field, reference ID, and pagination params
+       * @returns Paginated list of related records
+       * @throws {DODataError} When the API returns an error
+       *
+       * @example
+       * ```ts
+       * // Get comments for post #123
+       * const { data, total } = await dataProvider.getManyReference('comments', {
+       *   target: 'postId',
+       *   id: '123',
+       *   pagination: { page: 1, perPage: 10 },
+       *   sort: { field: 'createdAt', order: 'DESC' },
+       *   filter: {}
+       * })
+       * ```
        */
       getManyReference: async <RecordType extends RaRecord = RaRecord>(
         resource: string,
@@ -238,11 +445,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
           ...filter,
         }
 
-        // TODO: Implement actual dotdo reference query API call
         const url = buildUrl(resource, undefined, query)
         const fetchOptions: DORequestOptions = {}
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions)
+        const response = await doFetch<DOListResponse<RecordType>>(url, fetchOptions, resource)
 
         const result: GetManyReferenceResult<RecordType> = {
           data: response.data,
@@ -256,6 +462,20 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
 
       /**
        * Create a new record
+       *
+       * Sends POST request to /{resource} with the record data in the body.
+       *
+       * @param resource - The resource name
+       * @param params - Object containing the data for the new record
+       * @returns The created record with server-generated fields (id, timestamps)
+       * @throws {DODataError} When validation fails or other API errors
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.create('users', {
+       *   data: { email: 'new@example.com', name: 'New User' }
+       * })
+       * ```
        */
       create: async <RecordType extends RaRecord = RaRecord, TVariables = Record<string, unknown>>(
         resource: string,
@@ -263,11 +483,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<CreateResult<RecordType>> => {
         const { data, signal } = params
 
-        // TODO: Implement actual dotdo create API call
         const url = buildUrl(resource)
         const fetchOptions: DORequestOptions = { method: 'POST', body: data }
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions)
+        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions, resource)
 
         return {
           data: response.data,
@@ -275,7 +494,24 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       },
 
       /**
-       * Update an existing record
+       * Update an existing record (full replacement)
+       *
+       * Sends PUT request to /{resource}/{id} with the complete record data.
+       * Uses PUT for full replacement semantics.
+       *
+       * @param resource - The resource name
+       * @param params - Object containing record ID and updated data
+       * @returns The updated record
+       * @throws {DODataError} When record not found, validation fails, or other errors
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.update('users', {
+       *   id: '123',
+       *   data: { email: 'updated@example.com', name: 'Updated Name' },
+       *   previousData: { id: '123', email: 'old@example.com', name: 'Old Name' }
+       * })
+       * ```
        */
       update: async <RecordType extends RaRecord = RaRecord, TVariables = Record<string, unknown>>(
         resource: string,
@@ -283,12 +519,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<UpdateResult<RecordType>> => {
         const { id, data, signal } = params
 
-        // TODO: Implement actual dotdo update API call
-        // Consider whether to use PUT (full replace) or PATCH (partial update)
         const url = buildUrl(resource, String(id))
         const fetchOptions: DORequestOptions = { method: 'PUT', body: data }
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions)
+        const response = await doFetch<DORecordResponse<RecordType>>(url, fetchOptions, resource)
 
         return {
           data: response.data,
@@ -296,7 +530,23 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       },
 
       /**
-       * Update multiple records at once
+       * Update multiple records at once with the same data
+       *
+       * Sends PUT request to /{resource}?ids=1,2,3 with shared update data.
+       * Useful for bulk operations like "mark all as read".
+       *
+       * @param resource - The resource name
+       * @param params - Object containing array of IDs and shared update data
+       * @returns Array of updated record IDs
+       * @throws {DODataError} When the API returns an error
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.updateMany('notifications', {
+       *   ids: ['1', '2', '3'],
+       *   data: { read: true }
+       * })
+       * ```
        */
       updateMany: async <RecordType extends RaRecord = RaRecord, TVariables = Record<string, unknown>>(
         resource: string,
@@ -304,12 +554,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<UpdateManyResult<RecordType>> => {
         const { ids, data, signal } = params
 
-        // TODO: Implement actual dotdo batch update API call
-        // This could be a single batch endpoint or multiple individual calls
         const url = buildUrl(resource, undefined, { ids: ids.join(',') })
         const fetchOptions: DORequestOptions = { method: 'PUT', body: data }
         if (signal) fetchOptions.signal = signal
-        const response = await doFetch<DOBatchResponse>(url, fetchOptions)
+        const response = await doFetch<DOBatchResponse>(url, fetchOptions, resource)
 
         return {
           data: response.data,
@@ -318,6 +566,22 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
 
       /**
        * Delete a single record
+       *
+       * Sends DELETE request to /{resource}/{id}.
+       * Returns the previousData if provided (for optimistic updates/undo).
+       *
+       * @param resource - The resource name
+       * @param params - Object containing record ID and optional previousData
+       * @returns The deleted record data (if previousData was provided)
+       * @throws {DODataError} When record not found or other API errors
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.delete('users', {
+       *   id: '123',
+       *   previousData: { id: '123', email: 'user@example.com' }
+       * })
+       * ```
        */
       delete: async <RecordType extends RaRecord = RaRecord>(
         resource: string,
@@ -325,11 +589,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<DeleteResult<RecordType>> => {
         const { id, previousData, signal } = params
 
-        // TODO: Implement actual dotdo delete API call
         const url = buildUrl(resource, String(id))
         const fetchOptions: DORequestOptions = { method: 'DELETE' }
         if (signal) fetchOptions.signal = signal
-        await doFetch(url, fetchOptions)
+        await doFetch(url, fetchOptions, resource)
 
         const result: DeleteResult<RecordType> = {}
         if (previousData !== undefined) {
@@ -340,6 +603,21 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
 
       /**
        * Delete multiple records at once
+       *
+       * Sends DELETE request to /{resource}?ids=1,2,3
+       * Useful for bulk delete operations.
+       *
+       * @param resource - The resource name
+       * @param params - Object containing array of IDs to delete
+       * @returns Array of deleted record IDs
+       * @throws {DODataError} When the API returns an error
+       *
+       * @example
+       * ```ts
+       * const { data } = await dataProvider.deleteMany('users', {
+       *   ids: ['1', '2', '3']
+       * })
+       * ```
        */
       deleteMany: async <RecordType extends RaRecord = RaRecord>(
         resource: string,
@@ -347,12 +625,10 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
       ): Promise<DeleteManyResult<RecordType>> => {
         const { ids, signal } = params
 
-        // TODO: Implement actual dotdo batch delete API call
-        // This could be a single batch endpoint or multiple individual calls
         const url = buildUrl(resource, undefined, { ids: ids.join(',') })
         const fetchOptions: DORequestOptions = { method: 'DELETE' }
         if (signal) fetchOptions.signal = signal
-        await doFetch(url, fetchOptions)
+        await doFetch(url, fetchOptions, resource)
 
         return {
           data: ids,
@@ -363,3 +639,4 @@ export function createDataProviderFactory(config: DOConfig): (options?: DBOption
     return dataProvider
   }
 }
+

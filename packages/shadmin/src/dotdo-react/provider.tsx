@@ -25,7 +25,10 @@
  */
 
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef, type ReactNode } from 'react'
+
+import { DO_CLIENT_DEFAULTS } from '../constants'
 import { logger } from '../utils/logger'
+
 import type {
   ShadminDOProviderConfig,
   ShadminDOContextValue,
@@ -33,7 +36,6 @@ import type {
   SubscriptionHandle,
   DOClientProxy,
 } from './types'
-import { DO_CLIENT_DEFAULTS } from '../constants'
 
 /**
  * Context for Durable Objects integration

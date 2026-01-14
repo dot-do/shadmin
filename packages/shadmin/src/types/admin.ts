@@ -3,9 +3,9 @@
  * 100% API-compatible with react-admin
  */
 
-import type { ComponentType, ReactNode, ReactElement } from 'react'
-import type { QueryClient } from '@tanstack/react-query'
 import type { DataProvider, AuthProvider, I18nProvider } from '../facade'
+import type { QueryClient } from '@tanstack/react-query'
+import type { ComponentType, ReactNode, ReactElement } from 'react'
 
 /**
  * Plugin interface for extending Admin functionality

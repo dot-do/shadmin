@@ -6,8 +6,8 @@
  * react-hook-form under the hood.
  */
 
-import type { RegisterOptions, FieldValues, Path } from 'react-hook-form'
 import type { Validator } from './validators'
+import type { RegisterOptions, FieldValues, Path } from 'react-hook-form'
 
 /**
  * Type for the validate prop - can be a single validator or array of validators

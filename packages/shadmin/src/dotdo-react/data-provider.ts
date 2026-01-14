@@ -57,7 +57,6 @@ import type {
   RaRecord,
   Identifier,
 } from '../facade'
-
 import type {
   DOClientProxy,
   DOListResult,

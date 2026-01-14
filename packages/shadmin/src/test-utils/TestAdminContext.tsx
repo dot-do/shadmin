@@ -5,12 +5,7 @@
 
 import * as React from 'react'
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import { TestMemoryRouter, type TestMemoryRouterProps } from './TestMemoryRouter'
-import {
-  createMockDataProvider,
-  type DataProvider,
-  type MockDataProviderOptions,
-} from './testDataProvider'
+
 import {
   createMockAuthProvider,
   type AuthProvider,
@@ -18,6 +13,12 @@ import {
   type UserIdentity,
   type Permissions,
 } from './testAuthProvider'
+import {
+  createMockDataProvider,
+  type DataProvider,
+  type MockDataProviderOptions,
+} from './testDataProvider'
+import { TestMemoryRouter, type TestMemoryRouterProps } from './TestMemoryRouter'
 
 /**
  * Resource definition for admin

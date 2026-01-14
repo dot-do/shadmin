@@ -19,10 +19,11 @@
  * @see shadmin-f530 - GREEN phase fix (depends on this test)
  */
 
-import { describe, it, expect } from 'vitest'
 import { execSync } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { describe, it, expect } from 'vitest'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const packageRoot = resolve(__dirname, '..')

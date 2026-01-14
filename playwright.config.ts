@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Playwright E2E test configuration for shadmin
+ *
+ * Uses the CRM example app as the test target for full integration testing.
+ * Chromium-only for speed in development.
+ *
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
@@ -35,50 +39,31 @@ export default defineConfig({
     video: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects - Chromium only for speed */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports. */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
-
-    /* Test against branded browsers. */
+    // Additional browsers can be enabled for CI:
     // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
     // },
     // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
+  /* Run the CRM example dev server before starting the tests */
   webServer: {
-    command: 'pnpm dev',
+    command: 'pnpm --filter @shadmin/example-crm dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env['CI'],
     timeout: 120 * 1000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 
   /* Global test timeout */

@@ -17,13 +17,14 @@
  * TDD Phase: RED - These tests should FAIL because implementation doesn't exist yet.
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../contexts/FormContext'
-import { TextInput } from '../components/input/TextInput'
+import { describe, it, expect, vi } from 'vitest'
+
 import { required, minLength, maxLength, email, composeValidators } from './validators'
+import { TextInput } from '../components/input/TextInput'
+import { FormContextProvider } from '../contexts/FormContext'
 
 // Helper component to wrap inputs with form context
 interface TestFormProps {

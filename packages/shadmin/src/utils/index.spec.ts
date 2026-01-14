@@ -4,8 +4,10 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import * as utils from './index'
+
 import { cn as cnDirect } from './cn'
+
+import * as utils from './index'
 
 describe('utils/index exports', () => {
   describe('cn export', () => {

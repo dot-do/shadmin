@@ -11,6 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+
 import {
   ExactlyOnceContext,
   type CheckpointBarrier,

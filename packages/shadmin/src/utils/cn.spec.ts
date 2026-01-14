@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+
 import { cn } from './cn'
 
 describe('cn (lightweight class name utility)', () => {

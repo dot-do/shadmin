@@ -123,21 +123,20 @@ export function useRenderMonitor(
   const renderCountRef = useRef(0)
   const mergedConfig = { ...globalConfig, ...config }
 
-  // In production, return a no-op result
-  if (!isDev()) {
-    return {
-      renderCount: 0,
-      getRenderCount: () => 0,
-      reset: () => {},
-    }
-  }
+  // Check if we're in development mode (evaluated once per render)
+  const isDevMode = isDev()
 
-  // Increment on every render
-  renderCountRef.current++
+  // Only increment render count in development
+  if (isDevMode) {
+    renderCountRef.current++
+  }
   const currentCount = renderCountRef.current
 
-  // Log in development
+  // Log in development - useEffect called unconditionally to satisfy React hooks rules
   useEffect(() => {
+    // Skip all logic in production
+    if (!isDevMode) return
+
     if (mergedConfig.verbose) {
       logger.debug(`[RenderMonitor] ${componentName}: Render #${currentCount}`)
     }
@@ -149,6 +148,15 @@ export function useRenderMonitor(
       mergedConfig.onExcessiveRenders?.(componentName, currentCount)
     }
   })
+
+  // Return no-op values in production, actual values in development
+  if (!isDevMode) {
+    return {
+      renderCount: 0,
+      getRenderCount: () => 0,
+      reset: () => {},
+    }
+  }
 
   return {
     renderCount: currentCount,

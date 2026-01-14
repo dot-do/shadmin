@@ -1,22 +1,44 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-import { createRequire } from 'module'
+import fs from 'fs'
 
-// Create a require function for ESM context to use require.resolve
-const require = createRequire(import.meta.url)
-
-// Dedupe React to prevent "Invalid hook call" errors from duplicate React instances
+// Dedupe React to prevent "Invalid hook call" errors from duplicate React instances.
 // This is a nested pnpm workspace (shadmin is a workspace inside ui), which creates
 // duplicate React installations in both .pnpm stores. We must force ALL React imports
 // to resolve to the SAME physical location.
+//
+// The problem: Code in packages/shadmin/packages/shadmin/src/ resolves React from
+// the local node_modules/.pnpm store, but testing-library and other devDependencies
+// may resolve from the parent ui workspace's store. We need to force everything
+// to use the SAME React instance.
 
-// Dynamically resolve React paths to avoid hardcoding versions.
-// require.resolve finds the actual installed package location in node_modules,
-// then we get the directory containing that package.
-const reactPath = path.dirname(require.resolve('react/package.json'))
-const reactDomPath = path.dirname(require.resolve('react-dom/package.json'))
-// scheduler is a transitive dependency of react-dom, symlinked in its node_modules
+const __dirname = path.dirname(new URL(import.meta.url).pathname)
+
+// Use the shadmin workspace's React (where the actual source code resolves from)
+// This is the React that components will use at runtime
+const localNodeModules = path.resolve(__dirname, 'node_modules')
+
+// Helper to find actual package path in pnpm store
+function findPackageInPnpmStore(packageName: string): string {
+  const pnpmStore = path.join(localNodeModules, '.pnpm')
+
+  // Find directory matching the package pattern (e.g., react@19.2.3, react-dom@19.2.3_react@19.2.3)
+  // pnpm uses format: {package}@{version} or {package}@{version}_{peer}@{peerVersion}
+  const dirs = fs.readdirSync(pnpmStore)
+  const packageDir = dirs.find(d => d.startsWith(`${packageName}@`))
+
+  if (!packageDir) {
+    throw new Error(`Could not find ${packageName} in pnpm store: ${pnpmStore}`)
+  }
+
+  return path.join(pnpmStore, packageDir, 'node_modules', packageName)
+}
+
+// Resolve to the actual pnpm store locations for the shadmin workspace
+const reactPath = findPackageInPnpmStore('react')
+const reactDomPath = findPackageInPnpmStore('react-dom')
+// scheduler is a transitive dependency, find it in react-dom's peer folder
 const schedulerPath = path.resolve(reactDomPath, '../scheduler')
 
 export default defineConfig({
@@ -63,6 +85,11 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['packages/**/src/**/*.{ts,tsx}'],
       exclude: ['**/*.spec.{ts,tsx}', '**/*.test.{ts,tsx}', '**/index.ts'],
+    },
+    // Benchmark configuration
+    benchmark: {
+      include: ['packages/**/benchmarks/**/*.bench.{ts,tsx}'],
+      reporters: ['default'],
     },
   },
 })

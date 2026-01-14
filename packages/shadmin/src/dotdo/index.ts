@@ -46,8 +46,8 @@
 export { DO, validateBaseUrl, type DOWithResources } from './do'
 
 // Factory functions for advanced usage
-export { createDataProviderFactory } from './data-provider'
-export { createAuthProviderFactory } from './auth-provider'
+export { createDataProviderFactory, DODataError } from './data-provider'
+export { createAuthProviderFactory, DOAuthError } from './auth-provider'
 
 // Types
 export type {

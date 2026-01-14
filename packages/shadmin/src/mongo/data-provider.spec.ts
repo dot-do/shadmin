@@ -6,7 +6,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { createMongoDataProvider } from './data-provider'
+
 import type { DataProvider } from '../facade'
 
 // Mock fetch globally

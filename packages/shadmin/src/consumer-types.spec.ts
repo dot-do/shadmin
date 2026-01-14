@@ -10,6 +10,8 @@
 import { describe, it, expect } from 'vitest'
 
 // Import types from the main package entry point
+import * as shadmin from './index'
+
 import type {
   // Input choice types
   SelectChoice,
@@ -131,7 +133,6 @@ import type {
 } from './index'
 
 // Import values to verify they exist
-import * as shadmin from './index'
 
 describe('Consumer Type Exports', () => {
   describe('Input Choice Types', () => {
