@@ -1,13 +1,15 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { useForm } from 'react-hook-form'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { FormContextProvider } from '../../contexts/FormContext'
-import { DataProviderContext } from '../../contexts/DataProviderContext'
-import type { DataProvider, RaRecord } from '../../types'
+import { useForm } from 'react-hook-form'
+
+import { AutocompleteArrayInput } from './AutocompleteArrayInput'
+import { CheckboxGroupInput } from './CheckboxGroupInput'
 import { ReferenceArrayInput } from './ReferenceArrayInput'
 import { SelectArrayInput } from './SelectArrayInput'
-import { CheckboxGroupInput } from './CheckboxGroupInput'
-import { AutocompleteArrayInput } from './AutocompleteArrayInput'
+import { DataProviderContext } from '../../contexts/DataProviderContext'
+import { FormContextProvider } from '../../contexts/FormContext'
+
+import type { DataProvider, RaRecord, GetListResult, GetOneResult, GetManyResult, GetManyReferenceResult, CreateResult, UpdateResult, UpdateManyResult, DeleteResult, DeleteManyResult } from '../../types'
+import type { Meta, StoryObj } from '@storybook/react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +43,7 @@ const mockCategories: RaRecord[] = [
 
 // Mock DataProvider
 const mockDataProvider: DataProvider = {
-  getList: async (resource, params) => {
+  getList: async <RecordType extends RaRecord = RaRecord>(resource: string, params: { pagination?: { page?: number; perPage?: number }; sort?: { field: string; order: 'ASC' | 'DESC' }; filter?: Record<string, unknown> }) => {
     await new Promise((resolve) => setTimeout(resolve, 300)) // Simulate network delay
 
     let data: RaRecord[] = []
@@ -75,16 +77,16 @@ const mockDataProvider: DataProvider = {
     const startIndex = (page - 1) * perPage
     const paginatedData = data.slice(startIndex, startIndex + perPage)
 
-    return { data: paginatedData, total: data.length }
+    return { data: paginatedData, total: data.length } as GetListResult<RecordType>
   },
-  getOne: async () => ({ data: { id: 0 } }),
-  getMany: async () => ({ data: [] }),
-  getManyReference: async () => ({ data: [], total: 0 }),
-  create: async () => ({ data: { id: 0 } }),
-  update: async () => ({ data: { id: 0 } }),
-  updateMany: async () => ({ data: [] }),
-  delete: async () => ({ data: { id: 0 } }),
-  deleteMany: async () => ({ data: [] }),
+  getOne: async <RecordType extends RaRecord = RaRecord>() => ({ data: { id: 0 } } as GetOneResult<RecordType>),
+  getMany: async <RecordType extends RaRecord = RaRecord>() => ({ data: [] } as GetManyResult<RecordType>),
+  getManyReference: async <RecordType extends RaRecord = RaRecord>() => ({ data: [], total: 0 } as GetManyReferenceResult<RecordType>),
+  create: async <RecordType extends RaRecord = RaRecord>() => ({ data: { id: 0 } } as CreateResult<RecordType>),
+  update: async <RecordType extends RaRecord = RaRecord>() => ({ data: { id: 0 } } as UpdateResult<RecordType>),
+  updateMany: async <RecordType extends RaRecord = RaRecord>() => ({ data: [] } as UpdateManyResult<RecordType>),
+  delete: async <RecordType extends RaRecord = RaRecord>() => ({ data: { id: 0 } } as DeleteResult<RecordType>),
+  deleteMany: async <RecordType extends RaRecord = RaRecord>() => ({ data: [] } as DeleteManyResult<RecordType>),
 }
 
 /**
@@ -310,10 +312,15 @@ export const MultipleReferences: Story = {
     reference: 'tags',
     children: <SelectArrayInput source="tag_ids" label="Tags" choices={[]} />,
   },
-  render: (args) => (
+  render: () => (
     <ContextWrapper>
       <div className="space-y-4">
-        <ReferenceArrayInput {...args} />
+        <ReferenceArrayInput
+          source="tag_ids"
+          reference="tags"
+        >
+          <SelectArrayInput source="tag_ids" label="Tags" choices={[]} />
+        </ReferenceArrayInput>
         <ReferenceArrayInput
           source="category_ids"
           reference="categories"

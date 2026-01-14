@@ -3,12 +3,13 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { RichTextInput } from './RichTextInput'
+import { FormContextProvider } from '../../contexts/FormContext'
 
 // Mock document.execCommand and document.queryCommandState for jsdom
 const mockExecCommand = vi.fn()

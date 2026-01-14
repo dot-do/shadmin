@@ -6,9 +6,10 @@
 
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
+
+import { type CheckboxChoice } from './types'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
-import { type CheckboxChoice } from './types'
 
 // Re-export CheckboxChoice for backwards compatibility
 export type { CheckboxChoice } from './types'

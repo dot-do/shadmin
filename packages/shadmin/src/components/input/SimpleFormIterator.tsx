@@ -11,8 +11,9 @@ import {
   type ReactElement,
 } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { cn } from '../../utils'
+
 import { useArrayInputContext } from './ArrayInput'
+import { cn } from '../../utils'
 
 /**
  * Helper to check if an item has errors

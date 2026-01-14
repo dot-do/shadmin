@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-empty-object-type */
+ 
 /**
  * Type tests for SelectChoice interface
  *
@@ -17,8 +17,9 @@
  * are intentional in type test files where we verify type assignments compile.
  */
 
-import type { SelectChoice, ChoiceValue, IdNameChoice, ValueLabelChoice, BaseSelectChoice } from './types'
 import { isIdNameChoice, isValueLabelChoice, isBaseSelectChoice, isChoiceValue, isRecord, validateChoices, getChoiceValue, getChoiceText } from './types'
+
+import type { SelectChoice, ChoiceValue, IdNameChoice, ValueLabelChoice, BaseSelectChoice } from './types'
 
 // =============================================================================
 // Type Test Utilities
@@ -37,7 +38,7 @@ type Equals<A, B> =
  * Asserts that a type is true at compile time
  * The underscore prefix indicates this is for type-level assertions only
  */
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+ 
 type _Assert<_T extends true> = true
 
 // =============================================================================

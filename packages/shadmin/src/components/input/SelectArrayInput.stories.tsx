@@ -1,7 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
+
 import { SelectArrayInput } from './SelectArrayInput'
+import { FormContextProvider } from '../../contexts/FormContext'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 /**
  * Wrapper component that provides form context for stories
@@ -148,7 +150,7 @@ export const CustomTextRenderer: Story = {
     source: 'permissions',
     label: 'User Permissions',
     choices: permissionChoices,
-    optionText: (choice) => `Permission: ${choice.name}`,
+    optionText: (choice: { id: string; name: string }) => `Permission: ${choice.name}`,
   },
 }
 

@@ -7,9 +7,11 @@
  */
 
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
-import { useGetList } from '../../hooks/useGetList'
-import type { RaRecord } from '../../types'
+
 import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../../constants'
+import { useGetList } from '../../hooks/useGetList'
+
+import type { RaRecord } from '../../types'
 
 /**
  * Props for ReferenceArrayInput component

@@ -3,12 +3,13 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { ImageInput } from './ImageInput'
+import { FormContextProvider } from '../../contexts/FormContext'
 
 // Mock URL.createObjectURL and URL.revokeObjectURL
 const mockCreateObjectURL = vi.fn()

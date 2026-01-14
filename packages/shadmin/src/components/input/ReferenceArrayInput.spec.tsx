@@ -6,17 +6,20 @@
  * It fetches choices from a referenced resource using useGetList and provides them to child components.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { FormContextProvider } from '../../contexts/FormContext'
-import { DataProviderContext } from '../../contexts/DataProviderContext'
-import type { DataProvider } from '../../types'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import { CheckboxGroupInput } from './CheckboxGroupInput'
 import { ReferenceArrayInput } from './ReferenceArrayInput'
 import { SelectArrayInput } from './SelectArrayInput'
-import { CheckboxGroupInput } from './CheckboxGroupInput'
+import { DataProviderContext } from '../../contexts/DataProviderContext'
+import { FormContextProvider } from '../../contexts/FormContext'
+
+import type { DataProvider } from '../../types'
+
 
 // Mock data provider
 const createMockDataProvider = (overrides: Partial<DataProvider> = {}): DataProvider => ({

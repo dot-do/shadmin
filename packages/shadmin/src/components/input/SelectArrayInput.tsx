@@ -5,9 +5,10 @@
 
 import { forwardRef, useId, type HTMLAttributes } from 'react'
 import { useController, type RegisterOptions, type FieldValues, type Path } from 'react-hook-form'
+
+import { type SelectArrayChoice } from './types'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
-import { type SelectArrayChoice } from './types'
 
 // Re-export SelectArrayChoice for backwards compatibility
 export type { SelectArrayChoice } from './types'

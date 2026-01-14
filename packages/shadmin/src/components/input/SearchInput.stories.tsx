@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react'
 import { useState, useCallback } from 'react'
-import { ListContext } from '../../contexts/ListContext'
+
 import { SearchInput } from './SearchInput'
+import { ListContext, type ListControllerResult } from '../../contexts/ListContext'
+
+import type { RaRecord } from '../../types'
+import type { Meta, StoryObj } from '@storybook/react'
 
 /**
  * Mock ListContext provider for stories
@@ -15,12 +18,13 @@ function ListContextWrapper({
 }) {
   const [filterValues, setFilterValues] = useState<Record<string, unknown>>(initialFilters)
   const [page, setPage] = useState(1)
+  const [selectedIds, setSelectedIds] = useState<(string | number)[]>([])
 
   const setFilters = useCallback((newFilters: Record<string, unknown>) => {
     setFilterValues(newFilters)
   }, [])
 
-  const contextValue = {
+  const contextValue: ListControllerResult<RaRecord> = {
     filterValues,
     setFilters,
     page,
@@ -32,6 +36,13 @@ function ListContextWrapper({
     total: 100,
     data: [],
     isLoading: false,
+    isFetching: false,
+    error: null,
+    selectedIds,
+    onSelect: setSelectedIds,
+    onToggleItem: (id) => setSelectedIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]),
+    onUnselectItems: () => setSelectedIds([]),
+    refetch: () => {},
     resource: 'test',
   }
 
@@ -181,7 +192,7 @@ export const Hideable: Story = {
     source: 'q',
     placeholder: 'Hideable search...',
     hideable: true,
-    onHide: (source) => console.log('Hidden filter:', source),
+    onHide: (source: string) => console.log('Hidden filter:', source),
   },
 }
 

@@ -5,11 +5,14 @@
  */
 
 import { cloneElement, type ReactElement } from 'react'
+
+import { AutocompleteInput } from './AutocompleteInput'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../../constants'
 import { useGetList } from '../../hooks/useGetList'
 import { cn } from '../../utils'
-import { AutocompleteInput } from './AutocompleteInput'
+
 import type { SelectChoice } from './types'
-import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../../constants'
+
 
 /**
  * Choice record type for reference inputs.

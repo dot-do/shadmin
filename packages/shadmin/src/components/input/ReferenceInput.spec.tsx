@@ -3,17 +3,21 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
-import { FormContextProvider } from '../../contexts/FormContext'
-import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import type { DataProvider } from '../../types'
+import { describe, it, expect, vi } from 'vitest'
+
+
+
 import { ReferenceInput } from './ReferenceInput'
 import { SelectInput } from './SelectInput'
+import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { FormContextProvider } from '../../contexts/FormContext'
+
+import type { DataProvider } from '../../types'
+import type { ReactNode } from 'react'
 
 // Helper to create mock data provider
 const createMockDataProvider = (overrides?: Partial<DataProvider>): DataProvider => ({

@@ -3,12 +3,13 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
+import { describe, it, expect, vi } from 'vitest'
+
 import { FileInput } from './FileInput'
+import { FormContextProvider } from '../../contexts/FormContext'
 
 // Helper component to wrap FileInput with form context
 interface TestFormProps {

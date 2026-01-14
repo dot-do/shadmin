@@ -1,14 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
-import { TextInput } from './TextInput'
-import { NumberInput } from './NumberInput'
-import { PasswordInput } from './PasswordInput'
-import { SelectInput } from './SelectInput'
+
 import { AutocompleteInput } from './AutocompleteInput'
 import { BooleanInput } from './BooleanInput'
-import { RadioButtonGroupInput } from './RadioButtonGroupInput'
 import { CheckboxGroupInput } from './CheckboxGroupInput'
+import { NumberInput } from './NumberInput'
+import { PasswordInput } from './PasswordInput'
+import { RadioButtonGroupInput } from './RadioButtonGroupInput'
+import { SelectInput } from './SelectInput'
+import { TextInput } from './TextInput'
+import { FormContextProvider } from '../../contexts/FormContext'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 /**
  * Wrapper component that provides form context for stories

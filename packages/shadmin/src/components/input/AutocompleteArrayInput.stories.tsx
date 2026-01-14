@@ -1,7 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
+
 import { AutocompleteArrayInput } from './AutocompleteArrayInput'
+import { FormContextProvider } from '../../contexts/FormContext'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 /**
  * Wrapper component that provides form context for stories

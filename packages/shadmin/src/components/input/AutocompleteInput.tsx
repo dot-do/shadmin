@@ -20,10 +20,11 @@ import {
   type FieldValues,
   type Path,
 } from 'react-hook-form'
+
+import { type AutocompleteChoice } from './types'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
 import { type ValidateProp, mergeValidation, hasRequiredValidator } from '../../validation/adapter'
-import { type AutocompleteChoice } from './types'
 
 // Re-export AutocompleteChoice for backwards compatibility
 export type { AutocompleteChoice } from './types'
