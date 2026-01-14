@@ -7,9 +7,10 @@
  */
 
 import { forwardRef, memo, type ReactNode } from 'react'
-import { cn } from '../../utils'
-import { useListContext, type ListControllerResult } from '../../contexts/ListContext'
+
 import { RowsPerPageSelector } from './RowsPerPageSelector'
+import { useListContext, type ListControllerResult } from '../../contexts/ListContext'
+import { cn } from '../../utils'
 
 /**
  * Props for the Pagination component

@@ -1,6 +1,6 @@
-import type { HeaderGroup } from '@tanstack/react-table'
-import type { RaRecord } from '../../types'
 import type { SortPayload } from '../../contexts/ListContext'
+import type { RaRecord } from '../../types'
+import type { HeaderGroup } from '@tanstack/react-table'
 
 /**
  * Props for DatagridHeader component

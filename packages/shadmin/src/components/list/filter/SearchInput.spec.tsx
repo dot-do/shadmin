@@ -42,14 +42,17 @@
  * - Special characters in search terms (email addresses, HTML entities)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SearchInput } from './SearchInput'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import {
   ListContextProvider,
   type ListControllerResult,
 } from '@/contexts/ListContext'
+
+import { SearchInput } from './SearchInput'
+
 
 interface TestRecord {
   id: number

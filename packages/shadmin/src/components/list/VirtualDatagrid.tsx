@@ -7,6 +7,17 @@
  */
 
 import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+  type RowSelectionState,
+  type Row,
+} from '@tanstack/react-table'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import {
   type ReactNode,
   type ReactElement,
   type CSSProperties,
@@ -21,22 +32,13 @@ import {
   useState,
   createElement,
 } from 'react'
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-  type ColumnDef,
-  type SortingState,
-  type RowSelectionState,
-  type Row,
-} from '@tanstack/react-table'
-import { useVirtualizer } from '@tanstack/react-virtual'
+
 import { useListContext, type Identifier } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
 import { cn } from '../../utils'
-import type { RaRecord } from '../../types'
+
 import type { DatagridColumn, CellRendererProps, RowClickHandler } from './Datagrid'
+import type { RaRecord } from '../../types'
 
 /**
  * Props for VirtualDatagrid component

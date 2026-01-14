@@ -35,10 +35,12 @@
  * - Type presets providing appropriate operator sets
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+
 import { FilterOperatorSelect } from './FilterOperatorSelect'
+
 import type { FilterOperator } from '@/utils/filterOperators'
 
 describe('<FilterOperatorSelect />', () => {

@@ -1,11 +1,13 @@
-import { describe, it, expect, vi } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+
 import { EditableDatagrid, type EditableDatagridProps } from './EditableDatagrid'
-import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
 import { DataProviderContext } from '../../contexts/DataProviderContext'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
 import { useRecordContext } from '../../contexts/RecordContext'
+
 import type { RaRecord, DataProvider } from '../../types'
 
 interface TestRecord extends RaRecord {

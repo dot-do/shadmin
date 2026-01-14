@@ -15,12 +15,14 @@ import {
   useState,
   useMemo,
 } from 'react'
+
+import { PAGINATION_DEFAULTS } from '../../constants'
 import { ListContextProvider, type FilterPayload, type Identifier } from '../../contexts/ListContext'
+import { useListContext } from '../../contexts/ListContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { useGetList, type UseGetListOptions } from '../../hooks/useGetList'
 import { useListParams } from '../../hooks/useListParams'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
-import { PAGINATION_DEFAULTS } from '../../constants'
 
 /**
  * Props for InfiniteListBase component
@@ -341,7 +343,6 @@ export function InfiniteListView({
 }
 
 // Import useListContext for InfiniteListView
-import { useListContext } from '../../contexts/ListContext'
 
 /**
  * Props for InfiniteList component

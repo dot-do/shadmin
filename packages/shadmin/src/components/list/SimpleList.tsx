@@ -10,9 +10,11 @@
  */
 
 import { type ReactNode, type ComponentType, type CSSProperties, useCallback } from 'react'
-import { cn } from '../../utils'
+
 import { useListContext } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
+import { cn } from '../../utils'
+
 import type { RaRecord } from '../../types'
 
 /**

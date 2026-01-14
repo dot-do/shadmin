@@ -13,6 +13,7 @@ import {
   useRef,
   type InputHTMLAttributes,
 } from 'react'
+
 import { useListContext } from '@/contexts/ListContext'
 import { cn } from '@/utils'
 import {
@@ -21,6 +22,7 @@ import {
   getOperatorsForType,
   type OperatorType,
 } from '@/utils/filterOperators'
+
 import { FilterOperatorSelect } from './FilterOperatorSelect'
 
 /**

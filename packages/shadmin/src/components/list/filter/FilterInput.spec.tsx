@@ -36,11 +36,14 @@
  * - isNull/isNotNull operators hiding the value input entirely
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FilterInput } from './FilterInput'
+import { describe, it, expect, vi } from 'vitest'
+
 import { ListContext, type ListControllerResult } from '@/contexts/ListContext'
+
+import { FilterInput } from './FilterInput'
+
 
 // Mock ListContext provider
 function createMockListContext(overrides: Partial<ListControllerResult> = {}): ListControllerResult {

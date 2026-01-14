@@ -7,11 +7,12 @@
  */
 
 import { type ReactNode, useCallback, useMemo, useState } from 'react'
+
+import { PAGINATION_DEFAULTS } from '../../constants'
 import { ListContextProvider, type FilterPayload, type Identifier } from '../../contexts/ListContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { useGetList, type UseGetListOptions } from '../../hooks/useGetList'
 import { useListParams } from '../../hooks/useListParams'
-import { PAGINATION_DEFAULTS } from '../../constants'
 
 /**
  * Props for ListBase component

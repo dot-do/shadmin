@@ -33,14 +33,17 @@
  * - Preventing internal state toggle when onToggle is provided (controlled mode)
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FilterButton } from './FilterButton'
+import { describe, it, expect, vi } from 'vitest'
+
 import {
   ListContextProvider,
   type ListControllerResult,
 } from '@/contexts/ListContext'
+
+import { FilterButton } from './FilterButton'
+
 
 interface TestRecord {
   id: number

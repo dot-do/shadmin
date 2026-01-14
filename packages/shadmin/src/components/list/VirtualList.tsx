@@ -6,6 +6,7 @@
  * Issue: shadmin-ae57 (P2)
  */
 
+import { useVirtualizer } from '@tanstack/react-virtual'
 import {
   type ReactNode,
   type ComponentType,
@@ -13,10 +14,11 @@ import {
   useCallback,
   useRef,
 } from 'react'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import { cn } from '../../utils'
+
 import { useListContext } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
+import { cn } from '../../utils'
+
 import type { RaRecord } from '../../types'
 
 /**

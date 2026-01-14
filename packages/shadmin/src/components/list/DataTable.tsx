@@ -1,8 +1,10 @@
-import type { ComponentType, ReactNode } from 'react'
 import { get } from 'lodash-es'
-import type { RaRecord } from '../../types'
-import { useRecordContext } from '../../contexts/RecordContext'
+
 import { Datagrid, type DatagridProps, type CellRendererProps, type RowClickHandler } from './Datagrid'
+import { useRecordContext } from '../../contexts/RecordContext'
+
+import type { RaRecord } from '../../types'
+import type { ComponentType, ReactNode } from 'react'
 
 /**
  * Props for DataTable component

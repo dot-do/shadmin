@@ -6,10 +6,11 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
 import { ListBase, type ListBaseProps } from './ListBase'
 import { ListView } from './ListView'
+
 import type { SortPayload, FilterPayload, Identifier } from '../../contexts/ListContext'
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Props for List component

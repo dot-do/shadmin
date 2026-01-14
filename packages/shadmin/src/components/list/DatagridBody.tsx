@@ -1,8 +1,9 @@
-import type { ReactNode, CSSProperties, MouseEvent } from 'react'
-import type { Row, flexRender as FlexRenderType } from '@tanstack/react-table'
-import type { RaRecord } from '../../types'
 import { RecordContextProvider } from '../../contexts/RecordContext'
+
 import type { Identifier } from '../../contexts/ListContext'
+import type { RaRecord } from '../../types'
+import type { Row, flexRender as FlexRenderType } from '@tanstack/react-table'
+import type { ReactNode, CSSProperties, MouseEvent } from 'react'
 
 /**
  * Props for DatagridBody component

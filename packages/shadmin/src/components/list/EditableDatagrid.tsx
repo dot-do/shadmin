@@ -32,9 +32,11 @@ import {
   useRef,
   useEffect,
 } from 'react'
+
+import { useDataProvider } from '../../contexts/DataProviderContext'
 import { useListContext, type Identifier } from '../../contexts/ListContext'
 import { RecordContextProvider } from '../../contexts/RecordContext'
-import { useDataProvider } from '../../contexts/DataProviderContext'
+
 import type { RaRecord } from '../../types'
 
 /**

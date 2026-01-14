@@ -1,9 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi } from 'vitest'
+
 import { Datagrid, type DatagridProps } from './Datagrid'
 import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
 import { useRecordContext } from '../../contexts/RecordContext'
+
 import type { RaRecord } from '../../types'
 
 interface TestRecord extends RaRecord {

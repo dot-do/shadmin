@@ -13,18 +13,21 @@
  * - ListContext provider integration
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { List } from './List'
 import { ListBase } from './ListBase'
 import { ListView } from './ListView'
-import { useListContext, type ListControllerResult } from '../../contexts/ListContext'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { useListContext, type ListControllerResult } from '../../contexts/ListContext'
 import { ResourceContextProvider } from '../../contexts/ResourceContext'
-import type { DataProvider } from '../../types'
 import { TestMemoryRouter, useTestLocation, useTestRouter } from '../../test-utils'
+
+import type { DataProvider } from '../../types'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (dataProvider: DataProvider, initialEntries: string[] = ['/posts']) => {
