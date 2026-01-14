@@ -46,10 +46,11 @@
  * - Memoized child components and context reference stability
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { useForm } from 'react-hook-form'
 import { useState, useRef, useCallback, memo } from 'react'
+import { useForm } from 'react-hook-form'
+import { describe, it, expect, vi } from 'vitest'
+
 import {
   FormContext,
   FormContextProvider,

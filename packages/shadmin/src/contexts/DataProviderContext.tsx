@@ -5,6 +5,7 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
+
 import type { DataProvider } from '../types'
 
 const DataProviderContext = createContext<DataProvider | null>(null)

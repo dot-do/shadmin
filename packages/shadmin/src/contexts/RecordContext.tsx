@@ -1,4 +1,5 @@
 import { createContext, useContext, useRef, type ReactNode } from 'react'
+
 import type { RaRecord } from '../types'
 
 // Note: RaRecord is defined in src/types/record.ts

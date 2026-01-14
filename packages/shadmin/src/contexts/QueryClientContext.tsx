@@ -8,8 +8,9 @@
  * This prevents cascading re-renders from the DataProvider changing.
  */
 
-import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
+
 import { QUERY_DEFAULTS } from '../constants'
 
 /**

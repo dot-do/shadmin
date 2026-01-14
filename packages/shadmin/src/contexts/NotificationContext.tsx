@@ -8,6 +8,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react'
+
 import type { NotificationType } from '../types'
 
 // Re-export NotificationType from types for backward compatibility

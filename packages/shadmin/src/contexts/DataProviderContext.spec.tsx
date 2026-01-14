@@ -39,14 +39,16 @@
  * - All method types are 'function' after context access
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+
 import {
   DataProviderContext,
   DataProviderContextProvider,
   useDataProvider,
   useDataProviderOptional,
 } from './DataProviderContext'
+
 import type { DataProvider } from '../types'
 
 const createMockDataProvider = (

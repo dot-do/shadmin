@@ -4,34 +4,35 @@
  * These tests verify that splitting ListContext into focused sub-contexts
  * prevents unnecessary re-renders when unrelated state changes.
  */
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { useState, useCallback, memo, useMemo } from 'react'
+import { describe, it, expect, vi } from 'vitest'
+
 import {
   ListContextProvider,
   useListContext,
   type ListControllerResult,
 } from './ListContext'
 import {
-  ListPaginationContext,
-  ListPaginationContextProvider,
-  useListPaginationContext,
-} from './ListPaginationContext'
-import {
-  ListSortContext,
-  ListSortContextProvider,
-  useListSortContext,
-} from './ListSortContext'
-import {
   ListFilterContext,
   ListFilterContextProvider,
   useListFilterContext,
 } from './ListFilterContext'
 import {
+  ListPaginationContext,
+  ListPaginationContextProvider,
+  useListPaginationContext,
+} from './ListPaginationContext'
+import {
   ListSelectionContext,
   ListSelectionContextProvider,
   useListSelectionContext,
 } from './ListSelectionContext'
+import {
+  ListSortContext,
+  ListSortContextProvider,
+  useListSortContext,
+} from './ListSortContext'
 
 interface TestRecord {
   id: number

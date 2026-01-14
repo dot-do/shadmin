@@ -3,9 +3,10 @@
  * Verifies that QueryClient is properly separated and accessible
  */
 
-import { describe, it, expect } from 'vitest'
-import { render, renderHook } from '@testing-library/react'
 import { QueryClient } from '@tanstack/react-query'
+import { render, renderHook } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+
 import {
   QueryClientContextProvider,
   useQueryClientInstance,

@@ -5,6 +5,7 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
+
 import type { AuthProvider } from '../facade'
 
 const AuthProviderContext = createContext<AuthProvider | null>(null)

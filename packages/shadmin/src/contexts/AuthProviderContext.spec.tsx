@@ -1,11 +1,13 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+
 import {
   AuthProviderContext,
   AuthProviderContextProvider,
   useAuthProvider,
   useAuthProviderOptional,
 } from './AuthProviderContext'
+
 import type { AuthProvider } from '../facade'
 
 const createMockAuthProvider = (

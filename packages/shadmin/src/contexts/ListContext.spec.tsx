@@ -63,8 +63,9 @@
  * - All callbacks receive correct parameters when invoked
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+
 import {
   ListContext,
   ListContextProvider,
