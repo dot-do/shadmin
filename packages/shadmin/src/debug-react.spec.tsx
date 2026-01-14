@@ -1,9 +1,9 @@
 /**
  * Debug test to identify React resolution issue
  */
-import { describe, it, expect } from 'vitest'
-import React, { useContext, createContext } from 'react'
 import { render, screen } from '@testing-library/react'
+import React, { useContext, createContext } from 'react'
+import { describe, it, expect } from 'vitest'
 
 // Log React module location
 console.log('React version:', React.version)
