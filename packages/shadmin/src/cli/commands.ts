@@ -3,9 +3,11 @@
  * @description CLI Commands for shadmin - handles argument parsing and Vite config
  */
 
-import type { InlineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+
 import { shadminPlugin, type ShadminPluginOptions, type MdxOptions } from './vite-plugin'
+
+import type { InlineConfig } from 'vite'
 
 /**
  * Config options that can be passed to createViteConfig

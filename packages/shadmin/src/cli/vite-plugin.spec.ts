@@ -10,10 +10,12 @@
  * @vitest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync } from 'fs'
-import { join } from 'path'
 import { tmpdir } from 'os'
+import { join } from 'path'
+
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { shadminPlugin, type ShadminPluginOptions } from './vite-plugin'
 // Note: Vite types available for future use
 // import type { Plugin, ResolvedConfig } from 'vite'

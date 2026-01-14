@@ -14,12 +14,14 @@
  * @vitest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { createServer, build, type ViteDevServer, type InlineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'fs'
-import { join, resolve } from 'path'
 import { tmpdir } from 'os'
+import { join, resolve } from 'path'
+
+import react from '@vitejs/plugin-react'
+import { createServer, build, type ViteDevServer, type InlineConfig } from 'vite'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { shadminPlugin, type ShadminPluginOptions } from './vite-plugin'
 
 // Project root has actual node_modules for full module loading tests

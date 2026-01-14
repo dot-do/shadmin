@@ -9,14 +9,17 @@
  * 4. Test the full flow from scanning to entry point generation
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync } from 'fs'
-import { join } from 'path'
 import { tmpdir } from 'os'
-import { scanResources } from './scanner'
-import { generateEntryPoint, generateImports, generateResourceConfig } from './generator'
-import { shadminPlugin } from './vite-plugin'
+import { join } from 'path'
+
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
+
 import { parseArgs, createViteConfig } from './commands'
+import { generateEntryPoint, generateImports, generateResourceConfig } from './generator'
+import { scanResources } from './scanner'
+import { shadminPlugin } from './vite-plugin'
 
 // Mock the Vite React plugin to avoid esbuild issues in test environment
 vi.mock('@vitejs/plugin-react', () => ({

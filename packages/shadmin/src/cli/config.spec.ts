@@ -8,10 +8,11 @@
  * 3. Merging config with CLI arguments
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync } from 'fs'
-import { join } from 'path'
 import { tmpdir } from 'os'
+import { join } from 'path'
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 // These will be implemented in config.ts
 import {

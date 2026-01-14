@@ -9,12 +9,14 @@
  */
 
 import { describe, it, expect } from 'vitest'
+
 import {
   generateImports,
   generateResourceConfig,
   generateEntryPoint,
   type GeneratorOptions,
 } from './generator'
+
 import type { ResourceDefinition } from './scanner'
 
 const createResource = (overrides: Partial<ResourceDefinition> = {}): ResourceDefinition => ({

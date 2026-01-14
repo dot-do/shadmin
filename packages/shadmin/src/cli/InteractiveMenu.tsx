@@ -3,12 +3,15 @@
  * @description React Ink component for interactive CLI menu
  */
 
-import { useState } from 'react'
-import { render, Box, Text } from 'ink'
-import SelectInput from 'ink-select-input'
-import { EXAMPLE_TEMPLATES, getTemplateFiles, type ExampleTemplate } from './interactive'
 import { writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
+
+import { render, Box, Text } from 'ink'
+import SelectInput from 'ink-select-input'
+import { useState } from 'react'
+
+import { EXAMPLE_TEMPLATES, getTemplateFiles, type ExampleTemplate } from './interactive'
+
 
 interface MenuProps {
   /** Root directory to scaffold into */

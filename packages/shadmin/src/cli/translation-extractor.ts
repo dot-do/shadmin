@@ -11,6 +11,7 @@
 import { existsSync } from 'fs'
 import { readdir, readFile, stat, writeFile } from 'fs/promises'
 import { join, extname, relative } from 'path'
+
 import ts from 'typescript'
 
 /**

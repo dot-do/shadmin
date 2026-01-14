@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+
 import {
   EXAMPLE_TEMPLATES,
   getTemplateFiles,

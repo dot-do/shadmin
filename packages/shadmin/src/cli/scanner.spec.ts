@@ -8,10 +8,12 @@
  * 3. Extracting resource metadata (name, components)
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync } from 'fs'
-import { join } from 'path'
 import { tmpdir } from 'os'
+import { join } from 'path'
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import { scanResources, type ResourceDefinition } from './scanner'
 
 describe('CLI File Scanner', () => {

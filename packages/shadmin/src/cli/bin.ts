@@ -10,13 +10,15 @@
  *   npx shadmin preview      # Preview production build
  */
 
+import { createRequire } from 'module'
+
 import { createServer, build, preview } from 'vite'
+
 import { parseArgs, createViteConfig } from './commands'
-import { scanResources } from './scanner'
 import { shouldShowInteractiveMenu } from './interactive'
 import { showInteractiveMenu } from './InteractiveMenu'
+import { scanResources } from './scanner'
 import { extractTranslationKeys, formatExtractionResult } from './translation-extractor'
-import { createRequire } from 'module'
 
 const require = createRequire(import.meta.url)
 const pkg = require('../../package.json')

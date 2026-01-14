@@ -8,10 +8,12 @@
  * - Various patterns with interpolation and default values
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'fs'
-import { join } from 'path'
 import { tmpdir } from 'os'
+import { join } from 'path'
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import {
   extractTranslationKeys,
   formatExtractionResult,

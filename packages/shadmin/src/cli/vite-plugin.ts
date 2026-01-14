@@ -3,12 +3,15 @@
  * @description Vite Plugin for shadmin CLI - provides virtual modules and HMR
  */
 
-import { join } from 'path'
 import { existsSync } from 'fs'
+import { join } from 'path'
+
 import { transform } from 'esbuild'
-import type { Plugin, HmrContext, ViteDevServer, IndexHtmlTransformContext } from 'vite'
-import { scanResources } from './scanner'
+
 import { generateEntryPoint, type GeneratorOptions } from './generator'
+import { scanResources } from './scanner'
+
+import type { Plugin, HmrContext, ViteDevServer, IndexHtmlTransformContext } from 'vite'
 
 /** Virtual module IDs */
 const VIRTUAL_APP_ID = 'virtual:shadmin-app'
