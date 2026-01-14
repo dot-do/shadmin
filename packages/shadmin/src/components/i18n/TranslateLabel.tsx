@@ -6,9 +6,11 @@
  */
 
 import { type HTMLAttributes, forwardRef } from 'react'
+
 import { cn } from '@/utils'
-import { useTranslate } from '../../hooks/useTranslate'
+
 import { useResourceOptional } from '../../contexts/ResourceContext'
+import { useTranslate } from '../../hooks/useTranslate'
 
 export interface TranslateLabelProps extends HTMLAttributes<HTMLLabelElement> {
   /** The field source/name to generate translation key from */

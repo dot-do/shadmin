@@ -26,9 +26,11 @@ import {
   type ReactNode,
 } from 'react'
 import { useLocation, useNavigate, matchPath, type NavigateOptions } from 'react-router'
+
+import { FormTab, FormTabPanel, generateTabName, type FormTabProps } from './FormTab'
 import { useFormContext } from '../../contexts/FormContext'
 import { cn } from '../../utils'
-import { FormTab, FormTabPanel, generateTabName, type FormTabProps } from './FormTab'
+
 import type { FormSubmitHandler } from './SimpleForm'
 
 // ============================================================================

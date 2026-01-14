@@ -19,15 +19,17 @@ import {
   useRef,
 } from 'react'
 import { HashRouter } from 'react-router-dom'
-import { ResourceDefinitionContextProvider, NotificationContextProvider, type ResourceDefinitions } from '../../contexts'
-import type { ResourceProps, ResourceDefinition, DataProvider } from '../../facade'
-import type { AdminProps, AdminPluginContext } from '../../types'
+
 import { CoreAdminContext } from './CoreAdminContext'
 import { CoreAdminRoutes } from './CoreAdminRoutes'
+import { ErrorBoundary } from './ErrorBoundary'
 import { ResourceRegistrationContext, type ResourceRegistrationContextValue } from './Resource'
 import { ThemeProvider, type CustomTheme } from './ThemeProvider'
-import { ErrorBoundary } from './ErrorBoundary'
+import { ResourceDefinitionContextProvider, NotificationContextProvider, type ResourceDefinitions } from '../../contexts'
+
 import type { MenuItem } from './CoreAdminRoutes'
+import type { ResourceProps, ResourceDefinition, DataProvider } from '../../facade'
+import type { AdminProps, AdminPluginContext } from '../../types'
 
 /**
  * Check if an element looks like a Resource component based on its props

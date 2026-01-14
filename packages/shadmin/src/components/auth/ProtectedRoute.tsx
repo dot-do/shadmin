@@ -18,6 +18,7 @@
 
 import { useState, useEffect, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router'
+
 import { useAuthProvider } from '../../contexts/AuthProviderContext'
 
 /**

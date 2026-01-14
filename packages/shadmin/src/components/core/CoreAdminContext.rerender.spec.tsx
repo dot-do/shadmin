@@ -5,10 +5,10 @@
  * prevents unnecessary re-renders when unrelated state changes.
  */
 
-import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
-import { act } from 'react'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { act , memo, useCallback, useMemo, useState } from 'react'
+import { describe, it, expect } from 'vitest'
+
 import {
   QueryClientContextProvider,
   DataProviderContextProvider,

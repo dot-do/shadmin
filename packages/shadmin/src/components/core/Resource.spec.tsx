@@ -3,11 +3,12 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { Resource } from './Resource'
+import { describe, it, expect } from 'vitest'
+
 import { Admin } from './Admin'
+import { Resource } from './Resource'
 import { useResource, useResourceDefinitions, useResourceDefinition } from '../../contexts'
 import { createMockDataProvider } from '../../test-utils'
 

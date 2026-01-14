@@ -13,36 +13,33 @@
  * component coordination across the admin framework.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Components
-import { List } from '../list/List'
-import { Datagrid } from '../list/Datagrid'
+import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
+import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { NotificationContextProvider } from '../../contexts/NotificationContext'
+import { ResourceContextProvider } from '../../contexts/ResourceContext'
+import { CanAccess } from '../auth/CanAccess'
 import { Create } from '../create/Create'
 import { Edit } from '../edit/Edit'
-import { Show } from '../show/Show'
-import { SimpleForm } from '../form/SimpleForm'
-import { TextField } from '../field/TextField'
-import { NumberField } from '../field/NumberField'
 import { BooleanField } from '../field/BooleanField'
-import { TextInput } from '../input/TextInput'
-import { NumberInput } from '../input/NumberInput'
+import { NumberField } from '../field/NumberField'
+import { TextField } from '../field/TextField'
+import { SimpleForm } from '../form/SimpleForm'
 import { BooleanInput } from '../input/BooleanInput'
+import { NumberInput } from '../input/NumberInput'
+import { TextInput } from '../input/TextInput'
+import { Datagrid } from '../list/Datagrid'
+import { List } from '../list/List'
+import { Show } from '../show/Show'
 
-// Auth Components
-import { CanAccess } from '../auth/CanAccess'
-
-// Contexts and utilities
-import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { ResourceContextProvider } from '../../contexts/ResourceContext'
-import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import type { DataProvider, AuthProvider } from '../../facade'
-import { MemoryRouter } from 'react-router'
+import type { ReactNode } from 'react'
+
 
 // =============================================================================
 // Test Utilities

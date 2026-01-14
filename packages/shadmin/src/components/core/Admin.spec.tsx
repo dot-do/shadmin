@@ -3,14 +3,15 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { Admin } from './Admin'
 import { Resource } from './Resource'
+import { useTheme } from './ThemeProvider'
 import { useDataProvider, useAuthProviderOptional } from '../../contexts'
 import { createMockDataProvider, createMockAuthProvider } from '../../test-utils'
-import { useTheme } from './ThemeProvider'
 
 // Helper to wrap Admin with MemoryRouter
 const renderAdmin = (ui: React.ReactElement) => {

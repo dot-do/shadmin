@@ -4,10 +4,12 @@
  */
 
 import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
+
 import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from '../../facade'
-import type { Identifier } from '../../facade'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'
+
+import type { Identifier } from '../../facade'
 
 const buttonBaseStyles = cn(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium',

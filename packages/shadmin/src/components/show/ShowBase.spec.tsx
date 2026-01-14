@@ -15,17 +15,20 @@
  * - ShowBase refetches on id change
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { ShowBase, type ShowControllerResult } from './ShowBase'
-import { useRecordContext } from '../../contexts/RecordContext'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import type { DataProvider, RaRecord } from '../../types'
+import { useRecordContext } from '../../contexts/RecordContext'
+import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { TestMemoryRouter } from '../../test-utils'
+
+import type { DataProvider, RaRecord } from '../../types'
+import type { ReactNode } from 'react'
 
 /**
  * Create a test wrapper with all required providers

@@ -25,8 +25,9 @@ import {
   Children,
   forwardRef,
 } from 'react'
-import { cn } from '../../lib/utils'
+
 import { useMenuContextSafe } from './Menu'
+import { cn } from '../../lib/utils'
 import { useTestLocation, type Location } from '../../test-utils/TestMemoryRouter'
 
 /**

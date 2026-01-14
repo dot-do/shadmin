@@ -13,10 +13,10 @@
  * 8. Custom onError callback edge cases
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import * as React from 'react'
 import { useState, useEffect } from 'react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 import { ErrorBoundary, useErrorBoundary } from './ErrorBoundary'
 

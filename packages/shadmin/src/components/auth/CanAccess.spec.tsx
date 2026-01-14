@@ -9,13 +9,16 @@
  * 4. Handle loading state appropriately
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { CanAccess } from './CanAccess'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
+
 import type { AuthProvider } from '../../facade'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (authProvider: AuthProvider) => {
@@ -1113,7 +1116,7 @@ describe('CanAccess', () => {
 
   describe('edge cases - rapid permission changes', () => {
     it('should handle rapid permission updates correctly', async () => {
-      let permissionValue = ['admin']
+      const permissionValue = ['admin']
       const getPermissionsMock = vi.fn().mockImplementation(() => {
         return Promise.resolve(permissionValue)
       })

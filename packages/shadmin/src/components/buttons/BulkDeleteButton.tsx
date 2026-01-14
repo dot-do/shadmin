@@ -4,9 +4,11 @@
  */
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
+
 import { useDeleteMany, useListContext, useResourceContext, useRefresh, useUnselectAll } from '../../facade'
-import type { MutationMode, Identifier } from '../../facade'
 import { cn } from '../../utils'
+
+import type { MutationMode, Identifier } from '../../facade'
 
 const buttonBaseStyles = cn(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium',

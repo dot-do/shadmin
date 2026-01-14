@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import { DashboardMenuItem } from './DashboardMenuItem'
 import { Menu } from './Menu'
 import { MenuItem } from './MenuItem'
 import { SubMenu } from './SubMenu'
-import { DashboardMenuItem } from './DashboardMenuItem'
 import { TestMemoryRouter } from '../../test-utils/TestMemoryRouter'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 // ============================================================================
 // Icon Components
@@ -326,6 +327,7 @@ export const WithSubMenu: Story = {
  * SubMenu auto-expands when a child route is active.
  */
 export const SubMenuAutoExpand: Story = {
+  args: { children: null },
   render: () => (
     <StoryWrapper initialPath="/settings/security">
       <Menu aria-label="Main navigation">
@@ -346,6 +348,7 @@ export const SubMenuAutoExpand: Story = {
  */
 export const Dense: Story = {
   args: {
+    children: null,
     dense: true,
   },
   render: (args) => (
@@ -366,6 +369,7 @@ export const Dense: Story = {
  */
 export const Collapsed: Story = {
   args: {
+    children: null,
     collapsed: true,
   },
   render: (args) => (
@@ -385,6 +389,7 @@ export const Collapsed: Story = {
  */
 export const CollapsedWithSubMenu: Story = {
   args: {
+    children: null,
     collapsed: true,
   },
   render: (args) => (
@@ -406,6 +411,7 @@ export const CollapsedWithSubMenu: Story = {
  * Menu with DashboardMenuItem for quick dashboard access.
  */
 export const WithDashboardMenuItem: Story = {
+  args: { children: null },
   render: () => (
     <StoryWrapper>
       <Menu aria-label="Main navigation">
@@ -422,6 +428,7 @@ export const WithDashboardMenuItem: Story = {
  * Menu items with keyboard shortcuts displayed.
  */
 export const WithKeyboardShortcuts: Story = {
+  args: { children: null },
   render: () => (
     <StoryWrapper>
       <Menu aria-label="Main navigation">
@@ -458,6 +465,7 @@ export const WithKeyboardShortcuts: Story = {
  * Disabled menu items.
  */
 export const WithDisabledItems: Story = {
+  args: { children: null },
   render: () => (
     <StoryWrapper>
       <Menu aria-label="Main navigation">
@@ -484,6 +492,7 @@ export const WithDisabledItems: Story = {
  * Complete menu with all features demonstrated.
  */
 export const Complete: Story = {
+  args: { children: null },
   render: () => (
     <StoryWrapper initialPath="/users">
       <Menu aria-label="Main navigation">
@@ -522,6 +531,7 @@ export const Complete: Story = {
  * Menu items without icons (text only).
  */
 export const TextOnly: Story = {
+  args: { children: null },
   render: () => (
     <StoryWrapper>
       <Menu aria-label="Main navigation">

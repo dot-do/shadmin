@@ -6,11 +6,12 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode } from 'react'
 import { CreateBase, type CreateBaseProps, type TransformData } from './CreateBase'
 import { CreateView, type CreateViewProps } from './CreateView'
+
 import type { RaRecord } from '../../facade'
 import type { RedirectTo } from '../../hooks/useRedirect'
+import type { ReactNode } from 'react'
 
 /**
  * Props for Create component

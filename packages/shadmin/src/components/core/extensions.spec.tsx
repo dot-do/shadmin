@@ -11,27 +11,27 @@
  * Epic: shadmin-zwnj
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode, ComponentType } from 'react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import { Admin } from './Admin'
 import { Resource } from './Resource'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
-import { useRecordContext } from '../../contexts/RecordContext'
 import { useShadminFormContext } from '../../contexts/FormContext'
-import type { DataProvider, RaRecord } from '../../types'
+import { ListContextProvider, type ListControllerResult } from '../../contexts/ListContext'
+import { NotificationContextProvider } from '../../contexts/NotificationContext'
+import { useRecordContext } from '../../contexts/RecordContext'
 import { createMockDataProvider, TestMemoryRouter } from '../../test-utils'
-
-// Import components that will be extended
-import { Datagrid } from '../list/Datagrid'
+import { CreateBase } from '../create/CreateBase'
+import { EditBase } from '../edit/EditBase'
 import { SimpleForm } from '../form/SimpleForm'
 import { TextInput } from '../input/TextInput'
-import { EditBase } from '../edit/EditBase'
-import { CreateBase } from '../create/CreateBase'
+import { Datagrid } from '../list/Datagrid'
+
+import type { DataProvider, RaRecord } from '../../types'
+import type { ReactNode, ComponentType } from 'react'
 
 /**
  * NOTE: These tests are intentionally written to FAIL (TDD RED phase)

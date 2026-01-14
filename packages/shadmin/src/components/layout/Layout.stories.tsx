@@ -1,11 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { Layout, SidebarProvider, type MenuItem } from './Layout'
+
 import { AppBar } from './AppBar'
+import { Layout, SidebarProvider, type MenuItem } from './Layout'
 import { Sidebar } from './Sidebar'
+import { TestMemoryRouter } from '../../test-utils/TestMemoryRouter'
 import { Menu } from '../menu/Menu'
 import { MenuItem as MenuItemComponent } from '../menu/MenuItem'
-import { TestMemoryRouter } from '../../test-utils/TestMemoryRouter'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 // ============================================================================
 // Icon Components

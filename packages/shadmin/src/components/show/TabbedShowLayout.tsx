@@ -23,8 +23,10 @@ import {
   type ReactNode,
 } from 'react'
 import { useLocation, useNavigate, matchPath, type NavigateOptions } from 'react-router'
-import { cn } from '../../utils'
+
 import { useRecordContext } from '../../contexts/RecordContext'
+import { cn } from '../../utils'
+
 import type { RaRecord } from '../../types'
 
 // ============================================================================

@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react'
 import { fn } from '@storybook/test'
+
 import { Button } from './Button'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 /**
  * Button component with multiple variants and sizes.

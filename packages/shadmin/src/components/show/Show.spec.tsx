@@ -13,17 +13,20 @@
  * - Actions prop for custom actions
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { Show } from './Show'
 import { ShowBase } from './ShowBase'
-import { useRecordContext } from '../../contexts/RecordContext'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { useRecordContext } from '../../contexts/RecordContext'
 import { ResourceContextProvider } from '../../contexts/ResourceContext'
-import type { DataProvider } from '../../types'
 import { TestMemoryRouter } from '../../test-utils'
+
+import type { DataProvider } from '../../types'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (dataProvider: DataProvider, initialEntries: string[] = ['/posts/1']) => {

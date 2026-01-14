@@ -10,15 +10,18 @@
  * 5. Optionally check roles/permissions
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import { ProtectedRoute } from './ProtectedRoute'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
+
 import type { AuthProvider } from '../../facade'
-import { MemoryRouter, Routes, Route, useLocation } from 'react-router'
+import type { ReactNode } from 'react'
+
 
 // Helper component to capture current location for testing redirects
 const LocationDisplay = () => {

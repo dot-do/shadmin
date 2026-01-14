@@ -3,13 +3,15 @@
  * Comprehensive tests for React Router integration
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { CoreAdminRoutes } from './CoreAdminRoutes'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
 import { CoreAdminContext } from './CoreAdminContext'
-import { createMockDataProvider } from '../../test-utils'
+import { CoreAdminRoutes } from './CoreAdminRoutes'
 import { useResource, useResourceContext } from '../../contexts'
+import { createMockDataProvider } from '../../test-utils'
+
 import type { ResourceProps } from '../../types'
 
 describe('<CoreAdminRoutes />', () => {

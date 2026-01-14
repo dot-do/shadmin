@@ -48,15 +48,16 @@
  * - Empty value sanitization removing blank strings
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, act, type RenderResult } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useFormContext } from 'react-hook-form'
-import { SimpleForm } from './SimpleForm'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { FormDataConsumer, useFormData } from './FormDataConsumer'
+import { SimpleForm } from './SimpleForm'
 import { Toolbar, SaveButton, DeleteButton } from './Toolbar'
-import { TextInput } from '../input/TextInput'
 import { useShadminFormContext } from '../../contexts/FormContext'
+import { TextInput } from '../input/TextInput'
 
 /**
  * Helper to render SimpleForm and wait for react-hook-form to initialize.

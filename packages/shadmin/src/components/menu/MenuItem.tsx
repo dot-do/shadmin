@@ -15,8 +15,9 @@
 
 import * as React from 'react'
 import { useEffect, useRef, useState, useCallback, isValidElement, createElement, forwardRef } from 'react'
-import { cn } from '../../lib/utils'
+
 import { useMenuContextSafe } from './Menu'
+import { cn } from '../../lib/utils'
 import { useTestLocation, useTestNavigate, type Location } from '../../test-utils/TestMemoryRouter'
 
 /**

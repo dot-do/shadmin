@@ -57,34 +57,33 @@
  * - State persistence across navigation
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Components
-import { List } from '../list/List'
-import { Datagrid } from '../list/Datagrid'
-import { Pagination } from '../list/Pagination'
+import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { NotificationContextProvider } from '../../contexts/NotificationContext'
+import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { Create } from '../create/Create'
 import { Edit } from '../edit/Edit'
-import { Show } from '../show/Show'
-import { SimpleForm } from '../form/SimpleForm'
-import { TextField } from '../field/TextField'
+import { BooleanField } from '../field/BooleanField'
 import { DateField } from '../field/DateField'
 import { NumberField } from '../field/NumberField'
-import { BooleanField } from '../field/BooleanField'
-import { TextInput } from '../input/TextInput'
-import { NumberInput } from '../input/NumberInput'
+import { TextField } from '../field/TextField'
+import { SimpleForm } from '../form/SimpleForm'
 import { BooleanInput } from '../input/BooleanInput'
+import { NumberInput } from '../input/NumberInput'
+import { TextInput } from '../input/TextInput'
+import { Datagrid } from '../list/Datagrid'
+import { List } from '../list/List'
+import { Pagination } from '../list/Pagination'
+import { Show } from '../show/Show'
 
-// Contexts and utilities
-import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { ResourceContextProvider } from '../../contexts/ResourceContext'
-import { NotificationContextProvider } from '../../contexts/NotificationContext'
 import type { DataProvider } from '../../types'
-import { MemoryRouter } from 'react-router'
+import type { ReactNode } from 'react'
+
 
 // =============================================================================
 // Test Utilities

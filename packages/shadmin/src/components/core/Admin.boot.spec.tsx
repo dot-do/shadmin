@@ -12,10 +12,11 @@
  * RED PHASE: These tests are expected to fail initially and drive implementation.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router'
-import type { ReactNode } from 'react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+
 import { Admin } from './Admin'
 import { Resource } from './Resource'
 import {
@@ -26,7 +27,9 @@ import {
   useNotify,
 } from '../../contexts'
 import { createMockDataProvider, createMockAuthProvider } from '../../test-utils'
+
 import type { AuthProvider } from '../../facade'
+import type { ReactNode } from 'react'
 
 // Helper to wrap Admin with MemoryRouter
 const renderAdmin = (ui: React.ReactElement, { initialEntries = ['/'] } = {}) => {

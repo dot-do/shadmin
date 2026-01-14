@@ -16,9 +16,10 @@ import {
   type ReactNode,
 } from 'react'
 import { type FieldValues } from 'react-hook-form'
+
 import { SimpleForm, type SimpleFormProps } from './SimpleForm'
-import { Button } from '../Button'
 import { cn } from '../../utils'
+import { Button } from '../Button'
 
 /**
  * Configuration for a single field

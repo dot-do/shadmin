@@ -11,16 +11,19 @@
  * - Badges on menu items
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode } from 'react'
+import { describe, it, expect, vi } from 'vitest'
+
+
+import { DashboardMenuItem } from './DashboardMenuItem'
 import { Menu } from './Menu'
 import { MenuItem } from './MenuItem'
-import { SubMenu } from './SubMenu'
 import { MenuItemLink } from './MenuItemLink'
-import { DashboardMenuItem } from './DashboardMenuItem'
+import { SubMenu } from './SubMenu'
 import { TestMemoryRouter, useTestLocation } from '../../test-utils'
+
+import type { ReactNode } from 'react'
 
 // Mock icons for testing
 const HomeIcon = () => <svg data-testid="home-icon" />

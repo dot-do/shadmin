@@ -6,16 +6,18 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
 import { useLocation } from 'react-router'
+
 import { EditBase, type EditBaseProps, type RedirectTo } from './EditBase'
 import { EditView, type EditViewProps } from './EditView'
 // Note: useRecordContext available for future use
 // import { useRecordContext } from '../../contexts/RecordContext'
-import { useGetOne } from '../../hooks/useGetOne'
 import { useResourceContext } from '../../contexts/ResourceContext'
-import type { Identifier, RaRecord } from '../../facade'
+import { useGetOne } from '../../hooks/useGetOne'
+
 import type { MutationMode } from '../../contexts/FormContext'
+import type { Identifier, RaRecord } from '../../facade'
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Extract the record ID from the current URL path.

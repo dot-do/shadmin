@@ -3,45 +3,37 @@
  * Comprehensive Storybook stories for Show, Create, Edit, SimpleForm, and TabbedForm
  */
 
-import * as React from 'react'
-import type { Meta, StoryObj } from '@storybook/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 
-// Contexts
-import { RecordContextProvider } from '../../contexts/RecordContext'
-import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import { FormContextProvider } from '../../contexts/FormContext'
-import { ResourceContextProvider } from '../../contexts/ResourceContext'
-
-// Data Components
-import { Show } from '../show/Show'
-import { Edit } from '../edit/Edit'
-import { Create } from '../create/Create'
 import { SimpleForm } from './SimpleForm'
 import { TabbedForm, FormTab } from './TabbedForm'
 import { Toolbar, SaveButton, DeleteButton } from './Toolbar'
-
-// Input Components
-import { TextInput } from '../input/TextInput'
-import { NumberInput } from '../input/NumberInput'
-import { BooleanInput } from '../input/BooleanInput'
-import { SelectInput } from '../input/SelectInput'
-import { DateInput } from '../input/DateInput'
-import { PasswordInput } from '../input/PasswordInput'
-import { RadioButtonGroupInput } from '../input/RadioButtonGroupInput'
-import { CheckboxGroupInput } from '../input/CheckboxGroupInput'
-
-// Field Components
-import { TextField } from '../field/TextField'
-import { NumberField } from '../field/NumberField'
-import { DateField } from '../field/DateField'
+import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { FormContextProvider } from '../../contexts/FormContext'
+import { NotificationContextProvider } from '../../contexts/NotificationContext'
+import { RecordContextProvider } from '../../contexts/RecordContext'
+import { ResourceContextProvider } from '../../contexts/ResourceContext'
+import { Create } from '../create/Create'
+import { Edit } from '../edit/Edit'
 import { BooleanField } from '../field/BooleanField'
 import { ChipField } from '../field/ChipField'
+import { DateField } from '../field/DateField'
+import { NumberField } from '../field/NumberField'
+import { TextField } from '../field/TextField'
+import { BooleanInput } from '../input/BooleanInput'
+import { CheckboxGroupInput } from '../input/CheckboxGroupInput'
+import { DateInput } from '../input/DateInput'
+import { NumberInput } from '../input/NumberInput'
+import { PasswordInput } from '../input/PasswordInput'
+import { RadioButtonGroupInput } from '../input/RadioButtonGroupInput'
+import { SelectInput } from '../input/SelectInput'
+import { TextInput } from '../input/TextInput'
+import { Show } from '../show/Show'
 
-// Types
 import type { DataProvider, RaRecord } from '../../facade'
+import type { Meta, StoryObj } from '@storybook/react'
 
 // =============================================================================
 // Mock Data

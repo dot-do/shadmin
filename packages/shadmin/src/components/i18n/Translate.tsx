@@ -6,7 +6,9 @@
  */
 
 import { type ReactNode, createElement, type JSX } from 'react'
+
 import { useTranslate } from '../../hooks/useTranslate'
+
 import type { TranslateOptions } from '../../contexts/TranslationContext'
 
 export interface TranslateProps {

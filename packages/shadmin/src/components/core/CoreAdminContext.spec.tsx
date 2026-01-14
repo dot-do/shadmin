@@ -3,8 +3,9 @@
  * Following TDD: RED phase - write failing tests first
  */
 
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+
 import { CoreAdminContext } from './CoreAdminContext'
 import {
   useDataProvider,

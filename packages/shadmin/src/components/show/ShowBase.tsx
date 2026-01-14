@@ -7,9 +7,11 @@
  */
 
 import { type ReactNode, useMemo, useEffect, useRef } from 'react'
+
 import { RecordContextProvider } from '../../contexts/RecordContext'
 import { ResourceContextProvider, useResourceContext } from '../../contexts/ResourceContext'
 import { useGetOne, type UseGetOneOptions } from '../../hooks/useGetOne'
+
 import type { Identifier, RaRecord } from '../../types'
 
 /**

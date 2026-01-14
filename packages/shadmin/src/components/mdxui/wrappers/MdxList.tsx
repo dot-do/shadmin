@@ -6,10 +6,11 @@
  * with data fetched via react-admin's dataProvider.
  */
 
-import type { ReactNode, ReactElement } from 'react'
 import { ListBase, type ListBaseProps } from '../../list/ListBase'
 import { ListView } from '../../list/ListView'
+
 import type { Identifier } from '../../../contexts/ListContext'
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Props for MdxList component

@@ -5,12 +5,14 @@
  * enabling use of @mdxui/admin components for editing records.
  */
 
-import type { ReactNode, ReactElement } from 'react'
 import { useParams } from 'react-router'
-import { EditBase } from '../../../facade'
+
 import { useResourceContext, ResourceContextProvider } from '../../../contexts/ResourceContext'
+import { EditBase } from '../../../facade'
+
 import type { Identifier } from '../../../contexts/ListContext'
 import type { MutationMode } from '../../../types'
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Props for MdxEdit component

@@ -5,10 +5,11 @@
  */
 
 import { type ReactNode, useEffect, useMemo, memo } from 'react'
+import { createContext, useContext } from 'react'
+
 import type { ResourceProps, ResourceDefinition } from '../../facade'
 
 // Context for registering resources (used internally by Admin)
-import { createContext, useContext } from 'react'
 
 export interface ResourceRegistrationContextValue {
   register: (definition: ResourceDefinition, props: ResourceProps) => void

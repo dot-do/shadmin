@@ -6,11 +6,13 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
 import { useLocation } from 'react-router'
+
 import { ShowBase, type ShowBaseProps, type ShowControllerResult } from './ShowBase'
 import { ShowView, type ShowViewProps } from './ShowView'
+
 import type { Identifier, RaRecord } from '../../types'
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Extract the record ID from the current URL path.

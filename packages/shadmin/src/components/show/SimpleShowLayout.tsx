@@ -7,8 +7,10 @@
  */
 
 import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
-import { cn } from '../../lib/utils'
+
 import { useRecordContext } from '../../contexts/RecordContext'
+import { cn } from '../../lib/utils'
+
 import type { RaRecord } from '../../types'
 
 export interface SimpleShowLayoutProps extends HTMLAttributes<HTMLDivElement> {

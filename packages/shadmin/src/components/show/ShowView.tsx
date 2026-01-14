@@ -6,10 +6,11 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
-import type { RaRecord } from '../../types'
 import { cn } from '../../lib/utils'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+
+import type { RaRecord } from '../../types'
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Props for ShowView component

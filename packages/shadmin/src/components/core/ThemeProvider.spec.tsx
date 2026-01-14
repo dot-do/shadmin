@@ -9,8 +9,9 @@
  * - Apply custom color tokens
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, act, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import { ThemeProvider, useTheme, type CustomTheme } from './ThemeProvider'
 
 // Note: ThemeProvider with CustomTheme support does not exist yet - these tests should fail

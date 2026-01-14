@@ -11,9 +11,10 @@
  */
 
 import { type ReactNode, useState, useCallback } from 'react'
+
+import { useSidebar, SidebarTrigger } from './Layout'
 import { useGetIdentity, useLogout } from '../../facade'
 import { cn } from '../../lib/utils'
-import { useSidebar, SidebarTrigger } from './Layout'
 
 // ============================================================================
 // Types

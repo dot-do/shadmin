@@ -11,6 +11,7 @@
  */
 
 import { type ReactNode, useMemo, useState, memo } from 'react'
+
 import {
   QueryClientContextProvider,
   DataProviderContextProvider,
@@ -18,6 +19,7 @@ import {
   ResourceDefinitionContextProvider,
   type ResourceDefinitions,
 } from '../../contexts'
+
 import type { DataProvider, AuthProvider } from '../../facade'
 
 export interface CoreAdminContextProps {

@@ -4,10 +4,12 @@
  */
 
 import { forwardRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
+
 import { useDelete, useRecordContext, useResourceContext, useRedirect, useRefresh } from '../../facade'
-import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
 import { Confirm } from '../feedback/Confirm'
+
+import type { RaRecord } from '../../facade'
 
 /**
  * Generic component type with displayName property.

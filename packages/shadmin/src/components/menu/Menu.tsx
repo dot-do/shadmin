@@ -13,6 +13,8 @@
 
 import * as React from 'react'
 import { createContext, useContext, useCallback, useRef, useMemo, forwardRef } from 'react'
+
+import { ResourceItem } from './ResourceItem'
 import { cn } from '../../lib/utils'
 
 /**
@@ -200,7 +202,7 @@ const MenuImpl = forwardRef<HTMLElement, MenuProps>(function Menu(
 })
 
 // Create a typed Menu with static properties
-interface MenuComponent
+export interface MenuComponent
   extends React.ForwardRefExoticComponent<MenuProps & React.RefAttributes<HTMLElement>> {
   ResourceItem: typeof ResourceItem
 }
@@ -208,7 +210,6 @@ interface MenuComponent
 const Menu = MenuImpl as MenuComponent
 
 // Import ResourceItem for static property assignment
-import { ResourceItem } from './ResourceItem'
 
 // Attach ResourceItem as static property for <Menu.ResourceItem> pattern
 Menu.ResourceItem = ResourceItem

@@ -3,16 +3,17 @@
  */
 
 import '@testing-library/jest-dom'
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+
 import { TranslateLabel } from './TranslateLabel'
+import {
+  ResourceContextProvider,
+} from '../../contexts/ResourceContext'
 import {
   TranslationProvider,
   createDefaultI18nProvider,
 } from '../../contexts/TranslationContext'
-import {
-  ResourceContextProvider,
-} from '../../contexts/ResourceContext'
 
 const messages = {
   en: {

@@ -16,8 +16,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Import types
-import type { DataProvider } from '../../types'
 import type { AuthProvider } from '../../facade'
+import type { DataProvider } from '../../types'
 
 // =============================================================================
 // Test Utilities - Real In-Memory Data Store
@@ -182,7 +182,7 @@ function createRealDataProvider(store: InMemoryDataStore): DataProvider {
 
     async getManyReference(resource: string, params: { target: string; id: number | string; pagination: { page: number; perPage: number }; sort: { field: string; order: 'ASC' | 'DESC' }; filter: Record<string, unknown> }) {
       const { target, id, pagination, sort } = params
-      let records = store.getAll(resource).filter(
+      const records = store.getAll(resource).filter(
         (r) => String(r[target]) === String(id)
       )
 

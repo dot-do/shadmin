@@ -42,15 +42,16 @@
  * - Disabled tabs not selectable
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
-import { FormContextProvider } from '../../contexts/FormContext'
 import { useLocation } from 'react-router'
-import { TestMemoryRouter } from '../../test-utils/TestMemoryRouter'
-import { TabbedForm, useTabbedFormContext, type TabbedFormContextValue } from './TabbedForm'
+import { describe, it, expect, vi } from 'vitest'
+
 import { FormTab } from './FormTab'
+import { TabbedForm, useTabbedFormContext, type TabbedFormContextValue } from './TabbedForm'
+import { FormContextProvider } from '../../contexts/FormContext'
+import { TestMemoryRouter } from '../../test-utils/TestMemoryRouter'
 import { TextInput } from '../input/TextInput'
 
 // Helper component to wrap TabbedForm with form context

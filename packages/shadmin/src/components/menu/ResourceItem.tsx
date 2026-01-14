@@ -11,6 +11,7 @@
  */
 
 import { forwardRef } from 'react'
+
 import { MenuItem, type MenuItemProps } from './MenuItem'
 import { useResourceDefinitions } from '../../contexts/ResourceContext'
 

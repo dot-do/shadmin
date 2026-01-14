@@ -8,31 +8,32 @@
  * @see https://testing-library.com/docs/queries/byrole
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
+import { describe, it, expect, vi } from 'vitest'
 
 // Components
-import { TextInput } from '../input/TextInput'
-import { SelectInput } from '../input/SelectInput'
+import { FormContextProvider } from '../../contexts/FormContext'
+import { TestMemoryRouter } from '../../test-utils'
+import { Button } from '../Button'
+import { Confirm } from '../feedback/Confirm'
+import { Error as ErrorComponent } from '../feedback/Error'
+import { Loading } from '../feedback/Loading'
 import { BooleanInput } from '../input/BooleanInput'
 import { NumberInput } from '../input/NumberInput'
 import { PasswordInput } from '../input/PasswordInput'
-import { Button } from '../Button'
-import { Confirm } from '../feedback/Confirm'
+import { SelectInput } from '../input/SelectInput'
+import { TextInput } from '../input/TextInput'
+import { Sidebar } from '../layout/Sidebar'
+import { Pagination } from '../list/Pagination'
 import { Menu } from '../menu/Menu'
 import { MenuItem } from '../menu/MenuItem'
 import { SubMenu } from '../menu/SubMenu'
-import { Sidebar } from '../layout/Sidebar'
-import { Pagination } from '../list/Pagination'
-import { Loading } from '../feedback/Loading'
-import { Error as ErrorComponent } from '../feedback/Error'
 
 // Contexts
-import { FormContextProvider } from '../../contexts/FormContext'
-import { TestMemoryRouter } from '../../test-utils'
+
+import type { ReactNode } from 'react'
 
 // =============================================================================
 // Test Utilities

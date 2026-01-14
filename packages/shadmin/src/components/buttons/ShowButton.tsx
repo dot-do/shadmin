@@ -5,9 +5,11 @@
 
 import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { Link, type To, type LinkProps } from 'react-router-dom'
+
 import { useCreatePath, useResourceContext, useRecordContext } from '../../facade'
-import type { RaRecord } from '../../facade'
 import { cn } from '../../utils'
+
+import type { RaRecord } from '../../facade'
 
 /**
  * Generic component type with displayName property.

@@ -10,14 +10,17 @@
  * - Theme switching support
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode, ComponentType } from 'react'
-import { Layout, type MenuItem } from './Layout'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+
 import { AppBar } from './AppBar'
 import { ContainerLayout } from './ContainerLayout'
+import { Layout, type MenuItem } from './Layout'
 import { TestMemoryRouter } from '../../test-utils'
+
+import type { ReactNode, ComponentType } from 'react'
 
 // Test wrapper with router
 const TestWrapper = ({ children }: { children: ReactNode }) => (

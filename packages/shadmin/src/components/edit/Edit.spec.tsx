@@ -15,19 +15,22 @@
  * - MutationMode options (pessimistic, optimistic, undoable)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { Edit } from './Edit'
 import { EditBase } from './EditBase'
-import { useRecordContext } from '../../contexts/RecordContext'
-import { useShadminFormContext } from '../../contexts/FormContext'
 import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
-import { ResourceContextProvider } from '../../contexts/ResourceContext'
+import { useShadminFormContext } from '../../contexts/FormContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
-import type { DataProvider } from '../../types'
+import { useRecordContext } from '../../contexts/RecordContext'
+import { ResourceContextProvider } from '../../contexts/ResourceContext'
 import { TestMemoryRouter, useTestLocation } from '../../test-utils'
+
+import type { DataProvider } from '../../types'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (

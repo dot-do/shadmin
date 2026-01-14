@@ -3,16 +3,20 @@
  * TDD: RED phase - Write failing tests first
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import { LogoutButton } from './LogoutButton'
 import { AuthProviderContextProvider } from '../../contexts/AuthProviderContext'
 import { NotificationContextProvider } from '../../contexts/NotificationContext'
+
 import type { AuthProvider } from '../../facade'
-import { MemoryRouter } from 'react-router'
+import type { ReactNode } from 'react'
+
+
 
 // Test wrapper with required providers
 const createWrapper = (authProvider: AuthProvider) => {

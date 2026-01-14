@@ -6,9 +6,10 @@
  * Epic: shadmin-ha1 (P1)
  */
 
-import type { ReactNode, ReactElement } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { cn } from '../../utils'
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+
+import type { ReactNode, ReactElement } from 'react'
 
 /**
  * Props for CreateView component

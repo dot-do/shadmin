@@ -9,13 +9,35 @@ export {
   Admin,
   ResourceRegistrationContext,
   type ResourceRegistrationContextValue,
-  // Extensions - lifecycle callbacks and plugin system
+  // Lifecycle callbacks
   withLifecycleCallbacks,
   type LifecycleCallbackContext,
   type AfterLifecycleCallbackContext,
   type ResourceLifecycleCallbacks,
+  // Plugin types
   type AdminPlugin,
   type AdminPluginContext,
+  type PluginContextValue,
+  type PluginConfig,
+  // Component registry
+  ComponentRegistry,
+  componentRegistry,
+  type CustomInputBaseProps,
+  type CustomInputRegistration,
+  type CustomFieldRegistration,
+  // Plugin context and hooks
+  PluginContext,
+  usePluginContext,
+  useOptionalPluginContext,
+  useCustomInput,
+  useCustomField,
+  // Plugin utilities
+  createPlugin,
+  definePlugin,
+  composePlugins,
+  isPluginInstalled,
+  getPlugin,
+  // Renderer props
   type CellRendererProps,
   type FieldWrapperProps,
 } from './core'

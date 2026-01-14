@@ -10,8 +10,9 @@
  */
 
 import { type ReactNode, type ComponentType, useMemo } from 'react'
-import { cn } from '../../lib/utils'
+
 import { useSidebar } from './Layout'
+import { cn } from '../../lib/utils'
 
 /**
  * Menu item type for sidebar navigation

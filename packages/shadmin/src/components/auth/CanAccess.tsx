@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useMemo, type ReactNode, type ReactElement } from 'react'
+
 import { useCanAccess, type UseCanAccessParams } from '../../hooks/useCanAccess'
 import { usePermissions } from '../../hooks/usePermissions'
 

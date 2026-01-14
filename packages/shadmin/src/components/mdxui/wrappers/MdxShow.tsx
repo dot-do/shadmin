@@ -5,11 +5,13 @@
  * enabling use of @mdxui/admin field components for displaying records.
  */
 
-import type { ReactNode, ReactElement } from 'react'
 import { useParams } from 'react-router'
-import { ShowBase } from '../../../facade'
+
 import { useResourceContext, ResourceContextProvider } from '../../../contexts/ResourceContext'
+import { ShowBase } from '../../../facade'
+
 import type { Identifier } from '../../../contexts/ListContext'
+import type { ReactNode, ReactElement } from 'react'
 // RaRecord type removed - not used in this file
 
 /**
