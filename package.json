@@ -9,6 +9,11 @@
     "dev": "pnpm -r --parallel dev",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report",
+    "e2e:debug": "playwright test --debug",
     "test:e2e": "playwright test",
     "test:e2e:cypress": "cypress run --config-file packages/shadmin/cypress.config.js",
     "test:e2e:cypress:open": "cypress open --config-file packages/shadmin/cypress.config.js",
@@ -24,7 +29,9 @@
     "chromatic": "chromatic --exit-zero-on-changes",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "storybook:audit": "tsx scripts/audit-storybook-coverage.ts",
-    "audit:imports": "tsx scripts/audit-imports.ts"
+    "audit:imports": "tsx scripts/audit-imports.ts",
+    "bench": "vitest bench --run --config vitest.config.ts",
+    "bench:watch": "vitest bench --config vitest.config.ts"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.4",

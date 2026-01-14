@@ -279,7 +279,9 @@
     "docs": "typedoc",
     "docs:watch": "typedoc --watch",
     "size": "size-limit",
-    "size:why": "size-limit --why"
+    "size:why": "size-limit --why",
+    "bench": "vitest bench --run",
+    "bench:watch": "vitest bench"
   },
   "size-limit": [
     {
