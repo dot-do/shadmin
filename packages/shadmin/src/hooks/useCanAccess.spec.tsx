@@ -9,13 +9,16 @@
  * 4. Handle wildcard permissions (e.g., admin.* matches admin.read, admin.write)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { renderHook, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { useCanAccess } from './useCanAccess'
 import { AuthProviderContextProvider } from '../contexts/AuthProviderContext'
+
 import type { AuthProvider } from '../facade'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (authProvider: AuthProvider) => {

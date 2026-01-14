@@ -9,11 +9,13 @@
  * - Theme updates propagate to consumers
  */
 
+import { renderHook, act, waitFor , render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
-import { render, screen, fireEvent } from '@testing-library/react'
-import type { ReactNode } from 'react'
+
 import { useTheme, ThemeProvider, type CustomTheme } from '../components/core/ThemeProvider'
+
+import type { ReactNode } from 'react'
+
 
 // Note: Extended useTheme with custom theme support does not exist yet - these tests should fail
 

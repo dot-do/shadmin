@@ -14,9 +14,11 @@
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { useTestSearchParams } from '../test-utils/TestMemoryRouter'
-import type { SortPayload, FilterPayload } from '../contexts/ListContext'
+
 import { PAGINATION_DEFAULTS, SORT_DEFAULTS, TIMING_DEFAULTS } from '../constants'
+import { useTestSearchParams } from '../test-utils/TestMemoryRouter'
+
+import type { SortPayload, FilterPayload } from '../contexts/ListContext'
 
 /**
  * Parameters for useListParams hook

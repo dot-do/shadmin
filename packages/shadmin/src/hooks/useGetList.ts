@@ -6,10 +6,13 @@
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { useDataProvider } from '../contexts/DataProviderContext'
-import { useAuthProvider } from '../contexts/AuthProviderContext'
+
 import { useQueryErrorHandling } from './useErrorHandling'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
+import { useAuthProvider } from '../contexts/AuthProviderContext'
+import { useDataProvider } from '../contexts/DataProviderContext'
 import { isHttpError } from '../errors'
+
 import type {
   RaRecord,
   GetListParams,
@@ -18,7 +21,7 @@ import type {
   SortPayload,
   FilterPayload,
 } from '../types'
-import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
+
 
 /**
  * Parameters for useGetList hook.

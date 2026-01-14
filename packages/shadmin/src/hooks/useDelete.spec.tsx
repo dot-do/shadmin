@@ -2,13 +2,16 @@
  * useDelete hook tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { renderHook, waitFor, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { useDelete } from './useDelete'
 import { DataProviderContextProvider } from '../contexts/DataProviderContext'
+
 import type { DataProvider } from '../types'
+import type { ReactNode } from 'react'
 
 const createWrapper = (dataProvider: DataProvider) => {
   const queryClient = new QueryClient({

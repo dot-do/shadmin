@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useTranslate } from './useTranslate'
+import { describe, it, expect } from 'vitest'
+
 import { useLocale } from './useLocale'
+import { useTranslate } from './useTranslate'
 import {
   TranslationProvider,
   createDefaultI18nProvider,

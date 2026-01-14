@@ -12,11 +12,14 @@
  * - Use sensible defaults when URL params are missing
  */
 
-import { describe, it, expect } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import type { ReactNode } from 'react'
+import { describe, it, expect } from 'vitest'
+
+
 import { useListParams } from './useListParams'
 import { TestMemoryRouter } from '../test-utils/TestMemoryRouter'
+
+import type { ReactNode } from 'react'
 
 // Test wrapper with router
 const createWrapper = (initialEntries: string[] = ['/posts']) => {

@@ -4,8 +4,8 @@
  * 100% API-compatible with react-admin
  */
 
-import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 
 /**
  * Options for refresh

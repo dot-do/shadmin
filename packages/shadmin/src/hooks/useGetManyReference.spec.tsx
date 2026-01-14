@@ -3,13 +3,16 @@
  * TDD: RED phase - Write failing tests first
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { renderHook, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { useGetManyReference } from './useGetManyReference'
 import { DataProviderContextProvider } from '../contexts/DataProviderContext'
+
 import type { DataProvider } from '../types'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (dataProvider: DataProvider) => {

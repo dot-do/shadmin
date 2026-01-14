@@ -5,6 +5,7 @@
  */
 
 import { useCallback } from 'react'
+
 import {
   useTranslationContextOptional,
   type TranslateFunction,

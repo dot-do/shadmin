@@ -4,13 +4,14 @@
  * 100% API-compatible with react-admin
  */
 
-import type { UseQueryOptions } from '@tanstack/react-query'
 import { createSimpleQueryHook } from './createDataHook'
+
 import type {
   RaRecord,
   Identifier,
   GetManyResult,
 } from '../types'
+import type { UseQueryOptions } from '@tanstack/react-query'
 
 /**
  * Parameters for useGetMany hook

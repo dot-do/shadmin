@@ -13,8 +13,9 @@
  * @module hooks/usePermissions
  */
 
-import { useMemo } from 'react'
 import { useQuery, type QueryObserverResult } from '@tanstack/react-query'
+import { useMemo } from 'react'
+
 import { useAuthProvider } from '../contexts/AuthProviderContext'
 
 /**

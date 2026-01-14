@@ -4,14 +4,15 @@
  * 100% API-compatible with react-admin
  */
 
-import type { UseQueryOptions } from '@tanstack/react-query'
 import { createSimpleQueryHook } from './createDataHook'
+import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
+
 import type {
   RaRecord,
   Identifier,
   GetManyReferenceResult,
 } from '../types'
-import { PAGINATION_DEFAULTS, SORT_DEFAULTS } from '../constants'
+import type { UseQueryOptions } from '@tanstack/react-query'
 
 /**
  * Parameters for useGetManyReference hook

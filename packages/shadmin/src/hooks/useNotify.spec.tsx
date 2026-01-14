@@ -2,14 +2,17 @@
  * useNotify hook tests
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import type { ReactNode } from 'react'
+import { describe, it, expect, vi } from 'vitest'
+
+
 import { useNotify } from './useNotify'
 import {
   NotificationContextProvider,
   useNotificationContext,
 } from '../contexts/NotificationContext'
+
+import type { ReactNode } from 'react'
 
 const createWrapper = () => {
   return function Wrapper({ children }: { children: ReactNode }) {

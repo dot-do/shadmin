@@ -6,10 +6,12 @@
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { useDataProvider } from '../contexts/DataProviderContext'
-import { useAuthProvider } from '../contexts/AuthProviderContext'
+
 import { useQueryErrorHandling } from './useErrorHandling'
+import { useAuthProvider } from '../contexts/AuthProviderContext'
+import { useDataProvider } from '../contexts/DataProviderContext'
 import { isHttpError } from '../errors'
+
 import type {
   RaRecord,
   Identifier,

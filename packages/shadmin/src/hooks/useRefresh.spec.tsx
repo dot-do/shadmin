@@ -2,14 +2,17 @@
  * useRefresh hook tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
-import { useRefresh } from './useRefresh'
+import { renderHook, waitFor, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+
 import { useGetList } from './useGetList'
+import { useRefresh } from './useRefresh'
 import { DataProviderContextProvider } from '../contexts/DataProviderContext'
+
 import type { DataProvider } from '../types'
+import type { ReactNode } from 'react'
 
 const createWrapper = (dataProvider: DataProvider) => {
   const queryClient = new QueryClient({

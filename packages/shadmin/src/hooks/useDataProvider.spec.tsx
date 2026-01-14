@@ -2,12 +2,15 @@
  * useDataProvider hook tests
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import type { ReactNode } from 'react'
+import { describe, it, expect, vi } from 'vitest'
+
+
 import { useDataProvider } from './useDataProvider'
 import { DataProviderContextProvider } from '../contexts/DataProviderContext'
+
 import type { DataProvider } from '../types'
+import type { ReactNode } from 'react'
 
 const createWrapper = (dataProvider: DataProvider) => {
   return function Wrapper({ children }: { children: ReactNode }) {

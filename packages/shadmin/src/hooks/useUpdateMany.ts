@@ -4,13 +4,14 @@
  * 100% API-compatible with react-admin
  */
 
-import type { UseMutationOptions } from '@tanstack/react-query'
 import { createSimpleMutationHook } from './createDataHook'
+
 import type {
   RaRecord,
   Identifier,
   UpdateManyResult,
 } from '../types'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 /**
  * Parameters for the updateMany mutation

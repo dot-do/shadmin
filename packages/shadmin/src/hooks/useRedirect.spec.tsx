@@ -2,11 +2,13 @@
  * useRedirect hook tests
  */
 
-import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import type { ReactNode } from 'react'
 import { MemoryRouter, useLocation } from 'react-router'
+import { describe, it, expect } from 'vitest'
+
 import { useRedirect } from './useRedirect'
+
+import type { ReactNode } from 'react'
 
 const createWrapper = (initialEntries: string[] = ['/']) => {
   return function Wrapper({ children }: { children: ReactNode }) {

@@ -8,24 +8,26 @@
  * 3. Form submission errors (field-level, server-side validation, submission failures)
  */
 
-import { describe, it, expect, vi } from 'vitest'
-import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
-import { DataProviderContextProvider } from '../contexts/DataProviderContext'
-import { AuthProviderContextProvider } from '../contexts/AuthProviderContext'
-import { NotificationContextProvider } from '../contexts/NotificationContext'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import type { DataProvider } from '../types'
-import type { AuthProvider } from '../facade'
-import { useGetOne } from './useGetOne'
-import { useGetList } from './useGetList'
+import { describe, it, expect, vi } from 'vitest'
+
 import { useCreate } from './useCreate'
-import { useUpdate } from './useUpdate'
 import { useDelete } from './useDelete'
+import { useGetList } from './useGetList'
+import { useGetOne } from './useGetOne'
 import { useLogin } from './useLogin'
 import { useLogout } from './useLogout'
+import { useUpdate } from './useUpdate'
+import { AuthProviderContextProvider } from '../contexts/AuthProviderContext'
+import { DataProviderContextProvider } from '../contexts/DataProviderContext'
+import { NotificationContextProvider } from '../contexts/NotificationContext'
 import { HttpError, NetworkError, TimeoutError, ValidationError } from '../errors'
+
+import type { AuthProvider } from '../facade'
+import type { DataProvider } from '../types'
+import type { ReactNode } from 'react'
 
 // Test wrapper with required providers
 const createWrapper = (
