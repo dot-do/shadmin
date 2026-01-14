@@ -1,8 +1,11 @@
-import { type HTMLAttributes, type ReactNode } from 'react'
 import { get } from 'lodash-es'
+import { type HTMLAttributes, type ReactNode } from 'react'
+
 import { cn } from '@/utils'
+
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetOne } from '../../hooks/useGetOne'
+
 import type { Identifier, RaRecord } from '../../facade'
 
 export interface ReferenceFieldProps extends HTMLAttributes<HTMLSpanElement> {

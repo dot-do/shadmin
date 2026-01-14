@@ -3,6 +3,7 @@
  * Wrapper for displaying translatable field values with locale switching
  */
 
+import { get } from 'lodash-es'
 import {
   createContext,
   useContext,
@@ -14,9 +15,11 @@ import {
   isValidElement,
   type ReactNode,
 } from 'react'
-import { get } from 'lodash-es'
+
 import { cn } from '@/utils'
+
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
+
 import type { RaRecord } from '../../facade'
 
 /**

@@ -3,11 +3,14 @@
  * Displays a count of related records (one-to-many relationship)
  */
 
-import { type HTMLAttributes } from 'react'
 import { get } from 'lodash-es'
+import { type HTMLAttributes } from 'react'
+
 import { cn } from '@/utils'
+
 import { useRecordContext } from '../../contexts/RecordContext'
 import { useGetManyReference } from '../../hooks/useGetManyReference'
+
 import type { Identifier, RaRecord } from '../../facade'
 
 export interface ReferenceManyCountProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {

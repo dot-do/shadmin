@@ -1,7 +1,10 @@
-import { type HTMLAttributes } from 'react'
 import { get } from 'lodash-es'
+import { type HTMLAttributes } from 'react'
+
 import { cn } from '@/utils'
+
 import { useRecordContext } from '../../contexts/RecordContext'
+
 import type { RaRecord } from '../../facade'
 
 export interface DateFieldProps extends HTMLAttributes<HTMLSpanElement> {

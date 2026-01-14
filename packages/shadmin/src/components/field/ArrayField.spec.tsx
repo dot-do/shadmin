@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
+import { describe, it, expect } from 'vitest'
+
 import { ArrayField } from './ArrayField'
 import { TextField } from './TextField'
+import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
 
 // Test component to verify RecordContext is set correctly
 function RecordDisplay() {

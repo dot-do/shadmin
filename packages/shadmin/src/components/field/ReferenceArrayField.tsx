@@ -3,11 +3,14 @@
  * Displays multiple related records from an array of IDs
  */
 
-import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
 import { get } from 'lodash-es'
+import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
+
 import { cn } from '@/utils'
+
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetMany } from '../../hooks/useGetMany'
+
 import type { Identifier, RaRecord } from '../../facade'
 
 export interface ReferenceArrayFieldProps extends HTMLAttributes<HTMLDivElement> {

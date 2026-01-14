@@ -3,13 +3,16 @@
  * Fetches related records using a foreign key (one-to-many relationship)
  */
 
-import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
 import { get } from 'lodash-es'
+import { type HTMLAttributes, type ReactNode, Children, cloneElement, isValidElement } from 'react'
+
 import { cn } from '@/utils'
+
+import { PAGINATION_DEFAULTS } from '../../constants'
 import { useRecordContext, RecordContextProvider } from '../../contexts/RecordContext'
 import { useGetManyReference } from '../../hooks/useGetManyReference'
+
 import type { Identifier } from '../../facade'
-import { PAGINATION_DEFAULTS } from '../../constants'
 
 export interface ReferenceManyFieldProps extends HTMLAttributes<HTMLDivElement> {
   /** The field name in the record that contains the ID to look up (defaults to 'id' if not provided) */

@@ -1,6 +1,9 @@
 import { type HTMLAttributes, type ReactNode } from 'react'
+
 import { cn } from '@/utils'
+
 import { useRecordContext } from '../../contexts/RecordContext'
+
 import type { RaRecord } from '../../facade'
 
 export interface FunctionFieldProps extends HTMLAttributes<HTMLSpanElement> {

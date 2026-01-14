@@ -1,10 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
-import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+
 import { ReferenceField } from './ReferenceField'
 import { TextField } from './TextField'
+import { DataProviderContextProvider } from '../../contexts/DataProviderContext'
+import { RecordContextProvider, useRecordContext } from '../../contexts/RecordContext'
 
 // Test component to verify RecordContext nesting
 function RecordContextVerifier({ expectedId }: { expectedId: number | string }) {

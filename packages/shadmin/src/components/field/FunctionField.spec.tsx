@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { RecordContextProvider } from '../../contexts/RecordContext'
+import { describe, it, expect } from 'vitest'
+
 import { FunctionField } from './FunctionField'
+import { RecordContextProvider } from '../../contexts/RecordContext'
 
 describe('FunctionField', () => {
   describe('rendering custom content via render prop', () => {

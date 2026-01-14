@@ -1,7 +1,10 @@
-import { type AnchorHTMLAttributes } from 'react'
 import { get } from 'lodash-es'
+import { type AnchorHTMLAttributes } from 'react'
+
 import { cn } from '@/utils'
+
 import { useRecordContext } from '../../contexts/RecordContext'
+
 import type { RaRecord } from '../../facade'
 
 /**

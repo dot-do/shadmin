@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { RecordContextProvider } from '../../contexts/RecordContext'
+import { describe, it, expect } from 'vitest'
+
 import { EmailField } from './EmailField'
+import { RecordContextProvider } from '../../contexts/RecordContext'
 
 describe('EmailField', () => {
   describe('rendering value from record', () => {
