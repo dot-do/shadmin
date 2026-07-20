@@ -1,5 +1,7 @@
 # Shadmin
 
+> **Status: PROTOTYPE** — directional intent only; not a committed part of the stack (SG-7, 2026-07-19).
+
 **A 100% API-compatible drop-in replacement for React Admin using ShadCN UI** - Modern, beautiful admin interfaces with native mongo.do integration.
 
 [![npm version](https://img.shields.io/npm/v/shadmin.svg)](https://www.npmjs.com/package/shadmin)
